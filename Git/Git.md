@@ -301,11 +301,13 @@ git push -u origin main
 
 2.在git模块点√提交文件（输入的是commit的注释）
 
-U：unstage
+- U：unstage
 
-M：modified
 
-![VSCode提交](Git.assets/VSCode提交.png)
+- M：modified
+
+
+![VSCodeGit状态](Git.assets/VSCodeGit状态.png)
 
 3.查看历史信息
 

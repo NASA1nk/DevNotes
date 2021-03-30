@@ -3,13 +3,14 @@
 ```bash
 #盘符切换	D:
 #查看当前目录文件	dir
-#切换目录	 cd(change directory), 跨盘符需要加路径/(cd /d f:\ink),返回上一级（cd ..）
+#切换目录	 cd (change directory), 跨盘符需要加路径/ (cd /d f:\ink)
+#返回上一级	cd ..
 #退出终端	 exit
-#清空窗口	 cls(clear screen)		
+#清空窗口	 cls (clear screen)		
 #查看ip	   ifconfig
 #ping		ping www.baidu.com  可以得到其ip地址
-#创建文件夹	 md ink(mkdir-make directory)
-#删除文件夹	 rd ink(remove directory)
+#创建文件夹	 md ink (mkdir-make directory)
+#删除文件夹	 rd ink (remove directory)
 #创建文件	 cd> ink.txt
 #删除文件	 del ink.txt
 ```
@@ -49,7 +50,9 @@
 
 ## 第一个程序
 
-**文件名和类名必须保持一致，首字母大写**
+- **文件名**和**类名**保持**一致**
+
+- **首字母大写**
 
 进入`cmd`运行
 
@@ -64,15 +67,23 @@ IDE： `Integrated Development Environment`。一般包括编辑器，编译器�
 
 ### idea
 
-1. 自动识别安装的`JDK`
+1. 在**File**中new一个**Empty Project**，再new一个**module**
 
-   ![idea](Java.assets/idea.png)
+   ![Module](Java.assets/Module.png)
 
-2. 在`src`目录下编写代码中
+2. 查看项目结构Project Structure（也可以在File中查看）
+
+   ![项目结构](Java.assets/项目结构.png)
+
+3. 修改SDK（对应的Project Language Level 也要修改）
+
+   ![修改sdk](Java.assets/修改sdk.png)
+
+4. 在`src`目录下编写代码中
 
    ![hello](Java.assets/hello.png)
 
-3. 快捷键
+5. 快捷键
 
    - **psvm**：public static void main(String[] args)
    - **sout**：System.out.println()
@@ -85,10 +96,60 @@ IDE： `Integrated Development Environment`。一般包括编辑器，编译器�
    }
    ```
 
-4. 运行
+6. 运行
 
    ![运行程序](Java.assets/运行程序.png)
 
 # 基础语法
 
-## 注释，标识符，关键字
+## 注释
+
+`Comments`
+
+- 单行注释：line comment（快捷键`ctrl+/`）
+
+  ```java
+  //
+  ```
+
+- 多行注释：Block comment（快捷键`ctrl+shift+/`）
+
+  ```java
+  /**/
+  ```
+
+- 文档注释：**JavaDoc**（快捷键`/**+空格`）
+
+  ```java
+  /**
+   * 
+   */
+  ```
+
+> 搜	有趣的代码注释
+
+### 修改注释
+
+- 修改样式
+
+  ![修改注释](Java.assets/修改注释.png)
+
+- 修改字体颜色
+
+  ![修改注释样式](Java.assets/修改注释样式.png)
+
+## 标识符
+
+Java所有的组成部分都需要起名，如类名，变量名，方法名...这些名字被称为**标识符**，不可以用**关键字**起名字。
+
+> 关键字：public，static，class，void等
+
+标识符
+
+- 首字母只能是**字母**，**$**，**_**
+
+- **大小写敏感**
+
+> 标识符可以用中文（不推荐）String 工作 = "摸鱼"；
+
+## 数据类型

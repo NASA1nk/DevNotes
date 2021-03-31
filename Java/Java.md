@@ -336,6 +336,11 @@ final double PI = 3.14;
 
 4. `import`导包（使用**其他包**的成员）
 
+   ```java
+   //通配符*,导入包下的所有类
+   import java.util.*;
+   ```
+
    > import必须再Package下面
    >
    > 不要导入其他包下的同名类

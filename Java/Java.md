@@ -318,4 +318,26 @@ final double PI = 3.14;
 
 ## 包名规范
 
-一般使用**公司域名倒置**作为包名
+1. 一般使用公司**域名倒置**作为包名
+
+   如blog.ink.com就建立`com.ink.blog`
+
+   > 将Compact勾选掉才会自动分级
+
+   ![package](Java.assets/package.png)
+
+2. Package修饰，放在最上面（idea自动生成）
+
+   ![包路径](Java.assets/包路径.png)
+
+3. 在com下建立新的包，在com.ink后面输入包名
+
+   ![建包](Java.assets/建包.png)
+
+4. `import`导包（使用**其他包**的成员）
+
+   > import必须再Package下面
+   >
+   > 不要导入其他包下的同名类
+
+   ![import](Java.assets/import.png)

@@ -15,6 +15,10 @@
 #删除文件	 del ink.txt
 ```
 
+在目录文件路径前输入`cmd`，快速打开命令行
+
+![cmd](Java.assets/cmd.png)
+
 # Java
 
 ## 版本
@@ -346,3 +350,70 @@ final double PI = 3.14;
    > 不要导入其他包下的同名类
 
    ![import](Java.assets/import.png)
+
+# JavaDoc
+
+将**注释**信息生成**API文档**
+
+- 类的注释
+- 方法的注释
+
+> JDK帮助文档
+
+参数信息
+
+- `@author`：作者名
+- `@version`：版本号
+- `@since`：需要最早使用的JDK版本
+- `@param`：参数名
+- `@return`：返回情况
+- `@throws`：异常抛出情况
+
+## 编写文档注释
+
+`/**`+回车
+
+```java
+package com.ink.base;
+
+/**
+ * @author ink
+ * @version 1.0
+ * @since 1.5
+ */
+public class Doc {
+    String name;
+
+    /**
+     * 
+     * @param name
+     * @return
+     * @throws Exception
+     */
+    public String test(String name) throws Exception{
+        return name;
+    }
+}
+```
+
+## 生成API文档
+
+进入对应目录
+
+1. 在命令行中执行命令生成文档
+
+   ```bash
+   javadoc -encoding UTF-8 -charset UTF-8 Doc.java
+   ```
+
+   ![生成api文档](Java.assets/生成api文档.png)
+
+2. 在对应目录下生成文档，进入index.html
+
+   ![index](Java.assets/index.png)
+
+3. 查看API文档
+
+   ![api文档](Java.assets/api文档.png)
+
+> 使用IDEA生成JavaDoc文档

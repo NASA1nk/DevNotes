@@ -19,6 +19,8 @@
 
 ![cmd](Java.assets/cmd.png)
 
+
+
 # Java
 
 ## 版本
@@ -28,6 +30,8 @@
 - **Java SE** ：标准版	（桌面程序，控制台开发）
 - **Java EE** ：企业级开发	（web端，服务器开发）
 
+
+
 ## JDK	JRE	JVM
 
 - **JDK**：Java Development Kit	开发者工具（jdk包含了jre）
@@ -35,6 +39,8 @@
 - **JRE**：Java Runtime Environment	运行时环境
 
 - **JVM**：Java Virtual Machine	JAVA虚拟机
+
+
 
 ## Java开发环境
 
@@ -52,6 +58,8 @@
 >
 > bin目录下存放可执行程序exe，如java.exe,javac.exe
 
+
+
 ## 第一个程序
 
 - **文件名**和**类名**保持**一致**
@@ -64,6 +72,8 @@
 javac HelloWorld.java	#编译	生成.class文件
 java HelloWorld			#运行	不带class后缀
 ```
+
+
 
 ## 集成开发环境
 
@@ -104,6 +114,8 @@ IDE： `Integrated Development Environment`。一般包括编辑器，编译器�
 
    ![运行程序](Java.assets/运行程序.png)
 
+
+
 # 基础语法
 
 ## 注释
@@ -132,6 +144,8 @@ IDE： `Integrated Development Environment`。一般包括编辑器，编译器�
 
 > 搜	有趣的代码注释
 
+
+
 ### 修改注释
 
 - 修改样式
@@ -141,6 +155,8 @@ IDE： `Integrated Development Environment`。一般包括编辑器，编译器�
 - 修改字体颜色
 
   ![修改注释样式](Java.assets/修改注释样式.png)
+
+
 
 ## 标识符
 
@@ -159,6 +175,8 @@ Java所有的组成部分都需要起名，如类名，变量名，方法名...�
 > ```java
 > String 工作 = "摸鱼";
 > ```
+
+
 
 ## 数据类型
 
@@ -191,6 +209,8 @@ Java所有的组成部分都需要起名，如类名，变量名，方法名...�
 > - 字节byte：数据处理的基本单位
 > - 一个中文字符需要2个字节，所以char也可以写中文
 
+
+
 ### 拓展
 
 1. **整数**：进制
@@ -218,6 +238,8 @@ Java所有的组成部分都需要起名，如类名，变量名，方法名...�
 > int a = 100_000;
 > ```
 
+
+
 ### 类型转换
 
 运算中，不同类型数据先转换为同一类型，再进行运算。 
@@ -234,6 +256,8 @@ byte，short，char—int—long—float—double（低—高）
 3. 不能对boolean值转换
 4. 不能把**对象类型**转换为不相干的类型
 
+
+
 ## 变量
 
 - 变量作用域
@@ -245,6 +269,8 @@ byte，short，char—int—long—float—double（低—高）
 > Java变量是程序中最基本的存储单元
 >
 > 变量声明是一条完整的语句
+
+
 
 ### 作用域
 
@@ -259,6 +285,8 @@ byte，short，char—int—long—float—double（低—高）
 
 - **类**变量：`static`关键字声明的变量，从属于类
 
+
+
 ### 常量
 
 **Constant**
@@ -269,6 +297,8 @@ byte，short，char—int—long—float—double（低—高）
 final double PI = 3.14;
 ```
 
+
+
 ### 命名规范
 
 1. **类成员**变量：首字母小写，驼峰原则：monthSalary
@@ -276,6 +306,8 @@ final double PI = 3.14;
 3. **常量**：大写字母，下划线：MAX_VALUE
 4. **类名**：首字母大写，驼峰原则：Man，GoodMan
 5. **方法名**：首字母小写，驼峰原则：run()，runMan()
+
+
 
 # 基本运算符
 
@@ -316,6 +348,8 @@ final double PI = 3.14;
 
 > 别的运算使用**工具类**来实现
 
+
+
 # 包
 
 为了更好的组织类，用于**区别类名**的命名空间（类似于文件系统同目录下的重名问题）
@@ -351,6 +385,8 @@ final double PI = 3.14;
 
    ![import](Java.assets/import.png)
 
+
+
 # JavaDoc
 
 将**注释**信息生成**API文档**
@@ -368,6 +404,8 @@ final double PI = 3.14;
 - `@param`：参数名
 - `@return`：返回情况
 - `@throws`：异常抛出情况
+
+
 
 ## 编写文档注释
 
@@ -396,6 +434,8 @@ public class Doc {
 }
 ```
 
+
+
 ## 命令行生成API文档
 
 进入对应目录
@@ -415,6 +455,8 @@ public class Doc {
 3. 查看API文档
 
    ![api文档](Java.assets/api文档.png)
+
+
 
 ## IDEA生成JavaDoc文档
 
@@ -442,4 +484,324 @@ public class Doc {
      >
      > 如果指定了 -link [Overview (Java SE 16 & JDK 16) (oracle.com)](https://docs.oracle.com/en/java/javase/16/docs/api/index.html) 参数，则javadoc.exe在生成JavaDoc时会使用String这个短名称而非全限定名称`java.lang.String`，同时自动为 String短名称生成一个**超链接**，指向官方 JavaSE 标准文档 [Overview (Java SE 16 & JDK 16) (oracle.com)](https://docs.oracle.com/en/java/javase/16/docs/api/index.html) 中对 String 类的详细文档地址。
 
+
+
 ![idea生成文档](Java.assets/idea生成文档.png)
+
+
+
+# 交互Scanner
+
+> `Java.util.Scanner`是Java5的新特性（Java.util包）
+
+通过`Scanner`类获取用户的输入
+
+- 判断是否有输入数据
+  - `hasNext()`
+  - `hasNextLine()`
+
+- 获取输入数据
+
+  - `next()`：哟i个
+  - `nextLine()`
+
+- 关闭
+
+  `scanner.close();`
+
+  
+
+**方法区别**：
+
+`next()`：
+
+要读取到有效字符才可以结束输入，对输入有效字符之前的空格会**自动去掉**，输入有效字符后将其后面的空白作为结束符（得不到带有空格的字符串）
+
+`nextLine()`：
+
+以Enter作为结束符，返回回车前的所有内容（可以获得空白）
+
+> 输入IO流的的类，使用完都要关闭否则会一直占用资源
+
+```java
+// idea快速返回生成类对象定义3种方法
+// 1. 	ctrl + alt + v
+// 2. 	alt + 2次回车
+// 3.	.var
+
+import java.util.Scanner;
+
+public class Demo01 {
+  public static void main(String[] args) {
+    // 创建扫描器对象，接受数据
+    Scanner scanner = new Scanner(System.in);
+    System.out.println("使用next获取输入");
+    // 判断用户是否输入
+    if (scanner.hasNext()) {
+      String str = scanner.next();
+      System.out.println("获取的输入为：" + str);
+    }
+    // 关闭
+    scanner.close();
+  }
+}
+```
+
+
+
+**获取具体类型**的方法：
+
+- `nextInt()`
+- `nextDouble()`
+- `nextBoolean()`
+- `nextBigInteger()`
+
+等等......
+
+```java
+import java.util.Scanner;
+
+public class Demo02 {
+  public static void main(String[] args) {
+    System.out.println("请输入整数:");
+    int i;
+    Scanner scanner = new Scanner(System.in);
+    if (scanner.hasNextInt()) {
+      i = scanner.nextInt();
+      System.out.println("输入的整数是：" + i);
+    } else {
+      System.out.println("输入的不是整数");
+    }
+  }
+}
+```
+
+
+
+**查看Scanner源码**
+
+按住**crtl**点击`Scanner`类，点击**Structure**可以看到`Scanner`类种的方法
+
+![Scanner源码](Java.assets/Scanner源码.png)
+
+
+
+# 流程控制
+
+## 顺序结构
+
+自上而下顺序执行
+
+## 选择结构
+
+### if选择结构
+
+一个`if`语句可以有多个`else if`语句，但最多有一个`else`语句。一旦其中一个`else if`语句为`true`，后续语句都不会执行。
+
+```java
+if (布尔表达式 1){
+    表达式1的值为true时执行的语句;
+}else if(布尔表达式 2){
+    表达式2的值为true时执行的语句;
+}else{
+    表达式1和2的值都为false时执行的语句;
+}
+```
+
+
+
+### switch选择结构
+
+`switch case`语句是用来**匹配**一个变量和一系列值中的某一个值，其中每一个值都称为`switch`的一个**分支**
+
+- `case`标签必须为**字符串常量**或者**字面量**
+- `break`结束判断（否则会**case穿透，**将后面全部输出）
+- `default`默认情况
+
+> 也可以不加break，使用case穿透实现一些其他功能
+
+```java
+public static void main(String[] args) {
+    char grade = 'C';
+    switch (grade) {
+        case 'A':
+            System.out.println("优秀");
+            break;
+        case 'B':
+            System.out.println("良好");
+            break;
+        case 'C':
+            System.out.println("及格");
+            break;
+        case 'D':
+            System.out.println("挂科");
+            break;
+        default:
+            System.out.println("输入错误");
+    }
+}
+```
+
+从JDK 7开始，switch中支持`String`类型
+
+> 字符的本质还是数字
+
+```java
+public static void main(String[] args) {
+  String name = "平安";
+  switch (name) {
+    case "平安":
+      System.out.println("平安");
+      break;
+    case "富贵":
+      System.out.println("富贵");
+      break;
+    case "英俊":
+      System.out.println("英俊");
+      break;
+    default:
+      System.out.println("其他");
+  }
+}
+```
+
+
+
+### 查看反编译文件
+
+Java程序执行是生成了`class`文件
+
+1. 查看编译文件输出路径
+
+   ![编译路径](Java.assets/编译路径.png)
+
+2. 正常查看编译的`class`文件（乱码）
+
+   ![编译文件](Java.assets/编译文件.png)
+
+3. 在idea中打开`.java`文件所在的文件夹
+
+   ![复制](Java.assets/复制.png)
+
+4. 将`class`文件复制进文件夹
+
+   ![复制class](Java.assets/复制class.png)
+
+5. 在idea中查看`class`文件
+
+   发现字符串匹配其实最后找的还是`case`后面的**哈希值**
+
+   ![switch反编译](Java.assets/switch反编译.png)
+
+
+
+## 循环结构
+
+- `break`：用于强行退出整个循环，不执行循环中剩下的语句
+
+- `continue`：用于退出某一次循环，跳过本次循环中剩下的语句，然后继续执行下一次循环
+
+### while循环
+
+必须满足条件才能进入循环执行语句（先判断，后执行）
+
+```java
+while(布尔表达式){
+    布尔表达式值为true时的循环语句;
+}
+```
+
+特殊事件需要永远执行（**死循环**）
+
+```
+while(true){
+    等待客户端连接;
+    定时检查;
+}
+```
+
+
+
+### do while循环
+
+即使不满足条件也**至少执行一次**语句（先执行，后判断）
+
+```java
+do {
+    执行语句;
+} while (布尔表达式);
+```
+
+
+
+### for循环
+
+一种支持**迭代**的通用结构（最有限，最灵活），它的循环次数是在执行前就确定的。
+
+1. **初始化**步骤：可以**初始化多个变量**，也可以为空语句`；`
+2. 检查**布尔表达式**的值：可以有多个表达式
+3. **更新**循环控制变量：可以更新多个变量值
+
+```java
+//正常循环
+for (初始化; 布尔表达式; 迭代更新) {
+  布尔表达式值为true时的循环语句;
+}
+
+//死循环
+for (; ;) {
+  执行语句;
+}
+```
+
+生成布尔表达式是`i<n`的的for循环快捷键：`n.for`
+
+```java
+int n;
+for (int i = 0; i < n; i++) {
+  //
+}
+```
+
+### 增强for循环
+
+> JDK5中引入，**主要用于数组**
+
+1. **声明语句**：声明新的**局部变量**
+   - 该变量**类型**必须和数组元素的类型相匹配
+   - 该变量**作用域**限定在循环语句块中
+   - 该变量**值**和数组元素值相等
+2. **表达式**：
+   - 是要访问的数组名
+   - 是返回值为数组的方法
+
+```java
+for (声明语句 : 表达式) {
+  执行语句;
+}
+```
+
+![增强for循环](Java.assets/增强for循环.png)
+
+
+
+# 方法
+
+> 面向对象
+
+`public static void main(String[] args)`：main方法
+
+`System.out.println()`：调用系统类中的标准输出对象的打印方法
+
+- `System`：类
+- `out`：类中的一个对象
+- `println()`：类中的一个方法
+
+Java方法是语句的集合，它们在一起执行一个功能（功能块）
+
+- 方法包含于类或者对象中
+- 方法在程序中被创建，在其他地方被引用
+
+> 设计方法最好保持方法的原子性：一个方法只实现一个功能
+>
+> 命名规则：首字母小写+驼峰命名

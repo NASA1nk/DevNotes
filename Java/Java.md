@@ -840,3 +840,72 @@ public class Demo01 {
 }
 ```
 
+## 方法调用
+
+调用方法：**对象名.方法名（实参列表）**
+
+**Java是值传递**
+
+> 值传递
+>
+> 引用传递
+
+## 方法重载
+
+**重载**：一个类中，相同的函数名，不同的形参（编译器逐个匹配）
+
+重载规则：
+
+- 方法名相同
+- 参数列表不同（个数，类型，排列顺序等不同）
+- 返回类型可以相同也可以不同
+
+> 只有返回类型不同不是重载
+
+## 命令行传参
+
+当一个程序运行时才给它传递信息，通过传递**命令行参数**给`main()`方法实现
+
+> public static void main(String[] args)中`String[] args`是参数
+
+```java
+package com.ink.method;
+
+public class Demo02 {
+  public static void main(String[] args) {
+    for (int i = 0; i < args.length; i++) {
+      System.out.println("args[" + i + "]" + args[i]);
+    }
+  }
+}
+```
+
+![命令行参数运行](Java.assets/命令行参数运行.png)
+
+### 编译问题
+
+在`package`中的java程序编译运行问题
+
+1. 错误一
+
+   直接在idea终端带包名编译
+
+   ![命令行参数](Java.assets/命令行参数.png)
+
+2. 错误二
+
+   在文件目录下命令行直接运行（可以编译）
+
+   ![cmd编译](Java.assets/cmd编译.png)
+
+3. 正确运行
+
+   回到`src`主目录**带包名运行**
+
+   > `cd ../` 回到上级目录
+
+   ![带包名运行](Java.assets/带包名运行.png)
+
+
+
+## 可变参数

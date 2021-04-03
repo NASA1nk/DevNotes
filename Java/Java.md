@@ -1002,9 +1002,31 @@ dataType[] array = new dataType[arraysize];
 
 数组元素通过下标（索引）访问，下标从0开始
 
-获取数组长度（边界）：`array.length` 是[0，length-1]
+获取数组长度（边界）：`arrays.length` 是[0，length-1]
 
 > 越界错误：`java.lang.ArrayIndexOutOfBoundsException`
+
+- **for循环遍历**
+
+  ```java
+  int[] arrays = {1,2,3,4,5};
+  for (int i = 0; i < arrays.length; i++) {
+      System.out.println(arrays[i]);
+  }
+  ```
+
+- **增强for循环遍历**（无下标）
+
+  快捷键：数组名`.for`
+
+  ```java
+  int[] arrays = {1, 2, 3, 4, 5};
+  for (int array : arrays) {
+      System.out.println(array);
+  }
+  ```
+
+  > JDK1.5
 
 ## 初始化
 
@@ -1028,6 +1050,64 @@ dataType[] array = new dataType[arraysize];
 - **默认初始化**
 
   数组是**引用类型**，数组元素相当于类的**实例变量**，因此数组一经分配空间，每个数组元素就按照实例变量同样的方法被**默认（隐式）初始化**。
+
+## 数组使用
+
+1. **数组参数**：将数组封装为参数
+
+   ```java
+   package com.ink.array;
+   
+   public class Demo01 {
+     public static void main(String[] args) {
+       int[] arrays = {1, 2, 3, 4, 5};
+       printArray(arrays);
+     }
+   
+     public static void printArray(int[] arrays) {
+       for (int i = 0; i < arrays.length; i++) {
+         System.out.println(arrays[i]);
+       }
+     }
+   }
+   ```
+
+2. **数组返回值**：
+
+   ```java
+   package com.ink.array;
+   
+   public class Demo02 {
+     public static void main(String[] args) {
+       int[] arrays = {1, 2, 3, 4, 5};
+       int[] reveseArray = reveseArray(arrays);
+       for (int i = 0; i < reveseArray.length; i++) {
+         System.out.println(reveseArray[i]);
+       }
+     }
+       
+     public static int[] reveseArray(int[] arrays) {
+       int[] result = new int[arrays.length];
+       for (int i = 0, j = result.length - 1; i < arrays.length; i++, j--) {
+         result[j] = arrays[i];
+       }
+       return result;
+     }
+   }
+   ```
+
+
+
+## 多维数组
+
+**数组的数组**（每一个数组元素都是一个数组）
+
+二维数组：
+
+```java
+// 2行5列的二维数组
+int arrays[][] = new int[2][5];
+```
 
 ## 内存分析
 

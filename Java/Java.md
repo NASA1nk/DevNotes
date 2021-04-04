@@ -588,10 +588,6 @@ public class Demo02 {
 
 # 流程控制
 
-## 顺序结构
-
-自上而下顺序执行
-
 ## 选择结构
 
 ### if选择结构
@@ -641,6 +637,8 @@ public static void main(String[] args) {
     }
 }
 ```
+
+
 
 从JDK 7开始，switch中支持`String`类型
 
@@ -700,6 +698,8 @@ Java程序执行是生成了`class`文件
 - `break`：用于强行退出整个循环，不执行循环中剩下的语句
 
 - `continue`：用于退出某一次循环，跳过本次循环中剩下的语句，然后继续执行下一次循环
+
+
 
 ### while循环
 
@@ -763,6 +763,8 @@ for (int i = 0; i < n; i++) {
 }
 ```
 
+
+
 ### 增强for循环
 
 > JDK5中引入，**主要用于数组**
@@ -821,6 +823,8 @@ public class Demo01 {
 }
 ```
 
+
+
 ## 方法定义
 
 方法包含一个**方法头**和一个**方法体**
@@ -841,31 +845,56 @@ public class Demo01 {
 }
 ```
 
+
+
 ## 方法调用
 
 调用方法：**对象名.方法名（实参列表）**
 
-静态方法：`static`修饰符，直接通过**类名**调用
+不同**类之间**调用方法
 
-非静态方法
+- 静态方法（**类方法**）：`static`修饰符，直接通过**类名**调用
+
+  ![静态方法调用](Java.assets/静态方法调用.png)
+
+- 非静态方法：先**实例化**类的对象，通过**对象**调用
+
+  ![非静态方法调用](Java.assets/非静态方法调用.png)
+
+
+
+不同**方法之间**调用方法
+
+- **静态方法**可以互相直接调用
+- **非静态方法**可以互相直接调用
+- **静态方法不能直接调用非静态方法**
+
+> `static`静态方法是和类一起加载的（存在的早），非静态方法是通过类实例化后才存在（存在的晚），此时调用会报错
+
+
 
 **Java是值传递**
 
-> 值传递
->
-> 引用传递
+- **值传递**
+- **引用传递**：传递对象
+
+> 引用传递本质还是值传递（**对象的地址**）
+
+
 
 ## 方法重载
 
 **重载**：一个类中，相同的函数名，不同的形参（编译器逐个匹配）
 
-重载规则：
+**重载规则**：
 
 - 方法名相同
 - 参数列表不同（个数，类型，排列顺序等不同）
 - 返回类型可以相同也可以不同
 
 > 只有返回类型不同不是重载
+
+
 
 ## 命令行传参
 
@@ -886,6 +915,8 @@ public class Demo02 {
 ```
 
 ![命令行参数运行](Java.assets/命令行参数运行.png)
+
+
 
 ### 编译问题
 
@@ -915,9 +946,11 @@ public class Demo02 {
 
 ## 可变参数
 
-也叫**不定项参数**
+**不定项参数**
 
 > JDK1.5开始支持传递同类型的可变参数
+
+
 
 在方法声明中，在指定**参数类型**后加一个省略号`...`
 
@@ -945,6 +978,8 @@ public class Demo02 {
   }
 }
 ```
+
+
 
 ## 递归
 
@@ -975,6 +1010,8 @@ public class Demo02 {
 
   数组可以看成是对象，所以**数组对象本身是在堆中**
 
+
+
 ## 数组声明
 
 **先声明后使用**
@@ -988,6 +1025,8 @@ dataType array[];
 ```
 
 > `int[]` 其实就相当说加了`[]`后，把整体看作**int数组**类型
+
+
 
 ## 数组创建
 
@@ -1003,6 +1042,8 @@ array = new dataType[arraysize];
 dataType[] array = new dataType[arraysize];
 ```
 
+
+
 ## 数组访问
 
 数组元素通过下标（索引）访问，下标从0开始
@@ -1011,7 +1052,9 @@ dataType[] array = new dataType[arraysize];
 
 > 越界错误：`java.lang.ArrayIndexOutOfBoundsException`
 
-- **for循环遍历**
+**遍历数组**
+
+- **for循环**
 
   ```java
   int[] arrays = {1,2,3,4,5};
@@ -1020,7 +1063,7 @@ dataType[] array = new dataType[arraysize];
   }
   ```
 
-- **增强for循环遍历**（无下标）
+- **增强for循环**（无下标）
 
   快捷键：数组名`.for`
 
@@ -1032,6 +1075,8 @@ dataType[] array = new dataType[arraysize];
   ```
 
   > JDK1.5
+
+
 
 ## 初始化
 
@@ -1055,6 +1100,8 @@ dataType[] array = new dataType[arraysize];
 - **默认初始化**
 
   数组是**引用类型**，数组元素相当于类的**实例变量**，因此数组一经分配空间，每个数组元素就按照实例变量同样的方法被**默认（隐式）初始化**。
+
+
 
 ## 数组使用
 
@@ -1134,7 +1181,9 @@ public class Demo03 {
 }
 ```
 
-二维数组的增强for循环：
+
+
+**二维数组的增强for循环**：
 
 将`arrays[i]`作为遍历元素
 
@@ -1153,6 +1202,8 @@ public class Demo03 {
 }
 ```
 
+
+
 ## Arrays类
 
 数组的**工具类**：`Java.util.Arrays`
@@ -1164,6 +1215,8 @@ Arrays类中的方法都是`static`修饰的**静态方法**，在使用时可�
 > 除了`array.length`，数组本身没有什么方法供调用，
 >
 > `util`工具包中提供Arrays工具类。
+
+
 
 **常用功能**：
 
@@ -1233,16 +1286,18 @@ Java内存：
 > 1. 声明数组变量，在栈中存放
 > 2. 创建数组，在堆中开辟一片空间（分成数组长度的小空间），并将数组元素默认初始化，再将栈中的数组变量指向堆中的分配的空间首地址
 
+
+
 # 面向对象
 
-OO（`Object Oriented`）：面向对象
-
-> 面向对象是一种软件开发方法，一种编程范式
+OO（`Object Oriented`）：面向对象，一种软件开发方法，一种编程范式
 
 OOP（`Object Oriented Programming`）：面向对象编程
 
-OOP的**本质**：以**类的方式**组织代码，以**对象的方式**封装数据
+**OOP的本质：以类的方式组织代码，以对象的方式封装数据**
 
+> 类是一种抽象的数据类型，对象是抽奖概念的具体实例
+>
 > 物以**类**聚（分类）
 
 
@@ -1258,3 +1313,115 @@ OOP的**本质**：以**类的方式**组织代码，以**对象的方式**封�
 >   - 对象：具体食物
 >   - 类：对对象的抽象
 > - OOP：先有类后有对象，**类是对象的模板**
+
+
+
+**规范项目结构**
+
+1. 一个项目应该只存在一个main方法，在`Application`类中。其他类不要在写main方法，只是**单纯的类（包含属性和方法）**
+
+   ![Application](Java.assets/Application.png)
+
+2. 添加`out`目录，显示编译后的`.class`文件
+
+   ![out](Java.assets/out.png)
+
+
+
+## 创建对象
+
+使用`new`关键字创建对象
+
+1. 分配内存空间
+2. 默认初始化对象
+3. 调用类中的构造器（构造方法`constructor`）
+
+
+
+`Student.java`文件
+
+> 以对象的方式封装数据
+
+```java
+package com.OOP.demo01;
+
+public class Student {
+  // 属性：字段
+  String name;
+  int age;
+  // 方法
+  public void study() {
+    System.out.println("hello " + this.name);
+  }
+}
+```
+
+`Application.java`文件
+
+> 以类的方式组织代码
+
+```java
+package com.OOP.demo01;
+
+public class Application {
+  public static void main(String[] args) {
+    // 实例化Student类,返回一个对象
+    Student student = new Student();
+    
+    student.name = "ink";
+    student.age = 23;
+    System.out.println(student.name);
+    System.out.println(student.age);
+  }
+}
+```
+
+
+
+## 构造器
+
+构造**方法**作用：初始化值
+
+**构造器**：
+
+- 必须和类有**相同的名字**
+- 必须**没有返回值类型**，也不加`void`
+
+> `new`的本质是在**调用构造器**
+
+`Person`类中不写内容也可以`new`一个`Person`对象，在`out`目录查看编译后的`Person.class`文件，发现加上了一个**构造器**（无参构造）。
+
+```java
+public class Person {
+    public Person() {
+    }
+}
+```
+
+![Person.class](Java.assets/Person.class.png)
+
+
+
+**构造器分类**：
+
+- **无参构造**：可以隐式定义
+
+- **有参构造**：一旦定义了有参构造，**无参构造就必须显式定义**，否则无参构造`new Person()`就会失效，但可以使用有参构造
+
+  无参构造：（报错）
+
+  ![有参构造](Java.assets/无参构造.png)
+
+  有参构造：（正常运行）
+
+  ![有参构造](Java.assets/有参构造.png)
+
+
+
+**快捷键**：`alt+insert`，快速生成构造器
+
+![快捷生成](Java.assets/快捷生成.png)
+
+选中生成对应的**有参**构造器，`Select None`生成**无参**构造器
+
+![altinsert](Java.assets/altinsert.png)

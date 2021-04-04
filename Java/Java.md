@@ -199,12 +199,11 @@ Java所有的组成部分都需要起名，如类名，变量名，方法名...�
   - **Boolean类型**（占一位）
     - `true`
     - `false`
-- **引用类型**reference type
-  - 类
-  - 接口
-  - 数组
+- **引用类型**`reference type`：除了基本类型，都是引用类型
+  - **类**：**对象**是通过引用来操作的（栈->堆）
+  - **接口**
+  - **数组**
 
-> - 除了基本类型，都是引用类型
 > - 位bit：数据存储的最小单位
 > - 字节byte：数据处理的基本单位
 > - 一个中文字符需要2个字节，所以char也可以写中文
@@ -1346,7 +1345,7 @@ OOP（`Object Oriented Programming`）：面向对象编程
 package com.OOP.demo01;
 
 public class Student {
-  // 属性：字段
+  // 属性（成员变量）：字段Field  
   String name;
   int age;
   // 方法
@@ -1425,3 +1424,50 @@ public class Person {
 选中生成对应的**有参**构造器，`Select None`生成**无参**构造器
 
 ![altinsert](Java.assets/altinsert.png)
+
+
+
+## 内存分析
+
+```java
+package com.OOP.demo01;
+
+public class Pet {
+  String name;
+  int age;
+
+  // 无参构造
+
+  public void shout() {
+    System.out.println("叫了一声");
+  }
+}
+```
+
+```java
+package com.OOP.demo01;
+
+public class Application {
+  public static void main(String[] args) {
+    Pet dog = new Pet();
+    dog.name = "旺财";
+    dog.age = 3;
+    dog.shout();
+    Pet cat = new Pet();
+  }
+}
+```
+
+> `String`类的修饰符有`final`，所以`dog.name`是常量
+>
+> 堆中的对象的方法还是调用的方法区中类的方法
+
+![内存](Java.assets/内存.png)
+
+
+
+## 封装
+
+
+
+## 继承

@@ -1100,14 +1100,113 @@ dataType[] array = new dataType[arraysize];
 
 ## 多维数组
 
-**数组的数组**（每一个数组元素都是一个数组）
+**数组的数组**（每一个数组元素都是一个**一维数组**）
 
 二维数组：
 
 ```java
 // 2行5列的二维数组
 int arrays[][] = new int[2][5];
+int[][] arrays = {{1,2},{2,3},{3,4}};
 ```
+
+> 每一个arrays[i]都是一行数组的首地址（arrays[i] [j]）
+
+可以单独把`arrays[i]`作为一个数组参数，也可以使用`arrays[i].length`（区分`arrays.length`）
+
+```java
+package com.ink.array;
+
+public class Demo03 {
+  public static void main(String[] args) {
+    int[][] arrays = {{1, 2}, {2, 3}, {3, 4}};
+    for (int i = 0; i < arrays.length; i++) {
+      for (int j = 0; j < arrays[i].length; j++) {
+        System.out.println(arrays[i][j]);
+      }
+    }
+  }
+}
+```
+
+二维数组的增强for循环：
+
+将`arrays[i]`作为遍历元素
+
+```java
+package com.ink.array;
+
+public class Demo03 {
+  public static void main(String[] args) {
+    int[][] arrays = {{1, 2}, {2, 3}, {3, 4}};
+    for (int[] array : arrays) {
+      for (int data : array) {
+        System.out.println(data);
+      }
+    }
+  }
+}
+```
+
+## Arrays类
+
+数组的**工具类**：`Java.util.Arrays`
+
+Arrays类中的方法都是`static`修饰的**静态方法**，在使用时可以直接使用**类名调用**，而不用使用对象调用（不用，但是可以）。
+
+![Arrays](Java.assets/Arrays.png)
+
+> 除了`array.length`，数组本身没有什么方法供调用，
+>
+> `util`工具包中提供Arrays工具类。
+
+**常用功能**：
+
+- `fill`：给数组元素赋值（**左闭右开**）
+- `sort`：给数组元素排序（升序）
+- `equals`：**比较数组元素是否相等**
+- `toString`：打印数组元素
+- `binarySearch`：对排序好的数组经行**二分查找**
+
+> **ctrl点击**`Arrays`查看源码，点击左下角**structure**可以查看Arrays中的方法
+
+![Arrays源码](Java.assets/Arrays源码.png)
+
+> **ctrl点击**`tostring`查看源码
+
+![tostring](Java.assets/tostring.png)
+
+
+
+## 稀疏数组
+
+当一个数组中大部分元素都是0或同一个值，就可以用稀疏数组来保存
+
+> 稀疏数组可以看做是普通数组的**压缩**。普通数组是指**无效**数据量**远大于**有效数据量的数组
+>
+> - 数组中存在大量的无效数据，占据了大量的存储空间，真正有用的数据很少
+> - 压缩存储可以节省存储空间以避免资源浪费，在数据序列化到磁盘时，压缩存储还可以提高IO效率
+
+处理方式：
+
+1. 记录数组**行列数**，有多少**不同的元素**
+
+2. 把不同元素的**行列和值**记录在一个小规模的数组中（**固定3列**）
+
+   ```java
+   // n个元素
+   int[][] array = new int[n+1][3];
+   array[l][0] = i;
+   array[l][1] = j;
+   array[l][2] = data;
+   ```
+
+> 6行7列8个不同的元素
+> 第一个有效值22：第0行第3列
+
+![稀疏数组](Java.assets/稀疏数组.png)
+
+
 
 ## 内存分析
 

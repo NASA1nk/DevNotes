@@ -883,7 +883,7 @@ public class Demo01 {
 
 ## 方法重载
 
-**重载**：一个类中，相同的函数名，不同的形参（编译器逐个匹配）
+**重载**：一个类中，相同的函数名，**不同的形参**（编译器逐个匹配）
 
 **重载规则**：
 
@@ -1433,8 +1433,8 @@ public class Person {
 package com.OOP.demo01;
 
 public class Pet {
-  String name;
-  int age;
+  public String name;
+  public int age;
 
   // 无参构造
 
@@ -1468,6 +1468,83 @@ public class Application {
 
 ## 封装
 
+禁止外部**直接访问**一个对象中的数据，而应该通过**接口**来访问（信息隐藏）
+
+- `get`：**获得**属性值
+- `set`：**设置**属性值
+
+> 高内聚：类的内部数据操作细节自己完成，不对外暴露
+>
+> 低耦合：仅暴露少量方法供外部操作
+>
+> **可以提高代码的安全性，隐藏代码的实现细节，统一接口，增加了系统的可维护性**
+
+
+
+1. 属性私有
+
+   ![private](Java.assets/private.png)
+
+2. **接口方法**（驼峰命名）
+
+   ![接口方法](Java.assets/接口方法.png)
+
+   使用`set`方法设置属性值
+
+   使用`get`方法获取属性值
+
+   ![get访问](Java.assets/get访问.png)
+
+   
+
+   快捷键：`alt+insert`
+
+   **Getter and Setter** 自动生成最原始的接口方法
+
+   ![getset](Java.assets/getset.png)
+
+3. 可以在接口方法内增添代码实现各种功能
+
+   ```java
+   public void setAge(int age) {
+     if (age < 0 || age > 120) {
+       this.age = 0;
+     } else {
+       this.age = age;
+     }
+   }
+   ```
+
 
 
 ## 继承
+
+继承是类和类之间的一种关系。继承关系的两个类，一个为**父类（基类）**，一个为**子类（派生类）**，用关键字`extends`表示。
+
+继承的本质是对某**一批类**的抽象（对类再抽象）
+
+> Java中类只有单继承，没有多继承
+>
+> 类和类之间的关系还有**依赖**，**组合**，**聚合**等
+
+
+
+子类继承父类，就会拥有父类的所有`public`修饰的属性和方法（`private`的属性和方法不会拥有）
+
+![继承](Java.assets/继承.png)
+
+
+
+快捷键：`ctrl+h` 打开继承树
+
+![继承树](Java.assets/继承树.png)
+
+
+
+### Object类
+
+即使类中不写方法，在`new`一个对象后仍然有方法可以调用。
+
+因为在Java中，所有类都默认直接或者间接继承`Object`类
+
+![Object](Java.assets/Object.png)

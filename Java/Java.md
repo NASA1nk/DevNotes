@@ -1548,3 +1548,10 @@ public class Application {
 因为在Java中，所有类都默认直接或者间接继承`Object`类
 
 ![Object](Java.assets/Object.png)
+
+查看`Object`类
+
+![Object类](Java.assets/Object类.png)
+
+### Super
+

@@ -1559,7 +1559,9 @@ public class Application {
 
 ## 继承
 
-继承是类和类之间的一种关系。继承关系的两个类，一个为**父类（基类）**，一个为**子类（派生类）**，用关键字`extends`表示。
+继承是类和类之间的一种关系。继承关系的两个类，一个为**父类（基类）**，一个为**子类（派生类）**，用关键字`extends`表示
+
+被`final`修饰的类无法被继承
 
 继承的本质是对某**一批类**的抽象（对类再抽象）
 
@@ -1823,4 +1825,301 @@ public class Application {
 
 ## 类型转换
 
-**引用类型**间的类型转换。`instanceof`可以判断两个类之间**是否存在继承关系**
+**引用类型**间的类型转换
+
+`instanceof`可以判断两个（有联系的）类之间**是否存在继承关系**
+
+完全没有联系的类判断不了（直接**编译报错**）
+
+```java
+public class Application {
+  public static void main(String[] args) {
+    Object object = new Student();
+    System.out.println(object instanceof Student);
+    System.out.println(object instanceof Person);
+    System.out.println(object instanceof Object);
+    // Teacher就会返回false
+  }
+}
+```
+
+![instanceof](Java.assets/instanceof.png)
+
+
+
+**转换**：
+
+1. 子类引用对象（低）转父类引用对象（高）：**自动转换**
+
+   **向上转型，会丢失子类中原本可以直接调用的方法**
+
+   ```java
+   public class Application {
+     public static void main(String[] args) {
+       Student student = new Student();
+       Person person = student;
+       // 无法调用Student类的p方法
+       person.p();
+     }
+   }
+   ```
+
+2. 父类引用对象（高）转子类引用对象（低）：**强制类型转换**
+
+   **向下转型，会丢失父类被子类重写的方法**
+
+   ```java
+   public class Application {
+     public static void main(String[] args) {
+       // 高            低
+       Person obj = new Student();
+       // 强制转换
+       Student s = (Student) obj;
+       s.student();
+     }
+   }
+   ```
+
+
+
+## static
+
+**静态**修饰符
+
+- **静态变量**（类变量）：对于类而言内存中只有一个，被类的所有实例共享，
+
+- **静态方法**（类方法）：跟类一起加载 
+
+- **静态代码块**：**类一加载就直接执行，只执行一次** 
+
+  > **静态代码块只执行一次** ！只有实例化第一个对象的时候会调用，后面不会再执行
+  >
+  > **执行先后顺序**：
+  >
+  > 1. 静态代码块
+  > 2. 匿名代码块
+  > 3. 构造器
+
+- **静态导入包**：
+
+  可以直接使用`random()`方法
+
+  ```java
+  import static java.lang.Math.random;
+  ```
+
+
+
+## 抽象类
+
+- `abstract `修饰符
+  - 抽象方法：`abstract`关键字修饰的方法
+  - 抽象类：`abstract`关键字修饰的类
+- 抽象类中可以没有抽象方法，**有抽象方法的类必须被声明为抽象类**
+- **抽象类是用来让子类继承的**，不能使用`new`关键字创建对象（不能被实例化）
+- **抽象方法是用来让子类实现的**，只有方法声明，没有方法实现
+- **子类继承抽象类就必须实现抽象类没有实现的抽象方法**，否则要将子类也声明为抽象类（除非子类也是抽象类）
+
+```java
+// 抽象类
+public abstract class Action {
+  // 抽象方法
+  public abstract void dosth();
+}
+```
+
+```java
+// 子类继承
+public class A extends Action {
+	// 重写
+    @Override
+    public void dosth() {
+    }
+}
+```
+
+**局限性**：
+
+抽象类离不开继承`extends`，但是java只能是单继承
+
+> 通过接口实现多继承
+
+> 思考：
+>
+> 1. 不能被实例化，是否存在构造器
+> 2. 存在的意义
+
+## 接口
+
+`interface `声明关键字
+
+接口就是规范，定义了一组规则，制定好后大家一起遵守
+
+> 面向接口编程
+
+![interface](Java.assets/interface.png)
+
+**区别**：
+
+- 普通类：只有具体实现
+
+- 抽象类：具体实现和**规范**（抽象方法）
+
+- 接口：**只有规范**（没有实现）
+
+  > 约束和实现分离
+
+
+
+**接口特点**：
+
+- 接口中的所有的**变量定义**都默认是`public static final`修饰（常量）
+
+- 接口中的所有的**方法定义**都默认是`public abstract`修饰（抽象）
+- 接口**不能被实例化**，**没有构造方法**（和抽象类相同）
+- 接口需要有**实现类**，**重写**接口里面的规范（方法）
+  - 实现类名：接口名+`Impl`	
+  - 实现类关键字：`implements`（可以实现多个类）
+
+
+
+**实现类**：
+
+**可以实现多个接口，相当于实现了多继承（伪）**
+
+![实现类](Java.assets/实现类.png)
+
+```java
+// 接口
+public interface UserService {
+  void add();
+  void delete();
+  void update();
+  void query();
+}
+
+// 接口
+public interface TimeService {
+  void time();
+}
+```
+
+```java
+// 接口实现类
+// 实现两个接口(重写两个接口的所有方法)
+public class UserServiceImpl implements UserService, TimeService {
+  @Override
+  public void add() {}
+  @Override
+  public void delete() {}
+  @Override
+  public void update() {}
+  @Override
+  public void query() {}
+  @Override
+  public void time() {}
+}
+```
+
+
+
+## 内部类
+
+在一个类的内部再定义一个类（**外部类**和**内部类**）
+
+> 一个java类中可以有多个`class`类，但只能有一个`public class`
+
+- **成员**内部类
+- **静态**内部类
+- **局部**内部类
+- **匿名**内部类
+
+![内部类](Java.assets/内部类.png)
+
+
+
+1. **成员内部类**
+
+   可以获得外部类的私有的属性和方法
+
+   ```java
+   public class Outer {
+     private int id = 10;
+   
+     public void out() {
+       System.out.println("这是外部类方法");
+     }
+   
+     public class Inner {
+       public void in() {
+         System.out.println("这是内部类方法");
+       }
+       // 获得外部类的私有属性
+       public void getId() {
+         System.out.println(id);
+       }
+     }
+   }
+   ```
+
+   ![成员内部类](Java.assets/成员内部类.png)
+
+2. **静态内部类**
+
+   在成员内部类前加上`static`关键字。无法在获得外部类的**非静态属性**
+
+   ```java
+   public class Outer {
+     private int id = 10;
+   
+     public void out() {
+       System.out.println("这是外部类方法");
+     }
+   
+     public static class Inner {
+       public void in() {
+         System.out.println("这是内部类方法");
+       }
+       // 无法获得外部类的私有属性
+       // public void getId()
+     }
+   }
+   ```
+
+3. **局部内部类**
+
+   在**方法中**定义的类
+
+   ```java
+   public class Outer {
+     public void method() {
+       class Inner {
+         public void in() {}
+       }
+     }
+   }
+   ```
+
+4. **匿名内部类**
+
+   没有名字去初始化类，不用将实例保存到变量中
+
+   ```java
+   public class Application {
+     public static void main(String[] args) {
+       new A().b();
+     }
+   }
+   
+   class A {
+     public void b() {
+       System.out.println("c");
+     }
+   }
+   ```
+
+
+
+# 异常
+
+`Exception`

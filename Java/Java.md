@@ -1716,7 +1716,7 @@ public class A extends B {
 
    
 
-2. **非静态方法**：非静态方法是**对象的方法**，b是A类`new`出来的对象，所以b调用的是A类的方法。
+2. **非静态方法**：非静态方法是**对象的方法**，要看对象左边的**类**。b是A类`new`出来的对象，所以b调用的是**A类的方法**。
 
    ![非静态方法](Java.assets/非静态方法.png)
 
@@ -1724,15 +1724,21 @@ public class A extends B {
 
 ## 多态
 
-`instanceof`：同一个方法根据对象的不同而采取不同的行为方式
+同一个方法根据对象的不同而采取不同的行为方式，无法重写的方法就无法实现多态（`static`，`final`，`private`修饰的方法都不行）
 
 **多态是方法的多态**
 
 前提：
 
 - 有**继承**关系
+
 - 子类**重写**了父类的方法
+
 - **父类引用指向子类对象**（关键）
+
+  ```java
+  Father f = new Son();
+  ```
 
 > 多态可以实现动态编译，增加程序的可扩展性。
 >
@@ -1747,7 +1753,74 @@ public class A extends B {
 ```java
 // 右侧的对象实际类型new Student()是确定的
 // 左侧指向对象的引用可以有很多类型(必须有继承关系)
-Student student = new Student();
-Person person = new Student();
-Object obj = new Student();
+Student s1 = new Student();
+Person s2 = new Student();
+Object s3 = new Student();
 ```
+
+
+
+但是非静态方法是**对象的方法**，只能调用对象左边的**类**中的方法。
+
+**调用方法**情况：
+
+1. 父类引用正常执行父类自己的方法
+2. **子类重写了父类的方法**，那么父类引用会执行子类的方法（共有的方法）
+3. **父类不能调用子类独有的方法**（需要强制类型转换）
+
+> 类型转换异常：`ClassCastException`
+
+```java
+package com.OOP.demo03;
+
+public class Person {
+  // 父类自己的方法
+  public void print() {
+    System.out.println("Person");
+  }
+}
+```
+
+```java
+package com.OOP.demo03;
+
+public class Student extends Person {
+  // 重写父类的方法
+  @Override
+  public void print() {
+    System.out.println("Student");
+  }
+  // 子类自己的方法 
+  public void stu() {
+    System.out.println("子类独有的方法");
+  }
+}
+```
+
+```java
+package com.OOP;
+
+import com.OOP.demo03.Person;
+import com.OOP.demo03.Student;
+
+public class Application {
+  public static void main(String[] args) {
+    Student s1 = new Student();
+    Person s2 = new Student();
+    Object s3 = new Student();
+    s1.print();
+    // 重写了方法，所以调用的是子类的方法
+    s2.print();
+    // 必须强制类型转换才可以调用stu()方法
+    ((Student) s2).stu();
+  }
+}
+```
+
+![多态](Java.assets/多态.png)
+
+
+
+## 类型转换
+
+**引用类型**间的类型转换。`instanceof`可以判断两个类之间**是否存在继承关系**

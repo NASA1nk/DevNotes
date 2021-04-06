@@ -2229,10 +2229,31 @@ catch (Exception e) {
 
 ### 抛出异常
 
-一般在**方法**中抛出异常（假设方法处理不了这个异常）
+- `throw`：在**方法中**主动抛出异常
+- `throws`：假设方法处理不了这个异常，在**方法上**主动抛出异常
 
-- `throw`
-- `throws`
+```java
+package com.exception.demo02;
+
+public class Test {
+
+  public static void main(String[] args) {
+  	// 匿名内部类
+    new Test().test(1, 0);
+  }
+  
+  // throws 在方法上主动抛出异常
+  public void test(int a, int b) throws ArithmeticException {
+    if (b == 0) {
+      // throw 在方法中主动抛出异常
+      throw new ArithmeticException();
+    }
+    System.out.println(a / b);
+  }
+}
+```
+
+![throw](Java.assets/throw.png)
 
 
 

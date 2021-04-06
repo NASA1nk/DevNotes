@@ -1,3 +1,86 @@
+<!-- TOC -->
+
+- [Dos命令](#dos命令)
+- [Java](#java)
+  - [版本](#版本)
+  - [JDK	JRE	JVM](#jdkjrejvm)
+  - [Java开发环境](#java开发环境)
+  - [第一个程序](#第一个程序)
+  - [集成开发环境](#集成开发环境)
+    - [idea开发](#idea开发)
+    - [idea设置](#idea设置)
+    - [idea刷题](#idea刷题)
+- [基础语法](#基础语法)
+  - [注释](#注释)
+    - [修改注释](#修改注释)
+  - [标识符](#标识符)
+  - [数据类型](#数据类型)
+    - [拓展](#拓展)
+    - [类型转换](#类型转换)
+  - [变量](#变量)
+    - [作用域](#作用域)
+    - [常量](#常量)
+    - [命名规范](#命名规范)
+- [基本运算符](#基本运算符)
+- [包](#包)
+  - [包名规范](#包名规范)
+- [JavaDoc](#javadoc)
+  - [编写文档注释](#编写文档注释)
+  - [命令行生成API文档](#命令行生成api文档)
+  - [IDEA生成JavaDoc文档](#idea生成javadoc文档)
+- [交互Scanner](#交互scanner)
+- [流程控制](#流程控制)
+  - [选择结构](#选择结构)
+    - [if选择结构](#if选择结构)
+    - [switch选择结构](#switch选择结构)
+    - [查看反编译文件](#查看反编译文件)
+  - [循环结构](#循环结构)
+    - [while循环](#while循环)
+    - [do while循环](#do-while循环)
+    - [for循环](#for循环)
+    - [增强for循环](#增强for循环)
+- [方法](#方法)
+  - [方法定义](#方法定义)
+  - [方法调用](#方法调用)
+  - [方法重载](#方法重载)
+  - [命令行传参](#命令行传参)
+    - [编译问题](#编译问题)
+  - [可变参数](#可变参数)
+  - [递归](#递归)
+- [数组](#数组)
+  - [数组声明](#数组声明)
+  - [数组创建](#数组创建)
+  - [数组访问](#数组访问)
+  - [初始化](#初始化)
+  - [数组使用](#数组使用)
+  - [多维数组](#多维数组)
+  - [Arrays类](#arrays类)
+  - [稀疏数组](#稀疏数组)
+  - [内存分析](#内存分析)
+- [面向对象](#面向对象)
+  - [创建对象](#创建对象)
+  - [构造器](#构造器)
+  - [内存分析](#内存分析-1)
+  - [封装](#封装)
+  - [继承](#继承)
+    - [Object类](#object类)
+    - [Super](#super)
+    - [方法重写](#方法重写)
+  - [多态](#多态)
+  - [类型转换](#类型转换-1)
+  - [static](#static)
+  - [抽象类](#抽象类)
+  - [接口](#接口)
+  - [内部类](#内部类)
+- [异常](#异常)
+  - [异常体系结构](#异常体系结构)
+  - [异常处理](#异常处理)
+    - [捕获异常](#捕获异常)
+    - [抛出异常](#抛出异常)
+  - [自定义异常](#自定义异常)
+
+<!-- /TOC -->
+
 # Dos命令
 
 ```bash
@@ -2138,6 +2221,15 @@ public class UserServiceImpl implements UserService, TimeService {
 
 
 
+**实际中的异常处理**：
+
+- 处理运行时异常时，尽量使用**逻辑**合理规避和`try-catch`处理
+- 在多种catch的**最后**可以加一个`catch (Exception e)`来处理可能遗漏的异常
+- 对不确定的代码增加`try-catch`处理潜在的异常
+- 尽量添加`finally`语句去**释放占用资源**
+
+
+
 ## 异常体系结构
 
 `Throwable`
@@ -2148,6 +2240,8 @@ public class UserServiceImpl implements UserService, TimeService {
 > `java.lang.Error`是错误信息`
 >
 > `java.lang.Exception`是异常信息
+
+![Exception](Java.assets/Exception.png)
 
 
 
@@ -2229,7 +2323,7 @@ catch (Exception e) {
 
 ### 抛出异常
 
-- `throw`：在**方法中**主动抛出异常
+- `throw`：在**方法中**主动抛出异常对象（`new`）
 - `throws`：假设方法处理不了这个异常，在**方法上**主动抛出异常
 
 ```java
@@ -2258,3 +2352,64 @@ public class Test {
 
 
 ## 自定义异常
+
+1. 创建自定义异常类，只需要**继承`Exception`类**即可
+
+2. 在方法中通过`throw`关键字抛出异常对象（`new`）
+
+3. 在当前抛出异常的方法中处理异常，可以用`try-catch`捕获异常并处理。如果当前方法无法处理，在方法的声明处通过`throws`指明要抛出给调用者的异常，由调用者捕获异常并处理
+
+   ![throws](Java.assets/throws.png)
+
+
+
+**自定义异常**
+
+```java
+package com.exception.demo03;
+
+public class MyException extends Exception {
+  // 传递
+  private int id;
+
+  // 构造器,传递异常信息需要有参构造
+  public MyException(int a) {
+    this.id = a;
+  }
+
+  // toStrng:异常打印信息
+  @Override
+  public String toString() {
+    return "MyException{" + "异常值是" + id + '}';
+  }
+}
+```
+
+**调用**
+
+```java
+package com.exception.demo03;
+
+public class Test {
+  // 可能会出现异常,throws交给调用者处理异常
+  static void test(int a) throws MyException {
+    // 当传入值大于10时异常
+    if (a > 10) {
+      // 抛出自定义异常对象
+      throw new MyException(a);
+    }
+    System.out.println("OK,无异常");
+  }
+
+  public static void main(String[] args) {
+    try {
+      test(10);
+      test(11);
+    } catch (MyException e) {
+      System.out.println("MyException: " + e);
+    }
+  }
+}
+```
+
+![自定义异常](Java.assets/自定义异常.png)

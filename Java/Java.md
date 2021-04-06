@@ -2123,3 +2123,117 @@ public class UserServiceImpl implements UserService, TimeService {
 # 异常
 
 `Exception`
+
+- **检查性**异常`CheckedException`：在编译时不应被忽略
+- **运行时**异常`RuntimeException`：可以在编译时被忽略
+
+**错误**`Error`：不是异常，在编译时也检查不到（如：栈溢出） 
+
+
+
+**区别**：
+
+- `Error`是程序无法控制和处理的，出现时JVM一般选择终止线程
+- `Exception`通常是可以被程序处理的，并且程序中应当尽可能的去处理异常
+
+
+
+## 异常体系结构
+
+`Throwable`
+
+1. Java把**异常也当作对象**处理
+2. Java中定义了一个基类：`java.lang.Throwable`，将它作为**所有异常的超类**
+
+> `java.lang.Error`是错误信息`
+>
+> `java.lang.Exception`是异常信息
+
+
+
+Java API中定义了很多异常类，分为两大类：
+
+- 错误`Error`：Error类对象由**Java虚拟机**生成并抛出
+  - Java虚拟机运行错误：JVM一般会选择**线程终止**
+- 异常`Exception`
+  - **运行时**异常：程序中可以选择**捕获**，也可以不处理
+    - 算术异常
+    - 丢失资源
+    - 找不到类
+    - 空指针
+    - 数组下标越界
+
+![异常体系结构](Java.assets/异常体系结构.png)
+
+
+
+## 异常处理
+
+- 抛出异常
+- 捕获异常
+
+### 捕获异常
+
+1. `try`：监控代码块
+2. `catch`：捕获异常
+3. `finally`：无论是否有异常，都会执行（可以不写）
+
+
+
+![算术异常](Java.assets/算术异常.png)
+
+
+
+1. `try`和`catch`要一起使用
+2. `catch`中的**参数**是想要捕获的**异常类型**
+3. `catch`可以多次使用（捕获多种异常），但是**范围大的异常需要放在最后**（否则报错）并且多`catch`类似于`else if`，只会生效一个（底下范围大的异常不会再生效）
+
+```java
+package com.exception.demo01;
+
+public class Text {
+  public static void main(String[] args) {
+    int a = 1;
+    int b = 0;
+
+    try { // 监控
+      System.out.println(a / b);
+    } catch (ArithmeticException e) { // 捕获异常
+      System.out.println("算术异常");
+    } finally { // 善后工作
+      System.out.println("finally");
+    }
+  }
+}
+```
+
+![捕获异常](Java.assets/捕获异常.png)
+
+
+
+快捷键：`ctrl+alt+t`
+
+![快捷键try](Java.assets/快捷键try.png)
+
+
+
+打印错误信息`printStackTrace()`
+
+```java
+catch (Exception e) {
+    e.printStackTrace();
+}
+```
+
+
+
+### 抛出异常
+
+一般在**方法**中抛出异常（假设方法处理不了这个异常）
+
+- `throw`
+- `throws`
+
+
+
+## 自定义异常

@@ -79,6 +79,8 @@
 
 ### Namespaces
 
+容器中的进程是运行在主机的操作系统上的，但是容器使用独立的PID Linux命名空间并有独立的系列号，完全独立于进程树。
+
 #### 进程树
 
 ![进程树](Docker.assets/进程树.png)
@@ -102,6 +104,8 @@
 > (linux)联合文件系统——分层
 >
 > 可以把不同的文件系统一层层的叠加的挂载起来，但app使用的时候看起来就是一个文件系统
+
+容器也拥有独立的文件系统。
 
 宿主机上多个容器运行相同的系统，这些系统里大部分文件内容都是相同的。为了节省资源，将相同的内容和不同的内容隔开，分成只读层和可写层。然后就可以挂载同一个只读层，再挂载不同的可写层上。
 
@@ -282,13 +286,13 @@ docker container COMMAND --help
 ### docker ps
 
 ```shell
-#列出当前正在运行的容器 
+# 列出当前的容器 (默认是正在运行)
 docker ps	
 
 #显示所有容器ID
 docker ps -aq
--a, --all Show all containers (default shows just running) 
--q, --quiet Only display numeric IDs
+# -a, --all 列出所有的容器(运行中和停止的)
+# -q, --quiet Only display numeric IDs
 ```
 
 ### docker run
@@ -315,9 +319,12 @@ docker run [可选参数] image
 
 ### docker exec
 
-进入容器并开启一个新的终端,exit退出
+进入容器并开启一个新的终端运行bash，bash进程和主容器进程拥有相同的命名空间，exit退出
 运行命令,命令运行完后就退出(运行不完就不退出)
--it是以交互的方式进入容器, /bin/sh或者/bin/bash
+`-it`是以交互的方式进入容器, `/bin/sh`或者`/bin/bash`
+
+- -i：确保输标准入流保持开放，需要在shell中输入命令
+- -t：分配一个伪终端TTY
 
 ```shell
 docker exec -it 容器id /bin/sh
@@ -333,43 +340,51 @@ docker attach 容器id
 ```bash
 docker commit -m = "描述信息" -a = "作者" 容器id 目标镜像名:[TAG]
 
-#创建操作是黑盒的,并不知道修改了那些东西
-#docker build就会分层写好修改,生成docker file
+# 创建操作是黑盒的,并不知道修改了那些东西
+# docker build就会分层写好修改,生成docker file
 ```
 
 ### docker build
 
 ```shell
-#使用dockerfile构建成镜像
+# 使用dockerfile构建成镜像
 # -f:指定要使用的Dockerfile路径
 # -t/--tag: 镜像名及标签(name:tag或name),可以在一次构建中为一个镜像设置多个标签
 docker build -f 文件路径 -t 用户名/镜像名:[tag] ./
 ```
 
+### docker tag
+
+不会重命名标签，而是给同一个镜像创建一个额外的标签（同一个镜像id）
+
+```bash
+docker tag 旧镜像标签 新镜像标签
+```
+
 ### docker prune
 
 ```bash
-#删除所有停止的容器
+# 删除所有停止的容器
 docker container prune
 ```
 
 ### docker rm
 
 ```shell
-#删除指定的容器,不能删除正在运行的容器,强制删除:rm -rf 
+# 删除指定的容器,不能删除正在运行的容器,强制删除:rm -rf 
 docker rm 容器id 
 
-#删除所有容器 
+# 删除所有容器 
 docker rm -f $(docker ps -aq) 	
 
-#删除所有的容器（复合指令）
+# 删除所有的容器（复合指令）
 docker ps -a -q|xargs docker rm 
 ```
 
 ## 其他命令
 
 ```shell
-#查看日志
+# 查看日志
 docker logs --help 
 Options:
 --details 		#Show extra details provided to logs 
@@ -379,31 +394,31 @@ Options:
 -t, --timestamps#Show timestamps 
 	--until 	#string Show logs before a timestamp 
 
-#显示日志信息(一直更新)
+# 显示日志信息(一直更新)
 docker logs -tf 
 
-#需要显示日志条数 
+# 需要显示日志条数 
 docker logs --tail number 
 
-#查看n行日志 
+# 查看n行日志 
 docker logs -t --tail n 容器id 
 
-#跟着日志
+# 跟着日志
 docker logs -ft 容器id 
 
-#显示容器状态
+# 显示容器状态
 docker stats
 
-#查看容器元数据
+# 查看容器元数据
 docker inspect
 
-#显示容器进程
+# 显示容器进程
 docker top
 
-#显示容器内产生的变化
+# 显示容器内产生的变化
 docker diff
 
-#显示容器端口映射
+# 显示容器端口映射
 docker port
 ```
 

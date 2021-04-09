@@ -423,7 +423,74 @@ int a = 100_000;
 
 
 
+### 枚举类型
 
+变量取值只在一个有限的集合内，此时可以自定义枚举类型（包含有限个命名的值）
+
+```java
+enum Size{SMALL,MEDIUM,LARGE};
+
+//Size类型的变量只能存储这个类型声明中的枚举值和null
+Size s = Size.MEDIUM;
+```
+
+
+
+### 字符串
+
+Java没有内置的字符串类型，但在标准Java类库中提供了一个预定义类`String`，每个字符串都是`String`类的一个实例
+
+`String`：Java字符串就是Unicode字符序列。
+
+`String`对象是不可变字符串（无法修改字符串中的字符）
+
+> 任何一个java对象都可以转换为字符串
+>
+> 因为字符串不可变，编译器可以让字符串共享（公共的存储池）
+>
+> 不要认为字符串是字符数组
+
+- **子串**
+
+  `substirng()`
+
+- **空串**
+
+  空串是一个Java对象，是**长度为0**，**内容为空**的字符串（s.length = 0）
+
+- **null**
+
+  表示目前没有任何对象和该变量关联
+
+- **拼接**
+
+  使用`+`拼接两个字符串，每次拼接都会构建一个新的`String`对象
+
+  - 当一个字符串和一个非字符串的值拼接时，后者被转化为字符串
+  - 多个字符串用分隔符拼接，可以用静态`join`方法
+
+- **StringBuilder**
+
+  空的字符串构建器，可以用`append`方法像其中添加内容
+
+  ```java
+  StringBuilder s = new StringBuilder();
+  s,append("sh");
+  ```
+
+  再使用`tostring`方法构建字符串
+
+  ```java
+  String str = s.tostring();
+  ```
+
+- **判断相等**
+
+  - `equals()`
+
+  - `equalsIgnoreCase()`
+
+    > 不要用`==`判断
 
 
 
@@ -525,13 +592,17 @@ final double PI = 3.14;
 
 - 逻辑运算符：&&，||，!
 
-  > 如果左边可以直接决定结果，那么右边就不会再计算
+  > **短路**方式：如果左边可以直接决定结果，那么右边就不会再计算
 
 - 条件运算符：? :
 
-- 位运算符：&，|，^，~（取反），>>，<<（左移）
+- 位运算符：&，|，^，~（取反），>>，<<（左移），>>>
 
-  > **异或^**：不进位的二进制加法，相同为0，不同为1。一个数和自己异或可以实现清0。
+  > 异或`^`：不进位的二进制加法，相同为0，不同为1。一个数和自己异或可以实现清0。
+  >
+  > `>>`：用符号位填充高位
+  >
+  > `>>>`：用0填充高位
 
 > 别的运算使用**工具类**来实现
 
@@ -677,9 +748,13 @@ public class Doc {
 
 
 
-# 交互Scanner
+# 输入输出
 
-> `Java.util.Scanner`是Java5的新特性（Java.util包）
+## Scanner
+
+> `Java.util.Scanner`是JavaSE5的新特性（`Java.util`包）
+>
+> 所有不在`Java.lang`包中的关键字都需要`import`导包
 
 通过`Scanner`类获取用户的输入
 
@@ -689,24 +764,17 @@ public class Doc {
 
 - 获取输入数据
 
-  - `next()`：哟i个
+  - `next()`：
+
+    要读取到有效字符才可以结束输入，对输入有效字符之前的空格会**自动去掉**，输入有效字符后将其后面的空白作为结束符（得不到带有空格的字符串）
+
   - `nextLine()`
+
+    以Enter作为结束符，返回回车前的所有内容（可以获得空白）
 
 - 关闭
 
   `scanner.close();`
-
-  
-
-**方法区别**：
-
-`next()`：
-
-要读取到有效字符才可以结束输入，对输入有效字符之前的空格会**自动去掉**，输入有效字符后将其后面的空白作为结束符（得不到带有空格的字符串）
-
-`nextLine()`：
-
-以Enter作为结束符，返回回车前的所有内容（可以获得空白）
 
 > 输入IO流的的类，使用完都要关闭否则会一直占用资源
 
@@ -716,11 +784,12 @@ public class Doc {
 // 2. 	alt + 2次回车
 // 3.	.var
 
+// 导包
 import java.util.Scanner;
 
 public class Demo01 {
   public static void main(String[] args) {
-    // 创建扫描器对象，接受数据
+    // 构造Scanner对象，关联标准输入流System.in
     Scanner scanner = new Scanner(System.in);
     System.out.println("使用next获取输入");
     // 判断用户是否输入
@@ -770,6 +839,46 @@ public class Demo02 {
 按住**crtl**点击`Scanner`类，点击**Structure**可以看到`Scanner`类种的方法
 
 ![Scanner源码](Java.assets/Scanner源码.png)
+
+
+
+## Console
+
+`Scanner`输入可见，不适合从控制台读取密码。JavaSE6引入`Console`类
+
+- 返回的密码存放在一维字符数组中，而非字符串
+- 每次只能读一行输入，不能只读一个单词等
+
+```java
+Console cons = System.console();
+String name = cons.readLine();
+char[] password = con.readPassword();
+```
+
+
+
+## 文件
+
+- 读取文件
+
+  用`File`对象构造`Scanner`对象对文件进行读取
+
+  - 文件名中有`\`，需要加额外的`\`
+  - 指定相对文件名时，文件位于Java虚拟机启动路径的相对位置
+
+  ```java
+  Scanner in = new Scanner(Paths.get("c:\\myfile.txt"),"UTF-8");
+  ```
+
+- 写入文件
+
+  构造`PrintWriter`对象，如果该文件不存在，则创建它
+
+  ```java
+  PrintWriter out = new PrintWriter(Paths.get("c:\\myfile.txt"),"UTF-8");
+  ```
+
+如果用一个不存在文件创建`Scanner`，或者用一个不能被创建的文件名构造一个`PrintWriter`，就会发生异常
 
 
 
@@ -1217,15 +1326,22 @@ dataType array[];
 
 ## 数组创建
 
-Java使用`new`操作符创建数组（数组元素会被**默认**初始化）
+Java使用`new`操作符创建数组，数组元素会被**默认**初始化
+
+> Java中允许数组长度为0（与null不同）
+
+- 数字：初始化为0
+- boolean：初始化为false
+- 对象：初始化为null
 
 ```java
 // 1.声明 相当于dataType[] array = null;
 dataType[] array;
+
 // 2.创建
 array = new dataType[arraysize];
 
-// 可以一起实现
+// 一步到位
 dataType[] array = new dataType[arraysize];
 ```
 
@@ -1287,6 +1403,22 @@ dataType[] array = new dataType[arraysize];
 - **默认初始化**
 
   数组是**引用类型**，数组元素相当于类的**实例变量**，因此数组一经分配空间，每个数组元素就按照实例变量同样的方法被**默认（隐式）初始化**。
+
+## 数组拷贝
+
+允许将一个数组变量拷贝给另一个数组变量，两个变量引用同一个数组
+
+```java
+int[] a = b;
+```
+
+` Arrays.copyOf`方法：
+
+但长度小于原始数组的长度，则只拷贝最前面的数据元素
+
+```java
+int[] a = Arrays.copyOf(b,b.length)
+```
 
 
 
@@ -1351,6 +1483,8 @@ int[][] arrays = {{1,2},{2,3},{3,4}};
 
 > 每一个arrays[i]都是一行数组的首地址（arrays[i] [j]）
 
+
+
 可以单独把`arrays[i]`作为一个数组参数，也可以使用`arrays[i].length`（区分`arrays.length`）
 
 ```java
@@ -1372,7 +1506,7 @@ public class Demo03 {
 
 **二维数组的增强for循环**：
 
-将`arrays[i]`作为遍历元素
+一个`for each`不能遍历二维数组的每一个元素，它是按照行处理。要将`arrays[i]`作为遍历元素。
 
 ```java
 package com.ink.array;
@@ -1386,6 +1520,20 @@ public class Demo03 {
       }
     }
   }
+}
+```
+
+
+
+## 不规则数组
+
+1. 先创建一个具有所含行数的数组
+2. 单独创建每一行行组（`new`）
+
+```java
+int[][] odds = new int[MMAX+1][];
+for(int i=0; i<= NMAX; i++){
+    odd[i] = new intp[i+1];
 }
 ```
 
@@ -1479,7 +1627,7 @@ Java内存：
 
 OO（`Object Oriented`）：面向对象，一种软件开发方法，一种编程范式
 
-OOP（`Object Oriented Programming`）：面向对象编程
+OOP（`Object Oriented Programming`）：面向对象编程，程序由对象组成
 
 **OOP的本质：以类的方式组织代码，以对象的方式封装数据**
 

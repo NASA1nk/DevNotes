@@ -175,11 +175,11 @@ java HelloWorld			#运行	不带class后缀
 
 
 
-## 集成开发环境
+# 集成开发环境
 
 **IDE**： `Integrated Development Environment`。一般包括编辑器，编译器，调试器和图形界面
 
-### idea开发
+## idea开发
 
 1. 在`File`中`new`一个`Empty Project`，再`new`一个`module`
 
@@ -216,7 +216,7 @@ java HelloWorld			#运行	不带class后缀
 
 
 
-### idea设置
+## idea设置
 
 1. **自动补全**
 
@@ -232,7 +232,7 @@ java HelloWorld			#运行	不带class后缀
 
 
 
-### idea刷题
+## idea刷题
 
 1. 下载插件
 
@@ -1283,8 +1283,6 @@ public class Demo02 {
 
 > JDK1.5开始支持传递同类型的可变参数
 
-
-
 在方法声明中，在指定**参数类型**后加一个省略号`...`
 
 - 一个方法只能指定**一个**可变参数，
@@ -2071,11 +2069,13 @@ public class Student extends Person {
 
 ![Object类](Java.assets/Object类.png)
 
-Object类中的方法
+`Object`类中的方法
 
 - `equals()`：判断两个对象是否具有相同的引用
-- `hashCode()`
-- `toString()`
+- `hashCode()`：散列码
+- `toString()`：返回标识对象值的字符串
+
+
 
 ### 方法重写
 
@@ -2302,6 +2302,47 @@ public class Application {
 
 
 
+## 对象包装器
+
+将基本类型转换为对象。所有的基本类型都有一个与之对应的类，这些类被称为包装器（wrapper）。
+
+- `int`：`Integer`
+- `char`：`Character`
+- `double`：`Double`
+- `boolean`：`Boolean`
+- `byte`：`Byte`
+
+> 数值型包装类都继承超类`Number`，而字符型和布尔型继承超类`Object`
+
+一旦构造了包装器，就不再允许更改包装在其中的值。并且对象包装器类是`final`，不能定义它们的子类
+
+**自动装/拆箱机制**
+
+因为包装器的引用可以为`null`，所以自动装箱可能会抛出`NullPointerException`异常
+
+```java
+ArrayList<Integer> list = newArrayList<>();
+list.add(3);
+// 自动装箱,相当于
+list.add(Integer.valueOf(3))
+// 当给一个Integer对象赋int值时,会自动拆箱
+```
+
+
+
+## 枚举类
+
+```java
+public enum Size{SMALL,MEDIUM,LARGE};
+```
+
+声明类型是一个类，刚好有3个实例。尽量不要构造新对象。
+
+- 在比较两个枚举类型的值时，永远不要调用`equals`，要直接使用`= =`
+- 所有枚举类都是`Enum`类的子类
+
+
+
 ## static
 
 **静态**修饰符
@@ -2376,43 +2417,70 @@ public class A extends Action {
 > 1. 不能被实例化，是否存在构造器
 > 2. 存在的意义
 
-## 接口
 
-`interface `声明关键字
 
-接口就是规范，定义了一组规则，制定好后大家一起遵守
+# 接口
 
+`interface `
+
+接口不是类，而是对类的一组需求描述，这些类要遵从接口描述
+
+> 接口就是规范，定义了一组规则，制定好后大家一起遵守
+>
 > 面向接口编程
 
 ![interface](Java.assets/interface.png)
 
+
+
 **区别**：
 
-- 普通类：只有具体实现
+- **普通类**：只有具体实现
 
-- 抽象类：具体实现和**规范**（抽象方法）
+- **抽象类**：具体实现和**规范**（抽象方法）
 
-- 接口：**只有规范**（没有实现）
+- **接口**：**只有规范**（没有实现）
 
   > 约束和实现分离
 
 
 
-**接口特点**：
+## 接口特点
 
-- 接口中的所有的**变量定义**都默认是`public static final`修饰（常量）
-
+- 接口中的所有的**变量定义**都默认是`public static final`修饰（即可以有常量）
 - 接口中的所有的**方法定义**都默认是`public abstract`修饰（抽象）
-- 接口**不能被实例化**，**没有构造方法**（和抽象类相同）
+- 接口不能含有实例域（可以看成没有实例域的抽象类）
+- 接口**不能被实例化**，**没有构造方法**（和抽象类相同），但可以声明接口变量
 - 接口需要有**实现类**，**重写**接口里面的规范（方法）
-  - 实现类名：接口名+`Impl`	
-  - 实现类关键字：`implements`（可以实现多个类）
+  - **实现类名**：接口名+`Impl`	
+  - **实现类关键字**：`implements`（可以实现多个类）
+  - 实现类自动继承接口中的常量
+- **接口变量**必须引用实现了接口的类对象（`instanceof`判断）
+- 接口也可以被**继承**
 
 
 
-**实现类**：
+## 默认方法
 
-**可以实现多个接口，相当于实现了多继承（伪）**
+可以给接口方法提供一个默认实现，用`default`修饰符标记。子类的每一一个实际实现都会覆盖这个方法。
+
+当超类或者另一个接口也定义了同样的方法，就会发生冲突
+
+**冲突解决**：
+
+1. **超类优先**
+2. **接口冲突**
+
+
+
+## 实现类
+
+**可以实现多个接口**，相当于实现了多继承（伪）
+
+1. 将类声明为实现给定的接口：`implements`
+2. 对接口中所有的方法进行定义（方法必须声明为`public`）
+
+****
 
 ![实现类](Java.assets/实现类.png)
 
@@ -2450,9 +2518,63 @@ public class UserServiceImpl implements UserService, TimeService {
 
 
 
-## 内部类
+# lambda表达式
 
-在一个类的内部再定义一个类（**外部类**和**内部类**）
+**lamda表达式（λ）**是一个可传递的代码块，可以在**将来**执行一次或多次。
+
+> 带参数变量的表达式被称为lambda表达式
+
+## 语法
+
+1. **参数**：
+   1. 没有参数就用`()`
+   2. 可以推导出一个lambda表达式的参数类型时，可以忽略其类型
+   3. 如果方法只有一个参数且参数类型可以推导出，还可以省略`()`
+2. **->**：箭头
+3. **表达式**
+4. **{}**：如果代码实现无法放在一个表达式中，可以放在`{}`中
+
+> 不需要指出表达式的返回类型，会由上下文推出
+
+```java
+// 表达式
+(String f,String s)
+	->f - s
+        
+//
+(String f,String s)->
+	{
+        if(f < s)return -1;
+        else if(f > s)return 1;
+        else return 0;
+    }
+```
+
+
+
+## 函数式接口
+
+对于**只有一个抽象方法的接口**，需要这种接口的对象时，可以**提供一个lambda表达式**，这种接口称为函数式接口
+
+> Object不是一个函数式接口，不能把lambda表达式赋给类型为Object的变量
+
+
+
+## 方法引用
+
+传递方法当作参数
+
+
+
+## 构造器引用
+
+
+
+
+
+# 内部类
+
+`inner class`：在一个类的内部再定义一个类（**外部类**和**内部类**）
 
 > 一个java类中可以有多个`class`类，但只能有一个`public class`
 
@@ -2465,85 +2587,91 @@ public class UserServiceImpl implements UserService, TimeService {
 
 
 
-1. **成员内部类**
+## 成员内部类
 
-   可以获得外部类的私有的属性和方法
+可以获得外部类的私有的属性和方法
 
-   ```java
-   public class Outer {
-     private int id = 10;
-   
-     public void out() {
-       System.out.println("这是外部类方法");
-     }
-   
-     public class Inner {
-       public void in() {
-         System.out.println("这是内部类方法");
-       }
-       // 获得外部类的私有属性
-       public void getId() {
-         System.out.println(id);
-       }
-     }
-   }
-   ```
+```java
+public class Outer {
+  private int id = 10;
 
-   ![成员内部类](Java.assets/成员内部类.png)
+  public void out() {
+    System.out.println("这是外部类方法");
+  }
 
-2. **静态内部类**
+  public class Inner {
+    public void in() {
+      System.out.println("这是内部类方法");
+    }
+    // 获得外部类的私有属性
+    public void getId() {
+      System.out.println(id);
+    }
+  }
+}
+```
 
-   在成员内部类前加上`static`关键字。无法在获得外部类的**非静态属性**
+![成员内部类](Java.assets/成员内部类.png)
 
-   ```java
-   public class Outer {
-     private int id = 10;
-   
-     public void out() {
-       System.out.println("这是外部类方法");
-     }
-   
-     public static class Inner {
-       public void in() {
-         System.out.println("这是内部类方法");
-       }
-       // 无法获得外部类的私有属性
-       // public void getId()
-     }
-   }
-   ```
 
-3. **局部内部类**
 
-   在**方法中**定义的类
+## 静态内部类
 
-   ```java
-   public class Outer {
-     public void method() {
-       class Inner {
-         public void in() {}
-       }
-     }
-   }
-   ```
+在成员内部类前加上`static`关键字。无法在获得外部类的**非静态属性**
 
-4. **匿名内部类**
+```java
+public class Outer {
+  private int id = 10;
 
-   没有名字去初始化类，不用将实例保存到变量中
+  public void out() {
+    System.out.println("这是外部类方法");
+  }
 
-   ```java
-   public class Application {
-     public static void main(String[] args) {
-       new A().b();
-     }
-   }
-   
-   class A {
-     public void b() {
-       System.out.println("c");
-     }
-   }
-   ```
+  public static class Inner {
+    public void in() {
+      System.out.println("这是内部类方法");
+    }
+    // 无法获得外部类的私有属性
+    // public void getId()
+  }
+}
+```
+
+
+
+## 局部内部类
+
+在**方法中**定义的类
+
+```java
+public class Outer {
+  public void method() {
+    class Inner {
+      public void in() {}
+    }
+  }
+}
+```
+
+
+
+## 匿名内部类
+
+没有名字去初始化类，不用将实例保存到变量中
+
+```java
+public class Application {
+  public static void main(String[] args) {
+    new A().b();
+  }
+}
+
+class A {
+  public void b() {
+    System.out.println("c");
+  }
+}
+```
 
 
 
@@ -2757,3 +2885,11 @@ public class Test {
 ```
 
 ![自定义异常](Java.assets/自定义异常.png)
+
+
+
+# ArrayList类
+
+`ArrayList`**是一个采用类型参数的泛型类**
+
+`<>`指定数组列表保存的元素**对象类型**

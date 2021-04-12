@@ -1,4 +1,4 @@
-# Dos命令
+# Dos
 
 ```bash
 #盘符切换	D:
@@ -23,22 +23,17 @@
 
 # Java
 
-## 版本
+- **版本**
+  - **JavaSE** ：标准版（桌面程序，控制台开发）
+  - **JaveEE** ：企业级开发（web端，服务器开发）
 
-跨平台运行（**JVM**）
+- **JDK**：`Java Development Kit`开发者工具（jdk包含了jre）
 
-- **Java SE** ：标准版	（桌面程序，控制台开发）
-- **Java EE** ：企业级开发	（web端，服务器开发）
+- **JRE**：`Java Runtime Environment`运行时环境
 
+- **JVM**：`Java Virtual Machine` JAVA虚拟机
 
-
-## JDK	JRE	JVM
-
-- **JDK**：Java Development Kit	开发者工具（jdk包含了jre）
-
-- **JRE**：Java Runtime Environment	运行时环境
-
-- **JVM**：Java Virtual Machine	JAVA虚拟机
+  > JVM规范：HotSpot
 
 
 
@@ -170,27 +165,33 @@ java HelloWorld			#运行	不带class后缀
 
 `Comments`
 
-- 单行注释：line comment（快捷键`ctrl+/`）
+- **单行注释**：line comment
+
+  快捷键：ctrl+/
 
   ```java
   //
   ```
 
-- 多行注释：Block comment（快捷键`ctrl+shift+/`）
+- **多行注释**：Block comment
+
+  快捷键：ctrl+shift+/
 
   ```java
   /**/
   ```
 
-- 文档注释：**JavaDoc**（快捷键`/**+空格`）
+- **文档注释**：**JavaDoc**
 
+  快捷键：/**+空格
+  
   ```java
   /**
    * 
    */
   ```
 
-> 搜	有趣的代码注释
+> 有趣的代码注释
 
 
 
@@ -386,7 +387,7 @@ Java没有内置的字符串类型，但在标准Java类库中提供了一个预
 
 - **StringBuilder**
 
-  空的字符串构建器，可以用`append`方法像其中添加内容
+  空的**字符串构建器**，可以用`append`方法像其中添加内容
 
   ```java
   StringBuilder s = new StringBuilder();
@@ -977,7 +978,7 @@ for (; ;) {
 }
 ```
 
-生成布尔表达式是`i<n`的的for循环快捷键：`n.for`
+生成布尔表达式是`i<n`的的for循环快捷键：n.for
 
 ```java
 int n;
@@ -1311,7 +1312,7 @@ dataType[] array = new dataType[arraysize];
 
 - **增强for循环**（无下标）
 
-  快捷键：数组名`.for`
+  快捷键：数组名.for
 
   ```java
   int[] arrays = {1, 2, 3, 4, 5};
@@ -1753,7 +1754,7 @@ public class Person {
 
 
 
-**快捷键**：`alt+insert`，快速生成构造器
+**快捷键**：alt+insert，快速生成构造器
 
 ![快捷生成](Java.assets/快捷生成.png)
 
@@ -1839,7 +1840,7 @@ public class Application {
 
    
 
-   快捷键：`alt+insert`
+   快捷键：alt+insert
 
    **Getter and Setter** 自动生成最原始的接口方法
 
@@ -1890,7 +1891,7 @@ public class Application {
 
 由一个公共超类派生出来的所有类的集合被称为继承层次（inheritance hierarchy），在继承层次中，从某个特定类到其祖先的路径被称为该类的**继承链**（inheritance chain）
 
-快捷键：`ctrl+h` 打开**继承树**
+快捷键：ctrl+h 打开**继承树**
 
 ![继承树](Java.assets/继承树.png)
 
@@ -1999,7 +2000,7 @@ public class Student extends Person {
 
 
 
-快捷键：`ctrl+o`
+快捷键：ctrl+o
 
 > 重写的方法对应的**侧边栏**会有符号箭头表示
 
@@ -2724,7 +2725,7 @@ public class Text {
 
 
 
-快捷键：`ctrl+alt+t`
+快捷键：ctrl+alt+t
 
 ![快捷键try](Java.assets/快捷键try.png)
 
@@ -2865,8 +2866,317 @@ public class Test {
 
 
 
-# ArrayList类
+# 常用类
+
+## String类
+
+**不可变的字符序列**
+
+Java程序中所有的**字符串**的字面值都是`String`类的一个实例
+
+- `String`是一个`final`类，它无法被继承
+- `String`对象的字符内容存储在一个字符数组`value[]`中（`private final`类型的数组）
+- `String`实现了`Serializable`接口，表示字符串是可以序列化的（IO流）
+- `String`实现了`Comparable`接口，表示字符串是可以比较大小
+- 字符串是**常量**，创建后**不能更改**
+  - 当对字符串重新**赋值**时，需要重新指定内存区域
+  - 当对字符串进行**拼接**时，需要重新指定内存区域
+  - 当对字符串进行**替换**时，需要重新指定内存区域
+
+> 方法区中包含字符串常量池，常量池不会存储相同内容的字符串
+
+![String](Java.assets/String.png)
+
+
+
+### 字符串修改
+
+**值传递**：引用数据类型传递的是地址值
+
+- `str`将自己指向的地址传递给了`change`方法。`str`有不可变性，所以`str`不会变
+- `ch`指向堆中的一片区域，可以在方法中改变
+
+```java
+package com.ink.String;
+
+public class Test {
+    String str = new String("good");
+    char[] ch = {'t','e','s','t'};
+    public void change(String str,char[] ch){
+        str = "ok";
+        ch[0] = 'b';
+    }
+    public static void main(String[] args) {
+        Test ex = new Test();
+        ex.change(ex.str,ex.ch);
+        System.out.println(ex.str + "and" + ex.ch);
+    }
+}
+```
+
+![String修改](Java.assets/String修改.png)
+
+> 如果将 `str = "ok";`改为`this. str = "ok";`就会一起改变！
+
+
+
+### 字符串实例化方法
+
+- **字面量定义**
+
+  - 字符串常量**存储在常量池**中共享
+
+- **`new`+构造器**
+
+  - 字符串**非常量对象存储在堆中**，保存堆空间地址，由**堆中的对象指向常量池**
+
+    > 相当于创建了两个对象，一个是堆中的`new`结构，一个是`char[]`对应的常量池中的数据
+
+```java
+package com.ink.String;
+
+import java.util.Arrays;
+
+public class Astring {
+    // 常量池声明
+    String str = "abc";
+    
+    //  this.value = new char[0];
+    String s1 = new String();
+    
+    // this.value = original.value;
+    String s2 = new String(String original);
+    
+    // this.value = ArrayscopyOf(value,value.length);
+    String s3 = new String(char[] s);
+    
+    String s4 = new String(char[] s, int startIndex, int count);
+
+}
+```
+
+
+
+### 字符串比较
+
+- `==`：比较字符串的**地址值**
+- `equals`：比较字符串的**内容**，`String`类重写了`equals`方法
+
+
+
+### 字符串拼接
+
+- **字面量**值拼接
+
+  常量和常量的拼接结果在常量池中
+
+- 存在**变量**参与拼接
+
+  只要存在一个变量，结果就在堆中
+
+  > `final`定义的变量是常量！拼接结果在常量池中
+
+```java
+package com.ink.String;
+
+public class Astring {
+    public static void main(String[] args) {
+        String s1 = "abc";
+        String s2 = "def";
+        String s3 = "abcdef";
+        String s4 = s1 + "def";
+        String s5 = "abc" + s2;
+        String s6 = "abc" + "def";
+        System.out.println(s3 == s4);
+        System.out.println(s3 == s5);
+        System.out.println(s3 == s6);
+        System.out.println(s4 == s6);
+        String s7 = s5.intern();
+        System.out.println(s3 == s7);
+    }
+}
+```
+
+![String拼接](Java.assets/String拼接.png)
+
+如果拼接结果调用`intern()`方法，**返回值在常量池中**
+
+```java
+// true
+String s7 = s5.intern();
+System.out.println(s3 == s7);
+```
+
+
+
+### 常用方法
+
+- `int length()`：返回字符串长度
+- `char charAt(int index)`：返回索引处的字符
+- `boolean isEmpty()`：判断字符串是否为空
+- `String toLowerCase()`：将字符串中所有字符转换为小写
+- `String toUpperCase()`：将字符串中所有字符转换为大写
+- `String trim()`：返回字符串的副本，忽略**所有前导空格和尾部空格**（中间的空格不变）
+- `boolean equals(Object obj)`：比较字符串内容是否相同
+- `boolean equalsIgnoreCase(Object obj)`：忽略大小写，比较字符串内容是否相同
+- `String concat(String str)`：将字符串连接到此字符串的尾部，**等价于"+"**
+- `int compareTo(String anotherString)`：比较两个字符串的大小（`Comparable`接口中的抽象方法）
+- `String substring(int beginIndex)`：从此字符串的beginIndex开始，返回一个新字符串
+- `String substring(int beginIndex,int endIndex)`：从此字符串的beginIndex开始，endIndex结束，返回一个新字符串
+- `boolean contains(CharSequence s)`：当且仅当此字符串包含指定的char值序列时，返回true
+- `String replace(char oldChar,char newChar)`：用新的字符替换字符串中**所有的旧字符**，返回新的字符串
+- `String replace(CharSequence target,CharSequence replacement)`：用指定的字面值替换字符串中所有匹配字面值的子字符串，返回新的字符串
+- `String split(String regex)`：根据给定的**正则表达式**的匹配拆分字符串
+
+
+
+### 类型转换
+
+String类和**其他结构**之间的转换
+
+> 只有子父类**继承关系**的类型才可以强制类型转换
+
+
+
+**String转换为基本数据类型（包装类）**
+
+调用包装类的**静态方法**：`Integer.parseInt(str)`
+
+
+
+**基本数据类型（包装类）转换为String**
+
+调用String重载的`valueOf()`方法：`String.valueOf(num)`
+
+也可以直接**拼接**：`num + ""`
+
+> 拼接的字符串在堆中（有变量），不在常量池中
+
+
+
+**String转换为字符数组（char[]）**
+
+> String的底层就是一个char[]
+
+调用String的`toCharArray()`方法
+
+
+
+**字符数组（char[]）转换为String**
+
+调用String的**构造器**即可：`new String(char[])`
+
+
+
+**String转换为字节数组（byte[]）**
+
+调用String的`getBytes()`方法（默认的字符编码集）
+
+`getBytes(charsetName)`：指定字符编码集
+
+> UTF-8下，一个汉字三个字节
+>
+> GBK下，一个汉字两个字节
+
+
+
+**字节数组（byte[]）转换为String**
+
+调用String的**构造器**即可：`new String(byte[])`
+
+
+
+## StringBuffer类
+
+- **可变的字符序列**
+- **线程安全的**
+- **效率低**
+
+`StringBuffer`对象的字符内容存储在一个字符数组`value[]`中（没有`final`修饰，可变）
+
+
+
+### StringBuffer源码
+
+1. **无参构造**
+
+   无参的构造器会初始化**长度为16**的char数组
+
+   ![StringBuffer源码](Java.assets/StringBuffer源码.png)
+
+2. **有参构造**
+
+   有参的构造器会初始化**长度为参数长度+16**的char数组
+
+   ![StringBuffer有参构造](Java.assets/StringBuffer有参构造.png)
+
+3. **字符串长度**
+
+   `.length()`方法还是返回**实际长度**（`.append()`就+1），而不是`value.length`
+
+   ![StringBuffer.length6](Java.assets/StringBuffer.length6.png)
+
+4. **数组扩容**
+
+   1. 调用的是超类的`append()`方法
+
+      ![append()](Java.assets/append().png)
+
+   2. 超类的`append()`方法
+
+      判断已有长度和添加的长度和是否超过数组长度
+
+      ![超类append](Java.assets/超类append.png)
+
+   3. 如果超过数组长度，调用`copyOf()`方法**复制数据**
+
+      ![ensureCapacityInternal](Java.assets/ensureCapacityInternal.png)
+
+   4. 在创建新的数组时候扩容
+
+      默认情况是`(old.length << 1)+2`
+
+      > 会有**特殊情况**，比如扩容后还是不够，或者超过最大长度...
+
+      ![newCapacity](Java.assets/newCapacity.png)
+
+   
+
+   
+
+   
+
+### StringBuffer方法
+
+查看StringBuffer的所有方法
+
+**快捷键**：ctrl+F12
+
+![StringBuffer方法](Java.assets/StringBuffer方法.png)
+
+
+
+
+
+
+
+
+
+## StringBuidler类
+
+- **可变的字符序列**
+- **线程不安全的，效率高**
+
+> JDK5.0新增
+>
+> 不涉及线程的时候（不考虑线程安全时），优先使用
+
+`StringBuidler`对象的字符内容存储在一个字符数组`value[]`中（没有`final`修饰，可变）
+
+
+
+# 集合
 
 `ArrayList`**是一个采用类型参数的泛型类**
 
-`<>`指定数组列表保存的元素**对象类型**
+`<>`指定数组列表保存的元素**对象类型**·

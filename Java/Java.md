@@ -2389,8 +2389,6 @@ public class A extends Action {
 1. 将类声明为实现给定的接口：`implements`
 2. 对接口中所有的方法进行定义（方法必须声明为`public`）
 
-****
-
 ![实现类](Java.assets/实现类.png)
 
 ```java
@@ -3156,9 +3154,21 @@ String类和**其他结构**之间的转换
 
 
 
+- `StringBuidler append(obj)`：字符串拼接
+- `StringBuffer delete(int start,int end)`：删除指定位置内容
+- `StringBuffer replace(int start,int end,String str)`：把**[start,end)**位置的内容替换为str
+- `StringBuffer insert(int offset,obj)`：字符插入
+- `StringBuffer reverse()`：反转字符串
 
+调用`append()`和`insert()`时，如果原来的数组长度不够，可以扩容
 
+**这些方法支持方法链操作**
 
+**方法链**
+
+可以...一直调用（**返回this**）
+
+![方法链](Java.assets/方法链.png)
 
 
 
@@ -3172,6 +3182,40 @@ String类和**其他结构**之间的转换
 > 不涉及线程的时候（不考虑线程安全时），优先使用
 
 `StringBuidler`对象的字符内容存储在一个字符数组`value[]`中（没有`final`修饰，可变）
+
+
+
+**效率**：**StringBuidler > StringBuidler > String**
+
+
+
+## System类
+
+`java.lang.System`
+
+> JDK8之前日期和时间的API
+
+日期方法：返回**时间戳**
+
+`public static long currentTimeMillis()`
+
+返回当前时间和1970年1月1日0时0分0秒之间的时间差（以**毫秒**为单位）
+
+
+
+## Date类
+
+`java.util.Date`
+
+> 还有一个`java.sql.Date`类
+
+### Date构造器
+
+### Date方法
+
+
+
+
 
 
 

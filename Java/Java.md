@@ -3272,7 +3272,10 @@ public class DateTest {
 
 `SimpleDateFormat`类是一个用**和语言环境无关的方式**来**格式化和解析**日期的类（对`java.util.Date`类进行操作）
 
+- 无参构造
+- 有参构造：`pattern`规定生成日期格式
 
+ 
 
 ### 日期格式化
 
@@ -3323,6 +3326,12 @@ try {
     System.out.println("exception");
 }
 ```
+
+
+
+## Calendar类
+
+`Calendar`（日历类）是一个**抽象基类**，主要用于完成日期字段之间相互操作的功能。
 
 
 

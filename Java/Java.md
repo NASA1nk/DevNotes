@@ -3199,7 +3199,7 @@ String类和**其他结构**之间的转换
 
 `public static long currentTimeMillis()`
 
-返回当前时间和1970年1月1日0时0分0秒之间的时间差（以**毫秒**为单位）
+返回**当前时间**和1970年1月1日0时0分0秒之间的时间差（以**毫秒**为单位）
 
 
 
@@ -3207,11 +3207,56 @@ String类和**其他结构**之间的转换
 
 `java.util.Date`
 
-> 还有一个`java.sql.Date`类
+> 还有一个`java.sql.Date`类，对应**数据库**中的日期类型变量
+
+
 
 ### Date构造器
 
+- `Date()`：无参构造器创建一个对应**当前时间**的Date对象
+
+- `Date(long date)`：有参构造器创建一个对应**指定时间**（毫秒数）的Date对象
+
+  > `@Deprecated` ：注解，过时，但还能用
+
+```java
+package com.ink.Date;
+
+import java.util.Date;
+
+public class DateTest {
+    public static void main(String[] args) {
+        Date date1 = new Date();
+        System.out.println(date1);
+        System.out.println(date1.getTime());
+        Date date2 = new Date(1618391227838l);
+        System.out.println(date2);
+    }
+}
+```
+
+![Date类](Java.assets/Date类.png)
+
+
+
 ### Date方法
+
+- `getTime()`：返回**当前时间**和1970年1月1日0时0分0秒之间的时间差（以**毫秒**为单位）
+
+- `toString()`
+
+  把Date对象转换为dow month day hour:minute:second zzz year格式
+
+  - dow：day of week
+  - zzz：时间标准
+  
+  > `Date`类重写了`toString()`方法
+
+
+
+
+
+
 
 
 

@@ -3515,9 +3515,9 @@ public class Time {
 
 ## Comparable接口
 
-**`String`，包装类**实现了`Comparable`接口
+**`String`，包装类排序**
 
-重写了`compareTo(obj)`方法（从小到大排序）
+已经实现了`Comparable`接口，重写了`compareTo(obj)`方法（从小到大排序）
 
 ![String比较](Java.assets/String比较.png)
 
@@ -3531,7 +3531,9 @@ public class Time {
 
 
 
-自定义类需要排序，就要让它实现`Comparable`接口，重写了`compareTo(obj)`方法，指明排序规则
+**自定义类排序**
+
+让它实现`Comparable`接口，重写了`compareTo(obj)`方法，指明排序规则
 
 ```java
 package com.ink.Compare;
@@ -3567,7 +3569,7 @@ public class Goods implements Comparable{
     @Override
     public String toString() {
         return "name='" + name + '\'' +
-                ", price=" + price;
+                ", price=" + price + '\n';
     }
 
     // 按照商品价格从低到高排序
@@ -3580,13 +3582,15 @@ public class Goods implements Comparable{
             }else if(this.price < goods.price){
                 return -1;
             }else{
-                return 0;
+                // name是String,已经重写了compareTo()方法
+                return this.name.compareTo(goods.name);
             }
         }
         // return Double.compare(this.price,goods.price)
         throw new RuntimeException("传入的数据类型不一致");
     }
 }
+
 ```
 
 ```java
@@ -3596,18 +3600,27 @@ import java.util.Arrays;
 
 public class Compare {
     public static void main(String[] args) {
-        Goods[] arr = new Goods[4];
-        arr[0] = new Goods("a",62);
-        arr[1] = new Goods("b",24);
-        arr[2] = new Goods("c",48);
-        arr[3] = new Goods("d",37);
+        Goods[] arr = new Goods[6];
+        arr[0] = new Goods("12",62);
+        arr[1] = new Goods("232",24);
+        arr[2] = new Goods("1100",24);
+        arr[3] = new Goods("230923",37);
+        arr[4] = new Goods("12983138930",37);
+        arr[5] = new Goods("92",37);
         Arrays.sort(arr);
         System.out.println(Arrays.toString(arr));
     }
 }
+
 ```
 
-![自定义排序结果](Java.assets/自定义排序结果.png)
+![自定义排序结果](Java.assets/自定义排序.png)
+
+如果想要利用`String`重写的`compareTo()`方法，但是要从高到低排序
+
+```java
+return -this.name.compareTo(goods.name);
+```
 
 
 

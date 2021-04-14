@@ -42,7 +42,7 @@
 **JDK**：Java developmen kit	开发工具包
 
 - **卸载JDK**
-  1. 查找jdk位置：在环境变量中找到`JAVA_HOME`。
+  1. 查找jdk位置：在环境变量中找到`JAVA_HOME`
   2. 删除对应目录下文件，然后删除`JAVA_HOME`，最后删除**PATH**中关于java的目录
   3. 验证：`java -version`
 - **安装JDK**
@@ -3162,6 +3162,12 @@ String类和**其他结构**之间的转换
 
 调用`append()`和`insert()`时，如果原来的数组长度不够，可以扩容
 
+> `append(null)`会将null转换为**"null"字符串**添加进去
+>
+> 如果将null作为构造器参数，则会抛**空指针异常**
+
+
+
 **这些方法支持方法链操作**
 
 **方法链**
@@ -3207,6 +3213,8 @@ String类和**其他结构**之间的转换
 
 `java.util.Date`
 
+> JDK8之前的日期时间API
+>
 > 还有一个`java.sql.Date`类，对应**数据库**中的日期类型变量
 
 
@@ -3254,13 +3262,67 @@ public class DateTest {
 
 
 
+## SimpleDateFormat类
+
+`java.text.SimpleDateFormat`
+
+> JDK8之前的日期时间API
+>
+> Date类的API不易于国际化，大部分都废弃不用了，
+
+`SimpleDateFormat`类是一个用**和语言环境无关的方式**来**格式化和解析**日期的类（对`java.util.Date`类进行操作）
 
 
 
+### 日期格式化
+
+**日期 -> 文本（字符串）**
+
+`format()`方法
+
+```java
+package com.ink.Date;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.SimpleTimeZone;
+
+public class DateTest {
+    public static void main(String[] args) {
+        Date date1 = new Date();
+        System.out.println(date1);
+        // 默认构造器
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
+        String format = simpleDateFormat.format(date1);
+        System.out.println(format);
+    }
+}
+```
+
+![SimpleDateFormat](Java.assets/SimpleDateFormat.png)
 
 
 
+### 日期解析
 
+**文本（字符串） -> 日期**
+
+> 字符串要求：年-月-日 a/pm hour:minute
+>
+> 格式化输出的字符串就是默认的形式
+
+`parse()`方法
+
+```java
+// 输出Wed Apr 14 17:33:00 CST 2021
+String str = "2021/4/14 下午5:33";
+try {
+    Date parse = simpleDateFormat.parse(str);
+    System.out.println(parse);
+}catch (ParseException e){
+    System.out.println("exception");
+}
+```
 
 
 

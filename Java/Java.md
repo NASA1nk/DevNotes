@@ -132,6 +132,12 @@ java HelloWorld			#运行	不带class后缀
 3. **快捷键设置**
 
    ![快捷键修改](Java.assets/快捷键修改.png)
+   
+4. **导入Module**
+
+   remove后的module才能delete
+
+   ![Modules修改](Java.assets/Modules修改.png)
 
 
 
@@ -1160,7 +1166,7 @@ public class Demo02 {
 
 
 
-### 编译问题
+## 编译问题
 
 在`package`中的java程序编译运行问题
 
@@ -3331,7 +3337,285 @@ try {
 
 ## Calendar类
 
-`Calendar`（日历类）是一个**抽象基类**，主要用于完成日期字段之间相互操作的功能。
+`Calendar`（日历类）是一个**抽象类**，主要用于完成日期字段之间相互操作的功能。 
+
+![Calendar](Java.assets/Calendar.png)
+
+**抽象类不可以实例化**
+
+- 调用它的**子类**：`GregorianCalendar`
+
+- 调用它的**静态方法**：`Calendar.getInstance()`
+
+  调用静态方法返回子类`GregorianCalendar`对象
+
+  ![GregorianCalendar](Java.assets/GregorianCalendar.png)
+
+
+
+### Calendar方法
+
+一个`Calendar`的实例是系统时间的抽象表示，通过get(int field)方法来取得想要的时间信息，比如YEAR，MONTH，DAT_OF_WEEK，HOUR_OF_DAY，MINUTE，SECOND
+
+> 查看API文档，`Calendar`类中定义了很多常量属性
+
+
+
+**对Calendar对象操作**
+
+- `get()`：获得对象本身属性
+  - 月份从0开始
+  - 星期从周日开始（为1）
+- `set()`：void方法，直接修改对象本身属性
+- `add()`：void方法，直接修改对象本身属性（减就是加负数）
+
+```java
+package com.ink.Date;
+
+import java.util.Calendar;
+
+public class CalendarTest {
+    public static void main(String[] args) {
+        Calendar instance = Calendar.getInstance();
+        System.out.println(instance.getClass());
+        int days = instance.get(Calendar.DAY_OF_YEAR);
+        System.out.println(days);
+        System.out.println(instance.get(Calendar.DAY_OF_YEAR));
+        instance.set(Calendar.DAY_OF_YEAR,22);
+        System.out.println(instance.get(Calendar.DAY_OF_YEAR));
+        instance.add(Calendar.DAY_OF_YEAR,3);
+        System.out.println(instance.get(Calendar.DAY_OF_YEAR));
+    }
+}
+```
+
+![Calendar对象操作](Java.assets/Calendar对象操作.png)
+
+
+
+**Calendar和Date转换操作**
+
+- `getTime()`：由`Calendar`类返回`Date`对象
+- `setTime()`：由`Date`类返回`Calendar`子类对象
+
+```java
+package com.ink.Date;
+
+import java.util.Calendar;
+import java.util.Date;
+
+public class CalendarTest {
+    public static void main(String[] args) {
+        Calendar instance = Calendar.getInstance();
+        Date time = instance.getTime();
+        System.out.println(time);
+        Date date = new Date();
+        instance.setTime(date);
+        int days = instance.get(Calendar.DAY_OF_YEAR);
+        System.out.println(days);
+    }
+}
+```
+
+![Calendar和Date](Java.assets/Calendar和Date.png)
+
+
+
+## java.time
+
+`Calendar`类和`Date`类缺点：
+
+- **可变性**：日期应该是不可变的
+- **偏移性**：`Date`的年份从1900年开始，月份从0开始（正常表示需要**减去偏移量**）
+- **格式化**：格式化只对`Date`有用（`SimpleDateFormat`），对`Calendar`无用
+- **线程不安全**
+- **无法处理闰秒**
+
+> 对日期和时间的操作一直是比较复杂的
+
+
+
+ JDK8吸收了Joda-Time（jar包），创建了新的API——`java.time`
+
+包含常用包：
+
+- `java.time.format`
+- `java.time.temporal`
+- `java.time.zone`
+- `java.time.chrono`
+
+包含常用类：
+
+- `LocalDate`
+- `LocalTime`
+- `LocalDateTime`
+- `ZonedDateTime`
+- `Duration`
+
+```java
+package com.ink.Date;
+
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
+public class Time {
+    public static void main(String[] args) {
+        LocalDate now = LocalDate.now();
+        LocalTime now1  = LocalTime.now();
+        LocalDateTime now2 = LocalDateTime.now();
+        System.out.println(now);
+        System.out.println(now1);
+        System.out.println(now2);
+    }
+}
+```
+
+![time](Java.assets/time.png)
+
+
+
+## Instant类
+
+时间线上的一个**瞬间时间点**，可能被用来记录程序中的事件事件戳（面向机器）
+
+返回**当前时间**和1970年1月1日0时0分0秒之间的时间差（以**毫秒**为单位）
+
+> 精度可以达到纳秒
+
+
+
+## DateTimeFormatter类
+
+`java.time.format.DateTimeFormatter`类，提供三种格式化方法
+
+- **预定义的标准格式**
+
+  > ISO_LOCAL_DATE，ISO_LOCAL_TIME等
+
+- **本地化相关格式**
+
+- **自定义格式**
+
+  `ofPattern()`方法
+
+
+
+# 比较器
+
+比较**对象**，实际是比较**对象的属性**
+
+**对象排序**的两种方式（**接口**）
+
+- 自然排序：`java.lang.Comparable`
+- 定制排序：`java.lang.Comparator`
+
+
+
+## Comparable接口
+
+**`String`，包装类**实现了`Comparable`接口
+
+重写了`compareTo(obj)`方法（从小到大排序）
+
+![String比较](Java.assets/String比较.png)
+
+![compareTo](Java.assets/compareTo.png)
+
+重写`compareTo(obj)`方法规则：
+
+- 当前对象this大于形参obj，返回正整数
+- 当前对象this小于形参obj，返回负整数
+- 当前对象this等于形参obj，返回0
+
+
+
+自定义类需要排序，就要让它实现`Comparable`接口，重写了`compareTo(obj)`方法，指明排序规则
+
+```java
+package com.ink.Compare;
+
+public class Goods implements Comparable{
+    private String name;
+    private double price;
+
+    public Goods() {
+    }
+
+    public Goods(String name, double price) {
+        this.name = name;
+        this.price = price;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    @Override
+    public String toString() {
+        return "name='" + name + '\'' +
+                ", price=" + price;
+    }
+
+    // 按照商品价格从低到高排序
+    @Override
+    public int compareTo(Object o) {
+        if(o instanceof Goods){
+            Goods goods = (Goods) o;
+            if(this.price > goods.price){
+                return 1;
+            }else if(this.price < goods.price){
+                return -1;
+            }else{
+                return 0;
+            }
+        }
+        // return Double.compare(this.price,goods.price)
+        throw new RuntimeException("传入的数据类型不一致");
+    }
+}
+```
+
+```java
+package com.ink.Compare;
+
+import java.util.Arrays;
+
+public class Compare {
+    public static void main(String[] args) {
+        Goods[] arr = new Goods[4];
+        arr[0] = new Goods("a",62);
+        arr[1] = new Goods("b",24);
+        arr[2] = new Goods("c",48);
+        arr[3] = new Goods("d",37);
+        Arrays.sort(arr);
+        System.out.println(Arrays.toString(arr));
+    }
+}
+```
+
+![自定义排序结果](Java.assets/自定义排序结果.png)
+
+
+
+## Comparator接口
+
+
+
+
 
 
 

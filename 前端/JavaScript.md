@@ -150,11 +150,11 @@ JavaScript不区分`浮点数`和`整数`
 
 ```javascript
 // console控制台打印
-123	//整数
-123.1 //浮点数
-1.12e4	//科学计数法
--99	//负数
-NaN	//not a number
+123		// 整数
+123.1 	// 浮点数
+1.12e4	// 科学计数法
+-99		// 负数
+NaN		// not a number
 Infinity	//无穷大
 ```
 
@@ -203,9 +203,9 @@ true
 ## 逻辑运算
 
 ```javascript
-&& //与
-|| //或
-！ //非
+&& 	 // 与
+|| 	 // 或
+！ 	// 非
 ```
 
 ## 比较运算符
@@ -213,9 +213,9 @@ true
 不要使用`==`，使用`===`
 
 ```javascript
-= //赋值
-== //等于(类型不同，值相同也会判断为true)   "1" = 1
-=== //绝对等于(类型，值都相同才会判断为true)
+=   // 赋值
+==  // 等于(类型不同，值相同也会判断为true)   "1" = 1
+=== // 绝对等于(类型，值都相同才会判断为true)
 ```
 
 NaN
@@ -246,7 +246,7 @@ ES6标准，必须写在JavaScript的**第一行**
 
 ```javascript
 'use strict';
-i = 1	//局部变量用let定义，此时i会提示不规范
+i = 1	// 局部变量用let定义，此时i会提示不规范
 ```
 
 # 字符串
@@ -310,9 +310,9 @@ console.log(msg)
 数组Array中可以有各种数据类型   
 
 ```javascript
-//一维数组,a[1]
+// 一维数组,a[1]
 var array = [1,2,3,4,"5","6"]
-//二维数组,a[1][1]
+// 二维数组,a[1][1]
 var array = [ [1,2],[3,4],["5","6"] ]
 ```
 
@@ -506,7 +506,7 @@ ES6新特性
 - 如果没有执行到`return`，函数会返回`undefined`（NaN）
 
 ```javascript
-//定义方式1
+// 定义方式1
 function abs(x){
     if (x>=0){
         return x;
@@ -515,8 +515,8 @@ function abs(x){
         return -x;
     }
 }
-//定义方式2
-//这是一个匿名函数（函数=对象）
+// 定义方式2
+// 这是一个匿名函数（函数=对象）
 var abs = function(x){
     if (x>=0){
         return x;
@@ -541,7 +541,7 @@ abs(-10)
 ### 不传参数
 
 ```javascript
-//添加判断，手动定义异常
+// 添加判断，手动定义异常
 if (typeof x !== 'number'){
     throw "Not a Number！"
 }
@@ -599,7 +599,7 @@ var定义的变量存在**作用域**
 - 函数查找变量从自身函数开始，由内向外查找（就近原则）
 
 ```javascript
-//Uncaught ReferenceError: x is not defined
+// Uncaught ReferenceError: x is not defined
 'use strict';
 function a(){
     var x = 1;
@@ -607,7 +607,7 @@ function a(){
 }
 x = x+2
 
-//不同函数不冲突
+// 不同函数不冲突
 function a(){
     var x = 1;
     x = x + 1;
@@ -615,7 +615,7 @@ function a(){
     var x = 2;
 }
 
-//b()可以调用a中的x,但是a不能调用b中的y
+// b()可以调用a中的x,但是a不能调用b中的y
 function a(){
     var x = 1;
     function b(){
@@ -632,7 +632,7 @@ a();
 > JavaScript执行引擎会自动把y的声明提前，但不会赋值
 
 ```javascript
-//xundefined,说明y定义了但未赋值
+// x undefined,说明y定义了但未赋值
 'use strict';
 function a(){
     var x = "x" + y;
@@ -640,7 +640,7 @@ function a(){
     var y = "y";
 }
 a();
-//等价写法
+// 等价写法
 function a(){
     var y;
     var x = "x" + y;
@@ -665,7 +665,7 @@ function a(){
 }
 a();
 console.log(x); // 输出1 1
-//window对象
+// window对象
 'use strict';
 var x = 1;
 alert(x);
@@ -680,9 +680,9 @@ alert(window.x);
 
 ```javascript
 'use strict';
-//唯一全局变量
+// 唯一全局变量
 var all = {};
-//定义全局变量
+// 定义全局变量
 all.name = 'ink';
 all.add = function (a,b){
     return a+b;
@@ -719,7 +719,7 @@ PI = 3.1415 // Uncaught TypeError
 var person = {
     name:'ink',
     birth:1997,
-    //方法
+    // 方法
     age:function (){
         let now = new Date().getFullYear();
         return now - this.birth; //this代表当前对象
@@ -781,17 +781,17 @@ var person = {
 
 ```javascript
 var now=new Date();
-//方法
-now.getFullYear();	//年
-now.getMonth();		//月(0~11)
-now.getDate();		//日
-now.getDay(); 		//星期
-now.getTime(); 		//时间戳,全世界唯一
+// 方法
+now.getFullYear();	// 年
+now.getMonth();		// 月(0~11)
+now.getDate();		// 日
+now.getDay(); 		// 星期
+now.getTime(); 		// 时间戳,全世界唯一
 
-//返回时间
+// 返回时间
 console.log(new Date(时间戳)) 
 
-//返回本地时间(调用方法)
+// 返回本地时间(调用方法)
 now.toLocalString()
 ```
 
@@ -841,17 +841,17 @@ JSON字符串<—>JavaScript对象
 
 ```javascript
 'use strict';
-//逗号隔开(最后一个不用)
+// 逗号隔开(最后一个不用)
 var person = {
     name:"ink",
     age:23,
     school:"buaa"
 }
-//对象转换为json字符串
+// 对象转换为json字符串
 var jsonuser = JSON.stringify()
 
-//json字符串转换为对象
-//注意：json字符串用"",外面就得用''
+// json字符串转换为对象
+// 注意：json字符串用"",外面就得用''
 var obj = JSON.parse('{"name": "ink", "age": 23, "school": "buaa"}')
 ```
 
@@ -869,7 +869,7 @@ var obj = JSON.parse('{"name": "ink", "age": 23, "school": "buaa"}')
 - 原型继承
 
   ```javascript
-  //ink对象的原型是user对象
+  // ink对象的原型是user对象
   ink.__proto__ = user
   ```
 
@@ -882,7 +882,7 @@ var obj = JSON.parse('{"name": "ink", "age": 23, "school": "buaa"}')
   ```javascript
   //定义类
   class user{
-      //构造器
+      // 构造器
       constructor(name){
           this.name = name;
       }
@@ -892,10 +892,10 @@ var obj = JSON.parse('{"name": "ink", "age": 23, "school": "buaa"}')
   }
   var ink = new user("ink");
   
-  //继承
+  // 继承
   class miniuser extends user{
       constructor(name,age){
-          //实现父类方法
+          // 实现父类方法
           super(name);
           this.age = age;
       }
@@ -938,16 +938,16 @@ var obj = JSON.parse('{"name": "ink", "age": 23, "school": "buaa"}')
 
 # DOM
 
-文档对象模型DocumentObjectModel
+文档对象模型`DocumentObjectModel`
 
 > 整个浏览器网页就是一棵DOM树
 
 操作**(需要先获得节点)**
 
-- 更新DOM节点
-- 遍历DOM节点
-- 删除DOM节点
-- 添加DOM节点
+- **更新DOM节点**
+- **遍历DOM节点**
+- **删除DOM节点**
+- **添加DOM节点**
 
 ## 获得DOM节点
 
@@ -1024,11 +1024,13 @@ father.removeChild(self)
 
 ## 插入DOM节点
 
-`innerText` 和`innerHTML`只适用于向**空**的dom节点中添加元素，如果节点中存在元素，就会被覆盖。
+`innerText` 和`innerHTML`只适用于向**空**的dom节点中添加元素，**如果节点中存在元素，就会被覆盖**
 
 - 创建节点：`createElement(tagName)`
-
-- 追加节点：`append()`，`appendChild()`
+- **追加**节点：
+  - `append()`
+  - `appendChild()`
+  - `insertBefore(newNode,targetNode)`
 - 设置属性：`setAttribute('key','value')`
 
 ```html
@@ -1044,21 +1046,114 @@ father.removeChild(self)
 ```
 
 ```javascript
-//创建p标签
+// 创建p标签
 var n = document.createElement("p");
-//设置p标签的id属性
-//等价写法setAttribute('id','n');
+// 设置p标签的id属性
+// 等价写法setAttribute('id','n');
 n.id = n;
 n.innerText = "Create new dom"
 var js = document.getElementById("js");
 var div = document.getElementById("div");
 div.append(js);
 div.appendChild(n);
-//创建script标签
+
+// 创建script标签节点
 var myscript = document.createElement('script');
-//设置属性,相当于<script type="text/javascript"></script>
+//设置标签属性,相当于<script type="text/javascript"></script>
 myscript.setAttribute('type',`text/javascript`);
 div.appendChild(myscript);
+
+// TagName返回的是一个dom数组
+var body = document.getElementsByTagName('body')[0];
+body.style.backgroundColor = '#319981';
 ```
 
 ![dom插入](JavaScript.assets/dom插入.png)
+
+# 表单
+
+> 在前端验证
+
+表单`form`也是DOM树中的一个节点，用来**提交信息**
+
+常见表单：
+
+1. 文本框：input（text）
+2. 下拉框：select
+3. 多选框：input（checkbox）
+4. 隐藏域：hidden
+5. 密码框：input（password）
+
+## 操作表单
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <form action="", method="post">
+        <p>
+            <span>用户名:</span> <input type="text", id="username">
+        </p>
+
+        <p>
+            <span>性别:</span>
+            <input type="radio", name="sex", value="man">男
+            <input type="radio", name="sex", value="woman">女
+        </p>
+
+    </form>
+    <script src="js/ink.js" ></script>
+</body>
+</html>
+```
+
+```javascript
+// 获取输入框中的内容
+var username = document.getElementById('username');
+// 设置输入框中的内容
+username.value = 'inkeee';
+
+var sex = document.getElementsByTagName('input')[2]
+```
+
+![获取表单内容](JavaScript.assets/获取表单内容.png)
+
+
+
+## 表单提交和验证
+
+```html
+<body>
+    <form action="post">
+        <p>
+            <span>用户名:</span> <input type="text", id="username">
+        </p>
+        <p>
+            <span>密码: </span> <input type="password", id="password">
+        </p>
+        
+        <!-- 绑定事件,onclick被点击时触发事件-->
+        <button type="button", onclick="f()">提交</button>
+
+    </form>
+    <script src="js/ink.js" ></script>
+</body>
+```
+
+```javascript
+function f() {
+    alert("提交成功")
+    var username = document.getElementById('username');
+    var password = document.getElementById('password');
+    console.log(username.value);
+    console.log(password.value);
+}
+```
+
+![表单提交](JavaScript.assets/表单提交.png)

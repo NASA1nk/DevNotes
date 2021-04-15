@@ -561,21 +561,19 @@ B站分享-`嵌入代码`，就可以在网页看到相应视频
 <form action="" method=""></form>
 ```
 
-- action：向哪里发送表单数据
+- `action`：向哪里发送表单数据
 
-- method：规定如何发送表单数据
+- `method`：规定**如何发送表单数据**
 
-  - get：可以在url中看到提交的信息（不安全），不能传输（提交）大文件
+  - `get`：可以在url中看到提交的信息（不安全），不能传输（提交）大文件
 
     ```
     ink.html?username=ink&password=123
     ```
 
-  - post：不能在url中看到提交的信息，可以传输大文件
+  - `post`：不能在url中看到提交的信息，可以传输大文件
 
-    ```
-    可以在网页检查中由network(网络)的form data中看到
-    ```
+    > 可以在网页检查中由network(网络)的form data中看到
 
 登录框
 
@@ -600,7 +598,7 @@ B站分享-`嵌入代码`，就可以在网页看到相应视频
 
 ## input
 
-上传形式都是name的值和内容
+上传形式都是`name`的值和内容
 
 ```html
 <input type="text" name="" id="">
@@ -616,29 +614,29 @@ B站分享-`嵌入代码`，就可以在网页看到相应视频
 | maxlength | type为text或password时可以输入的最大字符数                               |
 | checked   | type为radio或checkbox时，指定按钮是否被选中                              |
 
-type：
+`type`：
 
-- radio：单选，必须处于同一组（指定相同name），value表示单选框的值
+- `radio`：单选，必须处于同一组，**指定相同name**，**value表示单选框的值**
 
-- checkbox：多选，一般提交的数组会被组成数组（同样的键name）
+- `checkbox`：多选，一般提交的数组会被组成数组（同样的键name）
 
   ​                    **默认值：checked**(单选多选都是)
 
-- range：滑动
+- `range`：滑动
 
-- button：按钮，value表示按钮上的文字，submit和reset都是普通按钮，
+- `button`：按钮，value表示按钮上的文字，submit和reset都是普通按钮，
 
   ​				image是图片按钮（src指定路径）。
 
-- file：文件域
+- `file`：文件域
 
-- email：自动验证
+- `email`：自动验证
 
-- url：自动验证
+- `url`：自动验证
 
-- number：自动验证
+- `number`：自动验证
 
-- search：搜索（可以清空）
+- `search`：搜索（可以清空）
 
 ## select
 

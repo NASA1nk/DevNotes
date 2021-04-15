@@ -3431,7 +3431,7 @@ public class CalendarTest {
 - **线程不安全**
 - **无法处理闰秒**
 
-> 对日期和时间的操作一直是比较复杂的
+> 对日期和时间的操作一直比较复杂
 
 
 
@@ -3509,11 +3509,19 @@ public class Time {
 **对象排序**的两种方式（**接口**）
 
 - 自然排序：`java.lang.Comparable`
-- 定制排序：`java.lang.Comparator`
+- 定制排序：`java.util.Comparator`
+
+**对比**：
+
+`Comparable`方式是让对象所属的类去实现接口（作为实现类），对象在任何位置都可以比较大小
+
+`Comparator`方式是临时创建实现类去比较，
 
 
 
 ## Comparable接口
+
+`java.lang.Comparable`
 
 **`String`，包装类排序**
 
@@ -3590,7 +3598,6 @@ public class Goods implements Comparable{
         throw new RuntimeException("传入的数据类型不一致");
     }
 }
-
 ```
 
 ```java
@@ -3611,7 +3618,6 @@ public class Compare {
         System.out.println(Arrays.toString(arr));
     }
 }
-
 ```
 
 ![自定义排序结果](Java.assets/自定义排序.png)
@@ -3626,9 +3632,259 @@ return -this.name.compareTo(goods.name);
 
 ## Comparator接口
 
+`java.util.Comparator`
+
+- 元素的类型没有实现`java.lang.Comparable`接口且不方便修改代码
+- 元素的类型实现了`java.lang.Comparable`接口的排序规则，但是不适合当前操作
+
+可以使用`Comparator`的对象来排序，重写接口中的`compare()`抽象方法
+
+![Comparator](Java.assets/Comparator.png)
+
+> `<T>`：泛型
 
 
 
+重写`compare(Object o1,Object o2)`方法规则
+
+- o1大于o2，返回正整数
+- o1小于o2，返回负整数
+- o1等于o2，返回0
+
+![sort](Java.assets/sort.png)
+
+使用**匿名内部类**直接在`Arrays.sort()`中重写
+
+> 看上去`new`一个接口，实际上是匿名实现类
+
+```java
+package com.ink.Compare;
+
+import java.util.Arrays;
+import java.util.Comparator;
+
+public class Compare {
+    public static void main(String[] args) {
+        String[] arr = new String[]{"A","B","C","D","E"};
+        Arrays.sort(arr, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return -o1.compareTo(o2);
+            }
+        });
+        // 输出E,D,C,B,A
+        System.out.println(Arrays.toString(arr));
+    }
+}
+```
+
+
+
+# 枚举类
+
+类的对象只有**有限个，确定的**（星期，性别，季节）。当需要定义**一组常量**时，建议使用枚举类
+
+如果枚举类中**只有一个对象**，可以作为**单例模式**的实现方式
+
+> 单例模式
+
+
+
+## 自定义枚举类
+
+> JDK5.0之前
+
+1. 类的对象的属性都设置为`private final`，final常量需要赋值
+   - 显式赋值
+   - **构造器赋值**
+   - 代码块赋值
+2. 私有化类的构造器（否则被外部调用无法确定对象个数）
+3. 提供当前枚举类的对象，声明为`public static final`
+4. 获取枚举类对象的属性（`get()`方法）
+5. 重写`toString()`方法
+
+```java
+package com.ink.Enumm;
+
+import javax.swing.*;
+
+public class SeasonTest {
+    public static void main(String[] args) {
+        Season spring = Season.SPRING;
+        // 输出: Season{seasonName='春天', seasonDesc='1'}
+        System.out.println(spring);
+    }
+}
+// 自定义枚举类
+class Season{
+    private final String seasonName;
+    private final String seasonDesc;
+    private Season(String seasonName,String seasonDesc){
+        this.seasonName = seasonName;
+        this.seasonDesc = seasonDesc;
+    }
+    public static final Season SPRING = new Season("春天","1");
+    public static final Season SUMMER = new Season("夏天","2");
+    public static final Season AUTUMN = new Season("秋天","3");
+    public static final Season WINTER = new Season("冬天","4");
+
+    public String getSeasonName() {
+        return seasonName;
+    }
+
+    public String getSeasonDesc() {
+        return seasonDesc;
+    }
+
+    @Override
+    public String toString() {
+        return "Season{" +
+                "seasonName='" + seasonName + '\'' +
+                ", seasonDesc='" + seasonDesc + '\'' +
+                '}';
+    }
+}
+```
+
+
+
+## enum关键字
+
+> JDK5.0引入
+
+使用`enum`关键字（不再是`class`）**定义枚举类**（不再需要复杂的声明）
+
+定义的枚举类默认继承`java.lang.Enum`类，默认使用`Enum`类中的`toString()`方法
+
+
+
+1. 先写枚举类对象，多个对象用**逗号**隔开，最后一个用分号
+2. 私有化类的构造器（否则被外部调用无法确定对象个数）
+3. 获取枚举类对象的属性（`get()`方法）
+
+```java
+package com.ink.Enumm;
+
+public class EnumTest {
+    public static void main(String[] args) {
+        Season summer = Season.SUMMER;
+        System.out.println(summer);
+        System.out.println(Season.class.getSuperclass());
+    }
+}
+
+enum Season{
+    SPRING("春天","1"),
+    SUMMER("夏天","2"),
+    AUTUMN("秋天","3"),
+    WINTER("冬天","4");
+
+    private final String seasonName;
+    private final String seasonDesc;
+
+    private Season(String seasonName,String seasonDesc){
+        this.seasonName = seasonName;
+        this.seasonDesc = seasonDesc;
+    }
+
+    public String getSeasonName() {
+        return seasonName;
+    }
+
+    public String getSeasonDesc() {
+        return seasonDesc;
+    }
+}
+```
+
+![enum](Java.assets/enum.png)
+
+
+
+**enum枚举类实现接口**
+
+**每一个枚举类对象都可以实现接口**
+
+```java
+package com.ink.Enumm;
+
+public class EnumTest {
+    public static void main(String[] args) {
+        Season spring = Season.SPRING;
+        spring.show();
+        Season summer = Season.SUMMER;
+        summer.show();
+    }
+}
+interface Info{
+    void show();
+}
+enum Season implements Info{
+
+    SPRING("春天","1"){
+        @Override
+        public void show() {
+            System.out.println("这是春天");
+        }
+    },
+    SUMMER("夏天","2"){
+        @Override
+        public void show() {
+            System.out.println("这是夏天");
+        }
+    },
+    AUTUMN("秋天","3"){
+        @Override
+        public void show() {
+            System.out.println("这是秋天");
+        }
+    },
+    WINTER("冬天","4"){
+        @Override
+        public void show() {
+            System.out.println("这是冬天");
+        }
+    };
+
+    private final String seasonName;
+    private final String seasonDesc;
+
+    private Season(String seasonName,String seasonDesc){
+        this.seasonName = seasonName;
+        this.seasonDesc = seasonDesc;
+    }
+
+    public String getSeasonName() {
+        return seasonName;
+    }
+
+    public String getSeasonDesc() {
+        return seasonDesc;
+    }
+}
+```
+
+![枚举类对象实现接口](Java.assets/枚举类对象实现接口.png)
+
+
+
+## Enum类常用方法
+
+- `values()`：返回枚举类型的**对象数组**
+
+  ![values](Java.assets/values.png)
+
+- `valueOf(String str)`：将字符串转换为对应的枚举类对象，**要求字符串必须是枚举类对象的"名字"**
+
+  > 如果找不到枚举类对象，会抛异常
+
+  ![valueOf](Java.assets/valueOf.png)
+
+- `toString()`：返回当前枚举类对象**常量的名字**
+
+
+
+# 注解
 
 
 

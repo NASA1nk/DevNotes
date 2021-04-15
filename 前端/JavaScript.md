@@ -1087,16 +1087,8 @@ body.style.backgroundColor = '#319981';
 ## 操作表单
 
 ```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-
-    <link rel="stylesheet" href="css/style.css">
-</head>
 <body>
-    <form action="", method="post">
+    <form action="#", method="post">
         <p>
             <span>用户名:</span> <input type="text", id="username">
         </p>
@@ -1110,7 +1102,6 @@ body.style.backgroundColor = '#319981';
     </form>
     <script src="js/ink.js" ></script>
 </body>
-</html>
 ```
 
 ```javascript
@@ -1132,14 +1123,13 @@ var sex = document.getElementsByTagName('input')[2]
 <body>
     <form action="post">
         <p>
-            <span>用户名:</span> <input type="text", id="username">
+            <span>用户名:</span> <input type="text", id="username", name= "username">
         </p>
         <p>
-            <span>密码: </span> <input type="password", id="password">
+            <span>密码: </span> <input type="password", id="password", name= "password">
         </p>
-        
         <!-- 绑定事件,onclick被点击时触发事件-->
-        <button type="button", onclick="f()">提交</button>
+        <button type="submit", onclick="f()">提交</button>
 
     </form>
     <script src="js/ink.js" ></script>
@@ -1157,3 +1147,7 @@ function f() {
 ```
 
 ![表单提交](JavaScript.assets/表单提交.png)
+
+**提交信息会被暴露**
+
+![抓包信息](JavaScript.assets/抓包信息.png)

@@ -135,9 +135,11 @@ java HelloWorld			#运行	不带class后缀
    
 4. **导入Module**
 
-   remove后的module才能delete
+   `remove`后的`module`才能`delete`
 
    ![Modules修改](Java.assets/Modules修改.png)
+   
+5. 
 
 
 
@@ -840,7 +842,7 @@ if (布尔表达式 1){
 
 `switch case`语句是用来**匹配**一个变量和一系列值中的某一个值，其中每一个值都称为`switch`的一个**分支**
 
-- `case`标签必须为**字符串常量**或者**字面量**
+- `case`标签必须为**字符串常量**或者**字面量**（**可以是枚举类型的对象常量**）
 - `break`结束判断（否则会**case穿透，**将后面全部输出）
 - `default`默认情况
 
@@ -3885,6 +3887,20 @@ enum Season implements Info{
 
 
 # 注解
+
+> JDK5.0开始 Java增加了对**元数据**（MetaData）的支持，也就是**注解**（Annotation）
+>
+> JavaSE的注解使用比较简单，而在JavaEE中注解很重要，比如用来配置应用程序的切面，XML配置等
+>
+> **框架 = 注解+反射+设计模式**
+
+`Annotation`是代码中的特殊标记，这些标记可以在编译，加载，运行时**被读取并执行**相应处理。
+
+`Annotation`可以像修饰符一样被修饰**包，类，构造器，方法，成员变量，参数，局部变量**。这些信息保存在`Annotation`的`"name = value"`对中
+
+
+
+
 
 
 

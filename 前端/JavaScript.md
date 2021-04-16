@@ -1412,3 +1412,54 @@ $(function (){
 
 
 ## jQuery操作DOM
+
+### DOM节点文本操作
+
+```javascript
+// 获得dom中内容
+$('#test-ul li[name = python]').text();
+
+// 设置dom中内容
+$('#test-ul li[name = python]').text('设置内容');
+
+$('#test-ul li[class = JavaScript]').html('<strong>JavaScript</strong>');
+```
+
+![操作dom](JavaScript.assets/操作dom.png)
+
+
+
+### DOM节点CSS操作
+
+传入**键值对**
+
+> API文档
+
+![jQuery操作css](JavaScript.assets/jQuery操作css.png)
+
+```javascript
+$('#test-ul li[name = python]').css({ "color": "#ff0011", "background": "blue" });
+```
+
+![jQuery操作CSS](JavaScript.assets/jQuery操作CSS-1618588254793.png)
+
+
+
+### DOM元素操作
+
+元素的显示和隐藏
+
+本质：`display：none`
+
+```javascript
+// 显示
+$('#test-ul li[name = python]').show();
+$(window).width();
+
+// 隐藏
+$('#test-ul li[name = python]').hide();
+```
+
+
+
+### Ajax

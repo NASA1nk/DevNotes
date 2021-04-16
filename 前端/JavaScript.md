@@ -1,48 +1,46 @@
-
-
 # JavaScript
 
 弱类型**脚本语言**，源代码不需要编译，由**浏览器解释**运行。用于控制网页行为
 
-原生JS开发按照`ECMAScript`标准（JS的一种规范），简称`ES`
+原生JS开发按照`ECMAScript`标准（JS的一种规范），简称ES
 
 - ES5：所有浏览器都支持
 - ES6：主流版本，`webpack`打包成ES5支持
 
 ## JavaScript框架
 
-- Angular（模块化开发）
-- React（虚拟DOM）
-- Vue（结合以上2种）
+- `Angular`（模块化开发）
+- `React`（虚拟DOM）
+- `Vue`（结合以上2种）
 
-jQuery（库）
+`jQuery`（库）
 
 ## UI框架
 
-- Ant-Design
+- `Ant-Design`
 
-- ElementUI（基于Vue）
+- `ElementUI`（基于Vue）
 
-  vue-element-admin
+  `vue-element-admin`
 
-- Bootstrap
+- `Bootstrap`
 
-- AmazeUI
+- `AmazeUI`
 
 ## JavaScript构建工具
 
-- Babel
-- WebPack
+- `Babel`
+- `WebPack`
 
 # 控制台调试
 
 可以设置断点，刷新重新运行，右侧有调试信息
 
-- Elements：爬网站信息
-- Console：调试JS
-- Source：设置断点
-- Network：抓包
-- Application：查看网站cookie
+- `Elements`：爬网站信息
+- `Console`：调试JS
+- `Source`：设置断点
+- `Network`：抓包
+- `Application`：查看网站cookie
 
 ![控制台调试](JavaScript.assets/%E6%8E%A7%E5%88%B6%E5%8F%B0%E8%B0%83%E8%AF%95.png)
 
@@ -330,8 +328,8 @@ var array = [ [1,2],[3,4],["5","6"] ]
 
 ## 数组遍历
 
-- for of ：输出数组值
-- for in ：输出数组索引
+- `for of` ：输出数组值
+- `for in` ：输出数组索引
 
 ```javascript
 'use strict';
@@ -346,16 +344,16 @@ for (let x in arr){
 
 ## 方法
 
-- indexOf()：通过元素获取下标索引
-- slice()：截取数组的一部分，返回一个新的数组，类似substring
-- push()：向数组尾部添加一个元素
-- pop()：弹出数组尾部元素（最后一个元素）
-- unshift()：向数组头部添加一个元素
-- shift()：弹出数组头部元素（第一个元素）
-- sort()：排序
-- reverse()：反转数组
-- concat()：拼接数组，返回一个新的数组
-- join()：使用特定字符拼接数组，返回一个字符串
+- `indexOf()`：通过元素获取下标索引
+- `slice()`：截取数组的一部分，返回一个新的数组，类似substring
+- `push()`：向数组尾部添加一个元素
+- `pop()`：弹出数组尾部元素（最后一个元素）
+- `unshift()`：向数组头部添加一个元素
+- `shift()`：弹出数组头部元素（第一个元素）
+- `sort()`：排序
+- `reverse()`：反转数组
+- `concat()`：拼接数组，返回一个新的数组
+- `join()`：使用特定字符拼接数组，返回一个字符串
 
 # 对象
 
@@ -385,7 +383,7 @@ person.name = "inkk"
 
 ## 动态增删属性
 
-- delete：删除一个属性
+- `delete`：删除一个属性
 - 直接定义一个属性(即添加)
 
 ![动态改变属性](JavaScript.assets/%E5%8A%A8%E6%80%81%E6%94%B9%E5%8F%98%E5%B1%9E%E6%80%A7.png)
@@ -492,9 +490,9 @@ ES6新特性
 
 # 函数
 
-方法：面向对象（属性，方法）
+**方法**：面向对象（属性，方法）
 
-函数：面向过程
+**函数**：面向过程
 
 ## 函数定义
 
@@ -591,7 +589,7 @@ function test(a,b,...rest){
 
 # 变量作用域
 
-var定义的变量存在**作用域**
+`var`定义的变量存在**作用域**
 
 - 函数体内声明的变量在函数体外不可以使用
 - 不同的函数使用相同的变量名，只要在函数内就不冲突
@@ -1119,6 +1117,8 @@ var sex = document.getElementsByTagName('input')[2]
 
 ## 表单提交和验证
 
+**正常代码，提交信息会被暴露**
+
 ```html
 <body>
     <form action="post">
@@ -1148,6 +1148,102 @@ function f() {
 
 ![表单提交](JavaScript.assets/表单提交.png)
 
-**提交信息会被暴露**
-
 ![抓包信息](JavaScript.assets/抓包信息.png)
+
+
+
+**MD5加密，密码被加密**
+
+> MD5工具类：
+>
+> https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- MD5工具类-->
+    <script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js" ></script>
+</head>
+<body>
+    <form action="post">
+        <p>
+            <span>用户名:</span> <input type="text", id="username", name= "username">
+        </p>
+        <p>
+            <span>密码: </span> <input type="password", id="password", name= "password">
+        </p>
+        <!-- 绑定事件,onclick被点击时触发事件-->
+        <button type="submit", onclick="f()">提交</button>
+
+    </form>
+    <script src="js/ink.js" ></script>
+</body>
+</html>
+```
+
+```javascript
+function f() {
+    alert("提交成功")
+    var username = document.getElementById('username');
+    var password = document.getElementById('password');
+    console.log(username.value);
+    console.log(password.value);
+    // MD5加密算法
+    password.value = md5(password.value);
+    console.log(password.value);
+}
+```
+
+![md5加密](JavaScript.assets/md5加密.png)
+
+
+
+**表单优化，隐藏原始密码**
+
+```html
+<body>
+    <form action="post">
+        <p>
+            <span>用户名:</span> <input type="text", id="username", name= "username">
+        </p>
+        <p>
+            <span>密码: </span> <input type="password", id="input-password">
+        </p>
+        <input type="hidden", id="md5-password", name="password">
+        <!-- 绑定事件,onclick被点击时触发事件-->
+        <button type="submit", onclick="f()">提交</button>
+
+    </form>
+    <script src="js/ink.js" ></script>
+</body>
+```
+
+```javascript
+function f() {
+    alert("提交成功")
+    var username = document.getElementById('username');
+    var password = document.getElementById('password');
+    var md5password = document.getElementById('md5-password');
+    // 隐藏password
+    md5password.value = md5(password.value);
+    console.log(md5password.value);
+}
+```
+
+![隐藏密码](JavaScript.assets/隐藏密码.png)
+
+
+
+# jQuery
+
+jQuery库：里面有大量的JavaScript函数
+
+## 获取jQuery
+
+> https://jquery.com/
+
+![下载jQuery](JavaScript.assets/下载jQuery.png)

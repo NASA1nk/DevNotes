@@ -86,6 +86,10 @@ java HelloWorld			#运行	不带class后缀
 
 1. 在`File`中`new`一个`Empty Project`，再`new`一个`module`
 
+   > IDEA的每一个Project都具备一个工作空间。对于每一个IDEA的项目工程（Project）而言，它的每一个子模块（Module）都可以使用独立的JDK和MAVEN配置。
+   >
+   > Module是模块化的概念，普通的根目录Project下面的子工程称为模块，每一个子模块之间可以相关联，也可以没有任何关联。
+
    ![Module](Java.assets/Module.png)
 
 2. 查看项目结构`Project Structure`（也可以在File中查看）

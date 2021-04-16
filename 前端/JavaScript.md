@@ -1345,6 +1345,25 @@ $('#test-jQuery').click(function (){
 - 键盘事件
 - 其他事件
 
+![常用事件](JavaScript.assets/常用事件.png)
+
+
+
+### 页面载入
+
+**ready(fn)**
+
+> ```javascript
+> // 当网页元素加载完毕之后响应事件
+> // 原始完整写法
+> // $(document).ready(function (){
+> //
+> // })
+> // 简便写法 $()
+> ```
+
+![ready事件](JavaScript.assets/ready事件.png)
+
 
 
 ### 鼠标事件
@@ -1366,6 +1385,7 @@ mouse: <span id="mouseMove"></span>
 <div id="divMove">
     在这里移动鼠标
 </div>
+    
 <script src="lib/jquery-3.6.0.js"></script>
 <script src="js/jQ.js"></script>
 </body>
@@ -1387,21 +1407,8 @@ $(function (){
 })
 ```
 
-> ```javascript
-> // 当网页元素加载完毕之后响应事件
-> // 原始完整写法
-> // $(document).ready(function (){
-> //
-> // })
-> // 简便写法 $()
-> ```
-
 ![鼠标事件](JavaScript.assets/鼠标事件.png)
 
 
 
-### 键盘事件
-
-
-
-### 其他事件
+## jQuery操作DOM

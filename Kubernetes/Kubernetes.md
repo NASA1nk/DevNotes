@@ -1,6 +1,33 @@
 # kubernetes
 
-kubernetes是一个软件系统，依赖于Linux容器的特性来运行异构的应用，它将底层基础设施抽象，简化应用的开发，部署和运维。
+kubernetes是一个软件系统，依赖于Linux容器的特性来运行异构的应用，它将底层基础设施抽象，简化应用的开发，部署和运维
+
+基础概念： Pod，控制器类型，K8S网络通讯模式
+
+资源清单：掌握资源清单的语法，编写 Pod，掌握Pod 的生命周期
+
+Pod 控制器：掌握各种控制器的特点以及使用定义方式
+
+服务发现：掌握 SVC原理及其构建方式
+
+服务分类：
+
+- 有状态服务：DBMS （数据库管理系统）<-- k8s -->数据持久化存储  
+- 无状态服务：LVS，APACHE  <-- docker
+
+存储：掌握多种存储类型的特点，能够在不同环境中选择合适的存储方案
+
+调度器：掌握调度器原理，能够根据要求把Pod 定义到特定的节点运行
+
+安全：集群的认证，鉴权，访问控制，原理及其流程
+
+HELM：类似Linux的yum，掌握 HELM 原理，HELM模板自定义，HELM部署一些常用插件
+
+运维：修改Kubeadm 达到证书可用期限（默认证书一年，一年更新一次），能够构建高可用的 Kubernetes 集群
+
+高可用集群：副本数据最好是3个以上的（3，5，7，9）
+
+
 
 ## 云计算架构
 
@@ -28,35 +55,6 @@ Google 10年容器化基础架构（GO 语言）
 - 开源
 - 弹性伸缩 
 - 负载均衡：IPVS
-
-
-
-## 课程
-
-基础概念： Pod，控制器类型，K8S网络通讯模式
-
-资源清单：掌握资源清单的语法，编写 Pod，掌握Pod 的生命周期
-
-Pod 控制器：掌握各种控制器的特点以及使用定义方式
-
-服务发现：掌握 SVC原理及其构建方式
-
-服务分类：
-
-- 有状态服务：DBMS （数据库管理系统）<-- k8s -->数据持久化存储  
-- 无状态服务：LVS，APACHE  <-- docker
-
-存储：掌握多种存储类型的特点，能够在不同环境中选择合适的存储方案
-
-调度器：掌握调度器原理，能够根据要求把Pod 定义到特定的节点运行
-
-安全：集群的认证，鉴权，访问控制，原理及其流程
-
-HELM：类似Linux的yum，掌握 HELM 原理，HELM模板自定义，HELM部署一些常用插件
-
-运维：修改Kubeadm 达到证书可用期限（默认证书一年，一年更新一次），能够构建高可用的 Kubernetes 集群
-
-高可用集群：副本数据最好是3个以上的（3，5，7，9）
 
 
 
@@ -108,6 +106,97 @@ HELM：类似Linux的yum，掌握 HELM 原理，HELM模板自定义，HELM部署
   - 容器（docker，rtk）
   - kubelet
   - kube-proxy
+
+
+
+# 部署k8s集群
+
+安装依赖包
+
+```bash
+yum install -y conntrack ntpdate ntp ipvsadm ipset jq iptables curl sysstat libseccomp wget vim net-tools git
+```
+
+设置防火墙为iptables
+
+```bash
+systemctl stop firewalld
+systemctl disable firewalld
+yum -y install iptables-services && systemctl start iptables && systemctl enable iptables && iptables -F && service iptables save
+```
+
+
+关闭Selinux
+
+```bash
+swapoff -a && sed -i  '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+setenforce 0 && sed -i 's/^SELINUX=.*/SENLINUX=disabled/' /etc/selinux/config
+```
+
+调整内核参数
+
+```bash
+cat > kubernetes.conf <<EOF
+net.bridge.bridge-nf-call-iptables=1
+net.bridge.bridge-nf-call-ip6tables=1
+net.ipv4.ip_forward=1
+net.ipv4.tcp_tw_recycle=0
+vm.swappiness=0
+vm.overcommit_memory=1
+vm.panic_on_oom=0
+fs.inotify.max_user_instances=8192
+fs.inotify.max_user_watches=1048576
+fs.file-max=52706963
+fs.nr_open=52706963
+net.ipv6.conf.all.disable_ipv6=1
+net.netfilter.nf_conntrack_max=2310720
+EOF
+
+
+cp kubernetes.conf /etc/sysctl.d/kubernetes.conf
+
+sysctl -p /etc/sysctl.d/kubernetes.conf
+```
+
+关闭系统不需要服务
+
+```bash
+systemctl stop postfix && systemctl disable postfix
+```
+
+设置日志保存方式（rsyslogd和systemd journald）
+
+```bash
+mkdir /var/log/journal
+mkdir /etc/systemd/journald.conf.d
+cat > /etc/systemd/journald.conf.d/99-prophet.conf <<EOF
+[Journal]
+Storage=persistent
+Compress=yes
+SyncIntervalSec=5m
+RateLimitInterval=30s
+RateLimitBurst=1000
+SystemMaxUse=10G
+SystemFileSize=200M
+SystemMaxUse=10G
+MaxRetentionSec=2week
+ForwardToSyslog=no
+EOF
+
+systemctl restart systemd-journald
+```
+
+升级内核为4.44
+
+```bash
+rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
+
+yum --enablerepo=elrepo-kernel install -y kernel-lt
+
+grub2-set-default 'CentOS linux (4.4.189-1.el7.elrepo.x86_64)  7 (Core)'
+```
+
+
 
 
 

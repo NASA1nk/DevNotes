@@ -83,8 +83,8 @@ Google 10年容器化基础架构（GO 语言）
 
 **编程：**
 
-- 声明式编程（Deployment）：侧重于定义想要什么，然后告诉计算机让它帮你实现。apply>create  
-- 命令式编程（ReplicaSet）：侧重于如何实现程序，把实现过程按逻辑一步步写出。   create>apply      
+- 声明式编程（Deployment）：侧重于定义想要什么，然后告诉计算机让它帮你实现。apply > create  
+- 命令式编程（ReplicaSet）：侧重于如何实现程序，把实现过程按逻辑一步步写出。   create > apply      
 
 **其他组件：**
 

@@ -55,6 +55,10 @@
 - images
 - index.html
 
+![新建JavaScript项目](JavaScript.assets/新建JavaScript项目.png)
+
+![JavaScript目录](JavaScript.assets/JavaScript目录.png)
+
 ## 内部标签
 
 `script`
@@ -1242,8 +1246,162 @@ function f() {
 
 jQuery库：里面有大量的JavaScript函数
 
+`$`：代表jQuery
+
+
+
 ## 获取jQuery
 
-> https://jquery.com/
+1. 官网下载
 
-![下载jQuery](JavaScript.assets/下载jQuery.png)
+   > jQuery官网：https://jquery.com/
+
+   点开**保存**（ctrl+s）到项目`lib`目录下
+
+   ![下载jQuery](JavaScript.assets/下载jQuery.png)
+
+   ```html
+   <body>
+   <script src="lib/jquery-3.6.0.js"></script>
+   </body>
+   ```
+
+2. 搜索**cdn jquery**
+
+   复制所需要的jQuery版本的`script`标签即可
+
+   https://www.bootcdn.cn/jquery/
+
+   https://www.jq22.com/cdn/
+
+   ```html
+   <body>
+   <!--cdn绑定-->
+   <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script>
+   </body>
+   ```
+
+
+
+## jQuery公式
+
+**选择器+事件**
+
+`$(selector).action()`
+
+> selector：CSS中的选择器
+
+
+
+```html
+<body>
+<a href="", id="test-jQuery">点击</a>
+<script src="lib/jquery-3.6.0.js"></script>
+<script src="js/jQ.js"></script>
+</body>
+```
+
+```javascript
+// JavaScript正常写法
+// var a = document.getElementById('test-jQuery');
+// id.click(function ());
+
+// jQuery写法
+// CSS id选择器#
+$('#test-jQuery').click(function (){
+    alert('Hello jQuery');
+})
+```
+
+![第一个jQuery程序](JavaScript.assets/第一个jQuery程序.png)
+
+
+
+## jQuery选择器
+
+**原生JavaScript**
+
+- 标签选择器：`document.getElementsByTagName()`
+- id选择器：`document.getElementById()`
+- 类选择器：`document.getElementsByTagName()`
+
+**jQuery**：能用CSS的所有选择器
+
+- 标签选择器：`$('p').click()`
+- id选择器：`$('#id').click()`
+- 类选择器：`$('.class').click()`
+
+> jQuery API文档：https://jquery.cuishifeng.cn/
+
+![jQuery选择器](JavaScript.assets/jQuery选择器.png)
+
+![jQuery选择器例](JavaScript.assets/jQuery选择器例.png)
+
+
+
+## jQuery事件
+
+- 鼠标事件
+- 键盘事件
+- 其他事件
+
+
+
+### 鼠标事件
+
+`mouse`
+
+- 按下
+- 移动
+
+![鼠标选择器](JavaScript.assets/鼠标选择器.png)
+
+
+
+**获取鼠标当前坐标**
+
+```html
+<body>
+mouse: <span id="mouseMove"></span>
+<div id="divMove">
+    在这里移动鼠标
+</div>
+<script src="lib/jquery-3.6.0.js"></script>
+<script src="js/jQ.js"></script>
+</body>
+```
+
+```css
+#divMove{
+    width: 200px;
+    height: 200px;
+    border: 1px solid red;
+}
+```
+
+```javascript
+$(function (){
+    $('#divMove').mousemove(function (e){
+        $('#mouseMove').text('x: '+e.pageX+' '+'y: '+e.pageY);
+    })
+})
+```
+
+> ```javascript
+> // 当网页元素加载完毕之后响应事件
+> // 原始完整写法
+> // $(document).ready(function (){
+> //
+> // })
+> // 简便写法 $()
+> ```
+
+![鼠标事件](JavaScript.assets/鼠标事件.png)
+
+
+
+### 键盘事件
+
+
+
+### 其他事件

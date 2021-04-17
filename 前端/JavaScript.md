@@ -7,6 +7,10 @@
 - ES5：所有浏览器都支持
 - ES6：主流版本，`webpack`打包成ES5支持
 
+> JavaScript 的创造者Netscape公司将JavaScript 提交给国际标准化组织ECMA，希望这种语言能够成为**国际标准**。次年ECMA 发布262号标准文件（ECMA-262）的第一版，规定了浏览器脚本语言的标准，并将这种语言称为ECMAScript，这个版本就是1.0版
+>
+> 该标准从一开始就是针对 JavaScript 语言制定的
+
 ## JavaScript框架
 
 - `Angular`（模块化开发）
@@ -1244,11 +1248,11 @@ function f() {
 
 # jQuery
 
-jQuery库：里面有大量的JavaScript函数
+**jQuery库**：里面有大量封装好的JavaScript函数
 
 `$`：代表jQuery
 
-
+> 浏览器本身处理DOM也是有性能瓶颈的，尤其是在传统开发中，用JQuery或者原生的JavaScript DOM操作函数对DOM进行频繁操作的时候，**浏览器要不停的渲染新的DOM树**，导致页面看起来非常卡顿。
 
 ## 获取jQuery
 

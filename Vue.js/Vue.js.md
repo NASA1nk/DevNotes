@@ -156,3 +156,77 @@ var vm = new Vue({
 > Vue不改变DOM
 
 ![hellovue](Vue.js.assets/hellovue.png)
+
+
+
+## Vue指令
+
+`v-bind`：和`{{}}`一样的绑定
+
+指令带有前缀`v-`，表示它们是Vue提供的特殊特性。它们在渲染的DOM上应用特殊的**响应式行为**
+
+
+
+## 控制结构
+
+- `v-if`
+- `v-else-if`
+- `v-else`
+
+> ===：JavaScript中：先判断类型是否一致，再比较值
+
+```html
+<body>
+<!--view层 模板-->
+<div id="app">
+    <h1 v-if="ok">yes</h1>
+    <h1 v-else>no</h1>
+</div>
+
+<!--导入Vue.js-->
+<script src="vue.js"></script>
+<script src="js/ink.js"></script>
+</body>
+```
+
+```javascript
+var vm = new Vue({
+    el: "#app",
+    data:{
+        ok: true
+    }
+})
+```
+
+![判断结构](Vue.js.assets/判断结构.png)
+
+## 循环
+
+`v-for`
+
+```html
+<body>
+<!--view层 模板-->
+<div id="app">
+    <li v-for="item in items">
+        {{item.message}}
+    </li>
+</div>
+
+<!--导入Vue.js-->
+<script src="vue.js"></script>
+<script src="js/ink.js"></script>
+</body>
+```
+
+```javascript
+var vm = new Vue({
+    el: "#app",
+    data:{
+        items: [
+            {message: 'ink'},
+            {message: 'yinke'}
+        ]
+    }
+})
+```

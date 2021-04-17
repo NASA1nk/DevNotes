@@ -1,0 +1,132 @@
+# Vue.js
+
+渐进式JavaScript框架
+
+> 尤雨溪。Vue 被设计为可以自底向上逐层应用
+>
+> Soc：Separation of concerns 关注点分离原则
+
+Vue 的核心库只关注**视图层**（HTML + CSS + JavaScript）
+
+- 网络通信：Axios
+- 页面跳转：Vue-router
+- 状态管理：Vuex
+- Vue-UI：ICE，Element-UI
+
+
+
+**虚拟DOM**
+
+预先通过JavaScript进行各种计算，把最终的DOM计算出来并优化的技术。这个DOM操作属于预处理操作，没有真正的操作DOM。
+
+
+
+## MVVM模式
+
+**软件架构设计模式**
+
+- Model：模型层
+- View：视图层
+- **ViewModel**：**核心**中间件，**双向数据绑定**
+
+
+
+MVVM架构不允许数据和视图直接通信，必须通过ViewModel来通信
+
+- **ViewModel能观察数据变化，对视图对应的内容进行更新**
+- **ViewModel能监听视图变化，通知数据发生改变**
+
+> Vue.js是ViewModel层的实现者
+
+
+
+## 安装Vue
+
+**使用`<script>`标签引入**
+
+导入后会暴露一个全局的变量`Vue()`
+
+- [开发版本](https://cn.vuejs.org/js/vue.js)：包含完整的警告和调试模式
+- [生产版本](https://cn.vuejs.org/js/vue.min.js)：删除了警告，33.30KB min+gzip
+
+```html
+<body>
+<script src="vue.js"></script>
+</body>
+```
+
+打开控制台查看到以下信息即成功
+
+![vue引入](Vue.js.assets/vue引入.png)
+
+
+
+**CDN引入**
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+```
+
+
+
+# idea
+
+1. 创建文件夹并用idea打开（open）
+
+2. 安装Vue插件
+
+3. 设置Vue新建文件模板
+
+   > file->setting->editor->file and code Templates，选择Vue Single File Component
+
+   ![Vue模板](Vue.js.assets/Vue模板.png)
+
+**注意**：
+
+安装完vue插件后，右键new发现没有Vue component这个选项，需要自己新建模板
+
+> https://blog.csdn.net/weixin_38556197/article/details/113838663
+
+
+
+# Vue基础
+
+## 第一个Vue程序
+
+1. 导入Vue
+2. new一个Vue对象
+3. 对象绑定元素
+4. 存放数据
+
+```html
+<body>
+<!--view层 模板-->
+<div id="app">
+    <!-- 绑定-->
+    {{message}}
+</div>
+
+<!--导入Vue.js-->
+<script src="vue.js"></script>
+<script src="js/ink.js"></script>
+</body>
+```
+
+```javascript
+// 绑定元素
+var vm = new Vue({
+    // 元素element,json对象,逗号隔开
+    el: "#app",
+    // 对象:键值对
+    // model层 数据
+    data:{
+        message:"Hello Vue!"
+    }
+})
+```
+
+**数据双向绑定**
+
+修改**vm对象**就可以修改内容
+
+![hellovue](Vue.js.assets/hellovue.png)

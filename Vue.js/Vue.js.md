@@ -31,12 +31,36 @@ Vue 的核心库只关注**视图层**（HTML + CSS + JavaScript）
 
 
 
-MVVM架构不允许数据和视图直接通信，必须通过ViewModel来通信
+**MVVM架构不允许数据和视图直接通信，必须通过ViewModel来通信**
 
 - **ViewModel能观察数据变化，对视图对应的内容进行更新**
 - **ViewModel能监听视图变化，通知数据发生改变**
 
 > Vue.js是ViewModel层的实现者
+>
+> 核心：
+>
+> - DOM监听
+> - 数据绑定
+
+
+
+**优点**：
+
+1. **低耦合**
+
+   View可以独立于model变化和修改。一个ViewModel可以绑定到不同的View上
+
+   - 当View变化的时候Model可以不变
+   - 当Model变化的时候View可以不变
+
+2. **可复用**
+
+   可以把视图逻辑放在一个ViewModel里面，让很多View复用这个视图逻辑
+
+3. **独立开发**
+
+4. **可测试**
 
 
 
@@ -93,10 +117,10 @@ MVVM架构不允许数据和视图直接通信，必须通过ViewModel来通信
 
 ## 第一个Vue程序
 
-1. 导入Vue
-2. new一个Vue对象
-3. 对象绑定元素
-4. 存放数据
+1. **导入Vue**
+2. **new一个Vue对象**
+3. **对象绑定元素**
+4. **存放数据**
 
 ```html
 <body>
@@ -128,5 +152,7 @@ var vm = new Vue({
 **数据双向绑定**
 
 修改**vm对象**就可以修改内容
+
+> Vue不改变DOM
 
 ![hellovue](Vue.js.assets/hellovue.png)

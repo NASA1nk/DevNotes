@@ -100,6 +100,10 @@ alert("hello world");
 
 JavaScript**严格区分大小写**
 
+JavaScript每个语句以**分号**结束，但是**JavaScript并不强制要求在每个语句的结尾加分号**
+
+> 浏览器中负责执行JavaScript代码的引擎会自动在每个语句的结尾补上分号
+
 ## 定义变量
 
 变量类型 变量名=变量值
@@ -152,7 +156,7 @@ else{
 
 ## number
 
-JavaScript不区分`浮点数`和`整数`
+JavaScript**不区分浮点数和整数**，统一用`Number`表示
 
 ```javascript
 // console控制台打印
@@ -166,6 +170,8 @@ Infinity	//无穷大
 
 ## 字符串
 
+字符串是以单引号`'`或双引号`"`括起来的任意文本
+
 ```javascript
 "abc"
 'abc'
@@ -174,7 +180,7 @@ Infinity	//无穷大
 
 ## 数组[ ]
 
-因为各种”类型“变量都是`var`，所以数组中可以有各种“类型”
+因为各种”类型“变量都是`var`，**所以数组中可以有各种“类型”**
 
 ```javascript
 var arr = [1,2,3,"buaa",true,null]; //推荐[ ]
@@ -183,7 +189,9 @@ new Array(1,2,3,"buaa",true,null);
 
 ## 对象{ }
 
-内部属性是键值对`key-value`，每个属性用`，`隔开（最后一个不用）
+对象的内部属性是键值对`key-value`，每个属性用`，`隔开（最后一个不用）
+
+对象的**键都是字符串类型**，**值可以是任意数据类型**
 
 ```javascript
 var person = {
@@ -216,7 +224,10 @@ true
 
 ## 比较运算符
 
-不要使用`==`，使用`===`
+**不要使用`==`，使用`===`**
+
+- `==`：会自动转换数据类型再比较
+- `===`：不会自动转换数据类型，如果数据类型不一致，返回`false`，如果一致再比较
 
 ```javascript
 =   // 赋值
@@ -224,15 +235,15 @@ true
 === // 绝对等于(类型，值都相同才会判断为true)
 ```
 
-NaN
+**NaN**
 
-- NaN和所有数值都不相等，**包括自己**。
+- **NaN和所有数值都不相等，包括自己**。
 
 - 只能通过`isNaN`方法判断这个数是否是NaN
 
 ![NaN](JavaScript.assets/NaN.png)
 
-浮点数比较
+**浮点数比较**
 
 - 尽量避免使用浮点数进行运算，会有精度问题
 - 做差判断
@@ -241,14 +252,17 @@ NaN
 
 ## Null和undefined
 
-- Null：定义为空
-- undefined：未定义
+- `Null`：表示一个“空”的值，它和`0`以及空字符串`''`不同
+- `undefined`：表示**未定义**
 
-# 严格检查模式
+# strict模式
 
-预防JavaScript随意性导致的安全问题
+**严格检查模式**
 
-ES6标准，必须写在JavaScript的**第一行**
+预防JavaScript随意性导致的安全问题，必须写在JavaScript的**第一行**
+
+> ES6标准
+>
 
 ```javascript
 'use strict';
@@ -261,7 +275,7 @@ i = 1	// 局部变量用let定义，此时i会提示不规范
 
 字符串**长度**：`str.length`
 
-## 转义字符串
+## 转义字符
 
 用`\`
 
@@ -269,7 +283,7 @@ i = 1	// 局部变量用let定义，此时i会提示不规范
 
 ​	`\n`：换行
 
-​	`\t`：tab
+​	`\t`：制表符tab
 
 ```javascript
 'use strict';
@@ -283,7 +297,7 @@ console.log("a");
 
 ## 多行字符串
 
-在``之中即可
+在**反引号``**之中即可（ESC下方）
 
 ![多行字符串](JavaScript.assets/%E5%A4%9A%E8%A1%8C%E5%AD%97%E7%AC%A6%E4%B8%B2.png)
 
@@ -299,7 +313,9 @@ alert(str)
 
 ## 模板字符串
 
-${变量}
+要把多个字符串连接起来，可以用`+`号连接
+
+ES6新增了模板字符串：`${变量}`
 
 ```javascript
 'use strict';
@@ -326,11 +342,14 @@ var array = [ [1,2],[3,4],["5","6"] ]
 
 `array.length`
 
-注意：数组长度array.length可以被赋值改变，此时数组也会发生变化
+注意：
 
-- 当数组变大时：用未定义的empty填充。
+数组长度`array.length`可以被赋值改变，此时数组也会发生变化
 
-- 当数组变小时，数组元素就会丢失。
+- 当数组变大时：用**未定义的empty**填充
+- 当数组变小时，数组元素就会**丢失**
+
+通过索引赋值时，索引超过了范围，同样会引起Array大小的变化：
 
 ![数组](JavaScript.assets/%E6%95%B0%E7%BB%84.png)
 
@@ -353,19 +372,22 @@ for (let x in arr){
 ## 方法
 
 - `indexOf()`：通过元素获取下标索引
-- `slice()`：截取数组的一部分，返回一个新的数组，类似substring
-- `push()`：向数组尾部添加一个元素
-- `pop()`：弹出数组尾部元素（最后一个元素）
-- `unshift()`：向数组头部添加一个元素
-- `shift()`：弹出数组头部元素（第一个元素）
-- `sort()`：排序
+- `slice()`：截取数组的一部分（**包括开始索引，不包括结束索引**），返回一个新的数组，类似`substring()`，不传递参数则复制数组
+- `push()`：向**数组尾部**添加一个元素
+- `pop()`：弹出数组**尾部元素**（最后一个元素）
+- `unshift()`：向**数组头部**添加一个元素
+- `shift()`：弹出数组**头部元素**（第一个元素）
+- `sort()`：排序（直接修改当前数组）
 - `reverse()`：反转数组
-- `concat()`：拼接数组，返回一个新的数组
+- `concat()`：**拼接数组**，返回一个新的数组（并不修改原数组）
 - `join()`：使用特定字符拼接数组，返回一个字符串
+- `splice()`：从指定的索引开始删除若干元素，然后再从该位置添加若干元素
 
 # 对象
 
-对象{ }内部属性是键值对`key-value`，每个属性用`，`隔开（最后一个不用）
+对象是一种**无序的集合数据类型**，它由若干**键值对**（内部属性）组成，每个键值对用`，`隔开（最后一个不用）
+
+**属性名（key）必须是一个有效的变量名**，如果属性名包含特殊字符，就必须用`''`括起来：
 
 ```javascript
 'use strict';
@@ -374,6 +396,7 @@ var person = {
     age:23,
     school:"buaa",
     position:"nmb"
+    'middle-school': 'No.1 Middle School'
 }
 ```
 
@@ -391,6 +414,8 @@ person.name = "inkk"
 
 ## 动态增删属性
 
+JavaScript的对象是**动态类型**
+
 - `delete`：删除一个属性
 - 直接定义一个属性(即添加)
 
@@ -400,13 +425,19 @@ person.name = "inkk"
 
 注意：**所有键key都是字符串，值value是任意类型**
 
-- 判断属性是否在这个对象中（可以在对象的父类中）
+- 判断属性是否在这个对象中
 
   `"key" in 对象名`
 
-- 判断属性是否是这个对象自身拥有
+  `in`判断一个属性存在，**这个属性不一定是对象的，它可能是地对象继承得到的**（父类对象的属性）
+
+  > 所有对象最终都会在原型链上指向`object`
+
+- 判断属性是否是这个对象**自身拥有**
 
   `hasOwnProperty()`方法
+
+
 
 ![属性判断](JavaScript.assets/%E5%B1%9E%E6%80%A7%E5%88%A4%E6%96%AD.png)
 
@@ -458,14 +489,16 @@ ES6新特性
 
 ## Map
 
-键值对
+`Map`是一**组**键值对的结构
 
 - `get()`
-- `set()`：增加
+- `set()`：增加，**一个key只能对应一个value**，多次对一个key放入value，后面的值会把前面的值**冲掉**
 - `delete()`：删除
 
 ```javascript
 'use strict';
+// 初始化Map需要一个二维数组,或者初始化一个空Map
+var m = new Map(); 
 var map = new Map([["tom",100],["jack",95]]);
 var stu = map.get("tom");
 map.set("admin",90);
@@ -477,14 +510,18 @@ console.log(stu);
 
 ## Set
 
-无序！不重复！集合
+`Set`是一组key的集合，但不存储value。且在`Set`中，没有重复的key
 
-- `add()`：增加
-- `delete()`：删除
+> 无序！不重复！重复元素在`Set`中自动被过滤
+>
+
+- `add()`：增加，可以重复添加，但不会有效果
+- `delete()`：删除元素
 - `has()`：判断是否含有某个元素
 
 ```javascript
 'use strict';
+// 创建一个Set需要一个Array,或者直接创建一个空Set
 var set = new Set([1,1,1,3]);
 ```
 
@@ -492,9 +529,26 @@ var set = new Set([1,1,1,3]);
 
 ## iterator遍历
 
-ES6新特性
+遍历`Map`和`Set`无法使用下标
 
-> 可以用`for of`，`for in`遍历，但有轻微bug
+ES6标准引入了新的`iterable`类型，`Array`、`Map`和`Set`都属于`iterable`类型
+
+具有`iterable`类型的集合可以通过for of`循环来遍历
+
+> `for in`实际遍历的是对象的属性名称。一个`Array`数组实际上也是一个对象，它的每个**元素的索引**被视为一个属性，所以会有bug
+
+最好使用`iterable`内置的`forEach`方法，它接收一个函数，每次迭代就自动回调该函数
+
+> `forEach()`方法是ES5.1标准引入
+
+`Map`的回调函数参数依次为`value`、`key`和`map`
+
+```javascript
+var m = new Map([[1,'x'], [2,'y'], [3,'z']]);
+m.forEach(function (value, key, map) {
+    console.log(value);
+});
+```
 
 # 函数
 

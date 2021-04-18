@@ -115,6 +115,18 @@ Vue 的核心库只关注**视图层**（HTML + CSS + JavaScript）
 
 # Vue基础
 
+Vue有7个属性，8个方法，7个指令（787原则）
+
+**7个属性**
+
+- `el`：用来指示vue编译器从什么地方开始解析vue的语法（一个占位符）
+- `data`：用来组织从view中抽象出来的属性（将视图的数据抽象出来存放在data中）
+- `template`：用来设置模板，会替换页面元素（包括占位符）
+- `methods`：放置页面中的业务逻辑，JavaScript方法一般都放置在methods中
+- `render`：创建真正的Virtual Dom
+- `computed`：计算属性
+- `watch`：监听data中数据的变化
+
 ## 第一个Vue程序
 
 1. **导入Vue**
@@ -122,11 +134,12 @@ Vue 的核心库只关注**视图层**（HTML + CSS + JavaScript）
 3. **对象绑定元素**
 4. **存放数据**
 
+不再和 HTML 直接交互。一个 Vue 应用会将其挂载到一个DOM 元素上对其进行完全控制
+
 ```html
 <body>
 <!--view层 模板-->
 <div id="app">
-    <!-- 绑定-->
     {{message}}
 </div>
 
@@ -137,13 +150,12 @@ Vue 的核心库只关注**视图层**（HTML + CSS + JavaScript）
 ```
 
 ```javascript
-// 绑定元素
 var vm = new Vue({
     // 元素element,json对象,逗号隔开
     el: "#app",
     // 对象:键值对
     // model层 数据
-    data:{
+    data: {
         message:"Hello Vue!"
     }
 })
@@ -161,9 +173,31 @@ var vm = new Vue({
 
 ## Vue指令
 
-`v-bind`：和`{{}}`一样的绑定
+指令带有前缀 `v-`，以表示它们是Vue提供的特殊 attribute，它们在渲染的DOM上应用特殊的**响应式行为**
 
-指令带有前缀`v-`，表示它们是Vue提供的特殊特性。它们在渲染的DOM上应用特殊的**响应式行为**
+## 绑定
+
+`v-bind`
+
+> 和`{{}}`一样
+
+```html
+<div id="app">
+	<!-- 将这个元素节点的title attribute和Vue实例的 message property保持一致 -->
+    <span v-bind:title="message">     
+        鼠标悬停几秒钟查看此处动态绑定的提示信息！   
+    </span> 
+</div>
+```
+
+```javascript
+var app = new Vue({
+  el: '#app',
+  data: {
+      message:"Hello Vue!"
+  }
+})
+```
 
 
 
@@ -177,13 +211,10 @@ var vm = new Vue({
 
 ```html
 <body>
-<!--view层 模板-->
 <div id="app">
     <h1 v-if="ok">yes</h1>
     <h1 v-else>no</h1>
 </div>
-
-<!--导入Vue.js-->
 <script src="vue.js"></script>
 <script src="js/ink.js"></script>
 </body>
@@ -206,14 +237,43 @@ var vm = new Vue({
 
 ```html
 <body>
-<!--view层 模板-->
 <div id="app">
     <li v-for="item in items">
         {{item.message}}
     </li>
 </div>
+<script src="vue.js"></script>
+<script src="js/ink.js"></script>
+</body>
+```
 
-<!--导入Vue.js-->
+```javascript
+var vm = new Vue({
+    el: "#app",
+    data: {
+        items: [
+            {message: 'ink'},
+            {message: 'yinke'}
+        ]
+    }
+})
+```
+
+
+
+## 事件
+
+`v-on`
+
+添加一个事件监听器，通过它**调用在 Vue 实例中定义的方法**
+
+> 方法必须定义在Vue的`methods`中
+
+```html
+<body>
+<div id="app">
+<button v-on:click="sayhi">点击</button>
+</div>
 <script src="vue.js"></script>
 <script src="js/ink.js"></script>
 </body>
@@ -223,10 +283,92 @@ var vm = new Vue({
 var vm = new Vue({
     el: "#app",
     data:{
-        items: [
-            {message: 'ink'},
-            {message: 'yinke'}
-        ]
+        message: "hi ink"
+    },
+    methods:{
+        sayhi: function (){
+            alert(this.message);
+        }
     }
 })
 ```
+
+![Vue事件](Vue.js.assets/Vue事件.png)
+
+
+
+## 双向绑定
+
+`v-model` 
+
+可以实现**表单输入和应用状态**之间的双向绑定
+
+`v-model`会忽略所有表单元素的`value`，`checked`，`selected`特性的初始值而总是将**Vue实例数据**作为数据来源，所以要在JavaScript的`data`中声明初始值
+
+> 实际上数据还是单向的
+>
+> v-model本质上是一个语法糖，它负责监听用户的输入事件以更新数据，并对一些极端场景进行特殊处理
+
+```html
+<body>
+<div id="app">
+    <!--绑定表单内容-->
+    输入文本<input type="text" v-model="message"> {{message}}
+</div>
+<script src="vue.js"></script>
+<script src="js/ink.js"></script>
+</body>
+```
+
+```javascript
+var vm = new Vue({
+    el: "#app",
+    data: {
+        message: "ink"
+    }
+})
+```
+
+# Vue组件
+
+`Vue.component()`
+
+自定义标签组件化（**模板复用**）
+
+> 组件系统是一种抽象，可以使用小型、独立和通常可复用的组件构建大型应用
+>
+> 几乎任意类型的应用界面都可以抽象为一个组件树
+>
+> ![VueComponents](Vue.js.assets/VueComponents.png)
+
+```html
+<body>
+<div id="app">
+    <!-- 创建一个 ink 组件的实例 -->
+   <ink></ink>
+</div>
+<script src="vue.js"></script>
+<script src="js/ink.js"></script>
+</body>
+```
+
+```javascript
+// 定义名为 ink 的新组件
+Vue.component("ink",{
+   template: '<li>ink</li>'
+});
+// 创建Vue实例才可以调用
+var vm = new Vue({
+    el: '#app'
+});
+```
+
+创建**Vue component**
+
+![新建组件](Vue.js.assets/新建组件.png)
+
+![Vue组件模板](Vue.js.assets/Vue组件模板.png)
+
+
+
+`template`不能从`data`中获得数据，要通过`props`

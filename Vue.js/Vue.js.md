@@ -337,6 +337,8 @@ var vm = new Vue({
 
 > 组件系统是一种抽象，可以使用小型、独立和通常可复用的组件构建大型应用
 >
+> Vue 组件提供了纯自定义元素所不具备的一些重要功能，最突出的是跨组件数据流、自定义事件通信以及构建工具集成。
+>
 > 几乎任意类型的应用界面都可以抽象为一个组件树
 >
 > ![VueComponents](Vue.js.assets/VueComponents.png)
@@ -371,4 +373,42 @@ var vm = new Vue({
 
 
 
-`template`不能从`data`中获得数据，要通过`props`
+## 数据传递
+
+父作用域将数据传到子组件
+
+`template`不能从`data`中直接获得数据
+
+1. 数据通过`v-bind`来绑定到`props`
+2. `template`通过组件中的`props`来获得数据
+
+> `props`类似于一个自定义attribute
+
+```html
+<body>
+<div id="app">
+    <!-- 创建一个 ink 组件的实例 -->
+    <!-- v-for获取数据,v-bind绑定item-->
+   <ink v-for="item in items" v-bind:item="item"></ink>
+
+</div>
+<script src="vue.js"></script>
+<script src="js/ink.js"></script>
+</body>
+```
+
+```javascript
+// 定义名为 ink 的新组件
+Vue.component('ink',{
+    props: ['item'],
+    template: '<li>{{item}}</li>'
+});
+var vm = new Vue({
+    el: '#app',
+    data: {
+        items: ["neau","buaa","fushan"]
+    }
+});
+```
+
+![数据绑定](Vue.js.assets/数据绑定.png)

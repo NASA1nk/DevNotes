@@ -143,7 +143,13 @@ java HelloWorld			#运行	不带class后缀
 
    ![Modules修改](Java.assets/Modules修改.png)
    
-5. 
+5. **配置注释模板**
+
+   `Settings`->`Editor`->`File and Code Templates` ，添加注释信息
+
+   ![idea注释模板](Java.assets/idea注释模板.png)
+
+6. 
 
 
 

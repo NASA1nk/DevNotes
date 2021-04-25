@@ -1024,40 +1024,32 @@ now.toLocalString()
 
 ## JSON
 
-### **JavaScript Object Notation**
+**JavaScript Object Notation**
 
 json是一种轻量级的**数据交换格式**，**层次结构**简洁清晰，易于阅读编写，易于机器解析和生成，可以有效提升网络传输效率。
 
 在JavaScript中一切皆对象（定义一个函数function，它也是一个对象），**任何JavaScript支持的类型都可以用JSON表示**
 
-> 早期数据传输习惯使用xml文件（重量级）
+> 早期数据传输习惯使用xml文件（重量级）,XML标记比数据多，增加了交换产生的流量
 >
 > BSON（Binary JSON）也是一种计算机数据交换格式，主要用于MongDB数据库，是一种二进制表示形式。
 
 ### 格式
 
-- 对象都用{ }
-- 数组都用[ ]
+- 对象用`{}`
+- 数组用`[]`
 - 所有键值对都是用`key：value`
 
-```javascript
-'use strict';
-var person = {
-    name:"ink",
-    age:23,
-    school:"buaa",
-    position:"nmb"
-}
-```
+> key是字符串，而value可以是字符串，数值，true，null，对象或数组
 
 ### 转换
 
 JSON字符串<—>JavaScript对象
 
-- JSON：格式化的**字符串**（内" " ,  外' '）
+- JSON：格式化的**字符串**
 
-          ```javascript
-  '{"name": "ink", "age": 23, "school": "buaa"}'
+  ```javascript
+  {"name": "ink", "age": 23, "school": "buaa"}
   ```
 
 - 对象：**键值对**形式
@@ -1074,10 +1066,10 @@ var person = {
     age:23,
     school:"buaa"
 }
-// 对象转换为json字符串
-var jsonuser = JSON.stringify()
+// person对象转换为json字符串
+var jsonuser = JSON.stringify(person)
 
-// json字符串转换为对象
+// json字符串转换为obj对象
 // 注意：json字符串用"",外面就得用''
 var obj = JSON.parse('{"name": "ink", "age": 23, "school": "buaa"}')
 ```

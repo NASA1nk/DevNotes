@@ -122,7 +122,7 @@ Vue有7个属性，8个方法，7个指令（787原则）
 - `el`：用来指示vue编译器从什么地方开始解析vue的语法（一个占位符）
 - `data`：用来组织从view中抽象出来的属性（将视图的数据抽象出来存放在data中）
 - `template`：用来设置模板，会替换页面元素（包括占位符）
-- `methods`：放置页面中的业务逻辑，JavaScript方法一般都放置在methods中
+- `methods`：放置页面中的业务逻辑，JavaScript**方法**一般都放置在methods中
 - `render`：创建真正的Virtual Dom
 - `computed`：计算属性
 - `watch`：监听data中数据的变化
@@ -231,7 +231,7 @@ var vm = new Vue({
 
 ![判断结构](Vue.js.assets/判断结构.png)
 
-## 循环
+## 循环结构	
 
 `v-for`
 
@@ -261,17 +261,20 @@ var vm = new Vue({
 
 
 
-## 事件
+## 事件处理
 
 `v-on`
 
-添加一个事件监听器，通过它**调用在 Vue 实例中定义的方法**
+`v-on`指令可以监听DOM事件
 
-> 方法必须定义在Vue的`methods`中
+通过它**调用在 Vue 实例中定义的方法**（执行事件）
+
+> 方法定义在Vue的`methods`中
 
 ```html
 <body>
 <div id="app">
+<!-- 通过方法响应点击事件 --> 
 <button v-on:click="sayhi">点击</button>
 </div>
 <script src="vue.js"></script>
@@ -285,6 +288,7 @@ var vm = new Vue({
     data:{
         message: "hi ink"
     },
+    // 方法也是K-V键值对
     methods:{
         sayhi: function (){
             alert(this.message);

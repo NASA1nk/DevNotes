@@ -337,20 +337,25 @@ var vm = new Vue({
 
 `Vue.component()`
 
+- `props`
+- `template`
+
 自定义标签组件化（**模板复用**）
 
-> 组件系统是一种抽象，可以使用小型、独立和通常可复用的组件构建大型应用
+> 组件系统是一种抽象。可以使用小型、独立和通常可复用的组件构建大型应用
 >
 > Vue 组件提供了纯自定义元素所不具备的一些重要功能，最突出的是跨组件数据流、自定义事件通信以及构建工具集成。
->
-> 几乎任意类型的应用界面都可以抽象为一个组件树
->
-> ![VueComponents](Vue.js.assets/VueComponents.png)
+
+几乎任意类型的应用界面都可以抽象为一个组件树
+
+![VueComponents](Vue.js.assets/VueComponents.png)
+
+## template
 
 ```html
 <body>
 <div id="app">
-    <!-- 创建一个 ink 组件的实例 -->
+   <!-- 创建一个 ink 组件的实例 -->
    <ink></ink>
 </div>
 <script src="vue.js"></script>
@@ -377,14 +382,19 @@ var vm = new Vue({
 
 
 
-## 数据传递
+## props
+
+数据传递
+
+> 默认规则下，`props`属性中的值不能大写
 
 父作用域将数据传到子组件
 
-`template`不能从`data`中直接获得数据
+组件中的`template`不能从Vue对象的`data`中直接获得数据
 
-1. 数据通过`v-bind`来绑定到`props`
-2. `template`通过组件中的`props`来获得数据
+1. `v-for`遍历Vue对象中的`data`数据
+2. `v-bind`绑定数据到组件中`props`定义的`item`属性中
+3. `template`通过`props`获得数据
 
 > `props`类似于一个自定义attribute
 
@@ -392,7 +402,7 @@ var vm = new Vue({
 <body>
 <div id="app">
     <!-- 创建一个 ink 组件的实例 -->
-    <!-- v-for获取数据,v-bind绑定item-->
+    <!-- 等号左边的item是props定义的属性名，等号右边的item是v-for遍历的item项 -->
    <ink v-for="item in items" v-bind:item="item"></ink>
 
 </div>
@@ -407,6 +417,7 @@ Vue.component('ink',{
     props: ['item'],
     template: '<li>{{item}}</li>'
 });
+// 定义一个 vue 对象
 var vm = new Vue({
     el: '#app',
     data: {
@@ -416,3 +427,116 @@ var vm = new Vue({
 ```
 
 ![数据绑定](Vue.js.assets/数据绑定.png)
+
+
+
+# 网络通信
+
+`Axios`异步通信
+
+开源的用在浏览器端和NodeJS的异步通信框架，主要作用是实现Ajax异步通信
+
+[Axios API 中文文档](http://axios-js.com/)
+
+> Vue.js是一个视图层框架，并不包含Ajax的通信功能。
+>
+> jQuery.ajax()可以实现网络通信，但jQuery操作DOM太频繁，不推荐使用
+
+## 功能特点
+
+- 从浏览器中创建`XMLHttpRequests`（XHR）
+- 从node.js创建http请求
+- 支持Promise API（JavaScript中链式编程）
+- 拦截请求和响应
+- 转换请求和响应数据
+- 取消请求
+- 自动转换JSON数据
+- 客户端支持防御XSRF（跨站请求伪造）
+
+> 要求ES6
+>
+> ![ES6](Vue.js.assets/ES6.png)
+
+## 安装Axios
+
+- **npm**
+
+  ```bash
+  npm install axios
+  ```
+
+- **cdn**
+
+  ```html
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  ```
+
+## Vue生命周期
+
+`mounted`：加载Ajax的钩子函数
+
+![Vue生命周期](Vue.js.assets/Vue生命周期.png)
+
+```html
+<body>
+<div id="vue">
+    <div>{{info.name}}</div>
+    <div>{{info.links[0].name}}</div>
+    <!-- 错误:<a href="{{info.url}}">点击</a> -->
+    <!-- 要用v-bind绑定-->
+    <a v-bind:href="info.url">点击跳转</a>
+</div>
+<script src="vue.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="js/ink.js"></script>
+</body>
+```
+
+```javascript
+var vm = new Vue({
+    el: '#vue',
+    data: {
+        // 设置info为{}，自动绑定response的各个属性
+        info: {}
+    },
+    // 钩子函数（链式编程）
+    // data.json路径
+    mounted(){
+        // GET请求得到返回数据绑定到data中
+        axios.get('data.json').then(response=>(this.info = response.data));
+    }
+});
+```
+
+```json
+// json文件
+{
+  "name": "ink",
+  "url": "https://www.baidu.com/",
+  "page": 1,
+  "isNonProfit": true,
+  "address": {
+    "street": "知春路",
+    "city": "北京",
+    "country": "中国"
+  },
+  "links": [
+    {
+      "name": "Vue",
+      "url": "https://cn.vuejs.org/"
+    },
+    {
+      "name": "leetcode",
+      "url": "https://leetcode-cn.com/"
+    },
+    {
+      "name": "知乎",
+      "url": "https://www.zhihu.com/"
+    }
+  ]
+}
+```
+
+![异步通信](Vue.js.assets/异步通信.png)
+
+![axios](Vue.js.assets/axios.png)

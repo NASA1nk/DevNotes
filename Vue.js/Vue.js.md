@@ -358,7 +358,12 @@ var vm = new Vue({
 
 基于一个数组来渲染一个列表
 
-需要使用 `item in items` 形式的特殊语法，其中 `items` 是源数据数组， `item` 是被迭代的数组元素的**别名**
+使用 `item in items` 形式的语法
+
+-  `items` 是**源**数据数组
+- `item` 是被迭代的数组元素的**别名**
+
+> 也可以用 `of` 替代 `in` 作为分隔符
 
 ```html
 <body>
@@ -383,6 +388,33 @@ var vm = new Vue({
     }
 })
 ```
+
+`v-for` 块中可以访问所有**父作用域**的`property`
+
+`v-for` 还支持一个可选的第二个参数，即**当前项的索引**
+
+```html
+<ul id="app">
+  <li v-for="(item, index) in items">
+    {{ parentMessage }} - {{ index }} - {{ item.message }}
+  </li>
+</ul>
+```
+
+```javascript
+var vm = new Vue({
+  el: '#app',
+  data: {
+    parentMessage: 'Parent',
+    items: [
+      { message: 'Foo' },
+      { message: 'Bar' }
+    ]
+  }
+})
+```
+
+![v-for获取父作用域属性](Vue.js.assets/v-for获取父作用域属性.png)
 
 
 

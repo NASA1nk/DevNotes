@@ -1,3 +1,99 @@
+<!-- TOC -->
+
+- [JavaScript](#javascript)
+  - [JavaScript框架](#javascript框架)
+  - [UI框架](#ui框架)
+  - [JavaScript构建工具](#javascript构建工具)
+- [控制台调试](#控制台调试)
+- [引入JavaScript](#引入javascript)
+  - [内部标签](#内部标签)
+  - [外部引入](#外部引入)
+- [基本语法](#基本语法)
+  - [定义变量](#定义变量)
+  - [条件控制](#条件控制)
+  - [alert](#alert)
+  - [console.log](#consolelog)
+  - [注释](#注释)
+- [数据类型](#数据类型)
+  - [number](#number)
+  - [字符串](#字符串)
+  - [数组[ ]](#数组-)
+  - [对象{ }](#对象-)
+  - [布尔值](#布尔值)
+  - [逻辑运算](#逻辑运算)
+  - [比较运算符](#比较运算符)
+  - [Null和undefined](#null和undefined)
+- [strict模式](#strict模式)
+- [字符串](#字符串-1)
+  - [转义字符](#转义字符)
+  - [多行字符串](#多行字符串)
+  - [模板字符串](#模板字符串)
+- [数组](#数组)
+  - [数组长度](#数组长度)
+  - [数组遍历](#数组遍历)
+  - [方法](#方法)
+- [对象](#对象)
+  - [动态增删属性](#动态增删属性)
+  - [属性判断](#属性判断)
+- [流程控制](#流程控制)
+  - [if判断](#if判断)
+  - [while循环](#while循环)
+  - [for循环](#for循环)
+- [Map，Set](#mapset)
+  - [Map](#map)
+  - [Set](#set)
+  - [iterator遍历](#iterator遍历)
+- [函数](#函数)
+  - [函数定义](#函数定义)
+  - [调用函数](#调用函数)
+    - [不传参数](#不传参数)
+    - [多个参数](#多个参数)
+- [变量作用域](#变量作用域)
+  - [变量作用域提升](#变量作用域提升)
+  - [全局变量](#全局变量)
+  - [局部变量](#局部变量)
+  - [常量const](#常量const)
+- [解构赋值](#解构赋值)
+- [方法](#方法-1)
+  - [定义方法](#定义方法)
+  - [this](#this)
+  - [that](#that)
+  - [apply](#apply)
+- [内部对象](#内部对象)
+  - [标准对象](#标准对象)
+  - [Date](#date)
+  - [JSON](#json)
+    - [数据类型](#数据类型-1)
+    - [格式](#格式)
+    - [转换](#转换)
+- [面向对象](#面向对象)
+- [BOM](#bom)
+  - [浏览器内核](#浏览器内核)
+  - [BOM对象](#bom对象)
+- [DOM](#dom)
+  - [获得DOM节点](#获得dom节点)
+  - [更新DOM节点](#更新dom节点)
+    - [操作文本](#操作文本)
+    - [操作CSS](#操作css)
+  - [删除DOM节点](#删除dom节点)
+  - [插入DOM节点](#插入dom节点)
+- [表单](#表单)
+  - [操作表单](#操作表单)
+  - [表单提交和验证](#表单提交和验证)
+- [jQuery](#jquery)
+  - [获取jQuery](#获取jquery)
+  - [jQuery公式](#jquery公式)
+  - [jQuery选择器](#jquery选择器)
+  - [jQuery事件](#jquery事件)
+    - [页面载入](#页面载入)
+    - [鼠标事件](#鼠标事件)
+  - [jQuery操作DOM](#jquery操作dom)
+    - [DOM节点文本操作](#dom节点文本操作)
+    - [DOM节点CSS操作](#dom节点css操作)
+    - [DOM元素操作](#dom元素操作)
+    - [Ajax](#ajax)
+
+<!-- /TOC -->
 # JavaScript
 
 弱类型**脚本语言**，源代码不需要编译，由**浏览器解释**运行。用于控制网页行为
@@ -1028,23 +1124,36 @@ now.toLocalString()
 
 json是一种轻量级的**数据交换格式**，**层次结构**简洁清晰，易于阅读编写，易于机器解析和生成，可以有效提升网络传输效率。
 
-在JavaScript中一切皆对象（定义一个函数function，它也是一个对象），**任何JavaScript支持的类型都可以用JSON表示**
+JavaScript中一切皆对象（定义一个函数function，它也是一个对象），**任何JavaScript支持的类型都可以用JSON表示**
 
 > 早期数据传输习惯使用xml文件（重量级）,XML标记比数据多，增加了交换产生的流量
 >
-> BSON（Binary JSON）也是一种计算机数据交换格式，主要用于MongDB数据库，是一种二进制表示形式。
+> BSON（Binary JSON）也是一种计算机数据交换格式，主要用于MongDB数据库，是一种二进制表示形式
+>
+> JavaScript内置了JSON的解析，在JavaScript中可以直接使用JSON
+
+### 数据类型
+
+- `number`：JavaScript的`number`
+- `boolean`：JavaScript的`true`或`false`
+- `string`：JavaScript的`string`
+- `null`：JavaScript的`null`
+- `array`：JavaScript的`array`
+- `object`：JavaScript的`{ ... }`
+
+> JSON的字符串必须用双引号`""`，object中的键也必须用双引号`""`
 
 ### 格式
 
 - 对象用`{}`
 - 数组用`[]`
 - 所有键值对都是用`key：value`
+  - key：string类型
+  - value：任何基本类型或数据结构
 
-> key是字符串，而value可以是字符串，数值，true，null，对象或数组
-
-### 转换
-
-JSON字符串<—>JavaScript对象
+> **首先一个{}，整个代表一个对象**
+>
+> JSON的字符集必须是UTF-8
 
 - JSON：格式化的**字符串**
 
@@ -1052,11 +1161,16 @@ JSON字符串<—>JavaScript对象
   {"name": "ink", "age": 23, "school": "buaa"}
   ```
 
-- 对象：**键值对**形式
+- JavaScript对象
 
   ```javascript
-  name: "ink", age: 23, school: "buaa"
+  var person = {name: "ink", age: 23, school: "buaa"}
   ```
+
+### 转换
+
+- 序列化`stringify()`：JavaScript对象转换为JSON字符串
+- 反序列化`parse()`：JSON字符串转换为JavaScript对象
 
 ```javascript
 'use strict';

@@ -93,9 +93,9 @@ Vue 的核心库只关注**视图层**（HTML + CSS + JavaScript）
 
 
 
-# idea
+## 使用idea开发
 
-1. 创建文件夹并用idea打开（open）
+1. 创建文件夹并用idea打开
 
 2. 安装Vue插件
 
@@ -603,6 +603,47 @@ var vm = new Vue({
 
 ![事件双向绑定](Vue.js.assets/事件双向绑定.png)
 
+![双向绑定](Vue.js.assets/双向绑定.png)
+
+### 值绑定
+
+
+
+### 修饰符
+
+`.lazy`
+
+默认情况下`v-model` 在每次 `input` 事件触发后将输入框的值与数据进行同步 
+
+使用 `lazy` 修饰符可以转为在 `change` 事件**之后**进行同步
+
+```html
+<!-- 在“change”时而非“input”时更新 -->
+<input v-model.lazy="ink">
+```
+
+
+
+`.number`
+
+使用 `number` 修饰符可以自动将用户的输入值转为数值类型
+
+```html
+<input v-model.number="age" type="number">
+```
+
+> 即使 `type="number"` HTML 输入元素的值也总会返回字符串
+
+ 
+
+`.trim`
+
+使用`trim`修饰符可以自动过滤用户输入的首尾空白字符
+
+```html
+<input v-model.trim="ink">
+```
+
 
 
 ## Class 与 Style 绑定
@@ -651,28 +692,42 @@ data: {
 
 # Vue组件
 
-`Vue.component()`
+使用`Vue.component()`函数创建Vue组件
 
-- `props`
-- `template`
-
-一个组件本质上是一个拥有预定义选项的**一个 Vue 实例**
+- 一个组件本质上是一个拥有预定义选项的**一个 Vue 实例**
+- 组件是可复用的 Vue 实例，所以它与 `new Vue` 接收相同的选项（如 `data`、`computed`、`watch`、`methods` 以及生命周期钩子函数等），但不包括`el` 这样的根实例特有的选项
+- 每个组件都会各自独立维护它的属性。每用一次组件，就会有一个它的新**实例**被创建
 
 > 自定义标签组件化（**模板复用**）
 >
-> 组件系统是一种抽象。可以使用小型、独立和通常可复用的组件构建大型应用
->
 > Vue 组件提供了纯自定义元素所不具备的一些重要功能，最突出的是跨组件数据流、自定义事件通信以及构建工具集成。
+
+## 组件组织
 
 几乎任意类型的应用界面都可以抽象为一个组件树
 
+> 组件系统是一种抽象。可以使用小型、独立和通常可复用的组件构建大型应用
+
 ![VueComponents](Vue.js.assets/VueComponents.png)
 
-## template
+## Vue component
 
-Vue 将**模板**编译成虚拟 DOM 渲染函数
+![新建组件](Vue.js.assets/新建组件.png)
 
-> 结合响应系统，Vue 能够智能地计算出最少需要重新渲染多少组件，并把 DOM 操作次数减到最少。
+![Vue组件模板](Vue.js.assets/Vue组件模板.png)
+
+
+
+**组件的注册类型**
+
+- 全局注册
+- 局部注册
+
+全局注册Vue组件可以用在其被注册之后的任何 (通过 `new Vue`) 新创建的 Vue 根实例，也包括其组件树中的所有子组件的模板中
+
+> Vue 将**模板**编译成虚拟 DOM 渲染函数
+>
+> Vue 能够计算出最少需要重新渲染多少组件，并把 DOM 操作次数减到最少
 
 ```html
 <body>
@@ -690,27 +745,41 @@ Vue 将**模板**编译成虚拟 DOM 渲染函数
 Vue.component("ink",{
    template: '<li>ink</li>'
 });
+
 // 创建Vue实例才可以调用
 var vm = new Vue({
     el: '#app'
 });
+
+//可以在一个通过new Vue创建的Vue根实例中，把组件作为自定义元素来使用
+new Vue({ 
+    el: '#ink' 
+});
 ```
 
-创建**Vue component**
 
-![新建组件](Vue.js.assets/新建组件.png)
 
-![Vue组件模板](Vue.js.assets/Vue组件模板.png)
+## data
+
+一个组件的 `data` 选项**必须是一个函数**，因此每个实例可以维护一份被返回对象的独立的拷贝
+
+> 否则可能会影响其他实例
 
 
 
 ## props
 
-数据传递
+prop是可以在组件上注册的一些自定义attribute
+
+当一个值传递给一个 prop attribute 的时候，它就变成了那个组件实例的一个属性
+
+一个组件默认可以拥有任意数量的 prop，任何值都可以传递给任何 prop（在组件实例中访问这个值就像访问 `data` 中的值一样）
 
 > 默认规则下，`props`属性中的值不能大写
 
-父作用域将数据传到子组件
+
+
+**父作用域将数据传到子组件**
 
 组件中的`template`不能从Vue对象的`data`中直接获得数据
 
@@ -751,6 +820,10 @@ var vm = new Vue({
 ```
 
 ![数据绑定](Vue.js.assets/数据绑定.png)
+
+
+
+可以在一个通过 `new Vue` 创建的 Vue 根实例中，把这个组件作为自定义元素来使用：
 
 
 

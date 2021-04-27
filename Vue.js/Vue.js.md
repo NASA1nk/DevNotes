@@ -546,33 +546,64 @@ Vue为 `v-on` 提供了**事件修饰符**（修饰符是由**点开头的指令
 
 `v-model` 
 
-`v-model`可以实现**表单输入和应用状态**之间的**双向绑定**
+- `v-model`可以实现**表单输入和应用状态**之间的**双向绑定**，它会根据控件类型自动选取正确的方法来更新元素
+- `v-model`本质上是一个语法糖，它负责监听用户的输入事件以更新数据，并对一些极端场景进行特殊处理
+- `v-model` 在内部为**不同的输入元素使用不同的属性并抛出不同的事件**
+  - `text/textarea`：使用 `value`属性和 `input` 事件
+  - `checkbox/radio`：使用 `checked`属性和 `change` 事件
+  - `select`：使用 `value`属性和`change` 作为事件
 
-`v-model`会忽略所有表单元素的`value`，`checked`，`selected`特性的初始值而总是将**Vue实例数据**作为数据来源，所以要在JavaScript的`data`中声明初始值
-
-> 实际上数据还是单向的
+> `v-model`会忽略所有表单元素的`value`，`checked`，`selected`特性的初始值而总是**将Vue实例数据作为数据来源**，所以要在组件的`data`中声明初始值
 >
-> v-model本质上是一个语法糖，它负责监听用户的输入事件以更新数据，并对一些极端场景进行特殊处理
+> 实际上数据还是单向的
 
 ```html
 <body>
-<div id="app">
+<div id="vue">
     <!--绑定表单内容-->
-    输入文本<input type="text" v-model="message"> {{message}}
+    输入文本<input type="text" v-model="message">
+    <p>{{message}}</p>
+    <button type="button" @click="submit">提交</button>
+    <div></div>
+    <!-- 单选框-->
+    <input type="checkbox" id="checkbox" v-model="checked">
+    <label for="checkbox">{{ checked }}</label>
+    <div></div>
+    <!-- 复选框-->
+    <input type="checkbox" id="jack" value="Jack" v-model="checkedNames">
+    <label for="jack">Jack</label>
+    <input type="checkbox" id="john" value="John" v-model="checkedNames">
+    <label for="john">John</label>
+    <input type="checkbox" id="mike" value="Mike" v-model="checkedNames">
+    <label for="mike">Mike</label>
+    <br>
+    <span>Checked names: {{ checkedNames }}</span>
 </div>
 <script src="vue.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="js/ink.js"></script>
 </body>
 ```
 
 ```javascript
 var vm = new Vue({
-    el: "#app",
+    el: '#vue',
     data: {
-        message: "ink"
+        message: "ink",
+        checked: "",
+        checkedNames: []
+    },
+    methods: {
+        submit: function (){
+            alert(this.message)
+        }
     }
-})
+});
 ```
+
+![事件双向绑定](Vue.js.assets/事件双向绑定.png)
+
+
 
 ## Class 与 Style 绑定
 

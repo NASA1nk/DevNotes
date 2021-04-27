@@ -2,9 +2,11 @@
 
 渐进式JavaScript框架
 
-> 尤雨溪。Vue 被设计为可以自底向上逐层应用
+> 尤雨溪
 >
-> Soc：Separation of concerns 关注点分离原则
+> Vue 被设计为可以自底向上逐层应用
+>
+> `Soc`：Separation of concerns 关注点分离原则
 
 Vue 的核心库只关注**视图层**（HTML + CSS + JavaScript）
 
@@ -12,8 +14,6 @@ Vue 的核心库只关注**视图层**（HTML + CSS + JavaScript）
 - 页面跳转：Vue-router
 - 状态管理：Vuex
 - Vue-UI：ICE，Element-UI
-
-
 
 **虚拟DOM**
 
@@ -195,9 +195,11 @@ var vm = new Vue({
 
 ### Attribute
 
+`v-bind`
+
 Mustache语法也不能作用在 HTML标签的属性（`attribute`）上
 
-使用 `v-bind`绑定HTML标签的属性
+使用 `v-bind`（`:`）绑定HTML标签的属性
 
 > 对于布尔`attribute` (它们只要存在就意味着值为 `true`)
 
@@ -234,23 +236,20 @@ var app = new Vue({
 
 ## 指令
 
-**Vue指令**
+### Vue指令
 
 指令带有前缀 `v-`，表示它们是Vue提供的特殊attribute
 
-> 指令的职责时当表达式的值改变时，将其产生的连带影响，**响应式**地作用于 DOM
+指令的职责时当表达式的值改变时，将其产生的连带影响，**响应式**地作用于 DOM
 
-- `v-bind`：响应式的更新HTML的`attribute`
+- `v-bind`：响应式的更新HTML的`attribute``
+- ``v-on` ：监听 DOM 事件
 
-  缩写 `:`
-
-- `v-on` ：监听 DOM 事件
-
-  缩写 `@`
+> `v-bind` 缩写 `:`，`v-on` 缩写 `@`
 
 
 
-**参数**
+### 参数
 
 上述两条指令能够接收一个**参数**，在指令名称之后以**冒号表示**
 
@@ -268,7 +267,7 @@ var app = new Vue({
 
 
 
-**动态参数**
+### 动态参数
 
 可以用方括号`[]`括起来的 **JavaScript 表达式**作为一个指令的参数（求得的值作为最终的参数），也可以使用动态参数为一个**动态的事件名**绑定处理函数（不同事件不同的处理函数）
 
@@ -276,15 +275,16 @@ var app = new Vue({
 
 
 
-**修饰符**
+### 修饰符
 
 修饰符是以 `.` 指明的**特殊后缀**，用于指出一个指令应该以特殊方式绑定
+
+
 
 ## 条件渲染
 
 ### v-if
 
-- `v-if`
 - `v-else-if`
 - `v-else`
 
@@ -328,8 +328,6 @@ var vm = new Vue({
 
 ### v-show
 
-`v-show`
-
 - 带有 `v-show` 的元素**始终会被渲染并保留在 DOM 中**
 - `v-show` 只是简单地切换元素的CSS属性（`display`）
 - `v-show` 不支持 `template` 元素，也不支持 `v-else`
@@ -356,9 +354,9 @@ var vm = new Vue({
 
 `v-for`
 
-基于一个数组来渲染一个列表
+### 遍历数组
 
-使用 `item in items` 形式的语法
+基于一个数组来渲染一个列表，使用 `item in items` 形式的语法
 
 -  `items` 是**源**数据数组
 - `item` 是被迭代的数组元素的**别名**
@@ -389,12 +387,17 @@ var vm = new Vue({
 })
 ```
 
+
+
+### 父作用域
+
 `v-for` 块中可以访问所有**父作用域**的`property`
 
 `v-for` 还支持一个可选的第二个参数，即**当前项的索引**
 
 ```html
 <ul id="app">
+  <!-- 同时获取item和index -->
   <li v-for="(item, index) in items">
     {{ parentMessage }} - {{ index }} - {{ item.message }}
   </li>
@@ -416,23 +419,65 @@ var vm = new Vue({
 
 ![v-for获取父作用域属性](Vue.js.assets/v-for获取父作用域属性.png)
 
+### 对象遍历
+
+可以用 `v-for` 来遍历一个对象的`property`的值
+
+- 可以提供第二个参数为 `property` 名称 （`key`）
+- 可以提供第三个参数为索引（`index`）
+
+> 遍历对象时会按 `Object.keys()` 的结果遍历
+
+```html
+<ul id="v-for-object" class="demo">
+  <li v-for="value in object">
+    <!-- 输出对象中的属性值 -->
+    {{ value }}
+  </li>
+</ul>
+```
+
+```javascript
+new Vue({
+  el: '#v-for-object',
+  data: {
+    // 对象  
+    object: {
+      title: 'How to do lists in Vue',
+      author: 'Jane Doe',
+      publishedAt: '2016-04-10'
+    }
+  }
+})
+```
+
+
+
+### 状态维护
+
+Vue 更新使用 `v-for` 渲染的元素列表时默认使用“就地更新”的策略。如果数据项的顺序被改变，**Vue 将不会移动 DOM 元素来匹配数据项的顺序，而是就地更新每个元素**，确保它们在每个索引位置正确渲染
+
+> 只适用于不依赖子组件状态或临时 DOM 状态 (例如：表单输入值) 的列表渲染输出
+
+### 数组更新
+
 
 
 ## 事件处理
 
 `v-on`
 
-`v-on`指令可以监听DOM事件
+`v-on`(`@`)指令可以监听DOM事件并在触发时运行JavaScript代码
 
-通过它**调用在 Vue 实例中定义的方法**（执行事件）
+通过它**调用在 Vue 实例中定义的方法**（执行事件处理方法），方法定义在Vue的`methods`属性中
 
-> 方法定义在Vue的`methods`中
+> `v-on`可以绑定HTML所有的事件
 
 ```html
 <body>
 <div id="app">
-<!-- 通过方法响应点击事件 --> 
-<button v-on:click="sayhi">点击</button>
+	<!-- 通过方法响应点击事件 --> 
+	<button v-on:click="sayhi">点击</button>
 </div>
 <script src="vue.js"></script>
 <script src="js/ink.js"></script>
@@ -458,11 +503,50 @@ var vm = new Vue({
 
 
 
-## 双向绑定
+### 事件修饰符
+
+> 方法只有纯粹的数据逻辑，而不是去处理 DOM 事件细节
+
+Vue为 `v-on` 提供了**事件修饰符**（修饰符是由**点开头的指令后缀**表示）
+
+- `.stop`
+- `.prevent`
+- `.capture`
+- `.self`
+- `.once`
+- `.passive`
+
+```html
+<!-- 阻止单击事件继续传播 -->
+<a v-on:click.stop="doThis"></a>
+
+<!-- 提交事件不再重载页面 -->
+<form v-on:submit.prevent="onSubmit"></form>
+
+<!-- 修饰符可以串联 -->
+<a v-on:click.stop.prevent="doThat"></a>
+
+<!-- 只有修饰符 -->
+<form v-on:submit.prevent></form>
+
+<!-- 添加事件监听器时使用事件捕获模式 -->
+<!-- 即内部元素触发的事件先在此处理，然后才交由内部元素进行处理 -->
+<div v-on:click.capture="doThis">...</div>
+
+<!-- 只当在 event.target 是当前元素自身时触发处理函数 -->
+<!-- 即事件不是从内部元素触发的 -->
+<div v-on:click.self="doThat">...</div>
+```
+
+> 使用修饰符时，顺序很重要。相应的代码会以同样的顺序产生
+
+
+
+## 表单输入绑定
 
 `v-model` 
 
-可以实现**表单输入和应用状态**之间的双向绑定
+`v-model`可以实现**表单输入和应用状态**之间的**双向绑定**
 
 `v-model`会忽略所有表单元素的`value`，`checked`，`selected`特性的初始值而总是将**Vue实例数据**作为数据来源，所以要在JavaScript的`data`中声明初始值
 

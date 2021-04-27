@@ -844,12 +844,11 @@ prop是可以**在组件上**注册的一些自定义attribute
 ```
 
 ```javascript
-// 定义名为 ink 的新组件
 Vue.component('ink',{
     props: ['item'],
     template: '<li>{{item}}</li>'
 });
-// 定义一个 vue 对象
+
 var vm = new Vue({
     el: '#app',
     data: {
@@ -879,7 +878,6 @@ var vm = new Vue({
 ```
 
 ```javascript
-// 定义名为 ink 的新组件
 Vue.component('ink',{
     props: ['yinke','value'],
     template: '<div>' +
@@ -887,7 +885,7 @@ Vue.component('ink',{
         '<li> {{value}} </li>' +
         '</div>'
 });
-// 定义一个 vue 对象
+
 var vm = new Vue({
     el: '#app',
     data: {
@@ -898,7 +896,7 @@ var vm = new Vue({
         ]
     }
 });
-// 定义名为 button-counter 的新组件
+
 Vue.component('button-counter', {
     props: ['title'],
     data: function () {
@@ -908,6 +906,7 @@ Vue.component('button-counter', {
     },
     template: '<button v-on:click="count++">{{title}} clicked me {{ count }} times.</button>'
 })
+
 var com = new Vue({
     el: '#components-demo',
     data: {
@@ -1137,11 +1136,12 @@ var vm = new Vue({
 
 `slot`：插槽
 
-> Vue在2.6.0中为具名插槽和作用域插槽引入了一个新的统一的`v-slot` 指令。它取代了 `slot` 和 `slot-scope` 这两个目前已被废弃但未被移除且仍在文档中的attribute。
-
 Vue.js中使用`<slot>`元素作为承载分发内容的出口，可以应用在组合组件中
 
-- 插槽内可以包含任何模板代码，包括 HTML
+- 插槽内可以包含任何模板代码，包括 HTML，甚至其它组件
 - 每一个slot都会加载全部的插件
 
+> Vue在2.6.0中为具名插槽和作用域插槽引入了一个新的统一的`v-slot` 指令
+>
+> `v-slot` 指令取代了 `slot` 和 `slot-scope` 这两个目前已被废弃但未被移除且仍在文档中的attribute。
 

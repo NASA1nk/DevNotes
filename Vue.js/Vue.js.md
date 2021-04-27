@@ -718,12 +718,21 @@ data: {
 
 
 
-**组件的注册类型**
+**组件注册类型**
 
 - 全局注册
 - 局部注册
 
 全局注册Vue组件可以用在其被注册之后的任何 (通过 `new Vue`) 新创建的 Vue 根实例，也包括其组件树中的所有子组件的模板中
+
+
+
+**创建组件**
+
+`component()`函数包含两个参数
+
+1. 组件名称
+2. 以对象的形式描述组件
 
 > Vue 将**模板**编译成虚拟 DOM 渲染函数
 >
@@ -732,7 +741,7 @@ data: {
 ```html
 <body>
 <div id="app">
-   <!-- 创建一个 ink 组件的实例 -->
+   <!-- 调用组件：创建一个 ink 组件的实例 -->
    <ink></ink>
 </div>
 <script src="vue.js"></script>
@@ -757,8 +766,6 @@ new Vue({
 });
 ```
 
-
-
 ## data
 
 一个组件的 `data` 选项**必须是一个函数**，因此每个实例可以维护一份被返回对象的独立的拷贝
@@ -767,15 +774,47 @@ new Vue({
 
 
 
+## template
+
+**单个根元素**：组件的模板必须只具备一个根元素
+
+如果在组件内包含多个元素，**需要有一个根元素将他们一起包起来**，否则会报错（都是根元素）
+
+![模板单根元素](Vue.js.assets/模板单根元素.png)
+
+> 实现同一个模板内有多个HTML标签的效果
+
+```javascript
+// 错误写法：每个组件必须只有一个根元素
+Vue.component('ink',{
+    props: ['yinke','value'],
+    template: '<li> {{yinke}} </li>' +
+        '<li> {{value}} </li>'
+});
+
+// 正确写法：用div标签包起来
+Vue.component('ink',{
+    props: ['yinke','value'],
+    template: '<div>' +
+        '<li> {{yinke}} </li>' +
+        '<li> {{value}} </li>' +
+        '</div>'
+});
+```
+
+
+
 ## props
 
-prop是可以在组件上注册的一些自定义attribute
+prop是可以**在组件上**注册的一些自定义attribute
 
-当一个值传递给一个 prop attribute 的时候，它就变成了那个组件实例的一个属性
+当一个值传递给一个prop attribute 的时候，它就变成了那个**组件实例的一个属性**
 
-一个组件默认可以拥有任意数量的 prop，任何值都可以传递给任何 prop（在组件实例中访问这个值就像访问 `data` 中的值一样）
+一个组件默认可以拥有任意数量的prop，任何值都可以传递给任何 prop（在组件实例中访问这个值就像访问 `data` 中的值一样）
 
 > 默认规则下，`props`属性中的值不能大写
+>
+> Vue中的保留关键字不能作为`props`中的属性，如`key`
 
 
 
@@ -784,8 +823,8 @@ prop是可以在组件上注册的一些自定义attribute
 组件中的`template`不能从Vue对象的`data`中直接获得数据
 
 1. `v-for`遍历Vue对象中的`data`数据
-2. `v-bind`绑定数据到组件中`props`定义的`item`属性中
-3. `template`通过`props`获得数据
+2. `v-bind`绑定`data`数据到组件中`props`定义的`item`属性中
+3. `template`通过`props`中的属性获得数据
 
 > `props`类似于一个自定义attribute
 
@@ -821,9 +860,90 @@ var vm = new Vue({
 
 ![数据绑定](Vue.js.assets/数据绑定.png)
 
+```html
+<body>
+<div id="app">
+    <ink v-for="item in items"
+         v-bind:yinke="item.id"
+         v-bind:value="item.title"
+    ></ink>
+</div>
+<div id="components-demo">
+    <button-counter v-for="item in items"
+                    :title="item"
+    ></button-counter>
+</div>
+<script src="vue.js"></script>
+<script src="js/ink.js"></script>
+</body>
+```
+
+```javascript
+// 定义名为 ink 的新组件
+Vue.component('ink',{
+    props: ['yinke','value'],
+    template: '<div>' +
+        '<li> {{yinke}} </li>' +
+        '<li> {{value}} </li>' +
+        '</div>'
+});
+// 定义一个 vue 对象
+var vm = new Vue({
+    el: '#app',
+    data: {
+        items: [
+            { id: 1, title: 'My journey with Vue' },
+            { id: 2, title: 'Blogging with Vue' },
+            { id: 3, title: 'Why Vue is so fun' }
+        ]
+    }
+});
+// 定义名为 button-counter 的新组件
+Vue.component('button-counter', {
+    props: ['title'],
+    data: function () {
+        return {
+            count: 0
+        }
+    },
+    template: '<button v-on:click="count++">{{title}} clicked me {{ count }} times.</button>'
+})
+var com = new Vue({
+    el: '#components-demo',
+    data: {
+        items: ['ink','yinke']
+    }
+})
+```
+
+![props样例](Vue.js.assets/props样例.png)
+
+## 组件事件
+
+### 监听子组件事件
+
+> 开发组件的一些功能可能要和父级组件进行沟通
+
+Vue实例提供了一个**自定义事件的系统**来解决这个问题：父级组件可以像处理native DOM事件一样**通过 `v-on` 监听子组件实例的任意事件**
 
 
-可以在一个通过 `new Vue` 创建的 Vue 根实例中，把这个组件作为自定义元素来使用：
+
+### 使用事件抛出特定值
+
+
+
+### 组件使用v-model
+
+自定义事件也可以用于创建支持 `v-model` 的自定义输入组件
+
+```html
+<input v-model="searchText">
+<!--等价于-->
+<input
+  v-bind:value="searchText"
+  v-on:input="searchText = $event.target.value"
+>
+```
 
 
 
@@ -868,11 +988,15 @@ var vm = new Vue({
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   ```
 
+
+
 ## Vue生命周期
 
 每个 Vue 实例在被创建时都要经过一系列的初始化过程（例如需要设置数据监听、编译模板、将实例挂载到 DOM 并在数据变化时更新 DOM 等）。
 
 同时在这个过程中也会运行一些叫做**生命周期钩子**的函数，可以让用户在不同阶段添加自己的代码
+
+
 
 **钩子函数需要以属性（函数）的方式声明在Vue实例中**
 
@@ -886,8 +1010,6 @@ var vm = new Vue({
 - `deactivated`
 - `beforeDestory`
 - `destroyed`
-
-
 
 ![Vue生命周期](Vue.js.assets/Vue生命周期.png)
 
@@ -1015,7 +1137,11 @@ var vm = new Vue({
 
 `slot`：插槽
 
+> Vue在2.6.0中为具名插槽和作用域插槽引入了一个新的统一的`v-slot` 指令。它取代了 `slot` 和 `slot-scope` 这两个目前已被废弃但未被移除且仍在文档中的attribute。
+
 Vue.js中使用`<slot>`元素作为承载分发内容的出口，可以应用在组合组件中
 
-每一个slot都会加载全部的插件
+- 插槽内可以包含任何模板代码，包括 HTML
+- 每一个slot都会加载全部的插件
+
 

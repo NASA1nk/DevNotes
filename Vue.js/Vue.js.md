@@ -1145,3 +1145,62 @@ Vue.js中使用`<slot>`元素作为承载分发内容的出口，可以应用在
 >
 > `v-slot` 指令取代了 `slot` 和 `slot-scope` 这两个目前已被废弃但未被移除且仍在文档中的attribute。
 
+
+
+```html
+<body>
+<div id="app">
+
+<todo>
+	<!-- 组件插进插槽-->
+    <todo-title  slot="todo-title"
+                 v-bind:title="todotitle"
+    ></todo-title>
+    <!-- item在前,index在后-->
+    <todo-item  slot="todo-item"
+                v-for="(item,index) in todoitems"
+                v-bind:item="item"
+                v-bind:index="index"
+    ></todo-item>
+</todo>
+
+</div>
+<!--1.导入Vue.js-->
+<script src="vue.js"></script>
+<script src="js/ink.js"></script>
+</body>
+```
+
+```javascript
+// 定义插槽<slot></slot>
+Vue.component('todo',{
+    template:   '<div>' +
+                    '<slot name="todo-title"></slot>' +
+                        '<ul>' +
+                            '<slot name="todo-item"></slot>' +
+                        '</ul>' +
+                '</div>'
+});
+
+Vue.component('todo-title',{
+    props: ['title'],
+    template:'<div>{{title}}</div>'
+});
+
+Vue.component("todo-item",{
+    props: ['item','index'],
+    template:"<li>{{index}} : {{item}}</li>"
+});
+
+var vm = new Vue({
+    el:"#app",
+    data:{
+        todotitle: 'Vuedemo',
+        todoitems:['buaa','neau','fushan']
+    }
+});
+```
+
+
+
+# 自定义事件

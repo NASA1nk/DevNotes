@@ -1132,16 +1132,18 @@ var vm = new Vue({
 
 ![计算属性](Vue.js.assets/计算属性.png)
 
-# 内容分发
+
+
+# 插槽
 
 `slot`：插槽
 
-Vue.js中使用`<slot>`元素作为承载分发内容的出口，可以应用在组合组件中
+Vue.js中使用`<slot>`元素作为承载**分发内容**的出口，可以应用在组合组件中
 
 - 插槽内可以包含任何模板代码，包括 HTML，甚至其它组件
 - 每一个slot都会加载全部的插件
 
-> Vue在2.6.0中为具名插槽和作用域插槽引入了一个新的统一的`v-slot` 指令
+> Vue在2.6.0中为**具名插槽**和**作用域插槽**引入了一个新的统一的`v-slot` 指令
 >
 > `v-slot` 指令取代了 `slot` 和 `slot-scope` 这两个目前已被废弃但未被移除且仍在文档中的attribute。
 
@@ -1152,7 +1154,7 @@ Vue.js中使用`<slot>`元素作为承载分发内容的出口，可以应用在
 <div id="app">
 
 <todo>
-	<!-- 组件插进插槽-->
+	<!-- 插槽内包含组件 -->
     <todo-title  slot="todo-title"
                  v-bind:title="todotitle"
     ></todo-title>
@@ -1201,6 +1203,90 @@ var vm = new Vue({
 });
 ```
 
+![内容分发](Vue.js.assets/内容分发.png)
+
+
+
+### 作用域
+
+- **父级模板里的所有内容都是在父级作用域中编译的**
+- **子模板里的所有内容都是在子作用域中编译的**
+
+在插槽中使用数据跟模板的其它地方一样可以访问相同的实例属性 (也就是相同的**作用域**)
+
+```html
+<navigation-link url="/profile">
+  Logged in as {{ user.name }}
+</navigation-link>
+```
+
+但**不能**访问 父级（`<navigation-link>`） 作用域
+
+```html
+<navigation-link url="/profile">
+  Clicking here will send you to: {{ url }}
+  <!-- 这里的url是undefined
+	   因为该插槽的内容是传递给<navigation-link>标签的
+	   而不是在<navigation-link>组件内部定义的
+  -->
+</navigation-link>
+```
+
 
 
 # 自定义事件
+
+组件可以调用自己的methods中的方法，但无法访问到实例中的方法
+
+```javascript
+Vue.component("todo-item",{
+    props: ['item','index'],
+    // 想删除vm中的data属性中的数据，报错
+    template:"<li>{{index}} : {{item}} <button v-on:click=\"removeitems\"> 删除</button></li>",
+    methods: {
+        remove: function (){
+            alert("删除！")
+        }
+    }
+});
+var vm = new Vue({
+    el:"#app",
+    data:{
+        todotitle: 'Vuedemo',
+        todoitems:['buaa','neau','fushan'],
+        methods: {
+            // removeitems方法
+            removeitems: function (){
+                alert("删除~~~")
+            }
+        }
+    }
+});
+```
+
+![组件无法访问实例属性](Vue.js.assets/组件无法访问实例属性.png)
+
+
+
+可以在实例中的methods中定义方法操作元素
+
+```javascript
+var vm = new Vue({
+    el:"#app",
+    data: {
+        todotitle: 'Vuedemo',
+        todoitems: ['buaa', 'neau', 'fushan'],
+    },
+    methods: {
+        removeitems: function (index){
+            // splice()方法，删除一个元素
+            console.log("删除了" + this.todoitems[index]);
+            this.todoitems.splice(index,1);
+        }
+    }
+});
+```
+
+
+
+如果想要组件也能访问实例中的方法。

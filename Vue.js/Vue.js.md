@@ -1349,13 +1349,13 @@ var vm = new Vue({
 3. 安装Vue-cli
 
    ```bash
-   cnpm instal1 vue-cli-g
+   npm install vue-cli -g
    
    # 查看可以基于哪些模板创建vue应用程序(通常选择webpack)
    vue list
    ```
-
-
+   
+   ![Vue-list](Vue.js.assets/Vue-list.png)
 
 ## 创建程序
 
@@ -1373,12 +1373,14 @@ var vm = new Vue({
 
    - Project name：项目名称，默认回车即可
    - Project description：项目描述，默认回车即可
-   - Author：项目作者
+   - Author：项目作者，默认回车即可
    - Install vue-router：是否安装vue-router，选择n不安装（后期需要再手动添加）
    - Use ESLint to lint your code:是否使用ESLint做代码检查，选择n不安装（后期需要再手动添加)
    - Set up unit tests:单元测试相关，选择n不安装（后期需要再手动添加）
    - Setupe2etests with Nightwatch：单元测试相关，选择n不安装（后期需要再手动添加）
    - Should we run npm install for you after the,project has been created:创建完成后直接初始化，选择n，手动执行
+
+   ![创建Vue-cli项目](Vue.js.assets/创建Vue-cli项目.png)
 
 4. 初始化项目
 

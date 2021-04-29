@@ -1348,8 +1348,13 @@ var vm = new Vue({
    
 3. 安装Vue-cli
 
+   > vue-cli3.0要nodeJs ≥ 8.9（官方推荐 8.11.0+）
+   
    ```bash
    npm install vue-cli -g
+   
+   # 验证
+   vue -V
    
    # 查看可以基于哪些模板创建vue应用程序(通常选择webpack)
    vue list
@@ -1390,6 +1395,17 @@ var vm = new Vue({
    npm install
    ```
 
+   > npm版本过高可能会报错，需要降低版本
+   >
+   > warn不用管
+   >
+   > ```bash
+   > npm install npm@6.14.10 -g
+   > npm install
+   > ```
+   >
+   > webpack3.0及其以上或4.0以下版本自带webpack-cli，不需要额外安装。而4.0以上则需要
+
 5. 运行项目
 
    webpack打包并运行
@@ -1401,6 +1417,29 @@ var vm = new Vue({
    > `ctrl+c`停止
    >
    > 端口号配置文件：`config`目录下的index.js中的port
+
+6. package.json 
+
+   可以看到**开发和生产 环境的入口**
+
+   - dev：开发环境的启动命令
+
+   - build：生产打包环境的命令
+
+     > 运行 `npm run build` 命令就可以进行打包工作。打包完成后会生成 `dist` 目录，项目上线时，把`dist` 目录下的文件放到服务器就可以了
+
+   ```json
+   "scripts": {
+       "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
+       "start": "npm run dev",
+       "build": "node build/build.js"
+   },
+   ```
+
+   
+   
+
+
 
 
 

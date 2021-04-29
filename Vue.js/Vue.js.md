@@ -991,7 +991,7 @@ Vue实例提供了一个**自定义事件的系统**来解决这个问题：父�
 
 ## Vue生命周期
 
-每个 Vue 实例在被创建时都要经过一系列的初始化过程（例如需要设置数据监听、编译模板、将实例挂载到 DOM 并在数据变化时更新 DOM 等）。
+每个Vue实例在被创建时都要经过一系列的初始化过程（例如需要设置数据监听、编译模板、将实例挂载到 DOM 并在数据变化时更新 DOM 等）。
 
 同时在这个过程中也会运行一些叫做**生命周期钩子**的函数，可以让用户在不同阶段添加自己的代码
 
@@ -1145,9 +1145,7 @@ Vue.js中使用`<slot>`元素作为承载**分发内容**的出口，可以应�
 
 > Vue在2.6.0中为**具名插槽**和**作用域插槽**引入了一个新的统一的`v-slot` 指令
 >
-> `v-slot` 指令取代了 `slot` 和 `slot-scope` 这两个目前已被废弃但未被移除且仍在文档中的attribute。
-
-
+> `v-slot` 指令取代了 `slot` 和 `slot-scope` 这两个目前已被废弃但未被移除且仍在文档中的attribute
 
 ```html
 <body>
@@ -1323,6 +1321,8 @@ var vm = new Vue({
 
 ## 环境配置
 
+> 以管理员身份运行
+
 1. 安装Node.js：[Node.js|Download](https://nodejs.org/en/download/)（自动配置环境变量）
 
    ```bash
@@ -1341,4 +1341,87 @@ var vm = new Vue({
    # 或者每次安装包都加上参数--registry
    npm install --registry=https://registry.npm.taobao.org
    ```
+   
+   > C:\Users\54164\AppData\Roaming\npm
+   >
+   > 尽量使用npm，cnpm可能打包会失败
+   
+3. 安装Vue-cli
+
+   ```bash
+   cnpm instal1 vue-cli-g
+   
+   # 查看可以基于哪些模板创建vue应用程序(通常选择webpack)
+   vue list
+   ```
+
+
+
+## 创建程序
+
+创建一个基于`webpack`模板的Vue应用程序
+
+1. 进入项目目录
+
+2. 创建项目
+
+   ```bash
+   vue init webpack 项目名
+   ```
+
+3. 设置
+
+   - Project name：项目名称，默认回车即可
+   - Project description：项目描述，默认回车即可
+   - Author：项目作者
+   - Install vue-router：是否安装vue-router，选择n不安装（后期需要再手动添加）
+   - Use ESLint to lint your code:是否使用ESLint做代码检查，选择n不安装（后期需要再手动添加)
+   - Set up unit tests:单元测试相关，选择n不安装（后期需要再手动添加）
+   - Setupe2etests with Nightwatch：单元测试相关，选择n不安装（后期需要再手动添加）
+   - Should we run npm install for you after the,project has been created:创建完成后直接初始化，选择n，手动执行
+
+4. 初始化项目
+
+   在项目目录下安装依赖(根据项目中的`package.json`文件)，生成`node_modules`文件夹
+
+   ```bash
+   npm install
+   ```
+
+5. 运行项目
+
+   webpack打包并运行
+
+   ```bash
+   npm run dev
+   ```
+
+   > `ctrl+c`停止
+   >
+   > 端口号配置文件：`config`目录下的index.js中的port
+
+
+
+## idea
+
+- 以管理员身份运行idea
+- 在idea中open打开项目目录
+- 在idea中的终端执行命令运行项目
+
+> 项目入口：main.js绑定到index.html
+
+
+
+# Webpack
+
+- Webpack是一个现代JavaScript应用程序的静态模块**打包器**(module bundler) 
+- Wbpack处理应用程序时会递归地构建一个**依赖关系图**(dependency graph) ， 包含应用程序需要的每个模块， 然后将所有这些模块打包成一个或多个bundle
+- Webpack可以将松散耦合的模块按照依赖和规则打包成**符合生产环境部署的前端资源**。还可以将按需加载的模块进行代码分离，等到实际需要时再异步加载。通过loader转换， 任何形式的资源都可以当做模块， 比如Commons JS、ES6、CSS、JSON、CoffeeScript等
+
+> 现在越来越多的网站已经从网页模式进化到了WebApp模式，运行在浏览器里。 WebApp通常是一个SPA(单页面应用) ， 每一个视图通过异步的方式加载，这导致页面初始化和使用过程中会加载越来越多的JavaScript代码
+>
+> 前端开发和其他开发工作的主要区别：
+>
+> - 前端基于多语言、多层次的编码和组织工作
+> - 前端产品的交付是基于浏览器的，这些资源是通过增量加载的方式运行到浏览器端
 

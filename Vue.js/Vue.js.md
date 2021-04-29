@@ -950,7 +950,7 @@ Vue实例提供了一个**自定义事件的系统**来解决这个问题：父�
 
 `Axios`异步通信
 
-开源的用在浏览器端和NodeJS的异步通信框架，主要作用是实现Ajax异步通信
+开源的用在浏览器端和Node.js的异步通信框架，主要作用是实现Ajax异步通信
 
 [Axios API 中文文档](http://axios-js.com/)
 
@@ -961,7 +961,7 @@ Vue实例提供了一个**自定义事件的系统**来解决这个问题：父�
 ## 功能特点
 
 - 从浏览器中创建`XMLHttpRequests`（XHR）
-- 从node.js创建http请求
+- 从Node.js创建http请求
 - 支持Promise API（JavaScript中链式编程）
 - 拦截请求和响应
 - 转换请求和响应数据
@@ -1236,57 +1236,109 @@ var vm = new Vue({
 
 # 自定义事件
 
-组件可以调用自己的methods中的方法，但无法访问到实例中的方法
+场景：数据在Vue的实例中， 但删除操作要在组件中完成
 
-```javascript
-Vue.component("todo-item",{
-    props: ['item','index'],
-    // 想删除vm中的data属性中的数据，报错
-    template:"<li>{{index}} : {{item}} <button v-on:click=\"removeitems\"> 删除</button></li>",
-    methods: {
-        remove: function (){
-            alert("删除！")
-        }
-    }
-});
-var vm = new Vue({
-    el:"#app",
-    data:{
-        todotitle: 'Vuedemo',
-        todoitems:['buaa','neau','fushan'],
-        methods: {
-            // removeitems方法
-            removeitems: function (){
-                alert("删除~~~")
-            }
-        }
-    }
-});
-```
+1. 组件可以调用自身`methods`中的方法，但无法访问实例`methods`中的方法
 
-![组件无法访问实例属性](Vue.js.assets/组件无法访问实例属性.png)
+   ```javascript
+   Vue.component("todo-item",{
+       props: ['item','index'],
+       // 想删除vm中的data属性中的数据，报错
+       template:"<li>{{index}} : {{item}} <button v-on:click=\"removeitems\"> 删除</button></li>",
+       methods: {
+           remove: function (){
+               alert("删除！")
+           }
+       }
+   });
+   var vm = new Vue({
+       el:"#app",
+       data:{
+           todotitle: 'Vuedemo',
+           todoitems:['buaa','neau','fushan'],
+           methods: {
+               // removeitems方法
+               removeitems: function (){
+                   alert("删除~~~")
+               }
+           }
+       }
+   });
+   ```
+
+   ![组件无法访问实例属性](Vue.js.assets/组件无法访问实例属性.png)
+
+2. Vue实例可以调用自身`methods`中定义方法操作数据
+
+   ```javascript
+   var vm = new Vue({
+       el:"#app",
+       data: {
+           todotitle: 'Vuedemo',
+           todoitems: ['buaa', 'neau', 'fushan'],
+       },
+       methods: {
+           removeitems: function (index){
+               // splice()方法，删除一个元素
+               console.log("删除了" + this.todoitems[index]);
+               this.todoitems.splice(index,1);
+           }
+       }
+   });
+   ```
+
+3. Vue提供**自定义事件**使得**组件能访问实例中的方法**从而操作实例中的数据
+
+   `this.$emit('自定义事件名'，参数)`
+
+   > 参数传递与事件分发
+   >
+   > 定义事件名不能和JavaScript关键字重名
+
+   - 前端通过id属性和Vue实例绑定，可以调用Vue实例中的方法
+   - 前端通过`v-on`将自定义事件传递给Vue实例的中的方法
+   - 组件通过`this.$emit`绑定前端的自定义事件从而调用Vue实例中的方法
+
+   > Vue实例将数据和方法与View层绑定，View层在分发数据和方法到下面的组件绑定。View相当于中转Vue实例的数据和方法由组件控制（前端：View层）
+   >
+   > 前端通过`v-bind`绑定Vue实例的数据，组件通过`props`绑定前端的数据
 
 
 
-可以在实例中的methods中定义方法操作元素
+# Vue-cli
 
-```javascript
-var vm = new Vue({
-    el:"#app",
-    data: {
-        todotitle: 'Vuedemo',
-        todoitems: ['buaa', 'neau', 'fushan'],
-    },
-    methods: {
-        removeitems: function (index){
-            // splice()方法，删除一个元素
-            console.log("删除了" + this.todoitems[index]);
-            this.todoitems.splice(index,1);
-        }
-    }
-});
-```
+`vue-cli`是官方提供的一个脚手架，用于快速生成一个Vue项目模板
 
+> Vue开发基于Node.js
+>
+> 实际开发采用Vue-cli脚手架，vue-router路由，vuex状态管理，Vue UI使用ElementUI来快速搭建前端项目
 
+**主要功能**
 
-如果想要组件也能访问实例中的方法。
+- 统一的目录结构
+- 本地调试
+- 热部署
+- 单元测试
+- 集成打包上线
+
+## 环境配置
+
+1. 安装Node.js：[Node.js|Download](https://nodejs.org/en/download/)（自动配置环境变量）
+
+   ```bash
+   # 验证
+   node -v
+   # 自带npm
+   npm -v
+   ```
+
+2. 安装Node.js淘宝**镜像加速器**（cnpm）
+
+   ```bash
+   # -g 全局安装
+   npm install cnpm -g
+   
+   # 或者每次安装包都加上参数--registry
+   npm install --registry=https://registry.npm.taobao.org
+   ```
+

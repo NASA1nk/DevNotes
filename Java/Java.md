@@ -3,7 +3,7 @@
 ```bash
 #盘符切换	D:
 #查看当前目录文件	dir
-#切换目录	 cd (change directory), 跨盘符需要加路径/ (cd /d f:\ink)
+#切换目录	 cd (change directory), 跨盘符需要加/d (cd /d f:\ink)
 #返回上一级	cd ..
 #退出终端	 exit
 #清空窗口	 cls (clear screen)		

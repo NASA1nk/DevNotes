@@ -1300,6 +1300,54 @@ var vm = new Vue({
    > Vue实例将数据和方法与View层绑定，View层在分发数据和方法到下面的组件绑定。View相当于中转Vue实例的数据和方法由组件控制（前端：View层）
    >
    > 前端通过`v-bind`绑定Vue实例的数据，组件通过`props`绑定前端的数据
+   
+   ```html
+   <body>
+   <div id="app">
+   <todo>
+       <todo-title  slot="todo-title"
+                    v-bind:title="todotitle"
+       ></todo-title>
+       <todo-item  slot="todo-item"
+                   v-for="(item,index) in todoitems"
+                   v-bind:item="item"
+                   v-bind:index="index"
+                   v-on:remove="removeitems(index)"
+       ></todo-item>
+   </todo>
+   </div>
+   <script src="vue.js"></script>
+   <script src="js/ink.js"></script>
+   </body>
+   ```
+   
+   ```javascript
+   Vue.component("todo-item",{
+       props: ['item','index'],
+       template:"<li>{{index}} : {{item}} <button v-on:click=\"removeI\">删除</button> </li>",
+       methods: {
+           removeI: function (index){
+               this.$emit('remove',index);
+           }
+       }
+   });
+   var vm = new Vue({
+       el:"#app",
+       data: {
+           todotitle: 'Vuedemo',
+           todoitems: ['buaa', 'neau', 'fushan'],
+       },
+       methods: {
+           removeitems: function (index){
+               // splice()方法，删除一个元素
+               console.log("删除了" + this.todoitems[index]);
+               this.todoitems.splice(index,1);
+           }
+       }
+   });
+   ```
+   
+   ![自定义删除事件](Vue.js.assets/自定义删除事件.png)
 
 
 
@@ -1366,15 +1414,15 @@ var vm = new Vue({
 
 创建一个基于`webpack`模板的Vue应用程序
 
-1. 进入项目目录
+1. **进入项目目录**
 
-2. 创建项目
+2. **创建项目**
 
    ```bash
    vue init webpack 项目名
    ```
 
-3. 设置
+3. **设置**
 
    - Project name：项目名称，默认回车即可
    - Project description：项目描述，默认回车即可
@@ -1387,26 +1435,90 @@ var vm = new Vue({
 
    ![创建Vue-cli项目](Vue.js.assets/创建Vue-cli项目.png)
 
-4. 初始化项目
+4. **初始化项目**
 
    在项目目录下安装依赖(根据项目中的`package.json`文件)，生成`node_modules`文件夹
 
-   ```bash
-   npm install
+   自动生成的package.json版本有问题
+
+   > webpack3.0及其以上或4.0以下版本自带webpack-cli，不需要额外安装。而4.0以上则需要
+
+   ```json
+   {
+     "name": "myvue",
+     "version": "1.0.0",
+     "description": "A Vue.js project",
+     "author": "lzh <luzehua@zhongbei.com>",
+     "private": true,
+     "scripts": {
+       "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
+       "start": "npm run dev",
+       "build": "node build/build.js"
+     },
+     "dependencies": {
+       "vue": "^2.5.2"
+     },
+     "devDependencies": {
+       "autoprefixer": "^7.1.2",
+       "babel-core": "^6.22.1",
+       "babel-helper-vue-jsx-merge-props": "^2.0.3",
+       "babel-loader": "^7.1.1",
+       "babel-plugin-syntax-jsx": "^6.18.0",
+       "babel-plugin-transform-runtime": "^6.22.0",
+       "babel-plugin-transform-vue-jsx": "^3.5.0",
+       "babel-preset-env": "^1.3.2",
+       "babel-preset-stage-2": "^6.22.0",
+       "chalk": "^2.0.1",
+       "copy-webpack-plugin": "^4.0.1",
+       "css-loader": "^0.28.0",
+       "extract-text-webpack-plugin": "^3.0.0",
+       "file-loader": "^1.1.4",
+       "friendly-errors-webpack-plugin": "^1.6.1",
+       "html-webpack-plugin": "^2.30.1",
+       "node-notifier": "^5.1.2",
+       "optimize-css-assets-webpack-plugin": "^3.2.0",
+       "ora": "^1.2.0",
+       "portfinder": "^1.0.13",
+       "postcss-import": "^11.0.0",
+       "postcss-loader": "^2.0.8",
+       "postcss-url": "^7.2.1",
+       "rimraf": "^2.6.0",
+       "semver": "^5.3.0",
+       "shelljs": "^0.7.6",
+       "uglifyjs-webpack-plugin": "^1.1.1",
+       "url-loader": "^0.5.8",
+       "vue-loader": "^13.3.0",
+       "vue-router": "^3.3.4",
+       "vue-style-loader": "^3.0.1",
+       "vue-template-compiler": "^2.5.2",
+       "webpack": "^3.6.0",
+       "webpack-bundle-analyzer": "^2.9.0",
+       "webpack-dev-server": "^2.9.1",
+       "webpack-merge": "^4.1.0"
+     },
+     "engines": {
+       "node": ">= 6.0.0",
+       "npm": ">= 3.0.0"
+     },
+     "browserslist": [
+       "> 1%",
+       "last 2 versions",
+       "not ie <= 8"
+     ]
+   }
    ```
 
    > npm版本过高可能会报错，需要降低版本
    >
    > warn不用管
-   >
-   > ```bash
-   > npm install npm@6.14.10 -g
-   > npm install
-   > ```
-   >
-   > webpack3.0及其以上或4.0以下版本自带webpack-cli，不需要额外安装。而4.0以上则需要
 
-5. 运行项目
+   ```bash
+   # 降低版本
+   npm install npm@6.14.10 -g
+   # 安装依赖
+   npm install
+
+5. **运行项目**
 
    webpack打包并运行
 
@@ -1418,7 +1530,9 @@ var vm = new Vue({
    >
    > 端口号配置文件：`config`目录下的index.js中的port
 
-6. package.json 
+   ![启动vue-cli](Vue.js.assets/启动vue-cli.png)
+
+6. **package.json** 
 
    可以看到**开发和生产 环境的入口**
 
@@ -1436,22 +1550,19 @@ var vm = new Vue({
    },
    ```
 
-   
-   
-
-
-
 
 
 ## idea
 
 - 以管理员身份运行idea
-- 在idea中open打开项目目录
+- `File`->`Open`打开项目目录
 - 在idea中的终端执行命令运行项目
 
 > 项目入口：main.js绑定到index.html
 
+![export导出](Vue.js.assets/export导出.png)
 
+![import导入](Vue.js.assets/import导入.png)
 
 # Webpack
 
@@ -1465,4 +1576,170 @@ var vm = new Vue({
 >
 > - 前端基于多语言、多层次的编码和组织工作
 > - 前端产品的交付是基于浏览器的，这些资源是通过增量加载的方式运行到浏览器端
+
+## 规范
+
+### CommonsJS规范
+
+服务器端的Node.js遵循**CommonsJS规范**
+
+核心思想是允许模块通过`require`方法来**同步加载**所需依赖的其它模块，然后通过`exports`或`module.exports`来导出需要暴露的接口
+
+```javascript
+require("module");
+require("../module.js");
+exports.doStuff = function(){};
+module.exports = someValue;
+```
+
+**优点：**
+
+- 服务器端模块便于重用
+- NPM中已经有超过45万个可以使用的模块包
+- 简单易用
+
+**缺点：**
+
+- 同步的模块加载方式不适合在浏览器环境中，同步意味着阻塞加载，浏览器资源是异步加载的
+- 不能非阻塞的并行加载多个模块
+
+**实现：**
+
+- 服务端的NodeJS
+- Browserify，浏览器端的CommonsJS实现，可以使用NPM的模块，但是编译打包后的文件体积较大
+- modules-webmake，类似Browserify，但不如Browserify灵活
+- wreq，Browserify的前身
+
+
+
+### AMD规范
+
+Asynchronous Module Definition规范主要是一个接口`define(id,dependencies,factory)`
+
+在声明模块的时候指定所有的依赖`dependencies`并当做形参传到`factory`中，对于依赖的模块**提前执行**
+
+```javascript
+define("module",["dep1","dep2"],functian(d1,d2){
+	return someExportedValue;
+});
+require（["module","../file.js"],function(module，file){});
+```
+
+**优点：**
+
+- 适合在浏览器环境中**异步加载模块**
+- 可以**并行加载**多个模块
+
+**缺点：**
+
+- 提高了开发成本，代码的阅读和书写比较困难，模块定义方式的语义不畅
+- 不符合通用的模块化思维方式
+
+**实现：**
+
+- RequireJS
+- curl
+
+
+
+### CMD规范
+
+Commons Module Definition规范和AMD相似，并与CommonsJS和NodeJS的Modules规范保持了很大的兼容性
+
+```javascript
+define(function(require,exports,module){
+	var $=require("jquery");
+	var Spinning = require("./spinning");
+	exports.doSomething = ...;
+	module.exports=...;
+});
+```
+
+**优点：**
+
+- 依赖就近，延迟执行
+- 可以很容易在Node.js中运行
+
+**缺点：**
+
+- 依赖SPM打包，模块的加载逻辑偏重
+
+
+
+### ES6模块
+
+EcmaScript6标准增加了JavaScript语言层面的模块体系定义
+
+**ES6模块的设计思想使编译时就能确定模块的依赖关系， 以及输入和输出的变量**。
+
+> 严格检查模式`strict`
+>
+> Commons JS和AMD模块都只能在**运行时**确定这些东西
+
+```javascript
+import "jquery"
+export function doStuff(){}
+module "localModule"{}
+```
+
+**优点**
+
+- 容易进行静态分析
+- 面向未来的EcmaScript标准
+
+**缺点**
+
+- 原生浏览器端还没有实现该标准
+- 全新的命令，新版的Node.js才支持
+
+## 安装
+
+```bash
+# 打包工具
+npm install webpack -g
+
+# 客户端
+npm install webpack-cli -g
+
+# 验证
+webpack -v
+webpack-cli -v
+```
+
+## 配置
+
+创建 `webpack.config.js`配置文件
+
+- `entry`：入口文件， 指定webpack用哪个文件作为项目的入口
+- `output`：输出， 指定webpack把处理完成的文件放到的路径
+- `module`：模块， 用于处理各种类型的文件
+- `plugins`：插件， 如热更新、代码重用等
+- `resolve`：设置路径指向
+- `watch`：监听， 用于设置文件改动后直接打包
+
+```javascript
+module.exports = {
+	entry:"",
+	output:{
+		path:"",
+		filename:""
+	},
+	module:{
+		loaders:[
+			{test:/\.js$/,;\loade:""}
+		]
+	},
+	plugins:{},
+	resolve:{},
+	watch:true
+}
+```
+
+运行`webpack`命令打包
+
+## 使用
+
+1. 创建webpack项目目录（空）
+2. 在idea中open项目目录
+3. 创建`modules`目录（Directory）
 

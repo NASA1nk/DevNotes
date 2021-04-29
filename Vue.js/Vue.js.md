@@ -1816,3 +1816,154 @@ Vue Router是Vue.js官方的路**由管理器**。
 >
 > 单页应用程序（SPA）：单页应用一般指的就是一个页面就是应用，当然也可以是一个子应用。单页应用程序中一般交互处理非常多，而且页面中的内容需要根据用户的操作动态变化。
 
+
+
+## 安装
+
+在idea的终端中执行命令安装
+
+```bash
+# --save-dev保存到node_modules目录下
+npm install vue-router --save-dev
+```
+
+如果在一个模块化工程中使用vue-router，必须要通过`Vue.use()`显示声明
+
+```vue
+// 导入
+import VueRouter from 'vue-router'
+
+// 显示声明使用VueRouter
+Vue.use(VueRouter);
+```
+
+## 运行
+
+> 前端命名规则：`index.js`一般是主配置文件，会默认加载
+
+1. 在`components` 目录下编写`Content.vue` 组件
+
+   ```vue
+   <template>
+     <h1>内容页: router跳转!</h1>
+   </template>
+   <script>
+   export default {
+     name: "Content"
+   }
+   </script>
+   <!-- scoped限制作用域 -->
+   <style scoped>
+   </style>
+   ```
+
+2. 在`components` 目录下编写`Main.vue` 组件
+
+   ```vue
+   <template>
+       <h1>首页！</h1>
+   </template>
+   <script>
+   export default {
+     name: "Main"
+   }
+   </script>
+   <style scoped>
+   </style>
+   ```
+
+3. 在`src`目录下新建路由文件夹`router`专门存放路由
+
+   在配`router`目录下新建路由主配置文件`index.js`
+
+   1. 导入路由（import组件）
+   2. 配置路由（跳转组件）
+
+   ```javascript
+   // index.js 主配置文件
+   import Vue from 'vue'
+   // 导入路由
+   import VueRouter from 'vue-router'
+   // 导入自定义组件
+   import Content from '../components/Content'
+   import Main from '../components/Main'
+   // 安装路由
+   Vue.use(VueRouter);
+   // 配置导出路由
+   export default new VueRouter({
+     routes: [
+       {
+         // 路由路径
+         path: '/content',
+         // 路由名(可省略)
+         name: 'content',
+         // 跳转组件
+         component: Content
+       },
+       {
+         path: '/main',
+         name: 'main',
+         component: Main
+       }
+     ]
+   })
+   ```
+
+4. 在`main.js`中配置路由
+
+   ```javascript
+   // 导入组件
+   import Vue from 'vue'
+   import App from './App'
+   
+   // 会自动扫描里面的路由配置index.js(不用写)
+   import router from './router'
+   
+   Vue.config.productionTip = false;
+   
+   new Vue({
+     el: '#app',
+     // 配置路由
+     router,
+     components: { App },
+     template: '<App/>'
+   })
+   ```
+
+5. 在`App.vue`中使用路由
+
+   - `router-link`：控制路由
+   - `router-view`：控制页面展示
+
+   ```vue
+   <template>
+     <div id="app">
+       <h1>Vue-router</h1>
+       <!-- router-link默认会被渲染成一个<a>标签，to属性为指定链接 -->
+       <router-link to="/main" >首页</router-link>
+       <router-link to="/content">内容页</router-link>
+       <!-- router-view：用于渲染路由匹配到的组件 -->
+       <router-view></router-view>
+     </div>
+   </template>
+   
+   <script>
+   export default {
+     name: 'App'
+   }
+   </script>
+   
+   <style></style>
+   ```
+
+![main](Vue.js.assets/main.png)
+
+![content](Vue.js.assets/content.png)
+
+
+
+# Vue-ElementUI
+
+## ElementUI
+
+### 安装

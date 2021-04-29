@@ -1353,11 +1353,11 @@ var vm = new Vue({
 
 # Vue-cli
 
-`vue-cli`是官方提供的一个脚手架，用于快速生成一个Vue项目模板
+`vue-cli`是官方提供的一个脚手架，用于快速生成一个Vue项目模板（自动生成好项目目录，配置好Webpack以及各种依赖包的工具）
 
-> Vue开发基于Node.js
->
 > 实际开发采用Vue-cli脚手架，vue-router路由，vuex状态管理，Vue UI使用ElementUI来快速搭建前端项目
+
+
 
 **主要功能**
 
@@ -1379,6 +1379,8 @@ var vm = new Vue({
    # 自带npm
    npm -v
    ```
+
+   > npm类似CentOS下的yum和Ubuntu下的apt-get
 
 2. 安装Node.js淘宝**镜像加速器**（cnpm）
 
@@ -1564,9 +1566,11 @@ var vm = new Vue({
 
 ![import导入](Vue.js.assets/import导入.png)
 
+
+
 # Webpack
 
-- Webpack是一个现代JavaScript应用程序的静态模块**打包器**(module bundler) 
+- Webpack是一个现代JavaScript应用程序的静态模块**打包工具**(module bundler) 
 - Wbpack处理应用程序时会递归地构建一个**依赖关系图**(dependency graph) ， 包含应用程序需要的每个模块， 然后将所有这些模块打包成一个或多个bundle
 - Webpack可以将松散耦合的模块按照依赖和规则打包成**符合生产环境部署的前端资源**。还可以将按需加载的模块进行代码分离，等到实际需要时再异步加载。通过loader转换， 任何形式的资源都可以当做模块， 比如Commons JS、ES6、CSS、JSON、CoffeeScript等
 
@@ -1576,6 +1580,15 @@ var vm = new Vue({
 >
 > - 前端基于多语言、多层次的编码和组织工作
 > - 前端产品的交付是基于浏览器的，这些资源是通过增量加载的方式运行到浏览器端
+
+
+
+[Vue.js新手入门指南 ](https://zhuanlan.zhihu.com/p/25659025)
+
+> - 前端代码为什么要打包呢？
+>   因为单页应用程序中用到很多素材，如果每一个素材都通过在HTML中以src属性或者link来引入，那么请求一个页面的时候，可能浏览器就要发起十多次请求，往往请求的这些资源都是一些脚本代码或者很小的图片，这些资源本身才几k，下载连1秒都不需要，但是由于HTTP是应用层协议，它的下层是TCP这个运输层协议，TCP的握手和挥手过程消耗的时间可能比下载资源本身还要长，所以需要把这些小文件全部打包成一个文件，这样只要一次TCP握手和挥手的过程，就把多个资源给下载下来了，并且多个资源由于都是共享一个HTTP请求，所以head等部分也是共享的，相当于形成了规模效应，让网页展现更快，用户体验更好。
+> - Webpack还有构建的功能
+>   现在国内外还有很多人用着老版本的浏览器，这些浏览器并不支持ECMAScript6这个新版本的JavaScript，那么前端项目如何在这种浏览器上运行呢？这就需要Webpack的Loader自动载入一个转换器来将ECMAScript6转换成浏览器能支持的老版本JavaScript语言，这个转换器的名字叫做babel。这就是Webpack的构建功能。
 
 ## 规范
 
@@ -1692,6 +1705,8 @@ module "localModule"{}
 - 原生浏览器端还没有实现该标准
 - 全新的命令，新版的Node.js才支持
 
+
+
 ## 安装
 
 ```bash
@@ -1705,6 +1720,8 @@ npm install webpack-cli -g
 webpack -v
 webpack-cli -v
 ```
+
+
 
 ## 配置
 
@@ -1737,9 +1754,65 @@ module.exports = {
 
 运行`webpack`命令打包
 
-## 使用
+
+
+## 运行
 
 1. 创建webpack项目目录（空）
-2. 在idea中open项目目录
-3. 创建`modules`目录（Directory）
+
+2. 在idea中**open**项目目录
+
+3. 在**项目目录下**创建`modules`目录（Directory）
+
+4. 在`modules`目录下创建模块文件hi.js，用于编写JavaScript模块相关代码
+
+   ```javascript
+   // 暴露一个方法
+   exports.sayhi = function (){
+       document.write("<h1>ink say hi!</h1>");
+   }
+   ```
+
+5. 在`modules`目录下创建入口文件main.js，用于打包时设置`entry`属性
+
+   ```javascript
+   // 接收方法
+   // 模块不用写.js后缀
+   var hi = require("./hi");
+   hi.sayhi();
+   ```
+
+6. 在**项目目录下**创建webpack.config.js配置文件，在idea终端中使用`webpack`命令打包
+
+   ![webpack打包](Vue.js.assets/webpack打包.png)
+
+7. 在**项目目录下**创建index.html，导入webpack打包后的JavaScript文件
+
+   ```html
+   <body>
+   <!--导入包-->
+   <script src="dist/js/bundle.js"></script>
+   </body>
+   ```
+
+
+
+# Vue-router
+
+Vue Router是Vue.js官方的路**由管理器**。
+
+**功能：**
+
+- 嵌套的路由/视图表
+- 模块化的、基于组件的路由配置
+- 路由参数、查询、通配符
+- 基于Vue js过渡系统的视图过渡效果
+- 细粒度的导航控制
+- 带有自动激活的CSS class的链接
+- HTML5 历史模式或hash模式， 在IE 9中自动降级
+- 自定义的滚动行为
+
+> Vue-route管理请求入口和页面映射关系，可以实现对页面局部进行无刷新的替换，让用户感觉就像切换到了网页一样
+>
+> 单页应用程序（SPA）：单页应用一般指的就是一个页面就是应用，当然也可以是一个子应用。单页应用程序中一般交互处理非常多，而且页面中的内容需要根据用户的操作动态变化。
 

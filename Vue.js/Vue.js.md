@@ -1964,7 +1964,7 @@ Vue.use(VueRouter);
 
 # Vue-ElementUI
 
-**创建项目**
+## 创建项目
 
 - `npm install moduleName`：安装模块到项目目录下
 - `npm install -g moduleName`：`-g`表示将模块安装到全局（具体位置看npm config prefix)
@@ -2149,7 +2149,6 @@ export default new VueRouter({
 ```vue
 <template>
   <div id="app">
-    <router-link to="/login">login</router-link>
     <router-view></router-view>
   </div>
 </template>
@@ -2162,6 +2161,8 @@ export default {
 ```
 
 **main.js**
+
+入口文件
 
 ```javascript
 import Vue from 'vue'
@@ -2201,3 +2202,181 @@ new Vue({
 
 ![登录页面](Vue.js.assets/登录页面.png)
 
+
+
+## 嵌套路由
+
+嵌套路由又称子路由。URL 中各段**动态路径也**按某种结构对应**嵌套的各层组件**
+
+![嵌套路由](Vue.js.assets/嵌套路由.png)
+
+在`views`目录下创建`user`目录
+
+在`user`目录下创建`Profile.vue`视图组件
+
+```vue
+<template>
+  <h1>个人信息</h1>
+</template>
+<script>
+export default {
+  name: "Profile"
+}
+</script>
+<style scoped>
+</style>
+```
+
+在`user`目录下创建`UserList.vue`视图组件
+
+```vue
+<template>
+  <h1>用户列表</h1>
+</template>
+<script>
+export default {
+  name: "UserList"
+}
+</script>
+<style scoped>
+</style>
+```
+
+**配置嵌套路由**
+
+修改`router`目录下的`index.js`路由配置文件
+
+```javascript
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import Main from '../views/Main'
+import Login from '../views/Login'
+
+import Profile from '../views/user/Profile'
+import Userlist from '../views/user/UserList'
+
+Vue.use(VueRouter);
+
+export default new VueRouter({
+  routes:[
+    {
+      path: '/main',
+      name:'main',
+      component:Main,
+      // 嵌套路由
+      children: [
+        {
+          path: '/user/Profile',
+          component: Profile
+        },
+        {
+          path: '/user/UserList',
+          component: UserList
+        }
+      ]
+    },{
+      path:'/login',
+      name:'login',
+      component: Login
+    }
+  ]
+});
+```
+
+**修改首页视图**
+
+使用ElementUI布局容器组件修改`Main.vue`视图组件
+
+```vue
+<template>
+  <div>
+    <el-container>
+      <el-aside width="200px">
+        <el-menu :default-openeds="['1']">
+          <!-- 第一部分 -->
+          <el-submenu index="1">
+            <template slot="title"><i class="el-icon-caret-right"></i>用户管理</template>
+            <el-menu-item-group>
+                
+              <el-menu-item index="1-1">
+                <!-- router-link展示 -->
+                <router-link to="/user/profile">个人信息</router-link>
+              </el-menu-item>
+                
+              <el-menu-item index="1-2">
+                <router-link to="/user/UserList">用户列表</router-link>
+              </el-menu-item>
+            </el-menu-item-group>
+          </el-submenu>
+
+		  <!-- 第二部分 -->
+          <el-submenu index="2">
+            <template slot="title"><i class="el-icon-caret-right"></i>内容管理</template>
+            <el-menu-item-group>
+              <el-menu-item index="2-1">分类管理</el-menu-item>
+              <el-menu-item index="2-2">内容列表</el-menu-item>
+            </el-menu-item-group>
+          </el-submenu>
+        </el-menu>
+      </el-aside>
+
+      <el-container>
+        <el-header style="text-align: right; font-size: 12px">
+          <el-dropdown>
+            <i class="el-icon-setting" style="margin-right: 15px"></i>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item>个人信息</el-dropdown-item>
+              <el-dropdown-item>退出登录</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </el-header>
+          
+        <!-- router-view显示 -->
+        <el-main>
+          <router-view />
+        </el-main>
+          
+      </el-container>
+    </el-container>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "Main"
+}
+</script>
+
+<style scoped lang="scss">
+.el-header {
+  background-color: #B3C0D1;
+  color: #333;
+  line-height: 60px;
+}
+.el-aside {
+  color: #333;
+}
+</style>
+```
+
+![用户列表](Vue.js.assets/用户列表.png)
+
+
+
+## 参数传递
+
+把某种模式**匹配到的所有路由全都映射到同个组件**，根据**不同的属性**用组件渲染就需要用参数传递
+
+**$route方式**
+
+在`Main.vue`中修改`router-link to`接收参数`name`和`params`
+
+```vue
+<el-menu-item index="1-1">
+  <!-- router-link展示 -->
+  <!-- 参数传递需要对象,v-bind绑定:name组件名,params传递参数 -->
+  <router-link :to="{ name:'Profile', params:{id:1} }">个人信息</router-link>
+</el-menu-item>
+```
+
+![参数传递](Vue.js.assets/参数传递.png)

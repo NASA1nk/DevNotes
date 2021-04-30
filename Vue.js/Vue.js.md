@@ -1964,6 +1964,240 @@ Vue.use(VueRouter);
 
 # Vue-ElementUI
 
-## ElementUI
+**创建项目**
 
-### 安装
+- `npm install moduleName`：安装模块到项目目录下
+- `npm install -g moduleName`：`-g`表示将模块安装到全局（具体位置看npm config prefix)
+- `npm install -save moduleName`：`–save`表示将模块安装到项目目录下， 并在`package.json`文件的`dependencies`节点写入依赖（缩写为-S)
+- `npm install -save-dev moduleName`：`–save-dev`表示将模块安装到项目目录下，并在`package.json`文件的`devDependencies`节点写入依赖（缩写为-D)
+
+```bash
+# 新建项目
+vue init webpack hello-vue
+
+#进入项目目录
+cd hello-vue
+
+#安装Vue-router
+npm install vue-router --save-dev
+
+#安装ElementUI
+npm i element-ui -S
+
+#安装依赖
+npm install
+
+# 安装SASS加载器(sass-loader和node-sass)
+cnpm install sass-loader node-sass --save-dev
+
+#启功
+npm run dev
+```
+
+**调整项目结构**
+
+在`src`目录中创建目录：
+
+- assets：存放资源文件
+- components：存放Vue功能组件
+- views：存放Vue视图组件
+- router：存放vue-router路由配置
+
+**创建首页视图**
+
+在`views`目录下创建`Main.vue`视图组件
+
+```vue
+<template>
+  <h1>首页</h1>
+</template>
+<script>
+export default {
+  name: "Main"
+}
+</script>
+<style scoped>
+</style>
+```
+
+**创建登录页视图**
+
+在`views`目录下创建`Login.vue`视图组件
+
+> `el-form`的元素为ElementUI组件
+
+```vue
+<template>
+  <div>
+    <el-form ref="loginForm" :model="form" :rules="rules" label-width="80px" class="login-box">
+      <h3 class="login-title">欢迎登录</h3>
+      <el-form-item label="账号" prop="username">
+        <el-input type="text" placeholder="请输入账号" v-model="form.username"/>
+      </el-form-item>
+      <el-form-item label="密码" prop="password">
+        <el-input type="password" placeholder="请输入密码" v-model="form.password"/>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" v-on:click="onSubmit('loginForm')">登录</el-button>
+      </el-form-item>
+    </el-form>
+
+    <el-dialog
+      title="温馨提示"
+      :visible.sync="dialogVisible"
+      width="30%">
+      <span>请输入账号和密码</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "Login",
+  data() {
+    return {
+      form: {
+        username: '',
+        password: ''
+      },
+
+      // 表单验证，需要在 el-form-item 元素中增加 prop 属性
+      rules: {
+        username: [
+          {required: true, message: '账号不可为空', trigger: 'blur'}
+        ],
+        password: [
+          {required: true, message: '密码不可为空', trigger: 'blur'}
+        ]
+      },
+
+      // 对话框显示和隐藏
+      dialogVisible: false
+    }
+  },
+  methods: {
+    onSubmit(formName) {
+      // 为表单绑定验证功能
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          // 使用 vue-router 路由到指定页面，该方式称之为编程式导航
+          this.$router.push("/main");
+        } else {
+          this.dialogVisible = true;
+          return false;
+        }
+      });
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.login-box {
+  border: 1px solid #DCDFE6;
+  width: 350px;
+  margin: 180px auto;
+  padding: 35px 35px 15px 35px;
+  border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  box-shadow: 0 0 25px #909399;
+}
+
+.login-title {
+  text-align: center;
+  margin: 0 auto 40px auto;
+  color: #303133;
+}
+</style>
+
+```
+
+**创建路由**
+
+在`router`目录下创建`index.js`路由配置文件
+
+```javascript
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import Main from '../views/Main'
+import Login from '../views/Login'
+
+Vue.use(VueRouter);
+
+export default new VueRouter({
+  routes:[
+    {
+      path: '/main',
+      name:'main',
+
+      component:Main
+    },{
+      path:'/login',
+      name:'login',
+      component: Login
+    }
+  ]
+});
+```
+
+**APP.vue**
+
+```vue
+<template>
+  <div id="app">
+    <router-link to="/login">login</router-link>
+    <router-view></router-view>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'App'
+}
+</script>
+```
+
+**main.js**
+
+```javascript
+import Vue from 'vue'
+import App from './App'
+import router from "./router"
+
+import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
+
+Vue.use(router)
+Vue.use(ElementUI)
+
+new Vue({
+  el: '#app',
+  router,
+  // 引入element-ui
+  render:h=>h(App)
+})
+
+```
+
+**运行**
+
+> 安装问题：Error:Node Sass version 5.0.0 is incompatible with ^4.x
+>
+> 解决方案：此错误来自sass-loader，因为node-sass@latest为v5.0.0而sass-loader期望值为^4.0.0
+>
+> ```bash
+> //卸载 node-sass
+> npm uninstall node-sass
+> 
+> //然后安装最新版本（5.0之前）
+> npm install node-sass@4.14.1
+> ```
+>
+> sass-loader版本太高，修改："sass-loader": "^7.3.1" 
+
+![登录页面](Vue.js.assets/登录页面.png)
+

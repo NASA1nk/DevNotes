@@ -207,9 +207,9 @@ jupyter notebook --no-browser
 
 ## Running
 
-Running页面主要展示的是当前正在运行当中的终端和“ipynb”格式的笔记本
+`Running`页面主要展示的是当前正在运行当中的终端和`ipynb`格式的笔记本
 
-若想要关闭已经打开的终端和“ipynb”格式的笔记本，仅仅关闭其页面是无法彻底退出程序的，需要在Running页面点击其对应的`Shutdown`
+若想要关闭已经打开的终端和`ipynb`格式的笔记本，仅仅关闭其页面是无法彻底退出程序的，需要在`Running`页面点击其对应的`Shutdown`
 
 ## Conda
 

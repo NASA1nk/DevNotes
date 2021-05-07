@@ -73,7 +73,25 @@ Anaconda是一种为科学计算而生的Python发行版，利用conda来进行�
   print("Hello","world")
   ```
 
+
+
 ### 格式化输出
+
+**.format**
+
+用传入的参数依次替换字符串内的占位符`{}`
+
+```python
+# 输出Hello world
+print("{} {}".format("Hello","world"))
+
+# 输出Hello ink, 成绩提升了20.1%
+print("Hello {}, 成绩提升了{:.1f}%".format("ink", 20.12))
+```
+
+> `:.1f` ：`:`后面的`.1f`指定了格式化参数（保留一位小数）
+
+
 
 **%**
 
@@ -85,42 +103,32 @@ Anaconda是一种为科学计算而生的Python发行版，利用conda来进行�
 
 > `%s`会把任何数据类型转换为字符串，用`%%`来表示一个`%`
 
-有几个`%`占位符，后面就跟几个变量或者值（顺序要对应），如果只有一个`%`，括号可以省略
+有几个`%`占位符后面就跟几个变量或者值（顺序对应，写在括号中），如果只有一个`%`，括号可以省略
 
 ```python
-# % 'world' 表示变量
->>> 'Hello, %s' % 'world'                   		   
-'Hello, world'
+# 输出ink
+print("%s" % "ink")
 
->>> 'Hi, %s, you have $%d.' % ('Michael', 1000000)		多个%用（）
-'Hi, Michael, you have $1000000.'
-```
-
-
-
-**.format**
-
-用传入的参数依次替换字符串内的占位符`{0}`、`{1}`……
-
-```python
->>> 'Hello, {0}, 成绩提升了 {1:.1f}%'.format('小明', 17.125)		#用.调用
-'Hello, 小明, 成绩提升了 17.1%'
+# 输出Hi ink, you have 1000000元
+print("Hi %s, you have %d元" % ("ink",1000000))
 ```
 
 
 
 **f-string**
 
-字符串如果包含`{xxx}`，就会以对应的变量替换：
+用`f`指定f-string格式化输出
+
+以对应的变量替换字符串中包含的含对应变量名的`{}`
 
 ```python
->>> r = 2.5
->>> s = 3.14 * r ** 2
->>> print(f'The area of a circle with radius {r} is {s:.2f}')
-The area of a circle with radius 2.5 is 19.62
+# The area of a circle with radius 2 is 12.56
+r = 2
+s = 3.14 * r * 2
+print(f"The area of a circle with radius {r} is {s:.2f}")
 ```
 
-`{r}`被变量`r`的值替换，`{s:.2f}`被变量`s`的值替换，并且`:`后面的`.2f`指定了格式化参数（即保留两位小数），因此，`{s:.2f}`的替换结果是`19.62`。
+> `{r}`被变量`r`的值替换，`{s:.2f}`被变量`s`的值替换
 
 
 

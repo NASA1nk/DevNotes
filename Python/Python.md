@@ -2,9 +2,25 @@
 
 解释型语言
 
-代码不能加密。解释型的语言发布程序必须把源码发布出去。
+代码不能加密（解释型的语言发布程序必须把源码发布出去）
 
 # 安装
+
+## Anaconda
+
+Anaconda是一种为科学计算而生的Python发行版，利用conda来进行包package和各个版本environment的管理。常用的package已经默认安装numpy、pandas、scipy 等等
+
+[Anaconda | The World's Most Popular Data Science Platform](https://www.anaconda.com/)
+
+[anaconda | 清华大学开源软件镜像站](https://mirror.tuna.tsinghua.edu.cn/help/anaconda/)
+
+使用python3.x版本
+
+![Anaconda安装](Python.assets/Anaconda安装.png)
+
+
+
+## python
 
 命令行中输入python进入交互界面
 
@@ -14,29 +30,25 @@
 
 ## 注释
 
-单行注释以#开头，
-多行注释以三个单引号'''开头，三个引号'''结尾
+- 单行注释：`#`
+- 多行注释：`''' '''`
 
+## 输入输出
 
+- `input`：返回的数据类型是`str`，可以用`int()`函数来把`str`转换成整数
 
-## 输入
+  ```python
+  a = input('please enter your age: ')
+  age = int(a)
+  ```
 
-`input()`返回的数据类型是`str`，可以用`int()`函数来把`str`转换成整数
-
-```python
-a = input('please enter your age: ')
-age = int(a)
-```
-
-
-
-`print()`会依次打印每个字符串，遇到逗号“,”会输出一个空格
+- `print`：依次打印每个字符串，遇到逗号“,”会输出一个空格
 
 
 
 ## 数据类型
 
-Python允许在数字中间以`_`分隔，因此，写成`10_000_000_000`和`10000000000`是完全一样的。十六进制数也可以写成`0xa1b2_c3d4`。
+Python允许在数字中间以`_`分隔，`10_000_000_000`和`10000000000`是完全一样的。十六进制数也可以写成`0xa1b2_c3d4`
 
 
 

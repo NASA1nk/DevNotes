@@ -1,8 +1,10 @@
-# Jupyter
+# Jupyter Notebook
 
-可以直接通过浏览器运行代码，同时在代码块下方展示运行结果
+Jupyter Notebook是基于网页的用于交互计算的应用程序。其可被应用于全过程计算：开发、文档编写、运行代码和展示结果
 
-> Jupyter Notebook是基于网页的用于交互计算的应用程序。其可被应用于全过程计算：开发、文档编写、运行代码和展示结果
+可以直接通过浏览器运行代码，在代码块下方展示运行结果
+
+> 以前叫ipython notebook
 
 组成部分
 
@@ -26,11 +28,13 @@
 
 ## anaconda安装
 
-> Anaconda自动安装了Jupter Notebook及其他工具，还有python中超过180个科学包及其依赖项
+Anaconda自动安装了Jupter Notebook及其他工具，还有python中超过180个科学包及其依赖项
 
 ```bash
 conda install jupyter notebook
 ```
+
+
 
 ## pip安装
 
@@ -62,6 +66,8 @@ conda install jupyter notebook
    pip install jupyter
    ```
 
+
+
 # 运行
 
 在终端中输入，默认启动端口：8888
@@ -80,6 +86,8 @@ jupyter notebook --no-browser
 - 执行命令之后终端中将会显示一系列notebook的服务器信息，同时浏览器将会自动启动Jupyter Notebook，没有启动自己输入http://localhost:8888
 - 如果**同时**启动了多个Jupyter Notebook，由于默认端口"8888"被占用，因此地址栏中的数字将从"8888"起，每多启动一个Jupyter Notebook数字就加1
 - 在Jupyter Notebook的所有操作，都要保持终端**不要关闭**
+
+
 
 # 修改配置文件
 
@@ -143,7 +151,7 @@ jupyter notebook --no-browser
 
 现有的文件可以通过勾选文件的方式，对选中文件进行复制、重命名、移动、下载、查看、编辑和删除
 
-也可以根据需要，在“New”下拉列表中选择想要创建文件的**环境**
+也可以根据需要，在`New`下拉列表中选择想要创建文件的**环境**
 
 
 
@@ -161,8 +169,8 @@ jupyter notebook --no-browser
 
 **笔记本重命名**
 
-- 在左上方“Jupyter”的图标旁有程序默认的标题“Untitled”，点击“Untitled”然后在弹出的对话框中输入自拟的标题，点击“Rename”即可
-- 在“Files”界面勾选需要重命名的文件，点击“Rename”然后直接输入自拟的标题即可
+- 在左上方Jupyter的图标旁有程序默认的标题`Untitled`，点击`Untitled`在弹框中输入标题即可修改
+- 在`Files`界面勾选需要重命名的文件，点击`Rename`输入标题即可修改
 
  
 

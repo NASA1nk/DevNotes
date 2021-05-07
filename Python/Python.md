@@ -1,67 +1,124 @@
 # 简介
 
-解释型语言
+- 解释型语言
 
-代码不能加密（解释型的语言发布程序必须把源码发布出去）
+- 代码不能加密（解释型的语言发布程序必须把源码发布出去）
+- python目前有两个版本，一个是2.x版，一个是3.x版，这两个版本是不兼容的
+
+
 
 # 安装
 
-> Python目前有两个版本，一个是2.x版，一个是3.x版，这两个版本是不兼容的
-
-安装后有
+标准的python环境安装后有：
 
 - Python解释器（负责运行Python程序）
 - 命令行交互环境
 - 简单的集成开发环境
 
-## Anaconda
 
-Anaconda是一种为科学计算而生的Python发行版，利用conda来进行包package和各个版本environment的管理。常用的package已经默认安装numpy、pandas、scipy 等等
+
+安装完成后在命令提示符窗口输入python后提示版本信息说明Python安装成功
+
+编写Python代码得到的是一个包含Python代码的以`.py`为扩展名的文本文件，运行代码需要Python解释器去执行`.py`文件
+
+> 官方版本的解释器：CPython（C语言开发）
+>
+> 在命令行下运行`python`就是启动CPython解释器，CPython用`>>>`作为提示符
+>
+> IPython基于CPython之上的一个交互式解释器，也就是说，IPython只是在交互方式上有所增强，但是执行Python代码的功能和CPython是完全一样的。IPython用`In []:`作为提示符
+
+
+
+# Anaconda
+
+- conda：包和环境管理器
+- pip：包管理器
+- virtualenv：环境管理器
+
+
+
+Anaconda是一种为科学计算而生的Python发行版，包括：
+
+- 标准的python环境
+- conda(包和环境的管理器)
+- 科学包以及依赖项
 
 [Anaconda | The World's Most Popular Data Science Platform](https://www.anaconda.com/)
 
 [anaconda | 清华大学开源软件镜像站](https://mirror.tuna.tsinghua.edu.cn/help/anaconda/)
 
+> miniconda
+>
+> 安装anaconda就不需要单独装python
+
 使用python3.x版本
 
 ![Anaconda安装](Python.assets/Anaconda安装.png)
 
+## 运行
+
+- 输入`python`进入**交互式界面**
+- 输入`ipython`进入**交互式界面**
+- `ctrl+d`退出
+
+**交互式**
+
+![ipython](Python.assets/ipython.png)
 
 
-## python
 
-命令行中输入python进入交互界面
+**bash（批量）方式**
 
-> 注意勾上`Add Python 3.8 to PATH`
->
-> 在命令提示符窗口输入python后提示版本信息说明Python安装成功
+```bash
+python temp.py
+```
 
-编写Python代码得到的是一个包含Python代码的以`.py`为扩展名的文本文件
+![spyder](Python.assets/spyder.png)
 
-运行代码需要Python解释器去执行`.py`文件
 
-> 官方版本的解释器：CPython（C语言开发的，所以叫CPython）
->
-> 在命令行下运行`python`就是启动CPython解释器，CPython用`>>>`作为提示符
->
-> 
->
-> IPython基于CPython之上的一个交互式解释器，也就是说，IPython只是在交互方式上有所增强，但是执行Python代码的功能和CPython是完全一样的。IPython用`In [序号]:`作为提示符
+
+## conda
+
+- list
+- install
+- remove/uninstall
+
+```bash
+conda create -n ink python=3.6
+conda activate ink
+```
 
 
 
 # 基础语法
+
+- python没有终止符，`;`可以让多个语句写在一行
+- python没有代码块，用相同的**缩进**表示同一代码块
 
 ## 注释
 
 - 单行注释：`#`
 - 多行注释：`''' '''`
 
+## 关键字
+
+**保留字不可以做变量名**
+
+- `and`
+- `as`
+- `assert`
+- `class`
+- `def`
+- `del`
+- `elif`
+- `except`
+
 ## 输入输出
 
 - `input`：返回的数据类型是`str`，可以用`int()`函数来把`str`转换成整数
 
   ```python
+  # 提示输入
   a = input('please enter your age: ')
   age = int(a)
   ```
@@ -75,7 +132,7 @@ Anaconda是一种为科学计算而生的Python发行版，利用conda来进行�
 
 
 
-### 格式化输出
+**格式化输出**
 
 **.format**
 
@@ -122,7 +179,7 @@ print("Hi %s, you have %d元" % ("ink",1000000))
 以对应的变量替换字符串中包含的含对应变量名的`{}`
 
 ```python
-# The area of a circle with radius 2 is 12.56
+# 输出The area of a circle with radius 2 is 12.56
 r = 2
 s = 3.14 * r * 2
 print(f"The area of a circle with radius {r} is {s:.2f}")
@@ -143,40 +200,52 @@ Python允许在数字中间以`_`分隔
 
 ## 编码
 
-### 思想
+计算机只能处理数字，如果要处理文本也必须先把文本转换为数字才能处理，Unicode字符集把所有语言都统一到一套编码里（**两个字节表示一个字符**），这样就不会再有乱码问题
 
-计算机只能处理数字，如果要处理文本就必须先把文本转换为数字才能处理。Unicode字符集把所有语言都统一到一套编码里（用两个字节表示一个字符），这样就不会再有乱码问题了。
+把Unicode编码转化为“可变长编码”的`UTF-8`编码。UTF-8编码把一个Unicode字符根据不同的数字大小编码成1-6个字节，常用的英文字母被编码成1个字节，汉字通常是3个字节。如果传输文本包含大量英文字符，用UTF-8编码就能节省空间。
 
-把Unicode编码转化为“可变长编码”的`UTF-8`编码。UTF-8编码把一个Unicode字符根据不同的数字大小编码成1-6个字节，常用的英文字母被编码成1个字节，汉字通常是3个字节，只有很生僻的字符才会被编码成4-6个字节。如果你要传输的文本包含大量英文字符，用UTF-8编码就能节省空间。
+- **内存中统一使用Unicode编码**
+- **硬盘或者传输的时候使用UTF-8编码**
 
-内存中，统一使用Unicode编码，保存到硬盘或者需要传输的时候，就转换为UTF-8编码。
 
-Python源代码也是一个文本文件，当源代码中包含中文时，就要指定保存为UTF-8编码。
-当Python解释器读取源代码时，为了让它按UTF-8编码读取，我们通常在文件开头写上这两行：
+
+python源代码也是一个文本文件，当源代码中包含中文时就要指定保存为UTF-8编码
+
+当python**解释器**读取源代码时，为了让它按UTF-8编码读取，通常在文件开头写上两行代码
 
 ```bash
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 ```
 
+
+
 ### 字符
 
-单个字符的编码，Python提供了`ord()`函数获取字符的整数表示，`chr()`函数把编码转换为对应的字符：
+**单个字符**的编码，python提供
+
+- `ord()`函数：获取字符的整数表示
+- `chr()`函数：把编码转换为对应的字符
 
 ```python
->>> ord('A')
-65
->>> ord('中')
-20013
->>> chr(66)
-'B'
->>> chr(25991)
-'文'
+# 65
+ord("A")
+
+# 20013
+ord("中")
+
+# 'B'
+chr(66)
+
+# '文'
+chr(25991)
 ```
+
+
 
 ### 字符串
 
-Python 3版本中，字符串是以Unicode编码的，所以Python的字符串支持多语言。
+Python 3版本中**字符串以Unicode编码**
 
 字符串的类型是`str`，在内存中以Unicode表示，一个字符对应若干个字节。如果要在网络上传输，或者保存到磁盘上，就需要把`str`变为以字节为单位的`bytes`。`bytes`类型的数据用带`b`前缀的单引号或双引号表示：
 
@@ -207,7 +276,7 @@ b'\xe4\xb8\xad\xe6\x96\x87'
 '中文'
 ```
 
-### 不可变对象
+## 不可变对象
 
 对于不变对象来说，调用对象自身的任意方法也不会改变该对象自身的内容。这些方法会创建新的对象并返回，这样就保证了不可变对象本身永远是不可变的。
 
@@ -222,7 +291,7 @@ b'\xe4\xb8\xad\xe6\x96\x87'
 
 
 
-### 字符串操作
+## 字符串操作
 
 #### 切割
 
@@ -235,7 +304,7 @@ t = s.split(delimiter)  #指定单词之间的分隔符作
 
 #### 拼接
 
-join()方法将一个字符串列表的元素拼接起来。需要一个分隔符调用它，并传入一个列表作为参数
+`join()`方法将一个字符串列表的元素拼接起来。需要一个分隔符调用它，并传入一个列表作为参数
 
 ```python
 delimiter = '-'        
@@ -250,31 +319,31 @@ s = delimiter.join(t)	#用-拼接列表t中的元素
 
 
 
-## 列表list[ ]
+## 列表
 
-列表list是内置数据类型，是一种有序的集合a[ ]，里面元素可以改变(可变对象)。
+列表list是内置数据类型，是一种有序的集合`[]`，里面元素可以改变(可变对象)
 
-list里面的元素的数据类型也可以不同,甚至可以是一个list，但是list计算时候只算一个元素个数。如果里面包含新的list时候，相当于一个二维的数组。
+- list里面的元素的数据类型可以不同，也可以是一个list（list计算时只算一个元素个数）相当于一个二维的数组
 
-如果一个list中一个元素也没有，就是一个空的list，它的长度为0。
+- 空的list长度为0
 
-## 参数
 
-list的[]中有三个参数，用冒号分割
+### 参数
+
+**list中有三个参数，用冒号分割**（切片）
 
 list[param1:param2:param3]
 
-param1，相当于start_index，可以为空，默认是0
-
-param2，相当于end_index，可以为空，默认是list.size
-
-param3，步长，默认为1。步长为-1时，返回倒序原序列
+- `param1`：相当于start_index，可以为空，**默认是0**
+- `param2`：相当于end_index，可以为空，**默认是list的长度**
+- `param3`：步长，**默认为1**。当步长为-1时，返回原序列的倒序
 
 ### 创建
 
 创建一个元素都为0的列表：
 
 ```python
+l = []
 >>>l = 10
 >>>lis = [0]*l
 >>>lis
@@ -283,9 +352,10 @@ param3，步长，默认为1。步长为-1时，返回倒序原序列
 
 ### 索引
 
-从0开始，到len()-1结束。
+list索引可以是负数，表示从末尾倒数取元素
 
-索引可以从后面开始取。[-1]是倒数第一个，[-2]是倒数第二个......
+- `[-1]`：倒数第一个元素
+- `[-2]`：倒数第二个元素
 
 ### 添加append
 
@@ -379,7 +449,7 @@ list1[-1] = "234"			#重新定义了列表最后一个元素的指向
 
 
 
-## 元组tuple( )
+## 元组tuple
 
 元组是有序列表，但tuple一旦初始化就不能修改。因此定义一个tuple时里面的元素就必须被确定下来
 
@@ -402,7 +472,7 @@ L = [('Bob', 75), ('Adam', 92), ('Bart', 66), ('Lisa', 88)]
 
 
 
-## 字典dict{ }
+## 字典dict
 
 字典`dict`使用哈希表实现，键`key`必须是可哈希的`hashable`，`dict`的`key`必须是不可变对象，可变类型在哈希时可能映射成别的值，无法正确工作。所以列表`list`不能作为键`key`，只能作为值`value`。
 

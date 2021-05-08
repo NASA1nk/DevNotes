@@ -242,8 +242,8 @@ var app = new Vue({
 
 指令的职责时当表达式的值改变时，将其产生的连带影响，**响应式**地作用于 DOM
 
-- `v-bind`：响应式的更新HTML的`attribute``
-- ``v-on` ：监听 DOM 事件
+- `v-bind`：响应式的更新HTML的`attribute`
+- `v-on` ：监听 DOM 事件
 
 > `v-bind` 缩写 `:`，`v-on` 缩写 `@`
 
@@ -2003,6 +2003,8 @@ npm run dev
 - views：存放Vue视图组件
 - router：存放vue-router路由配置
 
+![目录结构](Vue.js.assets/目录结构.png)
+
 **创建首页视图**
 
 在`views`目录下创建`Main.vue`视图组件
@@ -2123,6 +2125,7 @@ export default {
 ```javascript
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+// 导入组件
 import Main from '../views/Main'
 import Login from '../views/Login'
 
@@ -2132,12 +2135,12 @@ export default new VueRouter({
   routes:[
     {
       path: '/main',
-      name:'main',
-
-      component:Main
-    },{
-      path:'/login',
-      name:'login',
+      name: 'main',
+      component: Main
+    },
+    {
+      path: '/login',
+      name: 'login',
       component: Login
     }
   ]
@@ -2167,8 +2170,9 @@ export default {
 ```javascript
 import Vue from 'vue'
 import App from './App'
+// 导入路由
 import router from "./router"
-
+// 导入ElementUI和css文件
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 
@@ -2206,7 +2210,7 @@ new Vue({
 
 ## 嵌套路由
 
-嵌套路由又称子路由。URL 中各段**动态路径也**按某种结构对应**嵌套的各层组件**
+嵌套路由又称子路由。URL中各段**动态路径也**按某种结构对应**嵌套的各层组件**
 
 ![嵌套路由](Vue.js.assets/嵌套路由.png)
 
@@ -2245,6 +2249,8 @@ export default {
 **配置嵌套路由**
 
 修改`router`目录下的`index.js`路由配置文件
+
+添加`children`
 
 ```javascript
 import Vue from 'vue'
@@ -2379,4 +2385,379 @@ export default {
 </el-menu-item>
 ```
 
+修改路由配置`index.js`，在`path`属性中增加`:id`占位符（对应params参数名匹配），接受参数
+
+```javascript
+ children: [
+        {
+          // 接受参数id
+          path: '/user/Profile/:id',
+          name: 'Profile',
+          component: Profile
+        },
+        {
+          path: '/user/UserList',
+          component: UserList
+        }
+      ]
+```
+
+修改`Profile.vue`中的`template`标签展示参数信息
+
+```vue
+<template>
+<!--  只能有一个根标签-->
+  <div>
+    <h1>个人信息</h1>
+    {{$route.params.id}}
+  </div>
+</template>
+```
+
 ![参数传递](Vue.js.assets/参数传递.png)
+
+**props方式**
+
+在`Main.vue`中修改`router-link to`接收参数`name`和`params`
+
+```vue
+<el-menu-item index="1-1">
+  <!-- router-link展示 -->
+  <!-- 参数传递需要对象,v-bind绑定:name组件名,params传递参数 -->
+  <router-link :to="{ name:'Profile', params:{id:1} }">个人信息</router-link>
+</el-menu-item>
+```
+
+修改路由配置 `index.js`，在`chidren`中增加`props`属性（表明支持传递参数方式）
+
+```javascript
+children: [
+        {
+          // 接受参数id
+          path: '/user/Profile/:id',
+          name: 'Profile',
+          component: Profile,
+          props: true
+        },
+        {
+          path: '/user/UserList',
+          component: UserList
+        }
+      ]
+```
+
+修改`Profile.vue`，增加`props`属性
+
+```vue
+<template>
+<!--  只能有一个根标签-->
+  <div>
+    <h1>个人信息</h1>
+    {{id}}
+  </div>
+</template>
+
+<script>
+export default {
+  props: ['id'],
+  name: "Profile"
+}
+```
+
+**获取用户名**
+
+修改`Login.vue`中的`methods`中的`onSubmit`，增加`+this.form.username`
+
+```vue
+<template>
+  <div>
+    <el-form ref="loginForm" :model="form" :rules="rules" label-width="80px" class="login-box">
+      <h3 class="login-title">欢迎登录</h3>
+      <el-form-item label="账号" prop="username">
+        <el-input type="text" placeholder="请输入账号" v-model="form.username"/>
+      </el-form-item>
+      <el-form-item label="密码" prop="password">
+        <el-input type="password" placeholder="请输入密码" v-model="form.password"/>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" v-on:click="onSubmit('loginForm')">登录</el-button>
+      </el-form-item>
+    </el-form>
+
+    <el-dialog
+      title="温馨提示"
+      :visible.sync="dialogVisible"
+      width="30%">
+      <span>请输入账号和密码</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "Login",
+  data() {
+    return {
+      // 当前用户信息
+      form: {
+        username: '',
+        password: ''
+      },
+
+      // 表单验证，需要在 el-form-item 元素中增加 props 属性
+      rules: {
+        username: [
+          {required: true, message: '账号不可为空', trigger: 'blur'}
+        ],
+        password: [
+          {required: true, message: '密码不可为空', trigger: 'blur'}
+        ]
+      },
+
+      // 对话框显示和隐藏
+      dialogVisible: false
+    }
+  },
+  methods: {
+    onSubmit(formName) {
+      // 为表单绑定验证功能
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          // 使用 vue-router 路由到指定页面，该方式称之为编程式导航
+          // 获取username信息
+          this.$router.push("/main/"+this.form.username);
+        } else {
+          this.dialogVisible = true;
+          return false;
+        }
+      });
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.login-box {
+  border: 1px solid #DCDFE6;
+  width: 350px;
+  margin: 180px auto;
+  padding: 35px 35px 15px 35px;
+  border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  box-shadow: 0 0 25px #909399;
+}
+
+.login-title {
+  text-align: center;
+  margin: 0 auto 40px auto;
+  color: #303133;
+}
+</style>
+```
+
+修改路由配置`index.js`，在`path`属性中增加`:name`占位符并设置`props`属性
+
+```javascript
+{
+      path: '/main/:name',
+      name:'main',
+      component:Main,
+      props:true,
+      // 嵌套路由
+      children: [
+        {
+          // 接受参数id
+          path: '/user/Profile/:id',
+          name: 'Profile',
+          component: Profile,
+          props: true
+        }
+```
+
+修改`Main.vue`
+
+- 增加`props`属性
+- 显示`name`信息
+
+```vue
+<template>
+  <div>
+    <el-container>
+      <el-aside width="200px">
+        <el-menu :default-openeds="['1']">
+          <el-submenu index="1">
+            <template slot="title"><i class="el-icon-caret-right"></i>用户管理</template>
+            <el-menu-item-group>
+              <el-menu-item index="1-1">
+                <!-- router-link展示 -->
+                <!-- 参数传递需要对象,v-bind绑定:name组件名,params传递参数 -->
+                <router-link :to="{ name:'Profile', params:{id:1} }">个人信息</router-link>
+              </el-menu-item>
+              <el-menu-item index="1-2">
+                <router-link to="/user/UserList">用户列表</router-link>
+              </el-menu-item>
+              <el-menu-item index="1-3">
+                <router-link to="/goHome">回到主页</router-link>
+              </el-menu-item>
+            </el-menu-item-group>
+          </el-submenu>
+          <el-submenu index="2">
+            <template slot="title"><i class="el-icon-caret-right"></i>内容管理</template>
+            <el-menu-item-group>
+              <el-menu-item index="2-1">分类管理</el-menu-item>
+              <el-menu-item index="2-2">内容列表</el-menu-item>
+            </el-menu-item-group>
+          </el-submenu>
+        </el-menu>
+      </el-aside>
+
+      <el-container>
+        <el-header style="text-align: right; font-size: 12px">
+          <el-dropdown>
+            <i class="el-icon-setting" style="margin-right: 15px"></i>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item>个人信息</el-dropdown-item>
+              <el-dropdown-item>退出登录</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+          <!-- 显示name信息 -->
+          <span>{{name}}</span>
+        </el-header>
+        <!-- router-view显示 -->
+        <el-main>
+          <router-view />
+        </el-main>
+      </el-container>
+    </el-container>
+  </div>
+</template>
+
+<script>
+export default {
+  <!-- 增加props属性 -->
+  props: ['name'],
+  name: "Main"
+}
+</script>
+
+<style scoped lang="scss">
+.el-header {
+  background-color: #B3C0D1;
+  color: #333;
+  line-height: 60px;
+}
+.el-aside {
+  color: #333;
+}
+</style>
+
+```
+
+![显示name](Vue.js.assets/显示name.png)
+
+## 重定向
+
+`redirect`
+
+Vue中的重定向是作用在**路径不同但组件相同**的情况下
+
+修改路由配置`index.js`，在`routes`中需要重定向的路径，并使用`redirect`属性指定重定向路径
+
+```javascript
+routes:[
+  {
+    path: '/main',
+    name:'main',
+    component:Main,
+    // 嵌套路由
+    children: [
+      {
+        // 接受参数id
+        path: '/user/Profile/:id',
+        name: 'Profile',
+        component: Profile,
+        props: true
+      },
+      {
+        path: '/user/UserList',
+        component: UserList
+      }
+    ]
+  },{
+    path:'/login',
+    name:'login',
+    component: Login
+  },{
+    path: '/goHome',
+    redirect: '/main'
+  }
+]
+```
+
+在`Main.vue`中添加`router-link`
+
+```vue
+<el-menu-item index="1-3">
+  <router-link to="/goHome">回到主页</router-link>
+</el-menu-item>
+```
+
+![重定向](Vue.js.assets/重定向.png)
+
+## 路由模式
+
+路由模式有两种
+
+- `hash`：路径带`#`，如 http://localhost:8080/#/main/ink（默认为hash路由模式）
+- `history`：路径不带`#`，如 http://localhost:8080/main/ink
+
+`mode`：设置路由模式
+
+修改路由配置`index.js`，增加`mode`属性
+
+```javascript
+export default new VueRouter({
+  // 设置路由模式
+  mode: 'history',
+  routes:[
+    {
+      path: '/main/:name',
+      name:'main',
+      component:Main,
+      props:true,
+      // 嵌套路由
+      children: [
+        {
+          // 接受参数id
+          path: '/user/Profile/:id',
+          name: 'Profile',
+          component: Profile,
+          props: true
+        },
+        {
+          path: '/user/UserList',
+          component: UserList
+        }
+      ]
+    },{
+      path:'/login',
+      name:'login',
+      component: Login
+    },{
+      path: '/goHome',
+      redirect: '/main'
+    }
+  ]
+});
+```
+
+![路由模式](Vue.js.assets/路由模式.png)
+
+## 404
+
+在views目录下创建
+

@@ -50,6 +50,8 @@ Anaconda是一种为科学计算而生的Python发行版，包括：
 > miniconda
 >
 > 安装anaconda就不需要单独装python
+>
+> 安装完成后重启生效
 
 使用python3.x版本
 
@@ -79,9 +81,13 @@ python temp.py
 
 ## conda
 
-- list
-- install
-- remove/uninstall
+可以自动处理包之间的依赖关系（相比pip）
+
+- which conda/conda -version：检查是否安装正确
+- conda list：查看安装的包
+- conda install * ：安装
+- conda update：升级
+- remove/uninstall * ：卸载
 
 ```bash
 conda create -n ink python=3.6
@@ -816,7 +822,6 @@ def power(x, n):
 > **定义默认参数必须指向不变对象(如str,None)**
 >
 > 如果在函数体里面执行了会改变默认参数的值的操作就会引发错误
->
 
 ```python
 # power(5)实际上是power(5, 2)
@@ -945,7 +950,6 @@ person('Jack', 24, job='Engineer')
 切片操作符`[n:m]`：返回从第n个元素到第m个元素的`list`或`turple`（**包括第一个但不包括最后一个**：`[)`）
 
 > 字符串`str`也可以看成是一种`list`，**每个元素就是一个字符**。因此字符串也可以用切片操作
->
 
 - 省略第一个索引n，切片将从列表头开始（第一个索引0也可以省略）
 - 倒数第一个元素的索引是`-1`，省略第二个索引m，切片将到列表尾结束
@@ -1016,7 +1020,6 @@ isinstance({'a':'1'}, Iterable)
 - 迭代`key`和`value`：`for k, v in d.items()`
 
 > dict的存储不是按照list的方式顺序排列，所以迭代出的结果顺序可能不一样
->
 
 ```python
 # a

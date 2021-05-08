@@ -1,8 +1,6 @@
 # Jupyter Notebook
 
-Jupyter Notebook是基于网页的用于交互计算的应用程序。其可被应用于全过程计算：开发、文档编写、运行代码和展示结果
-
-可以直接通过浏览器运行代码，在代码块下方展示运行结果
+Jupyter Notebook是基于网页的用于交互计算的应用程序。被应用于全过程计算：开发、文档编写、运行代码和展示结果，可以直接通过浏览器运行代码，在代码块下方展示运行结果
 
 > 以前叫ipython notebook
 
@@ -10,23 +8,21 @@ Jupyter Notebook是基于网页的用于交互计算的应用程序。其可被�
 
 - 网页应用
 
-  基于网页形式的、结合了编写说明文档、数学公式、交互计算和其他富媒体形式的工具。
+  基于网页形式的、结合了编写说明文档、数学公式、交互计算和其他富媒体形式的工具
 
-  **网页应用是可以实现各种功能的工具。**
+  **网页应用是可以实现各种功能的工具**
 
 - 文档
 
   Jupyter Notebook中所有交互计算、编写说明文档、数学公式、图片以及其他富媒体形式的输入和输出，都是**以文档的形式体现**的
 
-  这些文档是保存为后缀名为`.ipynb`的`JSON`格式文件。也可以导出为HTML、LaTeX、PDF等格式
+  文档保存为后缀名为`.ipynb`的`JSON`格式文件（也可以导出为HTML、LaTeX、PDF等格式）
 
 
 
 # 安装
 
-> 前提：安装python
-
-## anaconda安装
+## Anaconda安装
 
 Anaconda自动安装了Jupter Notebook及其他工具，还有python中超过180个科学包及其依赖项
 
@@ -38,7 +34,7 @@ conda install jupyter notebook
 
 ## pip安装
 
-1. 把pip升级到最新版本
+1. **把pip升级到最新版本**
 
    - Python 3.x
 
@@ -52,7 +48,7 @@ conda install jupyter notebook
    pip install --upgrade pip
    ```
 
-2. 安装Jupyter Notebook
+2. **安装Jupyter Notebook**
 
    - Python 3.x
 
@@ -70,7 +66,11 @@ conda install jupyter notebook
 
 # 运行
 
-在终端中输入，默认启动端口：8888
+在终端中输入`jupyter notebook`，默认启动端口：8888
+
+- 执行命令之后终端中将会显示一系列notebook的服务器信息，同时浏览器将会自动启动Jupyter Notebook
+- 如果**同时**启动了多个Jupyter Notebook，由于默认端口8888被占用，因此地址栏中的数字将从8888起，每多启动一个Jupyter Notebook数字就加1
+- 在Jupyter Notebook的所有操作都要**保持终端不要关闭**
 
 ```bash
 # 默认启动
@@ -83,21 +83,15 @@ jupyter notebook --port <port_number>
 jupyter notebook --no-browser
 ```
 
-- 执行命令之后终端中将会显示一系列notebook的服务器信息，同时浏览器将会自动启动Jupyter Notebook，没有启动自己输入http://localhost:8888
-- 如果**同时**启动了多个Jupyter Notebook，由于默认端口"8888"被占用，因此地址栏中的数字将从"8888"起，每多启动一个Jupyter Notebook数字就加1
-- 在Jupyter Notebook的所有操作，都要保持终端**不要关闭**
-
 
 
 # 修改配置文件
 
-进入Notebook主页面
-
 **修改Jupyter Notebook的文件存放路径**
 
-1. 创建目录后复制目录路径
+1. **创建目录后复制目录路径**
 
-2. 获取配置文件所在路径
+2. **获取配置文件所在路径**
 
    ```bash
    jupyter notebook --generate-config
@@ -105,37 +99,37 @@ jupyter notebook --no-browser
 
    这条命令可以用于查看配置文件所在的路径，但主要用途是**是否将这个路径下的配置文件替换为默认配置文件**
 
-   > 若文件已经存在或被修改，使用这个命令之后会出现询问"用默认配置文件覆盖此路径下的文件吗？"，按"y"则完成覆盖（之前所做的修改都将失效）
+   > 若文件已经存在或被修改，使用这个命令之后会出现询问"用默认配置文件覆盖此路径下的文件吗？"，按`y`则完成覆盖（之前所做的修改都将失效）
    >
-   > 如果只是为了查询路径，那么一定要输入"N"
+   > 如果只是为了查询路径，那么一定要输入`N`
 
    
 
-   一般情况下，配置文件所在路径和配置文件名如下：
+   一般情况下，**配置文件所在路径和配置文件名**如下：
 
    - Windows：`C:\Users\user_name\.jupyter\`
    - Linux/macOS：`/Users/user_name/.jupyter/` 或 `~/.jupyter/`
    - 配置文件名：`jupyter_notebook_config.py`
 
-   > **.**开头的目录都是隐藏文件，通过`ls -a`命令查看
+   > `.`开头的目录是隐藏文件，通过`ls -a`命令查看
 
-3. 修改配置文件
+3. **修改配置文件**
 
-   1. 打开配置文件
+   1. **打开配置文件**
 
       ```bash
       vim ~/.jupyter/jupyter_notebook_config.py
       ```
 
-   2. 查找关键词
+   2. **查找关键词**
 
       输入`/c.NotebookApp.notebook_dir`（`/`符号和关键字`c.NotebookApp.notebook_dir`），再回车，光标切换到文中被关键词首字母
 
-   3. 编辑配置文件
+   3. **编辑配置文件**
 
       光标定位在第二个单引号上（光标定位在哪个字符，就在这个字符前开始输入），把复制的路径粘贴在此处
 
-   4. 取消注释
+   4. **取消注释**
 
       把该行首的`#`删除。
 
@@ -152,8 +146,6 @@ jupyter notebook --no-browser
 现有的文件可以通过勾选文件的方式，对选中文件进行复制、重命名、移动、下载、查看、编辑和删除
 
 也可以根据需要，在`New`下拉列表中选择想要创建文件的**环境**
-
-
 
 > 右上角`new`中的python版本和anaconda的版本有关，下载python3就是python3
 >
@@ -180,19 +172,17 @@ jupyter notebook --no-browser
 
    按`esc`进入命令模式
 
-   将**键盘命令**与Jupyter Notebook**笔记本命令**相结合，可以通过不同键的组合运行笔记本的命令
-
-   命令模式下**单元格边框为灰色，左侧边框线为蓝色粗线条**
+   - 将**键盘命令**与Jupyter Notebook**笔记本命令**相结合，可以通过不同键的组合运行笔记本的命令
+   - 命令模式下**单元格边框为灰色，左侧边框线为蓝色粗线条**
 
    ![命令模式](Jupyter.assets/命令模式.png)
 
 2. **编辑模式**
-   按`enter`或`return`键进入编辑模式
+   按`enter`进入编辑模式
 
-   编辑模式使用户可以在单元格内编辑代码或文档
-
-   编辑模式下**单元格边框和左侧边框线均为绿色**
-
+   - 编辑模式使用户可以在单元格内编辑代码或文档
+   - 编辑模式下**单元格边框和左侧边框线均为绿色**
+   
    ![编辑模式](Jupyter.assets/编辑模式.png)
 
 ### 单元格
@@ -210,14 +200,16 @@ jupyter notebook --no-browser
   - 在上方加一个空白单元格：`b`
   - 删除本单元格：`dd`
 - 标记：修改为标记格式，前面`In`消失，可以输入代码注释，运行即可
+- 按`Tap`可以自动补全
+- 在代码后加上`？`，然后按`shift+enter`可以查看提示信息
 
 
 
 ## Running
 
-`Running`页面主要展示的是当前正在运行当中的终端和`ipynb`格式的笔记本
+`Running`页面主要展示的是当前**正在运行当中的终端**和**`ipynb`格式的笔记本**
 
-若想要关闭已经打开的终端和`ipynb`格式的笔记本，仅仅关闭其页面是无法彻底退出程序的，需要在`Running`页面点击其对应的`Shutdown`
+若想要关闭已经打开的终端和`ipynb`格式的笔记本，仅仅关闭其页面是无法彻底退出程序的，需要在`Running`页面点击其对应的`Shutdown`按钮
 
 ## Conda
 
@@ -231,11 +223,11 @@ Nbextensions页面提供了多个Jupyter Notebook的插件
 
 主要使用的插件有nb_conda，nb_present，Table of Contents(2)（为Markdown文档提供目录导航）
 
+
+
 # 加载网站源代码
 
-在Jupyter Notebook中直接加载指定网站的源代码到笔记本中
-
-执行命令
+在Jupyter Notebook的单元格中直接**加载指定网站的源代码**
 
 ```bash
 # URL为指定网站的地址
@@ -246,12 +238,10 @@ Nbextensions页面提供了多个Jupyter Notebook的插件
 
 # 加载本地Python文件
 
-在Jupyter Notebook中加载本地的Python文件并执行文件代码
+在Jupyter Notebook的单元格中**加载本地的Python文件并执行文件代码**
 
-执行命令
-
-- 第一次执行是将本地的Python文件内容加载到单元格内。Jupyter Notebook会自动将`%load`命令注释掉（#），以便在执行已加载的文件代码时不重复执行该命令
-- 第二次执行是执行已加载文件的代码
+- 第一次执行：将本地的Python文件内容加载到单元格内。Jupyter Notebook会自动将`%load`命令注释掉（#），以便在执行已加载的文件代码时不重复执行该命令
+- 第二次执行：执行已加载文件的代码
 
 ```bash
 %load Python文件的绝对路径
@@ -261,9 +251,11 @@ Nbextensions页面提供了多个Jupyter Notebook的插件
 
 # 直接运行本地Python文件
 
-不想在Jupyter Notebook的单元格中加载本地Python文件，想要直接运行本地Python文件
+不在Jupyter Notebook的单元格中加载本地Python文件，而是**直接运行本地Python文件**
 
-执行命令：
+> `!python3`和`!python`属于 `!shell命令` 语法，即在Jupyter Notebook中执行shell命令的语法（在单元格中用英文感叹号`!`后接shell命令即可执行shell命令）
+>
+> 执行过程中将不显示本地Python文件的内容，直接显示运行结果
 
 ```bash
 %run Python文件的绝对路径
@@ -275,23 +267,18 @@ Nbextensions页面提供了多个Jupyter Notebook的插件
 !python Python文件的绝对路径
 ```
 
-> `!python3`和`!python`属于 `!shell命令` 语法，即在Jupyter Notebook中执行shell命令的语法（在单元格中用英文感叹号`!`后接shell命令即可执行shell命令）
->
-> 执行过程中将不显示本地Python文件的内容，直接显示运行结果
-
 
 
 # 获取当前位置
 
 在Jupyter Notebook中获取当前Jupyter Notebook中创建的**笔记本所在位置**的**绝对路径**
 
-执行命令：
-
 ```bash
 %pwd
-
 !pwd
 ```
+
+
 
 # 关闭笔记本和终端
 
@@ -329,3 +316,4 @@ Nbextensions页面提供了多个Jupyter Notebook的插件
 > 终端上会提示："Shutdown this notebook server (y/[n])?" 
 >
 > 输入`y`即可关闭服务器，退出Jupyter Notebook
+

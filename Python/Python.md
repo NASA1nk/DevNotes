@@ -92,7 +92,7 @@ conda activate ink
 
 # 基础语法
 
-- python是动态语言，变量不用声明
+- python是动态语言，**变量不用声明**
 - python没有终止符，`;`可以让多个语句写在一行
 - python没有代码块，用相同的**缩进**表示同一代码块
   - Tap
@@ -303,12 +303,22 @@ b = a.replace('a', 'A')
 
 
 
-## 数据类型
+# 数据类型
 
-Python允许在数字中间以`_`分隔
+python允许在数字中间以`_`分隔
 
 - `10_000_000_000`和`10000000000`是一样的
 - 十六进制数也可以写成`0xa1b2_c3d4`
+
+## None
+
+不是没定义
+
+```python
+# None
+ink = None
+print(ink)
+```
 
 
 
@@ -508,131 +518,125 @@ list1[5:5] = '234'
 
 ## 元组tuple
 
-元组是有序列表，但tuple一旦初始化就不能修改。因此定义一个tuple时里面的元素就必须被确定下来
+**元组tuple是不可变的列表list**（不可变对象）
 
-当tuple中有list元素时候，list中元素可以改变
+- tuple一旦初始化就**不能修改**。因此定义一个tuple时里面的元素就必须被确定下来
+
+- 当tuple中有list元素时候，list中的元素可以改变
+
+- 只有**1个元素**的tuple会用`,`和运算符`1`区分（打印时也会显示）
+
+- 列表list中的元素也可以是元组
+
+  > 访问列表元素时，i[0]表示tuple里第一个元素，i[1]表示tuple里第二个元素
 
 ```python
->>> t = ()		#空的tuple 
->>> t = (1,)	#只有1个元素的tuple,会用,和运算符（1）区分。显示时也会加，
-```
+# 空的tuple 
+t = ()		
 
+# 1个元素的tuple
+t = (1,)
 
-
-用一组tuple表示学生名字和成绩：
-
-```python
+# 用一组tuple表示学生名字和成绩
 L = [('Bob', 75), ('Adam', 92), ('Bart', 66), ('Lisa', 88)]	
-#一组就是一个列表，列表里面的元素是tuple
-#访问列表元素时，i[0]表示取的值为tuple里第一个元素；i[1]表示tuple里第二个元素
 ```
 
 
 
 ## 字典dict
 
-字典`dict`使用哈希表实现，键`key`必须是可哈希的`hashable`，`dict`的`key`必须是不可变对象，可变类型在哈希时可能映射成别的值，无法正确工作。所以列表`list`不能作为键`key`，只能作为值`value`。
+字典`dict`使用哈希表实现，使用`key-value`键值对存储
 
-`dict`需要占用大量的内存，内存浪费多，是用空间来换取时间的一种方法(相比于`list`)
+- `dict`的键`key`必须是可哈希的`hashable`
+- `dict`的键`key`必须是不可变对象
 
-```python
-dictt['on'] = 'no'<-->{'on': 'no'}  #dictt[key]就是value，对dictt[key]操作就是对value操作
-```
+因为可变类型在哈希时可能映射成别的值（无法正确工作）。所以**列表`list`不能作为键`key`，只能作为值`value`**
 
-#### 查找
-
-字典dictionary使用键-值`key-value`存储，字典中项`item`的顺序是不可预知的，字典中的元素不使用整数索引来索引，而是用键`key`来查找对应的值`value`。
-
-字典使用哈希`Hash`算法。这种算法具备的特性： 无论字典中有多少项`item`，`in`运算符搜索所需的时间都是一样的。而列表list中in操作符随着列表的增长搜索时间成正比增长。
-
-**get() 方法**
-
-接受一个`key`和一个默认值作为参数，如果字典中存在该`key`，则返回`key`对应`value`。否则返回传入的默认值，对`dict`不影响。
+> `dict`需要占用大量的内存，内存浪费多，是用空间来换取时间的一种方法(相比于`list`)
 
 ```python
->>> d.get('Thomas')
->>> d.get('Thomas', -1)
--1
+# dictt[key]就是value，对dictt[key]操作就是对value操作
+# {'on': 'no'}  
+dictt['on'] = 'no'
 ```
 
 
 
-#### 存储
+### 查找
 
-这种`key-value`存储方式在放进去的时候，必须根据`key`算出`value`的存放位置，这样取的时候才能根据`key`直接拿到`value`。
+字典`dict`中的项`item`的顺序是未知的，所以字典`dict`中的元素不使用整数索引而是用键`key`来查找对应的值`value`
 
-`dict`内部存放的顺序和`key`放入的顺序是没有关系的
+字典使用哈希`Hash`算法，无论字典中有多少项`item`，`in`运算符搜索所需的时间都是一样的。
 
-一个`key`只能对应一个`value`，多次对相同`key`放入`value`只保存最后一次存入的`value`。
-
-```python
->>> d['Adam'] = 67		#通过key存放k-v
-67
->>> d['Adam'] = 154
-154
->>> d['Adam']			#保存最后一次存入的154
-154
-```
+> 列表list中`in`操作符随着列表的增长搜索时间成正比增长
 
 
 
-#### 删除
+`get()`：接受一个`key`和一个默认值作为参数，
 
-要删除一个key，用`pop(key)`方法，对应的value也会从dict中删除：
+- `dict`中存在该`key`，返回`key`对应`value`
+- `dict`中不存在该`key`，返回传入的默认值，对`dict`不影响。
 
-```python
->>> d.pop('Bob')		#键值对'Bob': 75被删除
-75
-```
+
+
+### 存储
+
+`key-value`存储方式在**存**的时候必须根据`key`算出`value`的存放位置，这样取的时候才能根据`key`直接拿到`value`
+
+- `dict`内部存放的顺序和`key`放入的顺序是没有关系的
+- 一个`key`只能对应一个`value`，多次对相同`key`放入`value`只保存最后一次存入的`value`（覆盖）
+
+
+
+
+### 删除
+
+`pop(key)`：删除dict中的key和对应的value
 
 
 
 ## set
 
-`set`可以看成数学意义上的无序和无重复元素的集合。
+**无序**和**无重复元素**的集合
 
-`set`的原理和`dict`一样，所以不可以放入可变对象，因为无法判断两个可变对象是否相等，也就无法保证`set`内部“不会有重复元素”。
+- `set`不存储`value`，是一组`key`的集合。
+- `set`中没有重复的元素（因为`key`不能重复），传入重复的元素在`set`中会被自动过滤
+- `set`的原理和`dict`一样，所以**不能放入可变对象**（因为无法判断两个可变对象是否相等，也就无法保证`set`内部**不会有重复元素**）
 
-`set`是一组`key`的集合，但不存储`value`。由于`key`不能重复，所以在`set`中没有重复的元素，传入重复的元素在set中会被自动过滤。
+### 创建
 
-#### 创建
-
-创建一个set需要提供一个list作为输入集合
+使用list作为输入集合创建`set`
 
 ```python
->>> s = set([1, 2, 3])
->>> s
-{1, 2, 3}					#显示的顺序也不表示set是有序的
+# s = {1, 2, 3}
+# 显示的顺序不表示set是有序的
+s = set([1, 2, 3])		
+```
+
+### 添加
+
+`add()`：添加元素到set中，重复添加不会显示
+
+```python
+# s = {1, 2, 3, 4}
+s.add(4)
+s.add(4)
 ```
 
 
 
-#### 添加
+### 删除
 
-通过`add()`方法可以添加元素到set中，可以重复添加，但不会显示。
+`remove()`：删除元素
 
 ```python
->>> s.add(4)
->>> s
-{1, 2, 3, 4}
->>> s.add(4)
->>> s
-{1, 2, 3, 4}
+# s = {1, 2, 3}
+s.remove(4)
 ```
 
 
 
-#### 删除
-
-通过`remove()`方法可以删除元素
-
-```python
->>> s.remove(4)
->>> s
-{1, 2, 3}
-```
-
-
+# 控制结构
 
 ## 条件判断
 
@@ -652,19 +656,33 @@ else:
 
 ## 循环
 
-
-
 ### for循环
 
-把每个元素代入变量`x`，依次把`list`或`tuple`中的每个元素迭代出来,
+**遍历元素**
+
+变量`x`依次将`list`或`tuple`中的每个元素迭代出来
 
 ```python
 names = ['Michael', 'Bob', 'Tracy']
-for x in names:			#这里面x是元素，不是下标
+# x是元素,不是下标
+for x in names:			
     print(x)
 ```
 
-如何设置i从2开始循环
+**遍历索引**
+
+使用`range()`和`len()`函数生成索引
+
+```python
+# 0 Michael
+# 1 Bob
+# 2 Tracy
+names = ['Michael', 'Bob', 'Tracy']
+for index in range(len(names)):
+   print(index,names[index])
+```
+
+> 如何设置i从2开始循环
 
 
 
@@ -675,37 +693,42 @@ while a:
     a
 ```
 
-
-
 ### break
 
-`break`语句可以提前退出循环。
+`break`语句可以提前退出循环
 
 ### continue
 
-`continue`语句可以跳过当前的这次循环，直接开始下一次循环。
+`continue`语句可以跳过当前的这次循环，直接开始下一次循环
 
 
 
 # 函数
 
-## 调用函数
+**递归函数**
 
-函数名其实就是指向一个函数对象的引用，可以把函数名赋给一个变量，相当于给这个函数起了一个“别名”
+使用递归函数要防止`栈溢出`
 
-```python
->>> a = abs	    # 变量a指向abs函数
->>> a(-1) 		# 所以也可以通过a调用abs函数
-1
-```
+在计算机中，函数调用是通过栈`stack`实现的
+
+- 每进入一个函数调用，栈就会加一层**栈帧**
+- 每当函数返回，栈就会减一层**栈帧**
+
+栈的大小不是无限的，所以**递归调用的次数过多会导致栈溢出**
+
+解决递归调用栈溢出的方法是通过**尾递归优化**
+
+尾递归是指**在函数返回的时候调用自身，并且return语句不能包含表达式**。这样编译器或者解释器就可以把尾递归做优化，使**递归本身无论调用多少次都只占用一个栈帧**，不会出现栈溢出的情况
 
 
 
 ## 定义函数
 
-使用`def` 函数名、括号、括号中的参数和冒号`:`，函数的返回值用`return`语句返回。
+`def` 函数名 括号 参数 `:`
 
-如果没有`return`语句，函数执行完毕后也会返回结果，只是结果为`None`。`return None`可以简写为`return`。
+函数的返回值用`return`语句，如果没有`return`语句，函数执行完毕后返回`None`。
+
+> `return None`简写为`return`
 
 ```python
 def my_abs(x):
@@ -717,21 +740,38 @@ def my_abs(x):
 
 
 
-## 空函数
+## 调用函数
 
-如果想定义一个什么事也不做的空函数，可以用`pass`语句
+函数名是**指向一个函数对象的引用**。可以把函数名赋给一个变量，相当于给这个函数起了一个**别名**
 
 ```python
-def nop():	#可以用来暂存还未完成的函数
+>>> a = abs	    # 变量a指向abs函数
+>>> a(-1) 		# 所以也可以通过a调用abs函数
+1
+```
+
+
+
+## 空函数
+
+用`pass`语句定义一个**什么事也不做**的空函数（占位）
+
+> 否则程序无法正常执行
+
+```python
+# 用来暂存还未完成的函数
+def nop():	
     pass
 ```
 
 
 
-## 返回值
+## 函数返回值
 
-Python函数可以返回多个值。但多个值其实返回的是一个tuple。
-在语法上，返回一个tuple可以省略括号，而多个变量可以同时接收一个tuple，按位置赋给对应的值。
+函数可以返回多个值，**多个值其实返回的是一个tuple**
+
+- 返回一个tuple时可以省略括号
+- 多个变量可以同时接收一个tuple，按位置赋给对应的值
 
 ```python
 import math
@@ -741,9 +781,8 @@ def move(x, y, step, angle=0):
     ny = y - step * math.sin(angle)
     return nx, ny
     
->>> r = move(100, 100, 60, math.pi / 6)
->>> print(r)
-(151.96152422706632, 70.0)
+# (151.96152422706632, 70.0)
+r = move(100, 100, 60, math.pi / 6)
 ```
 
 
@@ -752,25 +791,36 @@ def move(x, y, step, angle=0):
 
 ### 位置参数
 
-调用函数时，传入的值按照括号中位置顺序依次赋给参数x,n
+调用函数时，传入值按照**位置顺序**依次赋给参数
 
 ```python
-def power(x, n):	#第一个是x,第二个是n
+# 第一个是x,第二个是n
+def power(x, n):	
     s = 1
     while n > 0:
         n = n - 1
         s = s * x
     return s
 ```
-
-
 
 ### 默认参数
 
-将常用或默认的参数值直接写在函数中可以简化函数的调用当传入的数据与默认参数不符合时，在传入实际值。
+常用或默认的参数值可以直接写在函数中从而简化函数的调用，当传入的数据与默认参数不符合时再传入实际值
+
+- 必选参数在前，**默认参数在后**
+- 当函数有多个参数时，把变化大的参数放前面，变化小的参数放后面（变化小的参数就可以作为默认参数）
+- 当函数有多个默认参数时
+  - 调用时按顺序提供默认参数
+  - 调用时不按顺序提供部分默认参数要写清楚参数名和对应值
+
+> **定义默认参数必须指向不变对象(如str,None)**
+>
+> 如果在函数体里面执行了会改变默认参数的值的操作就会引发错误
+>
 
 ```python
-def power(x, n=2):		#调用power(5)相当于调用power(5, 2)
+# power(5)实际上是power(5, 2)
+def power(x, n=2):		
     s = 1
     while n > 0:
         n = n - 1
@@ -778,29 +828,14 @@ def power(x, n=2):		#调用power(5)相当于调用power(5, 2)
     return s
 ```
 
-**注意：**
-
-- 必选参数在前，默认参数在后。
-
-- 当函数有多个参数时，把变化大的参数放前面，变化小的参数放后面。变化小的参数就可以作为默认参数。
-
-- 有多个默认参数时，调用的时候，可以按顺序提供默认参数，也可以不按顺序提供部分默认参数，但要写清楚参数名和对应值。
-
-  
-
-**定义默认参数必须指向不变对象(如str,None)**
-
-如果在函数体里面执行了会改变默认参数的值的操作就会引发错误。
-
-对象不变多任务环境下同时读取对象不需要加锁，同时也不会有读问题。我们在编写程序时，如果可以设计一个不变对象，那就尽量设计成不变对象。
 
 
+### 可变参数
 
-### 可变参数*args(turple)
+`*args`
 
-传入的参数个数是可变的，可以是0，1，2个到任意个。
-
-正常情况，我们需要将多个参数组装成`list`或者`turple`。在参数前面加了一个`*`号,参数numbers接收到的就是一个`tuple`。
+- 在参数前面加`*`，参数接收到的就是一个`tuple`（个数可变）
+- 在`list`或`tuple`前面加`*`可以把`list`或`tuple`的元素变成可变参数
 
 ```python
 def calc(*numbers):		
@@ -809,378 +844,407 @@ def calc(*numbers):
         sum = sum + n * n
     return sum
 
->>> calc(1, 2)
-5
->>> calc()
-0
-```
+# 5
+calc(1, 2)
 
-在`list`或`tuple`前面加一个`*`号，也可以把`list`或`tuple`的元素变成可变参数。
+# 0
+calc()
 
-```python
->>> nums = [1, 2, 3]
->>> calc(*nums)
-14
+nums = [1, 2, 3]
+# 14
+calc(*nums)
 ```
 
 
 
-### 关键字参数**kw(dict)
+### 关键字参数
 
-关键字参数就是传入0个或任意个含参数名的参数，这些关键字参数在函数内部自动组装为一个`dict`。
+`**kw`
+
+传入0个或任意个**含参数名的参数**，关键字参数在函数内部自动组装为一个`dict`
+
+在`dict`前加上`**`，可以把该`dict`转换为关键字参数
+
+> `**extra`表示把`extra`这个`dict`中的所有`key-value`键值对传入到函数的关键字参数，`kw`获得的`dict`是`extra`的一份拷贝，对`kw`的改动不会影响`extra`
 
 ```python
 def person(name, age, **kw):
     print('name:', name, 'age:', age, 'other:', kw)
     
->>> person('Bob', 35, city='Beijing')
-name: Bob age: 35 other: {'city': 'Beijing'}
+# name: Bob age: 35 other: {'city': 'Beijing'}    
+person('Bob', 35, city='Beijing')
+
+# name: Jack age: 24 other: {'city': 'Beijing', 'job': 'Engineer'}
+extra = {'city': 'Beijing', 'job': 'Engineer'}
+person('Jack', 24, **extra)
 ```
 
-也可以先组装出一个`dict`，然后用`**`该`dict`转换为关键字参数传进去
-
-`**extra`表示把`extra`这个`dict`的所有`key-value`用关键字参数传入到函数的`**kw`参数，`kw`获得的`dict`是`extra`的一份拷贝，对`kw`的改动不会影响到函数外的`extra`。
+可以在函数内部通过关键字参数`kw`检查传入了哪些参数
 
 ```python
->>> extra = {'city': 'Beijing', 'job': 'Engineer'}
->>> person('Jack', 24, **extra)
-name: Jack age: 24 other: {'city': 'Beijing', 'job': 'Engineer'}
-```
-
-
-
-在函数内部通过关键字参数`kw`检查传入了哪些参数。
-
-```python
-def person(name, age, **kw):	#检查是否有city和job参数
-    if 'city' in kw:		    # 有city参数
-        pass
-    if 'job' in kw:				# 有job参数
-        pass
+#检查是否有city和job参数
+def person(name, age, **kw):
+    if 'city' in kw:
+        print("有city")
+    if 'job' in kw:
+        print("有job")
     print('name:', name, 'age:', age, 'other:', kw)
+    
+# 有city
+# name: Bob age: 35 other: {'city': 'Beijing'
+person('Bob', 35, city='Beijing')
 ```
 
 
 
-### 命名关键字参数*
+### 命名关键字参数
 
-因为关键字参数`key-value`的传入不受限制，如果想限制关键字参数的名字，就可以用命名关键字参数。
+关键字参数`key-value`的传入不受限制，如果想**限制关键字参数的名字**就要用**命名关键字参数**
 
-命名关键字参数需要一个特殊分隔符`*`，`*`后面的参数被视为命名关键字参数。
+- 命名关键字参数需要一个特殊分隔符`*`，`*`后面的参数被视为命名关键字参数
+- 如果函数中已经有了一个可变参数，后面的命名关键字参数就不再需要特殊分隔符`*`
+- 命名关键字参数具有**默认值**时，调用函数时可不传入此参数
 
 ```python
-def person(name, age, *, city, job):	#只接收city和job作为关键字参数
+# 只接收city和job作为关键字参数
+def person(name, age, *, city, job):	
     print(name, age, city, job)
 
->>> person('Jack', 24, city='Beijing', job='Engineer') #命名关键字参数必须传入参数名
+# 命名关键字参数必须传入参数名
+person('Jack', 24, city='Beijing', job='Engineer') 
 Jack 24 Beijing Engineer
-```
 
-如果函数定义中已经有了一个可变参数，后面跟着的命名关键字参数就不再需要一个特殊分隔符`*`了：
-
-```
+# 不再需要特殊分隔符*
 def person(name, age, *args, city, job):
     print(name, age, args, city, job)
     
-```
-
-命名关键字参数具有默认值时，调用可不传入此参数
-
-```python
-def person(name, age, *, city='Beijing', job):		#city具有默认值
+#city具有默认值
+def person(name, age, *, city='Beijing', job):		
     print(name, age, city, job)
-    
->>> person('Jack', 24, job='Engineer')	
-Jack 24 Beijing Engineer
+
+# Jack 24 Beijing Engineer
+person('Jack', 24, job='Engineer')	
 ```
 
 
 
-**组合**（可变参数+关键字参数）
+### 组合参数
 
-对于任意函数，都可以通过类似`func(*args, **kw)`的形式调用它，无论它的参数是如何定义的。
+可变参数+关键字参数
 
-
-
-## 递归函数
-
-使用递归函数需要注意防止`栈溢出`。在计算机中，函数调用是通过栈`stack`这种数据结构实现的，每当进入一个函数调用栈就会加一层`栈帧`，每当函数返回栈就会减一层栈帧。由于栈的大小不是无限的，所以递归调用的次数过多会导致栈溢出。
-
-解决递归调用栈溢出的方法是通过`尾递归`优化。
-尾递归是指在函数返回的时候调用自身，并且return语句不能包含表达式。这样编译器或者解释器就可以把尾递归做优化，使递归本身无论调用多少次都只占用一个栈帧，不会出现栈溢出的情况。
+任意函数都可以通过类似`func(*args, **kw)`的形式调用，无论它的参数是如何定义的
 
 
 
 # 高级特性
 
-## 切片slice
+## 切片
 
-切片操作符`[n:m]`：返回从第n个元素到第m个元素的`list`或`turple`(**包括第一个，但不包括最后一个**)
+`slice`
 
-字符串`str`也可以看成是一种`list`，**每个元素就是一个字符**。因此字符串也可以用切片操作
+切片操作符`[n:m]`：返回从第n个元素到第m个元素的`list`或`turple`（**包括第一个但不包括最后一个**：`[)`）
 
-取前3个元素
+> 字符串`str`也可以看成是一种`list`，**每个元素就是一个字符**。因此字符串也可以用切片操作
+>
 
-```python
->>> L[0:3]		
-['Michael', 'Sarah', 'Tracy']
-```
-
-第一个索引是`0`，可以省略
-
-```python
->>> L[:3]		#省略第一个索引，切片将从列表头开始。
-['Michael', 'Sarah', 'Tracy']
-```
-
-倒数切片，倒数第一个元素的索引是`-1`,倒数第二个是`-2`
+- 省略第一个索引n，切片将从列表头开始（第一个索引0也可以省略）
+- 倒数第一个元素的索引是`-1`，省略第二个索引m，切片将到列表尾结束
+- 两个索引n和m都省略就是操作整个`list`或`turple`
+- `[n:m:l]`：可以间隔切片，l是间隔距离（每l个取一个）
 
 ```python
->>> L[-2:]		#省略第二个索引，切片将会到列表尾结束
-['Sarah', 'Tracy']
->>> L[-2:-1]
-['Sarah']
+L = [0,1,2,3,4,5,6,7,8,9,10]
+# 取前10个元素
+L[:10]		
+
+# 取后10个元素
+L[-10:]	
+
+# 前11-20个元素	
+L[10:20]	
+
+# 末尾2个元素(倒数第二个和倒数第一个元素)
+L[-2:]
+
+# 倒数第二个元素
+L[-2:-1]
+
+# 前10个数,从第一个数开始,每两个取一个[0, 2, 4, 6, 8]
+L[:10:2]
+
+# 所有数,从第一个数开始,每5个取一个[1, 6]
+L[::5]		
 ```
 
-取出某一段元素
+
+
+## 迭代
+
+`iteration`
+
+通过`for`循环来遍历`list`或`tuple`称为迭代`Iteration`
+
+### 可迭代对象
+
+`iterable`
+
+可迭代对象都可以作用于`for`循环。自定义的数据类型只要符合迭代条件就可以使用`for`循环
+
+通过`collections`模块的`Iterable`类型可以判断**是不是可迭代对象**`iterable`
 
 ```python
-L[:10]		#取前10个元素
-L[-10:]		#取后10个元素
-L[10:20]	#前11-20个元素		
+from collections import Iterable
+
+# True,str可迭代
+isinstance('abc', Iterable)   
+
+# True,list可迭代
+isinstance([1,2,3], Iterable)
+
+# False,整数不可迭代
+isinstance(123, Iterable)   
+
+# True,dict可迭代
+isinstance({'a':'1'}, Iterable)
 ```
 
-间隔取元素
+**字典**
+
+`dict`默认迭代的是键`key`
+
+- 迭代值`value`：`for value in d.values()`
+- 迭代`key`和`value`：`for k, v in d.items()`
+
+> dict的存储不是按照list的方式顺序排列，所以迭代出的结果顺序可能不一样
+>
 
 ```python
->>> L[:10:2]	#前10个数，每两个取一个：
->>> L[::5]		#所有数，每5个取一个：
-```
-
-复制一个`list`
-
-```python
-L[:]	#什么都不写
-```
-
-
-
-## 迭代iteration
-
-通过`for`循环来遍历`list`或`tuple`，这种遍历称为迭代`Iteration`。
-
-### 可迭代对象iterable
-
-可迭代对象都可以作用于`for`循环，包括自定义的数据类型，只要符合迭代条件就可以使用`for`循环。
-
-通过`collections`模块的`Iterable`类型判断一个对象是不是可迭代对象`iterable`
-
-```python
->>> from collections import Iterable
->>> isinstance('abc', Iterable)   # str可迭代
-True
->>> isinstance([1,2,3], Iterable) # list可迭代
-True
->>> isinstance(123, Iterable)     # 整数不可迭代
-False
-```
-
-**dict**
-
-默认情况下`dict`迭代的是`key`
-迭代`value`可以用`for value in d.values()`
-迭代`key`和`value`可以用`for k, v in d.items()`
-
-注意：
-因为dict的存储不是按照list的方式顺序排列，所以，迭代出的结果顺序很可能不一样。
-
-```
->>> d = {'a': 1, 'b': 2, 'c': 3}
->>> for key in d:
-...     print(key)
+# a
+# b
+# c
+d = {'a': 1, 'b': 2, 'c': 3}
+for key in d:
+    print(key)
 ```
 
 **字符串**
 
-迭代每一个字符
+`str`迭代每字符串的每一个字符
 
 ```python
->>> for ch in 'ABC':
-...     print(ch)
+# A
+# B
+# C
+for ch in 'ABC':
+    print(ch)
 ```
 
 **下标迭代**
 
-使用`enumerate`函数可以把一个`list`变成索引-元素对，这样就可以在`for`循环中同时迭代索引和元素本身
+`enumerate()`：可以把`list`转换成**索引-元素**对，这样就可以在`for`循环中同时迭代索引和元素本身
 
 ```python
->>> for i, value in enumerate(['A', 'B', 'C']):
-...     print(i, value)		#0 A	1 B		2 C
-
+# 0 A
+# 1 B
+# 2 C
+for i, value in enumerate(['A', 'B', 'C']):
+    print(i, value)
 ```
 
 
 
-## 列表生成式comprehensions
+## 列表生成式
 
-避免繁琐的循环
+`comprehensions`
+
+创建list，避免繁琐的循环
+
+- `for`前面可以写生成式
+- `for`前面可以写函数，元素必须可以调用函数
+- `for`前面可以写`if`表达式，必须加上`else`
+- `for`后面可以写`if`表达式，不用加上`else`
+- `for`可以嵌套
 
 ```python
->>> [x * x for x in range(1, 11)]					#for前面可以写生成式
-[1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+# 生成式,[1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+[x * x for x in range(1, 11)]					
 
->>> L = ['Hello', 'World', 'IBM', 'Apple']			#for前面可以写函数，但元素必须可以调用函数
->>> [s.lower() for s in L]
-['hello', 'world', 'ibm', 'apple']
+# 调用函数,['hello', 'world', 'ibm', 'apple']
+L = ['Hello', 'World', 'IBM', 'Apple']			
+[s.lower() for s in L]
 
->>> [x if x % 2 == 0 else -x for x in range(1, 11)]	#for循环前面可以写if表达式，要加上else
-[-1, 2, -3, 4, -5, 6, -7, 8, -9, 10]
+# if-else表达式,[-1, 2, -3, 4, -5, 6, -7, 8, -9, 10]
+[x if x % 2 == 0 else -x for x in range(1, 11)]	
 
->>> [x * x for x in range(1, 11) if x % 2 == 0]		#for循环后面可以写if筛选条件，不加else
-[4, 16, 36, 64, 100]
+# if表达不加else,[4, 16, 36, 64, 100]
+[x * x for x in range(1, 11) if x % 2 == 0]		
 
->>> [m + n for m in 'AB' for n in 'XYZ']			#两层for循环
-['AX', 'AY', 'AZ', 'BX', 'BY', 'BZ']
+# 两层for循环,['AX', 'AY', 'AZ', 'BX', 'BY', 'BZ']
+[m + n for m in 'AB' for n in 'XYZ']			
 
->>> [k + '=' + v for k, v in d.items()]				#用多个变量生成list
-['y=B', 'x=A', 'z=C']
+# 多个变量生成list,['y=B', 'x=A', 'z=C']
+[k + '=' + v for k, v in d.items()]				
 ```
 
 
 
-## 生成器generator
+## 生成器
 
-如果`list`元素可以按照某种**算法**推算出来，那就可以在循环的过程中不断推算出后续的元素，这样就不必创建完整的`list`，从而节省大量的空间。这种**一边循环一边计算**的机制称为生成器：`generator`。
+`generator`
+
+如果`list`元素可以按照某种**算法**推算出来就可以在循环的过程中**不断推算出后续的元素**。这样就不必创建完整的`list`，从而节省大量的空间。
+
+这种**一边循环一边计算**的机制称为生成器`generator`
 
 ### 创建
 
 **列表创建**
 
-只要把一个列表生成式的`[]`改成`()`，就创建了一个`generator`
+把列表生成式的`[]`改成`()`就创建了一个`generator`
 
 ```python
->>> L = [x * x for x in range(5)]
->>> L
-[0, 1, 4, 9, 16]
->>> g = (x * x for x in range(5))
->>> g
-<generator object <genexpr> at 0x1022ef630>		#并不会显示
+# 列表生成式,[0, 1, 4, 9, 16]
+L = [x * x for x in range(5)]
+
+# 不显示列表,<generator object <genexpr> at 0x00000237FFE714C0>
+g = (x * x for x in range(5))
+print(g)
 ```
 
 **函数创建**
 
-如果推算的算法比较复杂，用类似列表生成式的`for`循环无法实现的时候，还可以用函数来实现。
+算法比较复杂时用类似列表生成式的`for`循环无法实现。可以用函数实现。
+
 在函数中用`yield`关键字代替`return`就是一个`generator`
 
 ```python
 def fib():
     n, a, b = 0, 0, 1
     while true:
-        yield b					#将return改为yield
-        a, b = b, a + b			#是给a,b同时赋值
+        # 将return改为yield
+        yield b			
+        # 给a,b同时赋值
+        a, b = b, a + b			
         n = n + 1
     return 'done'
 ```
 
-**函数创建的`generator`和函数的执行流程不一样**
-调用时首先要生成一个`generator`对象，在每次调用`next()`的时候执行，遇到`yield`语句返回。再次执行时从上次返回的`yield`语句处继续执行，当没有`yield`可以执行时候再调用`next()`就会报错。
+**调用函数创建的`generator`和函数的执行流程不一样**
+
+1. 调用前要生成一个`generator`对象
+2. 在每次调用`next()`的时候执行，遇到`yield`语句返回
+3. 再从上次返回的`yield`语句处继续执行
+4. 当没有`yield`可以执行时调用`next()`就会报错
 
 ```python
+# yield代替了return,odd()是一个generator
 def odd():
     print('step 1')
-    yield 1				#yield代替了return,odd()是一个generator
+    yield 1				
     print('step 2')
     yield 2
     print('step 3')
     yield 3
 
->>> o = odd()		#生成generator对象
->>> next(o)			#调用next()函数
-step 1
-1
->>> next(o)			#从上一个停止的yield处开始
-step 2
-2
->>> next(o)			#再next()就会报错
-step 3
-3
+# 1.生成generator对象
+o = odd()	
+
+# 2.调用next()函数
+# step 1
+# 1
+next(o)			
+
+#从上一个停止的yield处开始
+# step 2
+# 2
+next(o)			
+
+# 再next(o)就会报错
+# step 3
+# 3
+next(o)			
 ```
+
+
 
 ### 读取
 
-`list`创建的`generator`使用`for`循环读取，因为`generator`也是**可迭代对象**
+列表创建的`generator`可以使用`for`循环读取，因为`generator`也是**可迭代对象**
 
 ```python
->>> g = (x * x for x in range(10))
->>> for n in g:
-...     print(n)		#0	1	4	9	16
-```
-
-`for`循环调用generator时得不到`generator`的return语句的返回值。如果想要拿到返回值，必须捕获`StopIteration`错误，返回值包含在`StopIteration`的`value`中
-
-```python
->>> while True:
-...     try:
-...         x = next(g)
-...         print('g:', x)
-...     except StopIteration as e:
-...         print('Generator return value:', e.value)
-...         break
->>> g = fib(3)
-
-g: 1
-g: 1
-g: 2
-Generator return value: done
+# 0 1 4 9......
+g = (x * x for x in range(10))
+for n in g:
+    print(n)
 ```
 
 
 
-`generator`保存的是**算法**，每次调用`next(g)`就计算出`g`的下一个元素的值直到最后一个元素，当没有更多的元素时抛出`StopIteration`的错误
+`for`循环调用`generator`时得不到`generator`的return语句的返回值
+
+想要拿到返回值必须捕获`StopIteration`错误，返回值包含在`StopIteration`的`value`中
+
+> `generator`保存的是**算法**，每次调用`next(g)`就计算出`g`的下一个元素的值直到最后一个元素，当没有更多的元素时抛出`StopIteration`的错误
 
 ```python
->>> next(g)
-0
->>> next(g)
-1
->>> next(g)
-4
+# g: 1
+# g: 1
+# g: 2
+# Generator return value: done
+def fib(n):
+    a, b = 0, 1
+    while n:
+        yield b
+        a, b = b, a + b
+        n = n - 1
+    return 'done'
+
+while True:
+     try:
+         x = next(g)
+         print('g:', x)
+     except StopIteration as e:
+         print('Generator return value:', e.value)
+         break
+
+g = fib(3)
 ```
 
 
 
-## 迭代器iterator
+## 迭代器
 
-可以被`next()`函数调用并不断返回下一个值的对象称为迭代器：`Iterator`。
+`iterator`
 
-可以使用`isinstance()`判断一个对象是否是`Iterator`对象
+可以被`next()`函数调用并不断返回下一个值的**对象**称为迭代器：`Iterator`。
 
-```python
->>> from collections.abc import Iterator
->>> isinstance((x for x in range(10)), Iterator)
-True
->>> isinstance([], Iterator)
-False
->>> isinstance({}, Iterator)
-False
->>> isinstance('abc', Iterator)
-False
-```
+使用`isinstance()`判断一个对象是否是迭代器（`Iterator`对象）
 
-
-
-生成器`generator`都是`Iterator`对象，但`list`、`dict`、`str`虽然是可迭代对象`Iterable`，却不是迭代器`Iterator`。
-
-把`list`、`dict`、`str`等可迭代对象`Iterable`变成迭代器`Iterator`可以使用`iter()`函数：
+- 生成器`generator`都是`Iterator`对象，
+- `list`、`dict`、`str`是可迭代对象`Iterable`却不是迭代器`Iterator`
+- 使用`iter()`函数可以将`list`、`dict`、`str`等可迭代对象`Iterable`转换成迭代器`Iterator`
 
 ```python
->>> isinstance(iter([]), Iterator)
-True
->>> isinstance(iter('abc'), Iterator)
-True
+from collections.abc import Iterator
+
+# True
+isinstance((x for x in range(10)), Iterator)
+
+# False
+isinstance([], Iterator)
+
+# False
+isinstance({}, Iterator)
+
+# False
+isinstance('abc', Iterator)
+
+# True
+isinstance(iter([]), Iterator)
+
+# True
+isinstance(iter('abc'), Iterator)
 ```
-
-
 
 
 

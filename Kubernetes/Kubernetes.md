@@ -111,7 +111,7 @@ Google 10年容器化基础架构（GO 语言）
 
 # 部署k8s集群1
 
-## 初始化
+## 系统初始化
 
 设置系统主机名以及 Host 文件的相互解析
 
@@ -125,9 +125,7 @@ hostnamectl  set-hostname  k8s-master01
 yum install -y conntrack ntpdate ntp ipvsadm ipset jq iptables curl sysstat libseccomp wget vim net-tools git
 ```
 
-设置防火墙为iptablesselinux
-
-关闭防火墙
+关闭防火墙，设置防火墙为iptables
 
 ```bash
 systemctl stop firewalld
@@ -215,7 +213,7 @@ grub2-set-default 'CentOS linux (4.4.189-1.el7.elrepo.x86_64)  7 (Core)'
 
 
 
-## kubeadm部署安装
+## kubeadm安装
 
 kube-proxy开启ipvs的前置条件
 
@@ -458,17 +456,70 @@ netstat -anpt | grep :30000
 
 # 部署k8s集群2
 
+集群类型：
 
+- 单Master集群
+- 多Master集群
 
+先部署一套单Master架构（3台），再扩容为多Master架构（4台或6台）
 
+单Master服务器规划：
 
+| **角色**   | **IP**        | **组件**                                                     |
+| ---------- | ------------- | ------------------------------------------------------------ |
+| k8s-master | 192.168.31.71 | kube-apiserver，kube-controller-manager，kube-scheduler，etcd |
+| k8s-node1  | 192.168.31.72 | kubelet，kube-proxy，docker，etcd                            |
+| k8s-node2  | 192.168.31.73 | kubelet，kube-proxy，docker，etcd                            |
 
+服务器要求：
 
+- 2核CPU，2G内存，30G硬盘
 
+- 集群中所有机器之间网络互通
 
+- 可以访问外网，需要拉取镜像（NAT）
 
+- 禁止swap分区
 
+- | **软件**   | **版本**               |
+  | ---------- | ---------------------- |
+  | 操作系统   | CentOS7.x_x64 （mini） |
+  | 容器引擎   | Docker CE 19           |
+  | Kubernetes | Kubernetes v1.20       |
 
+搭建方式：
+
+- kubeadm：K8s 部署工具，快速部署Kubernetes集群
+  - kubeadm init：创建Master节点
+  - kubeadm join：将Node节点加入集群`kubeadm join <Master节点IP:端口>`
+- 二进制：手动部署每个组件，组成Kubernetes集群
+
+> Kubeadm 降低部署门槛，但屏蔽了很多细节，遇到问题很难排查。
+>
+> 如果想更容易可控，推荐使用二进制包部署Kubernetes 集群，虽然手动部署麻烦点，但可以学习很多工作原理，也利于后期维护。
+
+## 安装虚拟机
+
+master：192.168.44.146
+
+**新建虚拟机**
+
+- 稍后安装OS
+- 2个处理器，2个内核
+- 4G内存
+- 100G磁盘
+- 磁盘存储为单个文件
+
+**虚拟机设置**
+
+- CD/DVD选择CentOS镜像
+- 安装位置默认
+- 最小化安装
+- 密码：空格
+
+## 系统初始化
+
+关闭防火墙
 
 
 

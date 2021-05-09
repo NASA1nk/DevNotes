@@ -53,6 +53,10 @@ Anaconda是一种为科学计算而生的Python发行版，包括：
 >
 > 安装完成后重启生效
 
+添加环境变量
+
+- 
+
 使用python3.x版本
 
 ![Anaconda安装](Python.assets/Anaconda安装.png)

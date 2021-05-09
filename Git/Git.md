@@ -270,6 +270,10 @@ git stash clear
 
 
 
+# 安装
+
+![设置个人信息](Git.assets/设置个人信息.png)
+
 # 远程仓库
 
 ```bash

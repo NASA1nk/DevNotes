@@ -991,7 +991,7 @@ Vue实例提供了一个**自定义事件的系统**来解决这个问题：父�
 
 ## Vue生命周期
 
-每个Vue实例在被创建时都要经过一系列的初始化过程（例如需要设置数据监听、编译模板、将实例挂载到 DOM 并在数据变化时更新 DOM 等）。
+每个Vue实例在被创建时都要经过一系列的初始化过程（例如需要设置数据监听、编译模板、将实例挂载到 DOM 并在数据变化时更新 DOM 等）
 
 同时在这个过程中也会运行一些叫做**生命周期钩子**的函数，可以让用户在不同阶段添加自己的代码
 
@@ -2757,7 +2757,71 @@ export default new VueRouter({
 
 ![路由模式](Vue.js.assets/路由模式.png)
 
-## 404
+## 404NotFound
 
-在views目录下创建
+在`views`目录下创建`NotFound.vue`
+
+```vue
+<template>
+<div>
+  <h1>404 你的页面走丢了</h1>
+</div>
+</template>
+<script>
+export default {
+  name: "NotFound"
+}
+</script>
+<style scoped>
+</style>
+```
+
+配置路由`index.js`
+
+```javascript
+{
+  // 匹配所有其他的路径
+  path: '*',
+  component: NotFound
+}
+```
+
+![404](Vue.js.assets/404.png)
+
+## 路由钩子函数
+
+创建Vue对象前先执行钩子函数
+
+- `beforeRouteEnter`：进入路由前执
+
+- `beforeRouteLeave`：离开路由前执行
+
+  参数
+
+  - `to`：路由将要跳转的路径信息
+  - `from`：路径跳转前的路径信息
+  - `next`：路由的控制参数
+    - `next()`：跳入下一个页面
+    - `next(’/path’)`：改变路由的跳转方向，使其跳到另一个路由
+    - `next(false)`：返回原来的页面
+    - `next((vm)=>{})`：仅在`beforeRouteEnter`中可用，vm 是组件实例
+
+修改`Profile.vue`
+
+```vue
+export default {
+  props: ['id'],
+  name: "Profile",
+  beforeRouteEnter:(to,from,next)=>{
+    // 业务代码
+    console.log('进入路由之前')
+    next();
+  },
+  beforeRouteLeave:(to,from,next)=>{
+    // 业务代码
+    console.log('离开路由之前')
+    next();
+  }
+}
+```
 

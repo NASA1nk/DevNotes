@@ -380,8 +380,6 @@ kubeadm join 192.168.66.10:6443 --token abcdef.0123456789abcdef \
 - Docker引擎应为引擎应为1.10或更高版本
 - Docker Compose需要为需要为1.6.0或更高版本
 
-
-
 ```bash
 # 添加假证书
 vim /etc/docker/daemon.json
@@ -500,36 +498,247 @@ netstat -anpt | grep :30000
 
 ## 安装虚拟机
 
-master：192.168.44.146
-
 **新建虚拟机**
 
 - 稍后安装OS
 - 2个处理器，2个内核
-- 4G内存
+- 2G内存
 - 100G磁盘
 - 磁盘存储为单个文件
 
 **虚拟机设置**
 
 - CD/DVD选择CentOS镜像
+- 网络适配器选择NAT模式
 - 安装位置默认
 - 最小化安装
 - 密码：空格
 
+**地址分配**
+
+| 节点         | IP             |
+| ------------ | -------------- |
+| k8s-master01 | 192.168.192.31 |
+| k8s-node01   | 192.168.192.32 |
+| k8s-node02   | 192.168.192.33 |
+
 ## 系统初始化
 
-关闭防火墙
+查看NAT网关
+
+1. VMware-编辑-虚拟网络编辑器-更改设置
+2. 选择NAT模式的网卡，点击NAT设置
+3. 查看网关IP：192.168.192.2
+
+![NAT](Kubernetes.assets/NAT.png)
+
+```bash
+# 设置IP地址
+vi /etc/sysconfig/network-scripts/ifcfg-ens33
+# 修改
+BOOTPROTO=static
+ONBOOT=yes
+# 增加 
+# 三个节点分别是31,32,33
+IPADDR=192.168.192.31
+NETMASK=255.255.255.0
+GATEWAY=192.168.192.2
+
+# 设置DNS
+vi /etc/resolv.conf
+# 增加
+nameserver 192.168.192.2
+# 重启
+service network restart
+# 验证
+ping www.baidu.com
+
+# 安装wget
+yum install wget
+```
+
+![撰写栏](Kubernetes.assets/撰写栏.png)
+
+同时写入三个节点
+
+```bash
+# 根据规划设置主机名
+hostnamectl set-hostname <hostname>
+
+# 添加hosts
+cat >> /etc/hosts << EOF
+192.168.192.31 k8s-master01
+192.168.192.32 k8s-node01
+192.168.192.33 k8s-node02
+EOF
+
+# 关闭防火墙
+systemctl stop firewalld
+systemctl disable firewalld
+
+# 关闭selinux
+sed -i 's/enforcing/disabled/' /etc/selinux/config  # 永久
+setenforce 0  # 临时
+
+# 关闭swap
+swapoff -a  # 临时
+sed -ri 's/.*swap.*/#&/' /etc/fstab    # 永久
+
+# 重启
+
+# 将桥接的IPv4流量传递到iptables的链
+cat > /etc/sysctl.d/k8s.conf << EOF
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
+# 生效
+sysctl --system  
+
+# 时间同步
+yum install ntpdate -y
+ntpdate time.windows.com
+
+## 安装docker
+
+Kubernetes 默认CRI（容器运行时）为Docker，因此先安装Docker
+
+​```bash
+# 下载Docker
+wget https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo -O /etc/yum.repos.d/docker-ce.repo
+
+# 安装指定版本
+yum -y install docker-ce-18.06.1.ce-3.el7
+
+# 设置开机启动
+systemctl enable docker && systemctl start docker
+
+# 验证
+docker --version
+
+# 设置仓库
+cat > /etc/docker/daemon.json << EOF
+{
+"registry-mirrors": ["https://b9pmyelo.mirror.aliyuncs.com"]
+}
+EOF
+
+# 重启docker
+systemctl restart docker
+
+# 验证
+docker info
+
+# 添加yum源
+cat > /etc/yum.repos.d/kubernetes.repo << EOF
+[kubernetes]
+name=Kubernetes
+baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=0
+repo_gpgcheck=0
+gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg
+https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
+EOF
+```
+
+## 安装k8s工具
+
+- kubeadm
+- kubectl
+- kubelet
+
+```bash
+# 指定版本
+yum install -y kubelet-1.18.0 kubeadm-1.18.0 kubectl-1.18.0
+
+# 设置开机启动
+systemctl enable kubelet
+```
+
+## 部署Master节点
+
+- apiserver-advertise-address：当前节点IP
+- image-repository：阿里云镜像
+- kubernetes-version：指定版本
+
+> 默认拉取镜像地址k8s.gcr.io国内无法访问，指定阿里云镜像仓库地址
+
+```bash
+# 在Master节点上执行
+kubeadm init \
+--apiserver-advertise-address=192.168.192.31 \ 
+--image-repository registry.aliyuncs.com/google_containers \ 
+--kubernetes-version v1.18.0 \ 
+--service-cidr=10.96.0.0/12 \
+--pod-network-cidr=10.244.0.0/16
+```
+
+安装成功
+
+- 提示成功信息**initialized successfully**
+- 提示接下来步骤
+
+![kubeadm init](Kubernetes.assets/kubeadm init.png)
+
+查看下载的镜像
+
+![master images](Kubernetes.assets/master images.png)
+
+按提示操作
+
+```bash
+# 在master上运行
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+# 查看节点,只有master节点,状态是NotReady
+kubectl get nodes
+```
+
+## 添加Node节点
+
+按提示操作
+
+> 默认的token：`sha256:94a3812eff925d99fcc31b54febe76863bc0606da49fc09def8b97ea0e4b7227`有效期是24h，过期需要重新创建
+
+```bash
+# 在node上运行
+kubeadm join 192.168.192.31:6443 --token 1f2a01.p9gda3tufqr2299x \
+    --discovery-token-ca-cert-hash sha256:94a3812eff925d99fcc31b54febe76863bc0606da49fc09def8b97ea0e4b7227
+    
+# 查看节点,有master节点和node节点,状态都是NotReady
+kubectl get nodes
+
+# 重新创建token
+kubeadm token create --print-join-command
+```
+
+## 部署CNI网络插件
+
+节点状态NotReady：缺少网络组件
+
+> 默认镜像地址无法访问，sed命令修改为docker hub镜像仓库。
+
+```bash
+# 下载网络插件配置
+wget https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+# 查看pods
+kubectl get pods -n kube-system
+```
+
+状态变为Ready
+
+![集群状态](Kubernetes.assets/集群状态.png)
+
+[K8S应用FLANNEL失败解决INIT:IMAGEPULLBACKOFF](https://www.cnblogs.com/pyxuexi/p/14288591.html)
 
 
 
-
-
-
-
-
-
-# 配置kubernetes集群
+# 部署k8s集群3
 
 ## minikube
 

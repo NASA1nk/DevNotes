@@ -107,6 +107,9 @@ conda activate ink
 - python没有代码块，用相同的**缩进**表示同一代码块
   - Tap
   - 4个空格
+- help()：可以展示帮助信息
+
+![help](Python.assets/help.png)
 
 ## 编码
 
@@ -121,8 +124,11 @@ python源代码也是一个文本文件，当源代码中包含中文时就要�
 
 当python**解释器**读取源代码时，为了让它按UTF-8编码读取，通常在文件开头写上两行代码
 
+- 可以让`.py`文件直接在Unix/Linux/Mac上运行
+- 表示`.py`文件本身使用标准UTF-8编码
+
 ```bash
-#!/usr/bin/env python3
+#!/usr/bin/env python3 
 # -*- coding: utf-8 -*-
 ```
 
@@ -360,6 +366,8 @@ s = delimiter.join(t)	#用-拼接列表t中的元素
 ```
 
 ### len
+
+**python内置函数**
 
 - 计算`str`包含多少个字符
 - 计算`byte`包含多少个字节
@@ -653,13 +661,16 @@ s.remove(4)
 只要是非零数值，非空字符串，非空list等就判断为`True`
 
 ```python
-# 输出?
+# 输出ink
 if 2>4:
     print("Yes")
 elif 2==4:
     print("No")
 else:
-    print("?")
+    print("ink")
+
+# 一行赋值形式
+result = 'ink' if a >= b else 'yinke'
 ```
 
 
@@ -956,9 +967,14 @@ person('Jack', 24, job='Engineer')
 > 字符串`str`也可以看成是一种`list`，**每个元素就是一个字符**。因此字符串也可以用切片操作
 
 - 省略第一个索引n，切片将从列表头开始（第一个索引0也可以省略）
+
 - 倒数第一个元素的索引是`-1`，省略第二个索引m，切片将到列表尾结束
+
 - 两个索引n和m都省略就是操作整个`list`或`turple`
-- `[n:m:l]`：可以间隔切片，l是间隔距离（每l个取一个）
+
+- `[n:m:l]`：可以间隔切片，l是间隔距离（每l个取一个），**当l步长为负数时，表示倒序**（此时n要大于m）
+
+  > [::-1]切片：从列表最后一位开始，步长为-1，即从[-1]开始，索引值每次累加-1，累加值为-`len()`时结束
 
 ```python
 L = [0,1,2,3,4,5,6,7,8,9,10]
@@ -981,7 +997,20 @@ L[-2:-1]
 L[:10:2]
 
 # 所有数,从第一个数开始,每5个取一个[1, 6]
-L[::5]		
+L[::5]	
+
+# 倒序
+# [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+L[::-1]
+
+# [10, 7, 4, 1]
+L[::-3]
+
+# [6, 5, 4, 3]
+L[6:2:-1]
+
+# []
+L[2:6:-1]
 ```
 
 
@@ -1257,90 +1286,116 @@ isinstance(iter('abc'), Iterator)
 
 # 函数式编程
 
+函数式编程就是一种抽象程度很高的编程范式
+
+纯粹的函数式编程语言编写的函数没有变量，因此任意一个函数只要输入是确定的，输出就是确定的，这种纯函数称之为没有副作用。
+
+函数式编程的一个特点就是允许把函数本身作为参数传入另一个函数，还允许返回一个函数。
+
+> python对函数式编程提供部分支持。由于python允许使用变量，因此python不是纯函数式编程语言
+
 ## 高阶函数
 
 ### Map
 
-`map()`函数接收两个参数，一个是函数，一个是可迭代对象`Iterable`。
-`map()`将传入的函数**依次作用到序列的每个元素**，并把结果作为新的迭代器`Iterator`返回。
+`map()`接收两个参数，一个是函数，一个是可迭代对象`Iterable`
+`map()`将传入的函数**依次作用到序列的每个元素**，并把结果作为新的迭代器`Iterator`返回
 
 ```python
->>> def f(x):
-...     return x * x
-...
->>> r = map(f, [1, 2, 3, 4, 5, 6, 7, 8, 9])
->>> list(r)
-[1, 4, 9, 16, 25, 36, 49, 64, 81]
+# r = [1, 4, 9, 16, 25, 36, 49, 64, 81]
+def f(x):
+    return x * x
+r = map(f, [1, 2, 3, 4, 5, 6, 7, 8, 9])
+list(r)
 ```
-
-
 
 ### Reduce
 
-**from functools import reduce**
+`reduce()`接收两个参数，一个是函数，一个是可迭代对象`Iterable`
 
-`reduce()`把一个函数作用在一个序列`[x1, x2, x3, ...]`上，这个函数必须接收两个参数（本次运算的结果和序列的下一个元素）来计算累积结果。（`map()`是单独作用在每一个元素上）
+`reduce()`将传入的函数作用在一个序列上来计算累积结果
 
-```python
-reduce(f, [x1, x2, x3, x4]) = f(f(f(x1, x2), x3), x4)
-```
-
-**举例**：
-
-把`str`转换为`int`的函数
+> 函数将一个数据集合（链表，元组等）中的所有数据进行下列操作：用传给reduce中的函数 function（有两个参数）先对集合中的第 1、2 个元素进行操作，得到的结果再与第三个数据用function函数运算，最后得到一个结果
 
 ```python
->>> from functools import reduce
->>> def fn(x, y):
-...     return x * 10 + y
-...
->>> def char2num(s):
-...     digits = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9}
-...     return digits[s]		#返回key对应的value
-...
->>> reduce(fn, map(char2num, '13579'))
-13579
+# reduce(f, [x1,x2,x3,x4]) = f(f(f(x1,x2),x3),x4)
+from functools import reduce
+
+def f(x,y):
+    return x * y
+# S = 24
+s = reduce(f, [1,2,3,4])
+
+# 把str转换为int
+def fn(x, y):
+    return x * 10 + y
+
+def char2num(s):
+    digits = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9}
+    # 返回key对应的value
+    return digits[s]
+
+# 输出13579
+reduce(fn, map(char2num, '13579'))
 ```
 
 ### Filter
 
-`filter()`是一个“筛选”函数，用于过滤序列。
+`filter()`是一个**筛选**函数
 
-`filter()`接收一个函数和一个序列。把**传入的函数**依次作用于**每个元素**，然后根据**返回值**是`True`还是`False`决定保留还是丢弃该元素。
+`filter()`接收一个函数和一个序列
 
-在一个`list`中删掉偶数只保留奇数
+`filter()`把传入的函数**依次作用于序列的每个元素**，然后根据**返回值**是`True`还是`False`决定保留还是丢弃该元素
+
+`filter()`函数返回的是一个迭代器`Iterator`，也就是一个惰性序列（仅仅在迭代至某个元素时才计算该元素），所以要强迫`filter()`完成计算结果需要用`list()`函数获得所有结果并返回`list`
 
 ```python
+# 删掉list中的偶数
 def is_odd(n):
     return n % 2 == 1
 
-list(filter(is_odd, [1, 2, 4, 5, 6, 9, 10, 15]))		# 结果: [1, 5, 9, 15]
+# [1, 5, 9, 15]
+list(filter(is_odd, [1, 2, 4, 5, 6, 9, 10, 15]))	
 ```
 
-`filter()`函数返回的是一个迭代器`Iterator`，也就是一个惰性序列（仅仅在迭代至某个元素时才计算该元素），所以要强迫`filter()`完成计算结果需要用`list()`函数获得所有结果并返回`list`。
 
 
+素数
+
+> `Iterator`是惰性计算的序列，所以可以用Python表示**全体自然数，全体素数**这样的序列
+>
+> 关键字`lambda`表示匿名函数，冒号前面的`x`表示函数参数
 
 ```python
-def _odd_iter():							# 构造一个从3开始的奇数序列	
+# 生成器,构造一个从3开始的无限奇数序列	
+def _odd_iter():							
     n = 1					
     while True:
         n = n + 2
-        yield n								# 惰性,返回3,调用next()才会继续算n+2,返回5
+        # 惰性,返回3停止,调用next()才会继续算n+2
+        yield n								
 
-def _not_divisible(n):						# 筛选函数,
-    return lambda x: x % n > 0				# lambda可以理解为一个函数生成器,返回的是一个函数
-											# :之前的是输入, :之后的是输出
-						
-def primes():	
-    yield 2									# 生成器
-    it = _odd_iter()						# 初始序列从1，3开始，后面的到next()调用再计算
+# 筛选函数
+def _not_divisible(n):			
+    # lambda可以理解为一个函数生成器,返回的是一个函数
+    # :之前的是输入, :之后的是输出
+    return lambda x: x % n > 0				
+											
+# 生成器,生成素数列表			
+def primes():
+    # 第一个素数2
+    yield 2					
+    # 生成generator对象,序列从3开始，后面的到next()调用再计算
+    it = _odd_iter()						
     while True:
-        n = next(it) 						# 返回序列的第一个数
+        # 返回序列的第一个数
+        n = next(it) 						
         yield n
-        it = filter(_not_divisible(n), it) 	# 利用filter()不断产生筛选后的新的序列。
+        # 利用filter()不断产生筛选后的新的序列
+        it = filter(_not_divisible(n), it) 	
 
-for n in primes():							# 打印1000以内的素数:
+# 打印1000以内的素数
+for n in primes():							
     if n < 1000:
         print(n)
     else:
@@ -1351,134 +1406,487 @@ for n in primes():							# 打印1000以内的素数:
 
 ### Sorted
 
-两个字符串或者`dict`直接比较数学上的大小是没有意义的，比较的过程必须通过函数抽象出来。
+两个字符串或者`dict`的比较必须通过函数
 
-`sorted()`函数是一个**升序**排序函数，它还可以接收一个`key`函数来实现自定义的排序,`key`指定的函数将作用于`list`的每一个元素上，并根据`key`函数返回的结果进行排序。
+`sorted()`函数是一个**升序**排序函数
 
-```python
->>> sorted([36, 5, -12, 9, -21], key=abs)	# 按绝对值大小排序
-[5, 9, -12, -21, 36]						# key是作用于每一个元素上面！
-```
-
-
-
-默认情况下对字符串排序是按照ASCII的大小比较的，由于`'Z' < 'a'`，大写字母`Z`会排在小写字母`a`的前面。
+- 它可以接收一个`key`函数来实现自定义的排序，`key`指定的函数**作用于每一个元素上**，并根据`key`函数返回的结果进行排序
+- 它可以接收第三个参数`reverse`，True时即是反向排序（不用修改key）
+- 字符串排序默认情况下按照ASCII的大小进行比较
 
 ```python
->>> sorted(['bob', 'about', 'Zoo', 'Credit'])
-['Credit', 'Zoo', 'about', 'bob']
-```
+# 按绝对值大小排序,[5, 9, -12, -21, 36]
+sorted([36, 5, -12, 9, -21], key=abs)	
 
+# ['Credit', 'Zoo', 'about', 'bob']
+sorted(['bob', 'about', 'Zoo', 'Credit'])
 
-
-进行反向排序，不必改动`key`函数，可以传入第三个参数`reverse` = True
-
-```python
->>> sorted(['bob', 'about', 'Zoo', 'Credit'], key=str.lower, reverse=True)
-['Zoo', 'Credit', 'bob', 'about']
+# ['Zoo', 'Credit', 'bob', 'about']
+sorted(['bob', 'about', 'Zoo', 'Credit'], key=str.lower, reverse=True)
 ```
 
 
 
 ## 返回函数
 
-### 嵌套函数（Nested Function）
+高阶函数除了可以接受函数作为参数外，还可以把函数作为结果值返回，返回的函数并不会立刻执行
 
-函数可以做参数外，还可以作为结果返回。#返回的函数并不会立刻执行
+**嵌套函数（Nested Function）**
+
+> 调用`lazy_sum()`时每次调用都会返回一个新的函数（即使传入相同的参数）
+>
+> 在函数`lazy_sum`中又定义了函数`sum`，内部函数`sum`可以引用外部函数`lazy_sum`的参数和局部变量，当`lazy_sum`返回函数`sum`时，**相关参数和变量都保存在返回的函数中**，称为**闭包**（Closure）
 
 ```python
-def lazy_sum(*args):			# *可变参数，传入的多个参数组装成一个tuple()
-    def sum():					# 在外部函数lazy_sum中又定义了内部函数sum
-        ax = 0					# 内部函数sum可以引用外部函数lazy_sum的参数args和局部变量
+# *可变参数，传入的多个参数组装成一个tuple
+def lazy_sum(*args):
+    # 在外部函数lazy_sum中定义内部函数sum
+    # 内部函数sum可以引用外部函数lazy_sum的参数args和局部变量
+    def sum():					
+        ax = 0					
         for n in args:
             ax = ax + n
         return ax
-    return sum					# 返回函数sum
->>> f = lazy_sum(1, 3, 5, 7, 9)	# 当我们调用lazy_sum()时返回的并不是求和结果而是函数sum
->>> f()							# 调用函数f()时才真正计算求和的结果
-25
+    # 返回函数sum
+    return sum					
+
+# 调用lazy_sum()时返回的是函数sum
+f = lazy_sum(1, 3, 5, 7, 9)
+
+# 调用函数f()时才真正计算求和的结果25
+f()							
+
+# f1()和f2()的调用结果互不影响。
+f1 = lazy_sum(1, 3, 5, 7, 9)
+f2 = lazy_sum(1, 3, 5, 7, 9)
+
+# False	
+f1 == f2		
 ```
 
 
 
-```python
+## 闭包
 
-```
+闭包`Closure`是词法闭包`Lexical Closure`的简称，**是引用了自由变量的函数**
 
-**注意**：
-
-当我们调用`lazy_sum()`时，每次调用都会返回一个新的函数，即使传入相同的参数，
-
-```python
->>> f1 = lazy_sum(1, 3, 5, 7, 9)
->>> f2 = lazy_sum(1, 3, 5, 7, 9)
->>> f1 == f2		# f1()和f2()的调用结果互不影响。
-False	
-```
+这个**被引用的自由变量将和这个函数一同存在**，即使已经离开了创造它的环境（返回的内部函数在其定义内部引用了外部函数的局部变量)，闭包使得局部变量在函数外被访问成为可能
 
 
 
-### 闭包（Closure）
-
-闭包`Closure`是词法闭包`Lexical Closure`的简称，是引用了自由变量的函数。这个被引用的自由变量将和这个函数一同存在，即使已经离开了创造它的环境也不例外(返回的内部函数在其定义内部引用了外部函数的局部变量。)，闭包使得局部变量在函数外被访问成为可能。
-
-闭包就像一个封闭的包裹，里面包裹着自由变量，就像在类里面定义的属性值一样，自由变量的可见范围随同包裹，哪里可以访问到这个包裹，哪里就可以访问到这个自由变量。
-
-返回闭包时牢记：**返回函数不要引用任何循环变量或者后续会发生变化的变量**
+返回闭包时：**返回函数不要引用任何循环变量或者后续会发生变化的变量**
 
 ```python
 def count():
     fs = []
     for i in range(1, 4):
-        def f():			# 每次循环，都创建了一个新的函数
-             return i*i		# 使用了外部变量i
+        # 每次循环，都创建了一个新的函数
+        def f():		
+             # 使用了外部变量i
+             return i*i		
         fs.append(f)		
     return fs				
 
+# 返回的函数引用了变量i，但它并非立刻执行,等到3个函数都返回时,变量i已经变成了3,所以都是9
 f1, f2, f3 = count()		
->>> f1()					# 返回的函数引用了变量i，但它并非立刻执行
-9							# 等到3个函数都返回时，它们所引用的变量i已经变成了3
->>> f2()					# 所以都是9
-9
->>> f3()
-9							
+
+# 9
+f1()					
+# 9							
+f2()					
+# 9
+f3()							
 ```
 
-
-
-如果要引用循环变量，就要再创建一个函数，用该函数的参数绑定循环变量当前的值，无论该循环变量后续如何更改，已绑定到函数参数的值不变。
+如果要引用循环变量，就要再创建一个函数。用该函数的参数绑定循环变量当前值，无论该循环变量后续如何更改，已绑定到函数参数的值不变
 
 ```python
 def count():
-    def f(j):				# 用参数j绑定循环变量i
+    # 用参数j绑定循环变量i
+    def f(j):				
         def g():
             return j*j
         return g
     fs = []
     for i in range(1, 4):
-        fs.append(f(i)) 	# f(i)立刻被执行，因此i的当前值被传入f()
+        # f(i)立刻执行，因此i的当前值被传入f()
+        fs.append(f(i)) 	
     return fs
+
+f1, f2, f3 = count()
+# 1
+f1()
+
+# 4
+f2()
+
+# 9
+f3()
 ```
 
 
 
 ## 匿名函数
 
-有时传入函数不需要显式地定义函数，直接传入匿名函数会更方便。
+有时传入函数不需要显式地定义函数，直接传入匿名函数会更方便
 
-匿名函数有个好处，因为函数没有名字，不必担心函数名冲突。此外，匿名函数也是一个函数对象，也可以把匿名函数赋值给一个变量，再利用变量来调用该函数
+**限制**：
+
+只能有一个表达式，不用写`return`，返回值就是该表达式的结果
+
+**优点**：
+
+- 因为函数没有名字所以不必担心函数名冲突
+- 匿名函数也是一个函数对象，也可以把匿名函数赋值给一个变量，再利用变量来调用该函数
+
+```python
+# [1, 4, 9, 16, 25, 36, 49, 64, 81]
+list(map(lambda x: x * x, [1, 2, 3, 4, 5, 6, 7, 8, 9]))
+
+# 关键字lambda表示匿名函数，冒号前面的x表示函数参数
+# 相当于
+def f(x):
+    return x * x
 
 
-
-
-
-
+f = lambda x: x * x
+# 25
+f(5)
+```
 
 
 
 ## 装饰器
 
+在代码运行期间动态增加功能的方式称之为**装饰器**Decorator
+
+> 本质上Decorator是一个返回函数的高阶函数
+
+- 函数也是一个对象，而且函数对象可以被赋值给变量，所以通过变量也能调用函数
+- 函数对象有一个`__name__`属性，可以获取函数的名字
+
+```python
+def now():
+    print('2015-3-25')
+# 赋值
+f = now
+
+# 2015-3-25
+f()
+
+# now
+print(now.__name__)
+
+# now
+print(f.__name__)
+```
+
+`log()`返回一个函数，所以原来的`now()`函数仍然存在，只是现在同名的`now`变量指向了新的函数，所以调用`now()`将执行新函数，即在`log()`函数中返回的`wrapper()`函数
+
+`wrapper()`函数的参数定义是`(*args, **kw)`，因此`wrapper()`函数可以接受任意参数的调用。在`wrapper()`函数内，首先打印日志，再紧接着调用原始函数
+
+```python
+# log是一个decorator,接受一个函数作为参数并返回一个函数
+def log(func):
+    def wrapper(*args, **kw):
+        print('call %s():' % func.__name__)
+        return func(*args, **kw)
+    return wrapper
+
+# 相当于now = log(now)
+@log
+def now():
+    print('2015-3-25')
+    
+# call now():
+# 2015-3-25
+now()
+```
+
+
+
 ## 偏函数
 
+`functools.partial`
 
+把一个函数的某些参数固定（也就是设置默认值），返回一个新的函数
+
+
+
+# 模块
+
+**Module**
+
+在python中一个`.py`文件就称之为一个**模块**
+
+使用模块可以避免函数名和变量名冲突，相同名字的函数和变量可以分别存在不同的模块中，因此在编写模块时不必考虑名字会与其他模块冲突
+
+模块名不要和python自带的模块名称冲突
+
+> 检查方法：在python交互环境执行`import 模块名`，成功则说明系统存在此模块
+
+**Package**
+
+pythonz中引入了**按目录来组织模块**的方法避免模块名冲突，称为**包**
+
+只要模块所在的包名不冲突，那包下所有模块都不会冲突（相当于 **包名.模块名**）
+
+每一个包目录下面都会有一个`__init__.py`文件，这个文件是必须存在的，否则python就把这个目录当成普通目录，而不是一个包。
+
+`__init__.py`可以是空文件，也可以有python代码，因为`__init__.py`本身就是一个模块，它的模块名就是包名
+
+
+
+## 作用域
+
+python通过`_`**前缀**来实现变量和函数的作用域
+
+- 正常的函数和变量名是**公开的**（public），可以被直接引用
+- `_xxx`和`__xxx`这类的函数和变量是**非公开的**（private），不应该被直接引用
+- `__xxx__`这类的变量是**特殊变量**，可以被直接引用，但是有特殊用途（比如`__name__`就是特殊变量），自己的变量一般不要用这种变量名
+
+> private函数和变量**不应该被直接引用**，而不是**不能被直接引用**。因为python并没有方法完全限制访问private函数或变量。从编程习惯上不应该引用private函数或变量
+>
+> 外部不需要引用的函数全部定义成private，外部需要引用的函数定义为public
+
+
+
+## 第三方模块
+
+在python中安装第三方模块：通过包管理工具`pip`完成
+
+**Anaconda**
+
+一个基于Python的数据处理和科学计算平台，内置了许多非常有用的第三方库
+
+Anaconda会把系统Path中的python指向自己自带的Python
+
+Anaconda安装的第三方模块会安装在Anaconda自己的路径下，不影响系统已安装的Python目录
+
+## 模块使用
+
+**标准文件模板**
+
+1. `#!/usr/bin/env python3`：让`.py`文件直接在Unix/Linux/Mac上运行
+2. `# -*- coding: utf-8 -*-`：表示`.py`文件本身使用标准UTF-8编码
+3. 模块代码的**第一个字符串**都被视为模块的文档注释
+4. `__author__`变量可以表明作者
+
+**导入模块**
+
+导入`sys`模块后就有了变量`sys`指向该模块，利用`sys`这个变量就可以访问`sys`模块的所有功能
+
+```python
+import sys
+```
+
+在**命令行运行**`.py`模块文件时，Python解释器把特殊变量`__name__`置为`__main__`，而如果在其他地方导入该模块时，`if`判断将失败
+
+因此这种`if`测试可以让一个模块通过**命令行运行**时执行一些额外的代码，最常见的就是运行测试
+
+```
+if __name__=='__main__':
+    test()
+```
+
+**模块搜索路径**
+
+当试图加载一个模块时，python会在**指定的路径**下搜索对应的`.py`文件，如果找不到就会报错
+
+> 默认情况下python解释器会搜索**当前目录**、**所有已安装的内置模块**和**第三方模块**，搜索路径存放在`sys`模块的`path`变量中
+
+手动添加搜索路径（目录）有两种方法
+
+- 直接修改`sys.path`，添加要搜索的目录
+
+  > 在运行时修改，运行结束后失效
+
+  ```python
+  import sys
+  sys.path.append('/Users/michael/my_py_scripts')
+  ```
+
+- 设置环境变量`PYTHONPATH`，该环境变量的内容会被自动添加到模块搜索路径中
+
+  > 设置方式与设置Path环境变量类似，只需要添加自己的搜索路径，python本身的搜索路径不受影响
+
+
+
+# 面向对象
+
+面向对象编程`Object Oriented Programming`（OOP）
+
+是一种程序设计思想，OOP把对象作为程序的基本单元，一个对象包含了数据和操作数据的函数
+
+**面向对象的三大特点**
+
+- 封装
+- 继承
+- 多态
+
+> python中所有数据类型都可以视为对象
+
+
+
+## 类和实例
+
+1. 在python中通过`class`关键字定义类
+2. `(object)`表示该类是从哪个类继承下来的，如果没有合适的继承类就使用`object`类（所有类最终都会继承的类）
+3. `__init__`方法的第一个参数永远是`self`，表示创建的实例本身，所以在`__init__`方法内部就可以把各种属性绑定到实例上，即`self`
+4. 有了`__init__`方法，在创建实例的时候就不能传入空的参数，必须传入与`__init__`方法匹配的参数，不需要传`self`，python解释器自己会把实例变量传进去
+5. python是动态语言，允许对实例变量绑定任何数据，也就是说同一个类的不同实例变量可以拥有的不同的变量名称
+6. `isinstance()`可以判断实例是否是某个类的实例
+
+```python
+class Student(object):
+	
+    # 创建实例的时候绑定name，score属性
+    def __init__(self, name, score):
+        self.name = name
+        self.score = score
+
+    def print_score(self):
+        print('%s: %s' % (self.name, self.score))
+
+# 变量bart指向的就是一个Student的实例        
+bart = Student('Bart Simpson', 59)
+lisa = Student('Lisa Simpson', 87)
+bart.print_score()
+lisa.print_score()
+
+bart.age = 8
+# 8
+bart.age
+# Traceback (most recent call last):
+#   File "<stdin>", line 1, in <module>
+# AttributeError: 'Student' object has no attribute 'age'
+lisa.age
+```
+
+## 访问限制
+
+**让外部代码不能随意修改对象内部的状态**
+
+如果要让内部属性不被外部访问，可以把**属性的名称前**加上两个下划线`__`。在python中实例的变量名如果以`__`开头就是一个**私有变量**（private），只有内部可以访问，外部不能访问
+
+> 注意不要和特殊变量（`__xxx__`）混淆
+>
+> 双下划线开头的实例变量不是一定不能从外部访问。不能从外部直接访问`__name`是因为python解释器对外把`__name`变量改成了`_Student__name`，所以可以通过`_Student__name`来访问`__name`变量
+>
+> 不同版本的python解释器可能会把`__name`改成不同的变量名
+>
+> 所以外部即使设置同名变量也不是内部的变量，而是新增了一个变量
+
+```python
+class Student(object):
+
+    def __init__(self, name, score):
+        # name,score是私有变量,无法从外部访问
+        self.__name = name
+        self.__score = score
+
+    def print_score(self):
+        print('%s: %s' % (self.__name, self.__score))
+```
+
+
+
+## 继承和多态
+
+没有继承就写`(object)`
+
+当子类和父类都存在相同的方法时，子类的方法会覆盖了父类的方法（在代码运行的时候总会调用子类的方法）
+
+在继承关系中如果一个实例的数据类型是某个子类，那它的数据类型也可以被看做是父类，反过来不行
+
+```python
+class Animal(object):
+    def run(self):
+        print('Animal is running...')
+
+# 继承Animal类
+class Dog(Animal):
+    pass
+
+class Cat(Animal):
+    pass
+
+# a是Animal类型
+a = Animal() 
+# b是Dog类型
+b = Dog() 
+
+# True
+isinstance(a, Animal)
+# True
+isinstance(b, Dog)
+# False
+isinstance(a, Dog)
+```
+
+> **静态语言 vs 动态语言**
+>
+> 对于静态语言（例如Java）来说，如果需要传入`Animal`类型，则传入的对象必须是`Animal`类型或者它的子类，否则无法调用`run()`方法
+>
+> 对于python这样的动态语言来说，则不一定需要传入`Animal`类型，只需要保证传入的对象有一个`run()`方法就可以了（`file-like object`）
+
+
+
+## 对象信息
+
+**对象类型**
+
+- `type()`：判断对象类型（变量指向函数或者类也可以判断）
+- `type()`函数返回对应的Class类型
+- 使用`types`模块中定义的常量判断一个对象是否是函数
+  - FunctionType
+  - BuiltinFunctionType
+  - LambdaType
+- `isinstance()`：判断有继承关系的class类型（父继承链）
+
+> 优先使用isinstance()判断类型
+
+```python
+# int
+type(123)
+
+# str
+type('str')
+
+# NoneType
+type(None)
+
+# builtin_function_or_method
+type(abs)
+
+# True
+type(123)==type(456)
+
+# True
+>>> type(123)==int
+
+# True
+>>> type('abc')==type('123')
+
+# True
+>>> type('abc')==str
+
+# False
+>>> type('abc')==type(123)
+```
+
+**对象属性和方法**
+
+`dir()`：返回一个包含**对象的所有属性和方法**的list
+
+> 如果试图获取不存在的属性会抛出AttributeError的错误
+
+## 实例属性和类属性
+
+python是动态语言，根据类创建的实例可以**任意绑定属性**
+
+通过实例变量或者`self`变量给实例绑定属性。**相同名称的实例属性将屏蔽掉类属性**，当删除实例属性后再使用相同的名称访问到的将是类属性
+
+- 实例属性属于各个实例所有，互不干扰
+- 类属性属于类所有，所有实例共享
 

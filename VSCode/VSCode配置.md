@@ -1,6 +1,7 @@
 # 中文
 
-快捷键`Ctrl + Shift + P`打开搜索栏，输入`configure language`在语言配置文件中将en-us修改成zh-cn，保存重启
+- 快捷键`Ctrl + Shift + P`打开搜索栏，输入`configure language`在语言配置文件中将en-us修改成zh-cn，保存重启
+- 安装中文插件`Chinese`
 
 # 设置
 
@@ -74,16 +75,50 @@ VSCode设置默认为UI的设置，可以通过文件-首选项-设置-搜索`wo
 在不同的设备间同步VSCode设置需要用到Token和Gist id
 
 - Token：把插件上传到github上时保存的一段字符
+
+  > Tokens you have generated that can be used to access the GitHub API
+
 - Gist id：在上传设置的电脑上保存
 
-
+**上传配置步骤**
 
 1. 在扩展商店中安装`Settings Sync`
+
 2. 创建GitHub token：
-   1. Github-Settings-Developer settings-Personal access tokens-generate new token
-   2. 输入token名，勾选Gist提交
-3. 创建Gist id：Github-Your gists
-4. 上传配置：在VSCode中按`Ctrl+Shift+P`打开命令框，输入sync-选择高级设置-编辑本地扩展设置-编辑token
-5. Ctrl+Shift+P打开命令框-输入sync-update/upload settings，上传成功后会返回Gist ID，保存Gist ID.
-6. 在 VSCode 里，依次打开: 文件 -> 首选项 -> 设置，然后输入 Sync 进行搜索:能找到你gist id
+   1. 打开Github-`Settings`-`Developer settings`-`Personal access tokens`-`generate new token`
+   
+   2. 在Note中输入token名，勾选`gist`提交
+   
+   3. 显示tokens
+   
+      ```bash
+      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
+      ```
+   
+3. 在VSCode中按`Ctrl+Shift+P`打开命令框，输入sync-高级选项-编辑本地扩展设置：编辑token
+
+4. 在VSCode中按`Ctrl+Shift+P`打开命令框，输入sync-高级选项-打开设置：可以查看Gist ID
+
+5. 在VSCode中按`Ctrl+Shift+P`打开命令框，输入sync-高级选项-打开设置，用tokens生成Gist ID：将tokens输入到获取令牌中
+
+6. 在VSCode中按`Ctrl+Shift+P`打开命令框，输入sync-`update/upload settings`，上传成功后会返回Gist ID，保存Gist ID
+
+   > 可根据步骤4中查看
+
+   ```bash
+   827945d088cc7c81e0105d490213060f
+   ```
+
+7. 打开Github-`Your gists`：可以查看同步设置
+
+
+
+**下载配置步骤**
+
+1. 在VSCode扩展商店中搜索`Settings Sync`并安装，重启
+2. 在VSCode中按`Ctrl+Shift+P`打开命令框，输入sync-`update/upload settings`
+3. 跳转到sync扩展的配置页面，点击`LOGIN WITH GITHUB`跳转至GitHub登录授权页，同意授权
+4. 授权后回到VSCode，选择跟之前生成的令牌（token）对应的选项
+
+
 

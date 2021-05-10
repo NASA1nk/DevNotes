@@ -673,19 +673,72 @@ WSL不是虚拟机而是子系统，是Windows的一部分，并不像虚拟机�
 
 ## 安装
 
-1. **启用或关闭Windows功能**
+1. 启用适用于Linux的Windows子系统：
 
-   在搜索栏中搜索并打开“启用或关闭Windows功能”，勾选“适用于Linux的Windows子系统”项。只有开启这项设置才能正常安装WSL。重启即可，注意保存状态
+   1. 使用管理员身份打开 PowerShell，执行以下命令：
 
-2. **安装WSL**
+      ```bash
+      dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+      ```
 
-   在微软应用商店搜索Linux，根据自己需要选择适合自己的发行版，这里选用 Ubuntu 18.04 LTS
+   2. 或者在搜索栏中搜索并打开**启用或关闭Windows功能**，勾选**适用于Linux的Windows子系统**项
+
+   3. 重启
+
+2. 检查运行 WSL 2 的要求
+
+   安装WSL2，对不同架构的 CPU有不同的 Win10版本要求，需要确保Win10版本号为 2004（内部版本19041或更高）即可。
+
+   使用 `win + r` 输入 `winver` 可快速查看 Windows 版本。如果Win10版本号低于 2004，可使用Windows 10易升工具手动升级。下载 Windows 10 易升工具，下载后运行等待完成升级即可
+
+   ```bash
+   https://www.microsoft.com/zh-cn/software-download/windows10
+   ```
+
+3. 启用虚拟机功能
+
+   以管理员身份打开 PowerShell 并运行：
+
+   ```bash
+   dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+   ```
+
+4. 下载 Linux 内核更新包并运行
+
+   > 提示：WSL 2 需要更新其内核组件。有关信息，请访问 https://aka.ms/wsl2kernel
+
+5. 将WSL2设置为默认版本
+
+   ```bash
+   wsl --set-default-version 2
+   ```
+
+6. 在微软应用商店搜索Linux，选择合适的发行版，这里选用Ubuntu 18.04 LTS
+
+7. 启动Ubuntu 18.04 LTS，创建用户名及密码
+
+8. 验证：查看WSL版本，确保WSL的版本为 2.0
+
+   ```bash
+   $ wsl -l -v
+   ```
+   
+9. 设置WSL的默认版本
+
+   ```bash
+   wsl --set-version Ubuntu-18.04 2
+   ```
+
+
 
 ## 账号
 
 Ubuntu 18.04 LTS
 
 ```sh
+# 用户:ink
+# 密码:空格
+
 #给root设置密码
 su passwd root
 
@@ -706,9 +759,117 @@ su root
    C:\Users\用户\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\LocalState\rootfs
    ```
 
-   
 
 
+
+# WindowsTerminal
+
+## 设置默认Ubuntu
+
+点击标签右边的下拉三角-选择设置-打开JSON 配置文件-在`profiles`-`list`中找到Ubuntu的guid复制-粘贴到文件开头的 `defaultProfile` 的值
+
+
+
+## **安装oh-my-zsh**
+
+在Ubuntu中安装一些额外的字体来支持oh-my-zsh显示特殊的符号
+
+安装git
+
+```bash
+sudo apt-get install git
+# 验证
+git --version
+
+git config --global user.name "ink"
+git config --global user.email "541640794@qq.com"
+# 查看
+git config --list
+```
+
+打开PowerShell，依次执行如下命令安装Powerline字体集合
+
+```bash
+git clone https://github.com/powerline/fonts.git
+cd fonts
+.\install.ps1
+```
+
+接着安装zsh：
+
+```bash
+sudo apt update
+sudo apt install git zsh -y
+
+#查看是否已安装了zsh
+zsh --version
+```
+
+再安装oh-my-zsh：
+
+```bash
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+
+安装完oh-my-zsh 后，配置 zsh，将主题设置为 `agnoster`：
+
+```bash
+# 配置 zsh
+vim ~/.zshrc
+# 修改ZSH_THEME
+```
+
+打开 WindowsTerminal 的JSON配置文件，在 `schemes` 中添加一个主题（主题名随意） 这里为`inswsl2`，并把字体改为一个 Powerline 字体：
+
+```json
+"schemes": [
+    {
+        "name" : "inkwsl2",
+        "background" : "#002B36",
+        "black" : "#002B36",
+        "blue" : "#268BD2",
+        "brightBlack" : "#657B83",
+        "brightBlue" : "#839496",
+        "brightCyan" : "#D33682",
+        "brightGreen" : "#B58900",
+        "brightPurple" : "#EEE8D5",
+        "brightRed" : "#CB4B16",
+        "brightWhite" : "#FDF6E3",
+        "brightYellow" : "#586E75",
+        "cyan" : "#2AA198",
+        "foreground" : "#93A1A1",
+        "green" : "#859900",
+        "purple" : "#6C71C4",
+        "red" : "#DC322F",
+        "white" : "#93A1A1",
+        "yellow" : "#B58900"
+    }
+],
+```
+
+然后在该JSON文件中把 wsl 终端的主题设置为该 `inkwsl2` 主题，并把字体改为喜欢的一个 Powerline 字体：
+
+```json
+            {
+                "guid": "{c6eaf9f4-32a7-5fdc-b5cf-066e8a4b1e40}",
+                "hidden": false,
+                "name": "Ubuntu-18.04",
+                "colorScheme": "inkwsl2",
+                "source": "Windows.Terminal.Wsl",
+                "fontFace": "DejaVu Sans Mono for Powerline"
+            },
+```
+
+再做一点美化：把命令行的机器名称去掉，并调整用户名的背景色。编辑 agnoster 主题文件：
+
+显示行号：按esc按`:`输入`set nu`
+
+```bash
+vi ~/.oh-my-zsh/themes/agnoster.zsh-theme
+
+# 把 92 行修改为
+prompt_segment green black "%(!.%{%F{yellow}%}.)%n"
+```
 
 
 

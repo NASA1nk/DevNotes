@@ -641,7 +641,7 @@ https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
 EOF
 ```
 
-## 安装k8s工具
+## 安装k8s组件
 
 - kubeadm
 - kubectl
@@ -736,6 +736,20 @@ kubectl get pods -n kube-system
 
 [K8S应用FLANNEL失败解决INIT:IMAGEPULLBACKOFF](https://www.cnblogs.com/pyxuexi/p/14288591.html)
 
+## 测试k8s集群
+
+在Kubernetes集群中创建一个pod验证是否正常运行
+
+```bash
+kubectl create deployment nginx --image=nginx
+kubectl expose deployment nginx --port=80 --type=NodePort
+kubectl get pod,svc
+```
+
+访问：http://192.168.192.32:30561  
+
+![验证](Kubernetes.assets/验证.png)
+
 
 
 # 部署k8s集群3
@@ -775,4 +789,46 @@ kubectl cluster-info
 
 
 ## Google Kubernetes Engine
+
+
+
+# YAML
+
+k8s集群中对资源管理和资源对象编排部署都可以通过声明样式（YAML）文件来解决，也就是可以把需要对资源对象操作编辑到YAML格式文件中，我们把这种文件叫做资源清单文件，通过kubectl命令直接使用资源清单文件就可以实现对大量的资源对象进行编排部署
+
+## 书写格式
+
+- YAML是一种标记语言。这种语言以数据做为中心，而不是以标记语言为重点
+- YAML是一个可读性高，用来表达数据序列的格式
+
+## 基本语法
+
+* 使用空格做为缩进
+* 缩进的空格数目不重要，只要相同层级的元素左侧对齐即可
+* 低版本缩进时不允许使用Tab键，只允许使用空格
+* 使用`#`标识注释，从这个字符一直到行尾，都会被解释器忽略
+
+## 数据结构
+
+对象：键值对集合
+
+- 映射（mapping）
+- 哈希（hashes）
+- 字典（dictionary）
+
+数组：一组按次序排列的值
+
+- 序列（sequence）
+- 列表（list）
+
+# kubectl
+
+- comand：指定对资源执行的操作，例如：`create`，`get`，`describe`和`delete`
+- type：指定资源类型（大小写敏感），可以是单数、复数和缩略的形式。例如：`pod`，`pods`和`po`
+- name：指定资源的名称（大小写敏感），省略名称会显示所有的资源。
+- flags：指定可选的参数。例如：用`-s`或者`–server`参数指定Kubernetes API server 的地址和端口
+
+```bash
+kubectl command type name flags
+```
 

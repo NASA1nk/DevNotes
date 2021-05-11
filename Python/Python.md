@@ -1830,7 +1830,7 @@ isinstance(a, Dog)
 >
 > 对于python这样的动态语言来说，则不一定需要传入`Animal`类型，只需要保证传入的对象有一个`run()`方法就可以了（`file-like object`）
 
-
+### 多重继承
 
 ## 对象信息
 
@@ -1898,7 +1898,7 @@ python是动态语言，根据类创建的实例可以**任意绑定属性**
 
 class绑定方法后所有实例均可调用
 
-### 限制绑定
+### slots
 
 `__slots__`
 
@@ -1910,5 +1910,43 @@ class绑定方法后所有实例均可调用
 class Student(object):
     # 用tuple定义允许绑定的属性
     __slots__ = ('name', 'age') 
+```
+
+### @property
+
+python内置的装饰器，用来把一个方法变成属性（属性的方法名不要和实例变量重名）
+
+把方法变成属性只需要在方法上加`@property`
+
+> 用方法设置属性可以保证对参数进行必要的检查
+
+```python
+class Student(object):
+
+    @property
+    def score(self):
+        return self._score
+	
+    # @property本身又创建了另一个装饰器@score.setter,负责把一个setter方法变成属性赋值
+    @score.setter
+    def score(self, value):
+        if not isinstance(value, int):
+            raise ValueError('score must be an integer!')
+        if value < 0 or value > 100:
+            raise ValueError('score must between 0 ~ 100!')
+        self._score = value
+
+s = Student()
+
+# 实际转化为s.set_score(60)
+s.score = 60 
+
+# 实际转化为s.get_score(),输出60
+s.score 
+
+# Traceback (most recent call last):
+#   ...
+# ValueError: score must between 0 ~ 100!
+s.score = 9999
 ```
 

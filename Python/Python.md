@@ -2817,7 +2817,7 @@ if __name__=='__main__':
 - python的线程是真正的`Posix Thread`，而不是模拟出来的线程
 - python标准库提供了两个模块：绝大多数情况下只需要使用`threading`高级模块
 - - `_thread`：低级模块
-  - ``threading`：高级模块，对`_thread`进行了封装
+  - `threading`：高级模块，对`_thread`进行了封装
 - 任何进程默认会启动一个主线程（`MainThread`），主线程可以启动新子线程（子线程的名字在创建时指定）
 - `threading`模块中的`current_thread()`函数会返回当前的线程实例
 

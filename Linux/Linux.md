@@ -619,25 +619,156 @@ sz filename
 
 
 
-# 连接服务器
+# 服务器
+
+## SSH
+
+`Secure Shell`（SSH）：是目前较可靠，专为远程登录会话和其他网络服务提供安全性的协议。
+
+通过 SSH Client 可以连接到安装运行了 SSH Server 的远程机器上
+
+
+
+**安装 SSH Server**（openssh-server）
+
+CentOS：
+
+- OpenSSH Server安装完成后在`/etc/init.d`目录下应该会增加一个名为sshd的服务
+- 配置信息保存目录：`/etc/ssh`
+- sshd服务配置文件：`/etc/ssh/sshd_config`
+
+> 通常Linux系统会默认安装openssh的客户端软件**openssh-client**，需要自己安装一下服务端
+
+```bash
+yum install openssh-server
+
+# 查看服务
+chkconfig --list sshd
+
+# 手动启动sshd服务
+/etc/init.d/sshd start
+```
+
+Ubuntu：
+
+```bash
+sudo apt-get install openssh-server
+
+# 开启openssh服务
+sudo /etc/init.d/ssh start
+
+# 验证
+ps -e | grep ssh
+```
+
+
+
+**SSH Client**：
+
+- `user` 是你在远程机器上的用户名，如果不指定的话默认为当前用户
+- `remote` 是远程机器的地址，可以是 IP，域名，或者是**别名**
+- `port` 是 SSH Server 监听的端口，如果不指定的话就为默认值 22
+
+> 执行了 `ssh` 命令之后远程机器会询问密码。输入密码时屏幕上不会显示明文密码，也不会显示 `******`，这样别人就看不到密码长度
+
+```bash
+ssh user@remote -p port
+```
+
+
+
+**SSH钥匙**（免密登录）
+
+生成SSH钥匙：在`/home/当前用户`目录下生成`.ssh`文件夹
+
+- 生成的公钥在 `~/.ssh/id_rsa.pub`
+- 生成的私钥在 `~/.ssh/id_rsa`
+
+> RSA密钥对也可以在服务器生成
+>
+> - 公钥在服务器端`~/ .ssh/authorized_key`
+> - 私钥在客户端`/home/当前用户/.ssh/id_rsa`
+
+```bash
+# 生成密钥对(-t表示类型选项，采用rsa加密算法)
+# 要求设置私钥口令passphrase,不设置则为空
+ssh-keygen -t rsa
+```
+
+将**公钥**复制到远程主机的 `~/ .ssh/authorized_key`目录下
+
+```bash
+ssh-copy-id -i .ssh/id_rsa.pub user@remote -p port
+```
+
+没有 `ssh-copy-id` 的情况（比如在 Windows 上）
+
+> 在远程主机新建 `.ssh` 文件夹，并把本地的 `~/.ssh/id_rsa.pub` （公钥）追加到远程主机的 `.ssh/authorized_keys` 中
+
+```bash
+ssh user@remote -p port 'mkdir -p .ssh && cat >> .ssh/authorized_keys' < ~/.ssh/id_rsa.pub
+```
+
+
+
+**配置别名**
+
+登录不用每次输ip
+
+```bash
+# 修改bashrc
+sudo vim ~/.bashrc
+# 在最下面附加 
+alias nlsde="ssh user@remote" 
+# 更新
+source ~/.bashrc
+```
+
+或者在 `~/.ssh/config` 里面追加内容，保存后即可用 `ssh nlsde` 登入
+
+```
+Host nlsde
+    HostName remote
+    User user
+    Port port
+```
+
+
 
 ## SSH连接
 
-```bash
-# 生成密钥对,(-t表示类型选项，采用rsa加密算法)
-ssh-keygen -t rsa
+**客户端和服务端建立连接**
 
-# 要求设置私钥口令 passphrase，不设置则为空
+1. 客户端联系服务端，双方沟通自己支持的SSH协议的版本，约定使用某个共同支持的版本
+2. 服务端将自己的`Host Key`，加密方法和其他一些参数发给客户端
+3. 客户端通过`Host Key`验证服务端身份，双方用服务端发来的参数和`Diffie-Hellman`算法生成`Session Key`
+4. 加密通道建立完成
 
-# 在/home/当前用户目录下生成一个.ssh文件夹
-# 其中包含 私钥文件 id_rsa 和公钥文件 id_rsa.pub
+Host Key 分为 Public 和 Private 两种。服务端拥有 Public Key 和 Private Key，并将 Public Key 发送给客户端。客户端用 Public Key 验证这台服务器确实是自己要连接的服务器后，双方使用 Diffie-Hellman 算法生成一致的 SessionKey
 
-# 将公钥复制到远程主机的 ~/ .ssh/authorized_key目录下
-ssh-copy-id -i .ssh/id_rsa.pub 用户名@ip
+Host Key 由 SSH 自行生成，不需要用户做什么。如果客户端通过 Host Key 发现从来没有连接过这台服务器，会询问用户是否要继续连接，用户同意连接后会在本地的 known_hosts 文件记录这台服务器，下次连接时客户端就不会再次询问
 
-# 连接登录
-ssh 用户名@ip
-```
+> 仅靠服务端下发 Host Key 的方法无法防范中间人攻击，后来又出现了 Public Key Certificates，由一个可靠的第三方机构给服务端签发证书，从而确保了安全性
+
+Session Key 用于之后通讯时对消息进行加密解密。这个 Session Key 的机制被称作对称加密（Symmetric Encryption），也就是两端使用的相同的 Key 来加密和解密信息。SSH信息的加密解密时并不是用生成的 Public/ Private Key，而是用双方都一致的 Session Key
+
+
+
+**用户身份鉴权**
+
+身份鉴权这一步除了使用 Key 登录外，还能使用密码登录
+
+在客户端生成的 Public/Private Key 就是指用来身份鉴权的 Authorized Key
+
+**客户端拥有 Private 和 Public Key 并将 Public Key 放到服务端用于登录**
+
+登录步骤：
+
+1. 客户端用 Private Key 生成签名向服务器发起登录请求
+2. 服务端验证签名，检查自己有没有和这个签名匹配的 Public Key
+3. 服务端生成一串随机字符串，用 Public Key 加密后发送给客户端
+4. 客户端用相应的 Private Key 解密这串字符串，再使用 MD5 hash 和 Session Key 加密该字符串，将结果发送给服务端
+5. 服务端使用同样的 MD5 hash 和 Session Key 计算这串字符的加密结果，并和客户端发来的结果做比对，如果结果一样，则允许客户端登录
 
 
 
@@ -873,3 +1004,17 @@ prompt_segment green black "%(!.%{%F{yellow}%}.)%n"
 
 
 
+# MobaXterm
+
+**账号**
+
+```b
+# My master password
+541640794
+```
+
+- 支持各种连接 SSH，X11，RDP，VNC，FTP，MOSH
+- 支持 Unix 命令(bash，ls，cat，sed，grep，awk，rsync，…)
+- 连接 SSH 终端后支持 SFTP 传输文件
+- 各种丰富的插件(git/dig/aria2…)
+- 可运行 Windows 或软件

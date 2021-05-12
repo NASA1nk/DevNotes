@@ -654,7 +654,7 @@ Ubuntu：
 ```bash
 sudo apt-get install openssh-server
 
-# 开启openssh服务
+# 生成SSH钥匙后开启openssh服务
 sudo /etc/init.d/ssh start
 
 # 验证
@@ -691,6 +691,7 @@ ssh user@remote -p port
 
 ```bash
 # 生成密钥对(-t表示类型选项，采用rsa加密算法)
+# 要求设置保存位置
 # 要求设置私钥口令passphrase,不设置则为空
 ssh-keygen -t rsa
 ```
@@ -890,33 +891,28 @@ su root
    C:\Users\用户\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\LocalState\rootfs
    ```
 
-
-
-
-# WindowsTerminal
-
-## 设置默认Ubuntu
-
-点击标签右边的下拉三角-选择设置-打开JSON 配置文件-在`profiles`-`list`中找到Ubuntu的guid复制-粘贴到文件开头的 `defaultProfile` 的值
-
-
-
-## **安装oh-my-zsh**
-
-在Ubuntu中安装一些额外的字体来支持oh-my-zsh显示特殊的符号
-
-安装git
+## 安装git
 
 ```bash
+#确保系统和apt包列表完全更新
+sudo apt-get update -y
+sudo apt-get upgrade -y
+# 安装
 sudo apt-get install git
 # 验证
 git --version
-
+# 个人信息
 git config --global user.name "ink"
 git config --global user.email "541640794@qq.com"
-# 查看
+# 查看,q+enter退出
 git config --list
 ```
+
+配置ssh
+
+# **oh-my-zsh**
+
+安装一些额外的字体来支持oh-my-zsh显示特殊的符号
 
 打开PowerShell，依次执行如下命令安装Powerline字体集合
 
@@ -1018,3 +1014,12 @@ prompt_segment green black "%(!.%{%F{yellow}%}.)%n"
 - 连接 SSH 终端后支持 SFTP 传输文件
 - 各种丰富的插件(git/dig/aria2…)
 - 可运行 Windows 或软件
+
+
+
+# WindowsTerminal
+
+**设置默认Ubuntu**
+
+点击标签右边的下拉三角-选择设置-打开JSON 配置文件-在`profiles`-`list`中找到Ubuntu的guid复制-粘贴到文件开头的 `defaultProfile` 的值
+

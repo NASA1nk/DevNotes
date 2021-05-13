@@ -38,9 +38,9 @@ r对应4，w对应2，x对应1，可以用数字改变权限
 
 这三个权限的位置不会改变，如果没有权限，就会出现减号`-`
 
+## 常用命令
 
-
-## su
+### su
 
 `switch user`：用于变更为其他使用者的身份
 
@@ -68,7 +68,7 @@ sudo 命令
 
 
 
-## uname
+### uname
 
 `unix name`：显示系统信息
 
@@ -81,7 +81,7 @@ sudo 命令
 
 
 
-## cd
+### cd
 
 `change directory`：切换当前工作目录
 
@@ -99,7 +99,7 @@ sudo 命令
 
 
 
-## ls
+### ls
 
 `list files`：按英文字母顺序显示指定工作目录下之内容（文件和子目录)
 
@@ -116,7 +116,7 @@ sudo 命令
 
 
 
-## passwd
+### passwd
 
 更改使用者的密码
 
@@ -130,19 +130,19 @@ passwd ink
 
 
 
-## pwd
+### pwd
 
 `print work directory`：显示当前工作目录
 
 
 
-## mkdir
+### mkdir
 
 `make directory`：创建目录
 
 
 
-## rmdir
+### rmdir
 
 `remove directory`：删除空的目录
 
@@ -154,7 +154,7 @@ rmdir -p A/B
 
 
 
-## cat
+### cat
 
 `concatenate`：查看文本文件的内容（从第一行开始）
 
@@ -184,7 +184,7 @@ cat /dev/null > /etc/test.txt
 
 
 
-## nl
+### nl
 
 `number of lines`：将输出的文件内容自动的加上行号（默认空行不加行号）
 
@@ -202,7 +202,7 @@ cat /dev/null > /etc/test.txt
 
 
 
-## more
+### more
 
 查看文件内容，一页一页翻动
 
@@ -234,7 +234,7 @@ cat /dev/null > /etc/test.txt
 
   
 
-## less
+### less
 
 查看文件内容，一页一页翻动
 
@@ -265,7 +265,7 @@ cat /dev/null > /etc/test.txt
 
 
 
-## head
+### head
 
 显示文件前几行
 
@@ -279,7 +279,7 @@ head -n 20 /etc/man.config
 
 
 
-## tail
+### tail
 
 显示文件后几行
 
@@ -303,7 +303,7 @@ tail -f /etc/man.config
 
 
 
-## rm
+### rm
 
 `remove`：删除目录或者文件
 
@@ -320,7 +320,7 @@ rm -rf ./*
 
 
 
-## shutdown
+### shutdown
 
 可以用来关机，也可以用来重启
 
@@ -789,7 +789,57 @@ Session Key 用于之后通讯时对消息进行加密解密。这个 Session Ke
 
    1. 点击XShell左上角的新建连接按钮，输入主机名和ip，点击连接
    2. 账号密码登录，输入密码
-   3. SSH登录，选择下载的密钥(腾讯云生成的时候没有密码，不用输入)
+   3. SSH登录，选择下载的密钥`ink.pem`(腾讯云生成的时候没有密码，不用输入)
+
+## 服务器端口
+
+> CentOS 7.0默认使用firewall作为防火墙
+
+**nmap**
+
+```bash
+# 安装(非最新)
+yum install nmap
+# 无法更新
+yum update nmap
+# 安装最新版本
+# 先卸载
+yum remove nmap
+rpm -vhU https://nmap.org/dist/nmap-7.70-1.x86_64.rpm
+
+```
+
+查看端口
+
+```bash
+# 查看主机当前开放的端口
+nmap localhost    
+# 查看主机端口（1024-65535）中开放的端口
+nmap -p 1024-65535 localhost  
+# 探测目标主机开放的端口
+nmap -PS 192.168.21.163    
+# 探测所列出的目标主机端口            
+nmap -PS22,80,3306  192.168.21.163   
+# 探测目标主机操作系统类型
+nmap -O 192.168.21.163
+# 探测目标主机操作系统类型
+nmap -A 192.168.21.163  
+# 更多nmap参数请查询帮助信息
+nmap --help                             
+```
+
+8080端口
+
+```bash
+# 开启端口
+firewall-cmd --zone=public --add-port=8080/tcp --permanent
+# 关闭端口
+firewall-cmd --permanent --remove-port=9200/tcp
+# 重启防火墙
+systemctl restart firewalld.service
+```
+
+
 
 
 

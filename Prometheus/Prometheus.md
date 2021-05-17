@@ -20,7 +20,7 @@ Prometheus生态圈由多个组件构成，其中许多组件是可选的
 
   > 这个组件相当于一个代理服务，独立部署。
   >
-  > 它没有数据抓取功能，只能被动的等待数据推送。应用把数据推送到`PushGateway`后，`Prometheus`再从`PushGateway`拉取（变相的实现了推送数据）
+  > 它没有数据拉取功能，只能被动的等待数据推送。等到应用把数据推送到`PushGateway`后，`Prometheus`再从`PushGateway`拉取（变相的实现了推送数据）
   >
   > 即便客户端推了全量的数据到了PushGateway，Prometheus也不是每次拉取这个期间用户推上来的所有数据。事实上Prometheus只拉取用户最后一次push上来的数据。如果客户端一直没有推送新的指标到PushGateway，那么Prometheus将始终拉取最后推送上的数据，直到指标消失（默认5分钟）
   >

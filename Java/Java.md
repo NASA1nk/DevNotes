@@ -149,7 +149,7 @@ java HelloWorld			#运行	不带class后缀
 
    ![idea注释模板](Java.assets/idea注释模板.png)
 
-6. 
+6. **导入已有文件夹（open）**
 
 
 
@@ -600,7 +600,7 @@ final double PI = 3.14;
 
 > JDK帮助文档
 
-参数信息
+参数信息（注解）
 
 - `@author`：作者名
 - `@version`：版本号
@@ -3908,9 +3908,59 @@ enum Season implements Info{
 
 `Annotation`可以像修饰符一样被修饰**包，类，构造器，方法，成员变量，参数，局部变量**。这些信息保存在`Annotation`的`"name = value"`对中
 
+## 常用注解
+
+**生成文档**
+
+- `@author`：多个作者之间使用,分割
+- `@version`：标明该类模块的版本
+- `@see`：参考转向
+- `@since`：从哪个版本开始增加的
+- `@param`：对方法中某参数的说明，如果没有参数就不能写
+- `@return`：对方法返回值的说明，如果方法的返回值类型是void就不能写
+- `@exception`：对方法可能抛出的异常进行说明，如果方法没有用throws显式抛出的异常就不能写
+
+> `@param`，`@return`和`@exception`这三个标记都是只用于方法的。
 
 
 
+**在编译时进行格式检查**
+
+> JDK内置的三个基本注解
+
+`@Override`：表明重写父类或接口的方法, 该注解只能用于方法（编译时**校验**是否重写）
+
+`@Deprecated`：表示所修饰的元素(类, 方法等)已过时（过时还是可以用的）
+
+`@SuppressWarnings`：抑制编译器**警告**（含有成员）
+
+
+
+**跟踪代码依赖性，实现替代配置文件功能**
+
+Servlet3.0提供了注解(annotation)，使得不再需要在web.xml文件中进行Servlet的部署
+
+
+
+**spring框架中关于事务的管理**
+
+
+
+## 自定义注解
+
+`@interface`
+
+- 使用`@interface`关键字自定义Annotation类型
+
+- 自定义注解自动继承了`java.lang.annotation.Annotation`接口
+
+- Annotation的成员变量在Annotation定义中以**无参数方法**的形式来声明。其方法名和返回值定义了该成员的名字和类型，称为**配置参数**。成员变量的类型只能是八种基本数据类型、String类型、Class类型、enum类型、Annotation类型、以上所有类型的数组。
+- 可以在定义Annotation的成员变量时使用`default`关键字为其**指定初始值**
+- 如果只有一个参数成员，建议使用参数名为`value`
+- 如果定义的注解含有配置参数，那么**使用时必须指定参数值**（除非它有默认值）。格式是`value=参数值`，如果只有一个参数成员，且名称为value，可以省略`value=`
+- 没有成员变量定义的Annotation称为**标记**，包含成员变量的Annotation称为**元数据**Annotation
+
+> 自定义注解必须配上注解的**信息处理流程**才有意义
 
 
 

@@ -1247,33 +1247,217 @@ Java集合分为`Collection`和`Map`两种体系（接口）
 
 **Abstract Methods**
 
-- 添加元素
-  - `add(Objectobj)`
-  - `addAll(Collectioncoll)`
-- 获取有效元素的个数
+- **向集合中添加元素**
+  - `add(Object obj)`
+  - `addAll(Collection c)`
+- **获取集合中有效元素的个数**
   - `int size()`
-- 清空集合
+- **清空集合**
   - `void clear()`
-- 判断集合是否为空
+- **判断集合是否为空**
   - `boolean isEmpty()`
-- 判断集合是否包含某个元素
-  - `boolean contains(Objectobj)`：通过元素的`equals`方法来判断是否是同一个对象
-  - `boolean containsAll(Collection c)`：调用元素的`equals`方法来比较两个集合的每一个元素
-- 删除
-  - `boolean remove(Object obj)` ：通过元素的`equals`方法判断是否是要删除的那个元素，只会删除匹配的第一个元素
-  - `boolean removeAll(Collection coll)`：取当前集合的差集
-- 取两个集合的交集
+- **判断集合是否包含某个元素**
+  - `boolean contains(Object obj)`：调用对象所在类的`equals`方法来判断集合中每一个元素是否是目标对象（**obj对象需要重写`equals`方法**）
+  - `boolean containsAll(Collection c)`：调用对象所在类的`equals`方法来比较集合的每一个元素是否被包含
+- **删除**
+  - `boolean remove(Object obj)` ：调用对象所在类的`equals`方法判断是否是要删除的那个元素，只会删除匹配的第一个元素（**obj对象需要重写`equals`方法**）
+  - `boolean removeAll(Collection c)`：删除当前集合内两个集合的交集（取当前两个集合的差集）
+- **取两个集合的交集**
   - `boolean retainAll(Collection c)`：把交集的结果存在当前集合中，不影响c
-- 判断集合是否相等
-  - `boolean equals(Object obj)`
-- 转成对象数组
+- **判断集合是否相等**
+  - `boolean equals(Collection c)`：比较两个集合中的每一个元素（当使用`Arraylist`时需要按顺序比较）
+- **集合转成对象（Object）数组**
   - `Object[] toArray()`
-- 获取集合对象的哈希值
+- **数组转换为集合**
+  - `Arrays.asList()`：调用`Arrays`类的静态方法（）
+- **获取集合对象的哈希值**
   - `hashCode()`
-- 遍历
-  - `iterator()`：返回迭代器对象，用于集合遍历
+- **遍历**
+  - `iterator()`：返回迭代器对象（Iterator接口实例），用于遍历集合元素
 
+```java
+package com.ink.collection;
 
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+
+public class CollectionTest {
+
+    @Test
+    public void test1(){
+        Collection coll = new ArrayList();
+        coll.add("A");
+        coll.add("b");
+        // 自动装箱
+        coll.add(123);
+        coll.add(new Date());
+        // 4
+        System.out.println(coll.size());
+        Collection coll1 = new ArrayList();
+        coll1.add("C");
+        coll1.add("D");
+        coll1.add("456");
+        coll.addAll(coll1);
+        // [A, b, 123, Tue May 18 22:38:09 CST 2021, C, D, 456]
+        System.out.println(coll);
+        // false
+        System.out.println(coll.isEmpty());
+        coll.clear();
+        // true
+        System.out.println(coll.isEmpty());
+    }
+    @Test
+    public void test2(){
+        Collection coll = new ArrayList();
+        coll.add("A");
+        coll.add("b");
+        coll.add(new String("ink"));
+        coll.add(123);
+        coll.add(false);
+        coll.add(new Person("ink",20));
+        boolean contains = coll.contains(123);
+        // true
+        System.out.println(contains);
+        // contains判断的是内容,true
+        System.out.println(coll.contains(new String("ink")));
+        // 调用equals方法
+        // 当Person类没有重写equals方法时默认调用Object类的equals方法，就是==，为false
+        // 重写equals方法时后为true
+        System.out.println(coll.contains(new Person("ink",20)));
+        Collection coll1 = Arrays.asList("A","b");
+        // true
+        System.out.println(coll.containsAll(coll1));
+        Collection coll2 = Arrays.asList("A","c");
+        // false
+        System.out.println(coll.containsAll(coll2));
+    }
+    @Test
+    public void test3(){
+        Collection coll = new ArrayList();
+        coll.add("A");
+        coll.add("b");
+        coll.add(new String("ink"));
+        coll.add(123);
+        coll.add(false);
+        coll.add(new Person("ink",20));
+        Collection coll1 = Arrays.asList("A","b");
+        // [A, b, ink, 123, false, Person{name='ink', age=20}]
+        System.out.println(coll);
+        coll.remove(new Person("ink",20));
+        // A, b, ink, 123, false]
+        System.out.println(coll);
+        coll.removeAll(coll1);
+        // [ink, 123, false]
+        System.out.println(coll);
+    }
+    @Test
+    public void test4(){
+        Collection coll = new ArrayList();
+        coll.add("A");
+        coll.add("b");
+        coll.add(123);
+        coll.add(false);
+        Collection coll1 = new ArrayList();
+        coll1.add("A");
+        coll1.add("b");
+        coll1.add(123);
+        coll1.add(false);
+        // true
+        System.out.println(coll.equals(coll1));
+        Collection coll2 = new ArrayList();
+        coll2.add("b");
+        coll2.add("A");
+        coll2.add(123);
+        coll2.add(false);
+        // false
+        System.out.println(coll.equals(coll2));
+    }
+    @Test
+    public void test5(){
+        Collection coll = new ArrayList();
+        coll.add("A");
+        coll.add("b");
+        coll.add(123);
+        coll.add(false);
+        coll.add(new Person("ink",20));
+        Object[] array = coll.toArray();
+        // A b 123 false Person{name='ink', age=20}
+        for (int i = 0; i < array.length; i++) {
+            System.out.print(array[i]+" ");
+        }
+        List<String> list = Arrays.asList(new String[]{"ink", "java"});
+        // [ink, java]
+        System.out.println(list);
+        List<int[]> list1 = Arrays.asList(new int[]{123, 456});
+        // [[I@56cbfb61],int[]会被认为整体是一个元素
+        System.out.println(list1);
+        List<Integer> list2 = Arrays.asList(new Integer[]{123, 456});
+        // [123, 456],包装类可以被识别为两个元素
+        System.out.println(list2);
+    }
+}
+```
+
+### Iterator
+
+使用迭代器`iterator`接口，遍历集合元素
+
+- `iterator`对象称为**迭代器**（设计模式的一种），主要用于遍历`Collection`集合中的元素。
+- **GOF**给**迭代器模式**的定义为：**提供一种方法访问一个容器(container)对象中各个元素，而又不需暴露该对象的内部细节**（迭代器模式就是为容器而生）
+- `Collection`接口继承了`java.lang.Iterable`接口，该接口有一个`iterator()`方法。所有实现了`Collection`接口的集合类都有一个`iterator()`方法，用以返回一个实现了`Iterator`接口的对象
+- `Iterator`**仅用于遍历集合**，`Iterator`本身并不提供承装对象的能力。如果需要创建`Iterator`对象，则**必须有一个被迭代的集合**
+- 集合对象每次调用`iterator()`方法都得到**一个全新的迭代器对象**，默认游标都在集合的**第一个元素之前**
+
+**methods**
+
+- `next()`
+- `hasnext()`
+
+```java
+package com.ink.collection;
+
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+
+public class IteratorTest {
+    @Test
+    public void test(){
+        Collection coll = new ArrayList();
+        coll.add("A");
+        coll.add("b");
+        coll.add(new String("ink"));
+        coll.add(123);
+        coll.add(false);
+        coll.add(new Person("ink",20));
+        // 方法一,不推荐
+        // 依次遍历集合的6个元素
+        Iterator iterator = coll.iterator();
+        System.out.println(iterator.next());
+        System.out.println(iterator.next());
+        System.out.println(iterator.next());
+        System.out.println(iterator.next());
+        System.out.println(iterator.next());
+        System.out.println(iterator.next());
+        // 报异常java.util.NoSuchElementException
+        System.out.println(iterator.next());
+        // 方法二,不推荐
+        for (int i = 0; i < coll.size(); i++) {
+            System.out.println(iterator.next());
+        }
+        // 方法三,推荐
+        while(iterator.hasNext()){
+            System.out.println(iterator.next());
+        }
+    }
+}
+```
 
 ## Map接口
 

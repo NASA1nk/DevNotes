@@ -1,3 +1,5 @@
+# 多线程
+
 # 常用类
 
 ## String类
@@ -1205,6 +1207,72 @@ JDK8后：注解可以应用在**任何地方**
 
 
 # 集合
+
+为了方便对多个对象的操作，就要使用**容器**对对象进行**存储**（**内存**层面）。集合可以**动态**地把多个**对象的引用**放入容器中
+
+数组在存储方面的**弊端**
+
+- 初始化以后长度不可变，不便于扩展
+- 提供的属性和方法少，不便于进行增删改等操作，且效率不高（也可以用`Object`类的方法）
+- 无法直接获取实际存储元素的个数
+- 存储的数据是有序的、可重复的
+
+
+
+**Java集合类**可以用于存储数量不等的多个对象，还可用于保存具有**映射关系**的关联数组
+
+Java集合分为`Collection`和`Map`两种体系（接口）
+
+- `Collection`接口：**单列集合**，存储一个个对象
+  - `List`接口：元素**有序**、**可重复**的集合（动态数组）
+    - `Vector`
+    - `Arraylist`
+    - `LinkedList`
+  - `Set`接口：元素**无序**、**不可重复**的集合
+    - `HashSet`
+    - `LinkedHashSet`
+    - `TreeSet`
+- `Map`接口：**双列集合**，存储具有**映射**关系key-value对
+  - `HashMap`
+  - `LinkedHashMap`
+
+
+
+## Collection接口
+
+`Collection`接口是`List`、`Set` 和`Queue` 接口的父接口，该接口里定义的方法既可用于操作`Set`集合，也可用于操作`List`和`Queue`集合
+
+**Abstract Methods**
+
+- 添加元素
+  - add(Objectobj)
+  - addAll(Collectioncoll)
+- 获取有效元素的个数
+  - int size()
+- 清空集合
+  - void clear()
+- 判断集合是否为空
+  - boolean isEmpty()
+- 判断集合是否包含某个元素
+  - boolean contains(Objectobj)：通过元素的`equals`方法来判断是否是同一个对象
+  - boolean containsAll(Collection c)：调用元素的`equals`方法来比较两个集合的每一个元素
+- 删除
+  - boolean remove(Object obj) ：通过元素的`equals`方法判断是否是要删除的那个元素，只会删除匹配的第一个元素
+  - boolean removeAll(Collection coll)：取当前集合的差集
+- 取两个集合的交集
+  - boolean retainAll(Collection c)：把交集的结果存在当前集合中，不影响c
+- 判断集合是否相等
+  - boolean equals(Object obj)
+- 转成对象数组
+  - Object[] toArray()
+- 获取集合对象的哈希值
+  - hashCode()
+- 遍历
+  - iterator()：返回迭代器对象，用于集合遍历
+
+JDK不提供此接口的任何直接实现，而是提供更具体的子接口(如：Set和List)实现。在Java5 之前，Java 集合会丢失容器中所有对象的数据类型，把所有对象都当成Object 类型处理；从JDK 5.0 增加了泛型以后，Java 集合可以记住容器中对象的数据类型
+
+## Map接口
 
 `ArrayList`**是一个采用类型参数的泛型类**
 

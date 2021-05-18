@@ -1240,37 +1240,40 @@ Java集合分为`Collection`和`Map`两种体系（接口）
 
 ## Collection接口
 
-`Collection`接口是`List`、`Set` 和`Queue` 接口的父接口，该接口里定义的方法既可用于操作`Set`集合，也可用于操作`List`和`Queue`集合
+- `Collection`接口是`List`、`Set` 和`Queue`接口的**父接口**，该接口里定义的方法既可用于操作`Set`集合，也可用于操作`List`和`Queue`集合
+- JDK不提供`Collection`接口的任何**直接实现**，而是提供更具体的子接口实现（`Set`和`List`）
+- JDK5之前Java集合会丢失容器中对象的**数据类型**，把所有对象都当成Object类型处理
+- JDK5增加了**泛型**以后Java集合可以记住容器中对象的数据类型
 
 **Abstract Methods**
 
 - 添加元素
-  - add(Objectobj)
-  - addAll(Collectioncoll)
+  - `add(Objectobj)`
+  - `addAll(Collectioncoll)`
 - 获取有效元素的个数
-  - int size()
+  - `int size()`
 - 清空集合
-  - void clear()
+  - `void clear()`
 - 判断集合是否为空
-  - boolean isEmpty()
+  - `boolean isEmpty()`
 - 判断集合是否包含某个元素
-  - boolean contains(Objectobj)：通过元素的`equals`方法来判断是否是同一个对象
-  - boolean containsAll(Collection c)：调用元素的`equals`方法来比较两个集合的每一个元素
+  - `boolean contains(Objectobj)`：通过元素的`equals`方法来判断是否是同一个对象
+  - `boolean containsAll(Collection c)`：调用元素的`equals`方法来比较两个集合的每一个元素
 - 删除
-  - boolean remove(Object obj) ：通过元素的`equals`方法判断是否是要删除的那个元素，只会删除匹配的第一个元素
-  - boolean removeAll(Collection coll)：取当前集合的差集
+  - `boolean remove(Object obj)` ：通过元素的`equals`方法判断是否是要删除的那个元素，只会删除匹配的第一个元素
+  - `boolean removeAll(Collection coll)`：取当前集合的差集
 - 取两个集合的交集
-  - boolean retainAll(Collection c)：把交集的结果存在当前集合中，不影响c
+  - `boolean retainAll(Collection c)`：把交集的结果存在当前集合中，不影响c
 - 判断集合是否相等
-  - boolean equals(Object obj)
+  - `boolean equals(Object obj)`
 - 转成对象数组
-  - Object[] toArray()
+  - `Object[] toArray()`
 - 获取集合对象的哈希值
-  - hashCode()
+  - `hashCode()`
 - 遍历
-  - iterator()：返回迭代器对象，用于集合遍历
+  - `iterator()`：返回迭代器对象，用于集合遍历
 
-JDK不提供此接口的任何直接实现，而是提供更具体的子接口(如：Set和List)实现。在Java5 之前，Java 集合会丢失容器中所有对象的数据类型，把所有对象都当成Object 类型处理；从JDK 5.0 增加了泛型以后，Java 集合可以记住容器中对象的数据类型
+
 
 ## Map接口
 

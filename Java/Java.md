@@ -3950,17 +3950,139 @@ Servlet3.0提供了注解(annotation)，使得不再需要在web.xml文件中进
 
 `@interface`
 
-- 使用`@interface`关键字自定义Annotation类型
+- 使用`@interface`关键字自定义Annotation类型（加上`@`）
 
 - 自定义注解自动继承了`java.lang.annotation.Annotation`接口
 
-- Annotation的成员变量在Annotation定义中以**无参数方法**的形式来声明。其方法名和返回值定义了该成员的名字和类型，称为**配置参数**。成员变量的类型只能是八种基本数据类型、String类型、Class类型、enum类型、Annotation类型、以上所有类型的数组。
-- 可以在定义Annotation的成员变量时使用`default`关键字为其**指定初始值**
-- 如果只有一个参数成员，建议使用参数名为`value`
+- Annotation的**成员变量**以**无参数方法**的形式来声明，其方法名和返回值定义了该成员的名字和类型，称为**配置参数**
+- 成员变量的类型只能是八种基本数据类型、String类型、Class类型、enum类型、Annotation类型和以上所有类型的数组。
+- 可以在定义成员变量时使用`default`关键字**指定初始值**
+- 如果只有一个参数成员，建议使用参数名为`value`（`String value()`）
 - 如果定义的注解含有配置参数，那么**使用时必须指定参数值**（除非它有默认值）。格式是`value=参数值`，如果只有一个参数成员，且名称为value，可以省略`value=`
-- 没有成员变量定义的Annotation称为**标记**，包含成员变量的Annotation称为**元数据**Annotation
+- **没有成员变量**的Annotation称为**标记**（如`@Override`），**包含成员变量**的Annotation称为**元数据**Annotation
 
 > 自定义注解必须配上注解的**信息处理流程**才有意义
+>
+> 自定义注解通常会指明两个元注解`@Retention`和`@Target`
+
+
+
+自定义注解：`New`-`Java Class`选择Annotation
+
+```java
+package com.ink.annotationtest;
+
+public @interface myannotation {
+    // 默认值hello
+    String value() default "hello";
+}
+
+```
+
+使用注解
+
+```java
+package com.ink.annotationtest;
+
+public class annotationtest {
+    public static void main(String[] args) {
+
+    }
+}
+// 自定义注解使用
+@myannotation(value = "hi")
+class test{
+    private String name;
+    private int age;
+	@myannotation
+    public test(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+}
+```
+
+
+
+## 元注解
+
+`meta-annotation`
+
+JDK 的元注解用于修饰其他注解
+
+JDK5.0提供了4个标准的元注解类型
+
+- `@Retention`
+- `@Target`
+- `@Documented`
+- `@Inherited`
+
+![元注解](Java.assets/元注解.png)
+
+> 元数据
+>
+> `String name = "ink";`，`String` 和`name` 用来修饰`ink`
+
+
+
+**@Retention**
+
+用于修饰一个注解, 指定被修饰的注解的**生命周期**
+
+`@Rentention`包含一个成员变量`RetentionPolicy`（枚举类），使用`@Rentention`时必须为该成员变量指定值
+
+- `SOURCE`：在源文件中保留），编译器会丢弃这种注解，编译后的`.class`文件不会保留这个注解（反编译看不到）
+- `CLASS`：在`.class`文件中保留，当运行Java 程序时, JVM会丢弃注解（**默认值**）
+- `RUNTIME`：在运行时保留，当运行Java 程序时, JVM 会保留注解在内存中，程序可以通过**反射**读取该注解
+
+**@Target**
+
+用于修饰一个注解，指定被修饰的注解能**修饰哪些元素**
+
+`@Target` 也包含一个成员变量`ElementType`（枚举类）
+
+- `CONSTRUCTOR`：用于描述是否能修饰构造器
+- `FIELD`：用于描述域
+- `TYPE`：用于描述类，接口（包括注解类型），或enum声明
+- `METHOD`：用于描述方法
+- `PACKAGE`：用于描述包
+
+**@Documented**
+
+用于修饰一个注解，指定被修饰的注解将被javadoc工具**保留提取成文档**
+
+被`@Documented`修饰的注解必须设置`@Retention`值为`RUNTIME`
+
+> 默认情况下，javadoc是不包括注解的
+
+**@Inherited**
+
+用于修饰一个注解，指定被修饰的注解将具有继承性。如果某个类使用了被`@Inherited`修饰的注解，则其子类将自动具有该注解
+
+
+
+## 可重复注解
+
+> JDK8新特性
+
+JDK8前：是声明一个**注解数组**
+
+JDK8后：使用`@Repeatable`修饰重复使用的注解。`@Repeatable`中成员值为**注解数组**，保持两者的`@Retention`，`@Target`和`@Inherited`相同：
+
+
+
+## 类型注解
+
+> JDK8新特性
+
+JDK8前：注解只能是在**声明**的地方所使用
+
+JDK8后：注解可以应用在**任何地方**
+
+在`@Target`中的`ElementType`表明可以修饰的元素
+
+- `TYPE_PARAMETER`：表示该注解能写在**类型变量的声明语句**中（如：泛型声明）
+- `TYPE_USE`：表示该注解能写在使用类型的**任何语句**中
 
 
 
@@ -3969,3 +4091,4 @@ Servlet3.0提供了注解(annotation)，使得不再需要在web.xml文件中进
 `ArrayList`**是一个采用类型参数的泛型类**
 
 `<>`指定数组列表保存的元素**对象类型**·
+

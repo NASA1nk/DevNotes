@@ -188,6 +188,10 @@ Prometheus服务其实是负责收集、存储、查看监控数据。真正直�
 
 Exporter相当于是Prometheus服务的客户端，负责向其提供监控数据。针对不同的被监控目标需要使用不同的Exporter
 
+> Exporter程序对外暴露了一个用于获取当前监控样本的HTTP访问地址
+>
+> Exporter的实例称为Target，Prometheus通过轮询的方式定时从这些Target中获取监控数据样本，并且存储在数据库当中
+>
 > 使用一个Node Exporter用来采集监控的主机的运行状态(CPU、内存、磁盘等参数)，一般不推荐使用Docker来部署Node Exporter
 >
 > i386=Intel 80386，i386通常被用来作为对Intel（英特尔）32位微处理器的统称
@@ -207,21 +211,50 @@ tar xvfz node_exporter-1.1.2.linux-amd64.tar.gz
 # 进入目录
 cd node_exporter-1.1.2.linux-amd64
 
+# 查看node_exporter是否正常
+./node_exporter --version
+
 # 启动 Node Exporter(显示端口)
 ./node_exporter
 ```
 
-> 查看已知的端口是否被占用：
+> 查看已知的端口是否被占用：`netstat -anp |grep 8089`
 >
-> `netstat -anp |grep 8089`
+> 查看服务器已使用的所有端口`netstat  -nultp`
 >
-> 查看服务器已使用的所有端口
+> 报错：
 >
-> `netstat  -nultp`
+> level=info ts=2020-07-18T04:38:46.494Z caller=tls_config.go:170 msg="TLS is disabled and it cannot be enabled on the fly." http2=false
+>
+> 原因：
+>
+> node_exporter版本升到1.0.0之后，因为安全性考虑支持了TLS
+>
+> 解决：
+>
+> ```bash
+> # 生成证书
+> # 得到node_exporter.crt和node_exporter.key两个文件
+> openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 -keyout node_exporter.key -out node_exporter.crt -subj "/C=CN/ST=Beijing/L=Beijing/O=test.cn/CN=localhost"
+> 
+> # 将node_exporter和node_exporter.crt和node_exporter.key放在同一个目录
+> cd /root/aiops/prometheus/Exporter
+> mv /root/aiops/prometheus-tls/* .
+> 
+> # 编写配置文件
+> vim config.yaml
+> # 复制
+> tls_server_config:
+>   cert_file: node_exporter.crt
+>   key_file: node_exporter.key
+>   
+> # 使用配置文件启动
+> ./node_exporter --web.config=config.yaml
+> ```
 
 通过 http://49.232.207.245:9100/metrics 可以看到采集的监控数据
 
-只需在Prometheus服务的配置文件prometheus.yml中添加相应的配置就可以收集Node Exporter的监控数据。
+只需在Prometheus服务的配置文件prometheus.yml中添加相应的配置就可以收集Node Exporter的监控数据
 
 在scrape_configs下添加一个新的job
 
@@ -238,17 +271,22 @@ scrape_configs:
     - targets: ['localhost:9090']
 
   # 收集主机的监控数据  
-  - job_name: 'local'
+  - job_name: 'ink'
   	# 每隔5秒钟从http://IP:Port/actuator/prometheus拉取指标
   	scrape_interval: 5s
+  	scheme: https
+    tls_config:
+      ca_file: node_exporter.crt
     metrics_path: '/actuator/prometheus'
     static_configs:
-    - targets: ['IP:Port']
+    - targets: ['49.232.207.245:9090']
 ```
 
-重启prometheus服务然后进入其Web管理页面( http://localhost:9090 )
+重启prometheus服务然后进入其Web管理页面( http://49.232.207.245:9090 )
 
 输入up，点击Execute按钮，可看到刚刚添加的job。1表示正常，0表示异常
+
+访问http://49.232.207.245:9090/targets查看页面
 
 # 配置Grafana
 

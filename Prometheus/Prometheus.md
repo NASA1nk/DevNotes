@@ -164,27 +164,29 @@ prometheus_target_interval_length_seconds_count{interval="15s"} 21
 
 # 配置Prometheus
 
+访问Web管理页面( http://http://49.232.207.245:9090 )可以看到Prometheus服务正确启动
+
 ```bash
 # 拉取镜像
 docker pull prom/prometheus
 
-# 下载prometheus的配置文件，并将其存放在/Users/zgh/Docker/Prometheus/Config路径下
-https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus.yml
+# 下载prometheus的配置文件并将其存放在/root/aiops/prometheus/Config路径下 https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus.yml
 
 # 启动容器
+# -v: 挂载到容器内/etc/prometheus/prometheus.yml
 docker run --name myPrometheus \
 -d -p 9090:9090 \
--v /Users/zgh/Docker/Prometheus/Config/prometheus.yml:/etc/prometheus/prometheus.yml \
+-v /root/aiops/prometheus/Config/prometheus.yml:/etc/prometheus/prometheus.yml \
 prom/prometheus
 ```
 
-访问Web管理页面( http://localhost:9090 )可以看到Prometheus服务正确启动。
+
 
 # 配置Exporter
 
-Prometheus服务其实是负责收集、存储、查看监控数据。真正直接进行监控是通过Exporter完成。
+Prometheus服务其实是负责收集、存储、查看监控数据。真正直接进行监控是通过Exporter完成
 
-Exporter相当于是Prometheus服务的客户端，负责向其提供监控数据。针对不同的被监控目标需要使用不同的Exporter。
+Exporter相当于是Prometheus服务的客户端，负责向其提供监控数据。针对不同的被监控目标需要使用不同的Exporter
 
 > 使用一个Node Exporter用来采集监控的主机的运行状态(CPU、内存、磁盘等参数)，一般不推荐使用Docker来部署Node Exporter
 >
@@ -209,7 +211,15 @@ cd node_exporter-1.1.2.linux-amd64
 ./node_exporter
 ```
 
-通过 http://localhost:9100/metrics 可以看到采集的监控数据
+> 查看已知的端口是否被占用：
+>
+> `netstat -anp |grep 8089`
+>
+> 查看服务器已使用的所有端口
+>
+> `netstat  -nultp`
+
+通过 http://49.232.207.245:9100/metrics 可以看到采集的监控数据
 
 只需在Prometheus服务的配置文件prometheus.yml中添加相应的配置就可以收集Node Exporter的监控数据。
 

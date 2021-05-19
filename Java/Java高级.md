@@ -1404,18 +1404,23 @@ public class CollectionTest {
 
 ### Iterator
 
-使用迭代器`iterator`接口，遍历集合元素
+使用迭代器`iterator`接口遍历集合元素
 
 - `iterator`对象称为**迭代器**（设计模式的一种），主要用于遍历`Collection`集合中的元素。
 - **GOF**给**迭代器模式**的定义为：**提供一种方法访问一个容器(container)对象中各个元素，而又不需暴露该对象的内部细节**（迭代器模式就是为容器而生）
 - `Collection`接口继承了`java.lang.Iterable`接口，该接口有一个`iterator()`方法。所有实现了`Collection`接口的集合类都有一个`iterator()`方法，用以返回一个实现了`Iterator`接口的对象
-- `Iterator`**仅用于遍历集合**，`Iterator`本身并不提供承装对象的能力。如果需要创建`Iterator`对象，则**必须有一个被迭代的集合**
-- 集合对象每次调用`iterator()`方法都得到**一个全新的迭代器对象**，默认游标都在集合的**第一个元素之前**
 
 **methods**
 
-- `next()`
-- `hasnext()`
+- `next()`：返回集合的下一个元素
+- `hasnext()`：判断集合是否存在元素
+- `remove()`：移除集合中的元素
+
+> 调用`next()`方法之前要使用`hasnext()`方法判断，否则可能会抛出异常
+>
+> Iterator删除集合的元素是遍历过程中通过**迭代器对象**的`remove()`方法，而不是集合对象的`remove()`方法
+>
+> 如果还未调用`next()`或者在调用`next()`后已经调用了`remove()`方法，再调用`remove()`就会报异常`IllegalStateException`（指针还未指向集合元素）
 
 ```java
 package com.ink.collection;
@@ -1428,7 +1433,7 @@ import java.util.Iterator;
 
 public class IteratorTest {
     @Test
-    public void test(){
+    public void test1(){
         Collection coll = new ArrayList();
         coll.add("A");
         coll.add("b");
@@ -1456,12 +1461,110 @@ public class IteratorTest {
             System.out.println(iterator.next());
         }
     }
+    @Test
+    public void test2(){
+        Collection coll = new ArrayList();
+        coll.add("A");
+        coll.add("b");
+        coll.add(new String("ink"));
+        coll.add(123);
+        coll.add(false);
+        Iterator iterator = coll.iterator();
+        while(iterator.hasNext()){
+            Object obj = iterator.next();
+            if("ink".equals(obj)){
+                // 迭代器对象的方法
+                iterator.remove();
+                System.out.println("remove ink");
+            }
+        }
+        Iterator iterator1 = coll.iterator();
+        while(iterator1.hasNext()){
+            System.out.println(iterator1.next());
+        }
+    }
 }
 ```
 
-## Map接口
+**迭代器执行原理**
+
+`Iterator iterator = coll.iterator();`
+
+- `iterator`**仅用于遍历集合**，`iterator`本身并不提供承装对象的能力（并不是容器）。创建`Iterator`对象**必须有一个被迭代的集合**
+- 集合对象每次调用`iterator()`方法都得到**一个全新的迭代器对象**，**默认游标都在集合的第一个元素之前**（`next()`先下移，再返回元素）
+
+```java
+package com.ink.collection;
+
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+
+/**
+ * @author ink
+ * @date 2021年05月18日23:29
+ */
+public class IteratorTest {
+    @Test
+    public void test(){
+        Collection coll = new ArrayList();
+        coll.add("A");
+        coll.add("b");
+        coll.add(123);
+        coll.add(false);
+        coll.add(new Person("ink",20));
+        // 错误:死循环
+        while(coll.iterator().hasNext()){
+           System.out.println(coll.iterator().next());
+        }
+    }
+}
+```
+
+### 增强for循环
+
+> JDK5新特性
+
+`for each`循环用于遍历集合和数组
+
+- 遍历操作不需获取Collection或数组的长度，无需使用索引访问元素
+- 遍历集合的**底层**还是调用**迭代器**`iterator`完成操作
+
+`for(集合元素类型 局部变量 : 集合对象)`
+
+```java
+package com.ink.collection;
+
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+public class ForTest {
+    @Test
+    public void test1() {
+        Collection coll = new ArrayList();
+        coll.add("A");
+        coll.add("b");
+        coll.add(123);
+        coll.add(false);
+        coll.add(new Person("ink", 20));
+        for(Object obj : coll){
+            System.out.println(obj);
+        }
+    }
+}
+```
+
+### List接口
 
 `ArrayList`**是一个采用类型参数的泛型类**
 
 `<>`指定数组列表保存的元素**对象类型**·
+
+## Map接口
+
+
 

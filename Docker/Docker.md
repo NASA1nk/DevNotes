@@ -348,9 +348,15 @@ docker commit -m = "描述信息" -a = "作者" 容器id 目标镜像名:[TAG]
 
 ```shell
 # 使用dockerfile构建成镜像
-# -f:指定要使用的Dockerfile路径
+# -f: 指定要使用的Dockerfile路径, 
+# -f: .表示当前目录,使用当前目录的Dockerfile构建时可以省略 
+    
 # -t/--tag: 镜像名及标签(name:tag或name),可以在一次构建中为一个镜像设置多个标签
-docker build -f 文件路径 -t 用户名/镜像名:[tag] ./
+docker build -f 文件路径 -t 用户名/ImageName:TagName
+docker build -t 用户名/ImageName:TagName .
+
+#使用URL github.com/creack/docker-firefox的Dockerfile创建镜像
+docker build github.com/creack/docker-firefox
 ```
 
 ### docker tag

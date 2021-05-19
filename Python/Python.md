@@ -35,7 +35,9 @@
 - pip：包管理器
 - virtualenv：环境管理器
 
-
+> **conda**： 开源包管理系统和环境管理系统，支持Python, Java, C/C++ 等多种语言，支持Windows, macOS 和 Linux 上运行
+>
+> **pip**：官方包管理器，推荐用于安装Python包索引（`PyPI`）上发布的包
 
 Anaconda是一种为科学计算而生的Python发行版，包括：
 
@@ -54,8 +56,6 @@ Anaconda是一种为科学计算而生的Python发行版，包括：
 > 安装完成后重启生效
 
 添加环境变量
-
-- 
 
 使用python3.x版本
 
@@ -96,9 +96,13 @@ python temp.py
 ```bash
 conda create -n ink python=3.6
 conda activate ink
+conda deactivate ink
 ```
 
+在Anaconda中，conda和pip安装的包都是python环境的一部分（安装在同一路径），项目对于包的使用是没有区别的
 
+- conda下载的包，conda和pip都可以更新和卸载
+- pip下载的包，只能由pip更新和卸载，conda卸载不了
 
 # 基础语法
 

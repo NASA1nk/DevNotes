@@ -272,7 +272,7 @@ java HelloWorld			#运行	不带class后缀
 
 ![自动补全](Java.assets/自动补全.png)
 
-**自动导包**
+**设置自动导包**
 
 ![导包](Java.assets/导包.png)
 
@@ -282,15 +282,37 @@ java HelloWorld			#运行	不带class后缀
 
 **修改注释样式**
 
-![注释样式](Java.assets/注释样式.png)**快捷键设置**
-
-![快捷键修改](Java.assets/快捷键修改.png)
+![注释样式](Java.assets/注释样式.png)
 
 **配置类头的文档注释模板**
 
 ![idea注释模板](Java.assets/idea注释模板.png)
 
+**修改编码**
 
+![修改编码](Java.assets/修改编码.png)
+
+**自动编译（构建）**
+
+![自动编译](Java.assets/自动编译.png)
+
+**快捷键设置**
+
+- 右上搜索栏可以**搜索某一功能**对应的快捷键，右键即可修改（添加，移除）
+- 搜索栏后面的放大镜可以搜索**快捷键**
+- 可以在最上方应用别的快捷键
+
+![快捷键修改](Java.assets/快捷键修改.png)
+
+**设置模板Template**
+
+`Postfix Completion`：不可修改
+
+![代码快捷键](Java.assets/代码快捷键.png)
+
+`Live Template`：可以修改（右侧**加号**）
+
+![代码快捷键模板](Java.assets/代码快捷键模板.png)
 
 
 

@@ -5,6 +5,7 @@
   - [Java开发环境](#java开发环境)
   - [第一个程序](#第一个程序)
 - [集成开发环境](#集成开发环境)
+  - [idea使用](#idea使用)
   - [idea开发](#idea开发)
   - [idea设置](#idea设置)
   - [idea刷题](#idea刷题)
@@ -191,74 +192,105 @@ java HelloWorld			#运行	不带class后缀
 
 **IDE**： `Integrated Development Environment`。一般包括编辑器，编译器，调试器和图形界面
 
+## idea使用
+
+**安装目录**
+
+- bin：
+  - 启动文件，64位是`idea64.exe`（32位是`idea.exe`）
+  - 相关的一些虚拟机的配置信息（在`idea64.exe.vmoptions`文件中）
+  - IDEA基本的属性信息（在`idea.properties`文件中）
+- help：快捷键文档和其他帮助文档
+- jbr：在jbr目录中已经提供好了Java的运行环境（JRE），如果要开发Java程序需要独立安装JDK
+- lib：IDEA依赖的一些相关的类库
+- license：相关插件的许可信息
+- plugins：插件
+
+**配置目录**
+
+- config：`C:\Users\54164\AppData\Roaming\JetBrains\IntelliJIdea2021.1`
+
+**系统目录**
+
+- system：`C:\Users\54164\AppData\Local\JetBrains\IntelliJIdea2021.1`
+
+> 在对IntelliJ IDEA进行配置后，想进行还原，就可以找到本机上的这两个目录，把它们都删掉，然后重启IDEA。这时IDEA就会生成最初的类似config和system的那两个目录，就还原成最初的一个状态了
+
+
+
 ## idea开发
 
-1. 在`File`中`new`一个`Empty Project`，再`new`一个`module`
+- IDEA的每一个Project都具备一个工作空间
+- Module是模块化的概念，普通的根目录Project下面的子工程称为模块，每一个子模块之间可以相关联，也可以没有任何关联
+- 对于每一个IDEA的项目工程（Project）而言，它的每一个子模块（Module）都可以使用独立的JDK和MAVEN配置（一个项目下的多个业务模块）
 
-   > IDEA的每一个Project都具备一个工作空间。对于每一个IDEA的项目工程（Project）而言，它的每一个子模块（Module）都可以使用独立的JDK和MAVEN配置。
-   >
-   > Module是模块化的概念，普通的根目录Project下面的子工程称为模块，每一个子模块之间可以相关联，也可以没有任何关联。
+1. `File`-`new`-`Empty Project`-`new`-`module`-`new`-`package`
 
    ![Module](Java.assets/Module.png)
-
+   
 2. 查看项目结构`Project Structure`（也可以在File中查看）
 
    ![项目结构](Java.assets/项目结构.png)
 
-3. 修改**SDK**（对应的`Project Language Level` 也要修改）
+3. 在`Project`中修改**SDK**（对应的`Project Language Level` 也要修改）
 
    ![修改sdk](Java.assets/修改sdk.png)
 
-4. 在`src`目录下编写代码中
+4. 在`src`目录下的`package`下新建类编写代码
 
    ![hello](Java.assets/hello.png)
-
-5. 快捷键
-
-   - **psvm**：public static void main(String[] args)
-   - **sout**：System.out.println()
-
-   ```java
-   public class hello {
-       public static void main(String[] args) {
-           System.out.println();
-       }
-   }
-   ```
 
 6. 运行
 
    ![运行程序](Java.assets/运行程序.png)
+   
+6. **删除Module**
+
+   `remove`后的`module`才能`delete`（`remove`后就是第一个普通的文件目录而不是`module`了）
+
+   ![Modules修改](Java.assets/Modules修改.png)
 
 
 
 ## idea设置
 
-1. **自动补全**
+设置页面：`File`-`Setting`
 
-   ![自动补全](Java.assets/自动补全.png)
+**设置主题，菜单栏字体**
 
-2. **import导包**
+`Appearance & Behavio`-`Appearance`
 
-   ![导包](Java.assets/导包.png)
+**鼠标滚轮修改字体**
 
-3. **快捷键设置**
+![鼠标修改字体](Java.assets/鼠标修改字体.png)
 
-   ![快捷键修改](Java.assets/快捷键修改.png)
-   
-4. **导入Module**
+**显示行号和方法分隔符**
 
-   `remove`后的`module`才能`delete`
+![方法分隔符](Java.assets/方法分隔符.png)
 
-   ![Modules修改](Java.assets/Modules修改.png)
-   
-5. **配置注释模板**
+**忽略大小写，自动补全**
 
-   `Settings`->`Editor`->`File and Code Templates` ，添加注释信息
+![自动补全](Java.assets/自动补全.png)
 
-   ![idea注释模板](Java.assets/idea注释模板.png)
+**自动导包**
 
-6. **导入已有文件夹（open）**
+![导包](Java.assets/导包.png)
+
+**取消单行显示taps（全部显示）**
+
+![多行显示](Java.assets/多行显示.png)
+
+**修改注释样式**
+
+![注释样式](Java.assets/注释样式.png)**快捷键设置**
+
+![快捷键修改](Java.assets/快捷键修改.png)
+
+**配置类头的文档注释模板**
+
+![idea注释模板](Java.assets/idea注释模板.png)
+
+
 
 
 

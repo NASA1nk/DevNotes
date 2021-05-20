@@ -386,9 +386,6 @@ cAdvisor是Google一款开源的用于分析、展示容器运行状态的可视
 
 cAdvisor原生支持Prometheus
 
-- 访问 http://localhost:8080 查看监控页面（Docker中整体及各容器的监控指标）
-- 访问http://localhost:8080/metrics 查看到采集的监控数据
-
 ```bash
 # 拉取镜像
 docker pull google/cadvisor
@@ -425,6 +422,18 @@ scrape_configs:
     static_configs:
     - targets: ['49.232.207.245:8080']
 ```
+
+访问 http://49.232.207.245:8080 查看监控页面（Docker中整体及各容器的监控指标）
+
+![cAdvisor](Prometheus.assets/cAdvisor.png)
+
+![Usage per Core](Prometheus.assets/Usage per Core.png)
+
+![Throughput](Prometheus.assets/Throughput.png)
+
+访问http://49.232.207.245:8080/metrics 查看到采集的监控数据
+
+![cAdvisormetrics](Prometheus.assets/cAdvisormetrics.png)
 
 进入Grafana官网( [https://grafana.com](https://link.zhihu.com/?target=https%3A//grafana.com) )，选择适用于cAdvisor的模板
 

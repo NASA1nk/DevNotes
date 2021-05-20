@@ -6,35 +6,36 @@ Grafana是一个开源的跨平台的度量分析、可视化工具
 
 Prometheus生态圈由多个组件构成，其中许多组件是可选的
 
-- Prometheus Server
+- **Prometheus Server**
+  
   用于收集、存储和查询时间序列数据。
-  通过静态配置文件管理监控目标，也可以配合使用动态服务发现的方式动态管理监控目标，并从这些监控目标中获取数据。
-  它将采集到的数据按照时间序列的方式存储在本地磁盘当中或者外部的时序数据库中，可通过PromQL语言对数据的查询以及分析。
+  通过**静态配置文件**（prometheus.yml）管理监控目标，也可以配合使用**动态服务发现**的方式动态管理监控目标，并从这些监控目标中获取数据，然后将采集到的数据按照时间序列的方式存储在本地磁盘当中或者外部的时序数据库中，可通过PromQL语言对数据的查询以及分析。
   
-- Client Library
-  为被监控的应用生成相应的指标(Metric)数据并暴露给Prometheus Server。
-  当Prometheus Server 来拉取时，直接返回实时状态的指标数据。
+- **Client Library**
   
-- Push Gateway
-  主要用于短期存在的Jobs。由于这类Jobs存在时间较短，可能在Prometheus Server来拉取数据之前就消失了。所以，Jobs可以直接向Push Gateway推送它们的指标数据，然后Prometheus Server再从Push Gateway拉取。
-
-  > 这个组件相当于一个代理服务，独立部署。
-  >
-  > 它没有数据拉取功能，只能被动的等待数据推送。等到应用把数据推送到`PushGateway`后，`Prometheus`再从`PushGateway`拉取（变相的实现了推送数据）
-  >
-  > 即便客户端推了全量的数据到了PushGateway，Prometheus也不是每次拉取这个期间用户推上来的所有数据。事实上Prometheus只拉取用户最后一次push上来的数据。如果客户端一直没有推送新的指标到PushGateway，那么Prometheus将始终拉取最后推送上的数据，直到指标消失（默认5分钟）
-  >
-  > Prometheus 采用定时拉取模式，可能由于子网络或者防火墙的原因，不能直接拉取各个Target的指标数据，此时可以让各个Target往PushGateway上推送数据，然后Prometheus去PushGateway上定时拉取
-  >
-  > 在监控各个业务数据时，需要将各个不同的业务数据进行统一汇总，此时也可以采用PushGateway来统一收集，然后Prometheus来统一拉取
-
+  为被监控的应用生成相应的**指标**(Metric)数据并暴露给Prometheus Server，当Prometheus Server来拉取时直接返回**实时状态**的指标数据。
+  
+- **Push Gateway**
+  
+  相当于一个代理服务，独立部署。它没有数据拉取功能，只能被动的等待数据推送。
+  
+  主要用于短期存在的Jobs，由于这类Jobs存在时间较短，可能在Prometheus Server来拉取数据之前就消失了。所以，这些Jobs可以直接向Push Gateway推送它们的指标数据，等到这些jobs把数据推送到Push Gateway后，Prometheus Server再从Push Gateway拉取。
+  
+  当由于子网络或者防火墙的原因，Prometheus Server不能直接拉取各个Target的指标数据，此时可以让各个Target往Push Gateway上推送数据，然后Prometheus去PushGateway上定时拉取
+  
+  在监控各个业务数据时，需要将各个不同的业务数据进行统一汇总，此时也可以采用Push Gateway来统一收集数据，然后Prometheus Server在来统一拉取
+  
+  即使jobs推送了所有的数据到Push Gateway，Prometheus Server也不是每次都拉取这个期间推上来的所有数据，而是只拉取jobs最后一次推送的数据。如果jobs一直没有推送新的指标（Metric）到Push Gateway，那么Prometheus Server将始终拉取最后推送上的数据，直到指标消失（默认5分钟）
+  
 - Exporters
+  
   用于暴露已有的第三方服务的指标数据通过HTTP服务的形式暴露给Prometheus Server，比如HAProxy、StatsD、Graphite等等。
   Prometheus Server周期性的从Exporter暴露的HTTP服务地址（通常是/metrics）拉取监控样本数据
   
-  > 输出被监控组件信息的HTTP接口被叫做exporter
+  输出被监控组件信息的HTTP接口被叫做exporter
   
 - Alertmanager
+  
   从Prometheus Server接收到告警后，Alertmanager会进行去除重复数据，分组，并路由到接收方，发出报警。
   AlertManager支持自定义告警规则。告警方式也非常灵活，支持通过邮件、slack或钉钉等多种途径发出告警。
 
@@ -42,12 +43,14 @@ Prometheus生态圈由多个组件构成，其中许多组件是可选的
 
 工作流程是：
 
-1. Prometheus Server从HTTP接口或者从Push Gateway拉取指标(Metric)数据。
-2. Prometheus Server在本地存储所有采集的指标(Metric)数据，并在这些数据上运行规则，从现有数据中聚合和记录新的时间序列，或者生成告警。
+1. Prometheus Server从HTTP接口或者从Push Gateway拉取指标（Metric）数据。
+2. Prometheus Server在本地存储所有采集的指标（Metric）数据，并在这些数据上运行规则，从现有数据中聚合和记录新的时间序列生成告警。
 3. Alertmanager根据配置文件，对接收到的告警进行处理，发出报警。
 4. 在Grafana或其他API客户端中，可视化收集的数据。
 
 > Prometheus其实并不需要每一个精确的数据，长期保存的是中等或者低精度的数据。它每次只抓取一个数据，在固定的频率下。也能形成某种数据的趋势。
+
+
 
 # Prometheus数据模型
 
@@ -55,26 +58,26 @@ Prometheus会将所有采集到的监控数据以**时间序列**的方式保存
 
 每一条数据由三部分组成
 
-- 指标（Metric）：由**指标名称**和描述当前数据特征的**标签**组成
-- 时间戳（Timestamp）：一个精确到毫秒的时间戳
-- 数据值（Value）：一个float64的浮点型数据表示当前数据的值
+- **指标**（Metric）：由**指标名称**和描述当前数据特征的**标签**组成
+- **时间戳**（Timestamp）：一个精确到毫秒的时间戳
+- **数据值**（Value）：一个float64的浮点型数据表示当前数据的值
 
 ## 指标(Metric)
 
-### 指标格式
+**指标格式**
 
 `指标名称{标签名称="标签值", ...}`
 
 标签（Label）反映了当前数据的特征维度，通过这些维度Prometheus可以对数据进行过滤，聚合等操作
 
-### 指标类型
+**指标类型**
 
 Prometheus定义了4种不同的指标类型(Metric Type)
 
-- Counter（计数器）
-- Gauge（仪表盘）
-- Histogram（直方图）
-- Summary（摘要）
+- **Counter**（计数器）
+- **Gauge**（仪表盘）
+- **Histogram**（直方图）
+- **Summary**（摘要）
 
 
 
@@ -82,7 +85,7 @@ Prometheus定义了4种不同的指标类型(Metric Type)
 
 Counter类型和计数器一样，只增不减（除非系统发生重置）
 
-> 一般在定义Counter类型指标的名称时推荐使用_total作为后缀。比如，Prometheus Server中prometheus_http_requests_total, 表示Prometheus处理的HTTP请求总数
+一般在定义Counter类型指标的名称时推荐使用_total作为后缀。比如Prometheus Server中prometheus_http_requests_total表示Prometheus处理的HTTP请求总数
 
 ```text
 # HELP prometheus_http_requests_total Counter of HTTP requests.
@@ -92,15 +95,13 @@ prometheus_http_requests_total{code="200",handler="/api/v1/query"} 5
 prometheus_http_requests_total{code="200",handler="/api/v1/query_range"} 15
 prometheus_http_requests_total{code="200",handler="/graph"} 3
 prometheus_http_requests_total{code="200",handler="/metrics"} 23
-prometheus_http_requests_total{code="200",handler="/static/*filepath"} 18
-prometheus_http_requests_total{code="302",handler="/"} 1
 ```
 
 **Gauge**
 
-Gauge类型侧重于反应系统的某一个**瞬时的值**，这类指标的数据可增可减
+Gauge类型侧重于反应系统的某一个**瞬时的值**，可增可减
 
-> 比如，Prometheus Server中go_threads, 表示Prometheus当前go线程的数量
+比如Prometheus Server中go_threads表示Prometheus当前go线程的数量
 
 ```text
 # HELP go_threads Number of OS threads created.
@@ -112,21 +113,16 @@ go_threads 13
 
 Histogram类型由`_bucket{le=""}`，`_bucket{le="+Inf"}`, `_sum`，`_count`组成。
 
-主要用于表示**一段时间范围内**对数据进行采样的结果，并能够对其指定区间以及总数进行统计，通常它采集的数据展示为直方图。
+主要用于表示**一段时间范围内**对数据进行采样的结果，并能够对其指定区间以及总数进行统计（通常展示为直方图）
 
-> 比如，Prometheus Server中prometheus_http_response_size_bytes：
+比如Prometheus Server中prometheus_http_response_size_bytes
 
 ```text
 # HELP prometheus_http_response_size_bytes Histogram of response size for HTTP requests.
 # TYPE prometheus_http_response_size_bytes histogram
 prometheus_http_response_size_bytes_bucket{handler="/",le="100"} 1
 prometheus_http_response_size_bytes_bucket{handler="/",le="1000"} 1
-prometheus_http_response_size_bytes_bucket{handler="/",le="10000"} 1
-prometheus_http_response_size_bytes_bucket{handler="/",le="100000"} 1
 prometheus_http_response_size_bytes_bucket{handler="/",le="1e+06"} 1
-prometheus_http_response_size_bytes_bucket{handler="/",le="1e+07"} 1
-prometheus_http_response_size_bytes_bucket{handler="/",le="1e+08"} 1
-prometheus_http_response_size_bytes_bucket{handler="/",le="1e+09"} 1
 prometheus_http_response_size_bytes_bucket{handler="/",le="+Inf"} 1
 prometheus_http_response_size_bytes_sum{handler="/"} 29
 prometheus_http_response_size_bytes_count{handler="/"} 1
@@ -136,9 +132,9 @@ prometheus_http_response_size_bytes_count{handler="/"} 1
 
 Summary类型由 `{quantile="<φ>"}`，`_sum`，`_count` 组成。
 
-主要用于表示**一段时间内**数据采样结果，它直接存储了**分位数据**，而不是根据统计区间计算出来的。
+主要用于表示**一段时间内**数据采样结果，它直接存储了**分位数据**而不是根据统计区间计算出来。
 
-> 比如，Prometheus Server中prometheus_target_interval_length_seconds：
+比如Prometheus Server中prometheus_target_interval_length_seconds
 
 ```text
 # HELP prometheus_target_interval_length_seconds Actual intervals between scrapes.
@@ -146,19 +142,17 @@ Summary类型由 `{quantile="<φ>"}`，`_sum`，`_count` 组成。
 prometheus_target_interval_length_seconds{interval="15s",quantile="0.01"} 14.9986249
 prometheus_target_interval_length_seconds{interval="15s",quantile="0.05"} 14.998999
 prometheus_target_interval_length_seconds{interval="15s",quantile="0.5"} 15.0000428
-prometheus_target_interval_length_seconds{interval="15s",quantile="0.9"} 15.0012009
-prometheus_target_interval_length_seconds{interval="15s",quantile="0.99"} 15.0016468
 prometheus_target_interval_length_seconds_sum{interval="15s"} 315.0013755
 prometheus_target_interval_length_seconds_count{interval="15s"} 21
 ```
 
+
+
 # Prometheus数据获取
 
-Prometheus主要是通过拉取pull的方式获取数据。
+Prometheus主要是通过拉取pull的方式获取数据
 
-Prometheus每隔一段时间会从配置的**目标target**（获取数据的url）以Http协议拉取**指标metrics**，这些目标可以是应用，也可以是代理，缓存中间件，数据库等等一些中间件
-
-> 需要每个服务端点提供http的接口来获取实时的数据。
+Prometheus每隔一段时间会从配置的**目标target**（获取数据的url）以Http协议拉取**指标metrics**，这些目标可以是应用，也可以是代理，缓存中间件，数据库等等一些中间件（需要服务端提供http的接口来获取实时的数据）
 
 Prometheus会将拉取出来的数据存到自己的TSDB时序数据库。Prometheus的WebUI控制台以及Grafana可以对数据进行时间范围内的不断查询，绘制成实时图表工展现
 

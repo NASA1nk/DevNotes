@@ -382,11 +382,12 @@ grafana/grafana
 
 # 配置cAdvisor
 
-Google开源的一款用于分析、展示容器运行状态的可视化工具cAdvisor，用于监控Dcoker整体的运行情况
+cAdvisor是Google一款开源的用于分析、展示容器运行状态的可视化工具，用于监控Dcoker整体的运行情况
 
-访问 http://localhost:8080 查看监控页面，查看Docker中整体及各容器的监控指标。
+cAdvisor原生支持Prometheus
 
-cAdvisor原生支持Prometheus，访问http://localhost:8080/metrics 就可以看到采集的监控数据
+- 访问 http://localhost:8080 查看监控页面（Docker中整体及各容器的监控指标）
+- 访问http://localhost:8080/metrics 查看到采集的监控数据
 
 ```bash
 # 拉取镜像
@@ -394,7 +395,7 @@ docker pull google/cadvisor
 
 # 启动容器
 docker run --name=mycAdvisor \
-  -p 8080:8080 -d \
+  -p 8081:8080 -d \
   -v /:/rootfs:ro \
   -v /var/run:/var/run:ro \
   -v /sys:/sys:ro \
@@ -422,7 +423,7 @@ scrape_configs:
   # 收集Docker容器的监控数据
   - job_name: 'cAdvisor'
     static_configs:
-    - targets: ['IP:Port']
+    - targets: ['49.232.207.245:8080']
 ```
 
 进入Grafana官网( [https://grafana.com](https://link.zhihu.com/?target=https%3A//grafana.com) )，选择适用于cAdvisor的模板
@@ -436,7 +437,7 @@ scrape_configs:
 
 导入
 
-
+![cAdvisior](Prometheus.assets/cAdvisior.png)
 
 # 监控MySQL
 

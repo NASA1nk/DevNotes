@@ -29,7 +29,8 @@ Prometheus生态圈由多个组件构成，其中许多组件是可选的
   > 在监控各个业务数据时，需要将各个不同的业务数据进行统一汇总，此时也可以采用PushGateway来统一收集，然后Prometheus来统一拉取
 
 - Exporters
-  用于暴露已有的第三方服务的指标数据通过HTTP服务的形式暴露给Prometheus Server，比如HAProxy、StatsD、Graphite等等。Prometheus Server通过访问该Exporter提供的Endpoint，即可获取到需要采集的监控数据。
+  用于暴露已有的第三方服务的指标数据通过HTTP服务的形式暴露给Prometheus Server，比如HAProxy、StatsD、Graphite等等。
+  Prometheus Server周期性的从Exporter暴露的HTTP服务地址（通常是/metrics）拉取监控样本数据
   
   > 输出被监控组件信息的HTTP接口被叫做exporter
   
@@ -208,7 +209,6 @@ Exporter相当于是Prometheus服务的客户端，负责向其提供监控数�
 > 报错：level=info ts=2020-07-18T04:38:46.494Z caller=tls_config.go:170 msg="TLS is disabled and it cannot be enabled on the fly." http2=false
 >
 > 原因：node_exporter版本升到1.0.0之后，因为安全性考虑支持了TLS，所以要添加证书
->
 
 
 
@@ -251,7 +251,7 @@ tls_server_config:
 在Prometheus服务的配置文件prometheus.yml中添加相应的配置就可以收集Node Exporter的监控数据
 
 - 在scrape_configs下添加一个新的job
-- 重启prometheus服务然后进入其Web管理页面http://49.232.207.245:9090
+- **重启prometheus服务**然后进入其Web管理页面http://49.232.207.245:9090
 
 - 输入up，点击Execute按钮，可看到刚刚添加的job（1表示正常，0表示异常）
 
@@ -284,6 +284,45 @@ scrape_configs:
 ```
 
 
+
+**docker部署**
+
+[Prometheus Exporter for machine metrics ](https://github.com/prometheus/node_exporter#using-docker)
+
+node_exporter不建议将其部署为Docker容器，因为它需要访问主机系统。
+
+如果要部署Docker以进行主机监视，必须使用一些额外的标志来允许node_exporter访问主机名称空间。指定`path.rootfs`参数，此参数必须与host root的bind-mount中的路径匹配。node_exporter将`path.rootfs`用作访问主机文件系统的前缀
+
+> 注意：要监视的所有非root挂载点都需要绑定挂载到容器中
+
+```bash
+docker run -d \
+  --net="host" \
+  --pid="host" \
+  -v "/:/host:ro,rslave" \
+  quay.io/prometheus/node-exporter:latest \
+  --path.rootfs=/host	
+  
+  
+# 脚本运行  
+cat > run_node_exporter.sh << 'EOF'
+docker stop node_exporter
+docker rm node_exporter
+docker run -d --name node_exporter \
+	--restart=always \
+	--net="host" \
+	--pid="host" \
+	-v "/proc:/host/proc:ro" \
+	-v "/sys:/host/sys:ro" \
+	-v "/:/rootfs:ro" \
+	prom/node-exporter \
+	--path.procfs=/host/proc \
+	--path.rootfs=/rootfs \
+	--path.sysfs=/host/sys \
+	--collector.filesystem.ignored-mount-points='^/(sys|proc|dev|host|etc)($$|/)'
+EOF
+sh run_node_exporter.sh
+```
 
 # 配置Grafana
 
@@ -326,7 +365,7 @@ grafana/grafana
 过滤出适用Node Exporter类型的相关模板
 
 - 选择中文版本
-- 复制该**模板ID——8919**
+- 复制该**模板ID-8919**（9276）
 
 ![过滤仪表盘](Prometheus.assets/过滤仪表盘.png)
 
@@ -380,21 +419,78 @@ scrape_configs:
     static_configs:
     - targets: ['localhost:9090']
 
-  # 收集主机的监控数据  
-  - job_name: 'local'
-    static_configs:
-    - targets: ['IP:Port']
-
-  # 收集MySQL的监控数据      
-  - job_name: 'MySQL'
-    static_configs:
-    - targets: ['IP:Port']
-
   # 收集Docker容器的监控数据
   - job_name: 'cAdvisor'
     static_configs:
     - targets: ['IP:Port']
 ```
 
-> 对于可视化配置而言，在Grafana官网选择适用于cAdvisor的模板(过滤条件：name/description=cAdvisor and data source=Prometheus)，复制其ID——893导入
+进入Grafana官网( [https://grafana.com](https://link.zhihu.com/?target=https%3A//grafana.com) )，选择适用于cAdvisor的模板
+
+过滤条件：
+
+- Name/Description=cAdvisor
+- Data Source=Prometheus
+
+复制**模板ID—893**
+
+导入
+
+
+
+# 监控MySQL
+
+访问http://49.232.207.245:9104/metrics可查看MySQLD Exporter采集的MySQL监控数据
+
+```bash
+# 拉取镜像
+docker pull prom/mysqld-exporter
+
+# 启动容器
+docker run -d --name mysqldExporter \
+-p 9104:9104 \
+-e DATA_SOURCE_NAME="root:123456@(49.232.207.245:3306)/"  \
+prom/mysqld-exporter
+```
+
+![监控MySQLD](Prometheus.assets/监控MySQLD.png)
+
+在Prometheus服务的配置文件prometheus.yml中添加相应的配置，收集MySQLD Exporter的监控数据
+
+重启Prometheus服务
+
+```yaml
+vim prometheus.yml
+
+...
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'prometheus'
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    static_configs:
+    - targets: ['localhost:9090']
+
+  # 收集MySQL的监控数据      
+  - job_name: 'MySQL'
+    static_configs:
+    - targets: ['49.232.207.245:9104']
+```
+
+![监控MySQLD-Target](Prometheus.assets/监控MySQLD-Target.png)
+
+进入Grafana官网( [https://grafana.com](https://link.zhihu.com/?target=https%3A//grafana.com) )，选择适用于监控MySQL的模板选择仪表盘
+
+过滤条件：
+
+- Name/Description：mysql 
+- Data Source：Prometheus
+
+复制**模板ID—12826**
+
+导入
+
+![MySQL仪表盘](Prometheus.assets/MySQL仪表盘.png)
 

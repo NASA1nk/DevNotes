@@ -24,15 +24,18 @@ Prometheus生态圈由多个组件构成，其中许多组件是可选的
   >
   > 即便客户端推了全量的数据到了PushGateway，Prometheus也不是每次拉取这个期间用户推上来的所有数据。事实上Prometheus只拉取用户最后一次push上来的数据。如果客户端一直没有推送新的指标到PushGateway，那么Prometheus将始终拉取最后推送上的数据，直到指标消失（默认5分钟）
   >
-  > Prometheus 采用定时拉取模式，可能由于子网络或者防火墙的原因，不能直接拉取各个Target的指标数据，此时可以采用各个Target往PushGateway上推送数据，然后Prometheus去PushGateway上定时拉取
+  > Prometheus 采用定时拉取模式，可能由于子网络或者防火墙的原因，不能直接拉取各个Target的指标数据，此时可以让各个Target往PushGateway上推送数据，然后Prometheus去PushGateway上定时拉取
   >
   > 在监控各个业务数据时，需要将各个不同的业务数据进行统一汇总，此时也可以采用PushGateway来统一收集，然后Prometheus来统一拉取
 
 - Exporters
   用于暴露已有的第三方服务的指标数据通过HTTP服务的形式暴露给Prometheus Server，比如HAProxy、StatsD、Graphite等等。Prometheus Server通过访问该Exporter提供的Endpoint，即可获取到需要采集的监控数据。
   
+  > 输出被监控组件信息的HTTP接口被叫做exporter
+  
 - Alertmanager
-  从Prometheus Server接收到告警后，会进行去除重复数据，分组，并路由到对收的接受方式，发出报警。Alertmanager的告警方式非常灵活，支持通过邮件、slack或钉钉等多种途径发出告警。
+  从Prometheus Server接收到告警后，Alertmanager会进行去除重复数据，分组，并路由到接收方，发出报警。
+  AlertManager支持自定义告警规则。告警方式也非常灵活，支持通过邮件、slack或钉钉等多种途径发出告警。
 
 ![Prometheus架构图](Prometheus.assets/Prometheus架构图.jpg)
 
@@ -49,19 +52,19 @@ Prometheus生态圈由多个组件构成，其中许多组件是可选的
 
 Prometheus会将所有采集到的监控数据以**时间序列**的方式保存在内存数据库中，并定时保存到硬盘上。
 
-每一条数据由以下三部分组成：
+每一条数据由三部分组成
 
-- 指标（Metric）：由指标名称和描述当前数据特征的标签组成。
-- 时间戳（Timestamp）：一个精确到毫秒的时间戳。
-- 数据值（Value）：一个float64的浮点型数据表示当前数据的值。
+- 指标（Metric）：由**指标名称**和描述当前数据特征的**标签**组成
+- 时间戳（Timestamp）：一个精确到毫秒的时间戳
+- 数据值（Value）：一个float64的浮点型数据表示当前数据的值
 
 ## 指标(Metric)
 
-### 格式
+### 指标格式
 
 `指标名称{标签名称="标签值", ...}`
 
-> 标签(Label)反映了当前数据的特征维度，通过这些维度Prometheus可以对数据进行过滤，聚合等操作。
+标签（Label）反映了当前数据的特征维度，通过这些维度Prometheus可以对数据进行过滤，聚合等操作
 
 ### 指标类型
 
@@ -150,21 +153,21 @@ prometheus_target_interval_length_seconds_count{interval="15s"} 21
 
 # Prometheus数据获取
 
-`Prometheus`主要是通过拉取pull的方式获取数据。
+Prometheus主要是通过拉取pull的方式获取数据。
 
-`Prometheus`每隔一段时间会从配置的目标target（一个获取数据的url）以Http协议拉取指标metrics，这些目标可以是应用，也可以是代理，缓存中间件，数据库等等一些中间件。
+Prometheus每隔一段时间会从配置的**目标target**（获取数据的url）以Http协议拉取**指标metrics**，这些目标可以是应用，也可以是代理，缓存中间件，数据库等等一些中间件
 
-> 需要每个服务端点提供`http`的接口来获取实时的数据。
+> 需要每个服务端点提供http的接口来获取实时的数据。
 
-`Prometheus`会将拉取出来的数据存到自己的TSDB数据库。Prometheus的WebUI控制台以及`Grafana`可以对数据进行时间范围内的不断查询，绘制成实时图表工展现。
+Prometheus会将拉取出来的数据存到自己的TSDB时序数据库。Prometheus的WebUI控制台以及Grafana可以对数据进行时间范围内的不断查询，绘制成实时图表工展现
 
-`Prometheus` 支持例如`zookeeper`,`consul`之类的服务发现中间件，用以对目标(`target`)的自动发现。而不用一个个去配置`target`。
+Prometheus支持例如zookeeper，consul之类的服务发现中间件，用以对目标target的自动发现。而不用一个个去配置
 
-`alertManager`组件支持自定义告警规则，告警渠道也支持很多种
+
 
 # 配置Prometheus
 
-访问Web管理页面( http://http://49.232.207.245:9090 )可以看到Prometheus服务正确启动
+访问Web管理页面( http://49.232.207.245:9090 )可以看到Prometheus服务正确启动
 
 ```bash
 # 拉取镜像
@@ -184,12 +187,14 @@ prom/prometheus
 
 # 配置Exporter
 
-Prometheus服务其实是负责收集、存储、查看监控数据。真正直接进行监控是通过Exporter完成
+Prometheus服务负责收集、存储、查看监控数据。真正直接进行监控通过Exporter完成
 
-Exporter相当于是Prometheus服务的客户端，负责向其提供监控数据。针对不同的被监控目标需要使用不同的Exporter
+Exporter相当于是Prometheus服务的客户端，负责向其提供监控数据，针对不同的被监控目标需要使用不同的Exporter
 
-> Exporter程序对外暴露了一个用于获取当前监控样本的HTTP访问地址
->
+- 查看已知的端口是否被占用：`netstat -anp |grep 8089`
+
+- 查看服务器已使用的所有端口：`netstat  -nultp`
+
 > Exporter的实例称为Target，Prometheus通过轮询的方式定时从这些Target中获取监控数据样本，并且存储在数据库当中
 >
 > 使用一个Node Exporter用来采集监控的主机的运行状态(CPU、内存、磁盘等参数)，一般不推荐使用Docker来部署Node Exporter
@@ -199,64 +204,59 @@ Exporter相当于是Prometheus服务的客户端，负责向其提供监控数�
 > AMD64又称x86-64或x64”，是一种64位元的电脑处理器架构。它是建基于现有32位元的x86架构，由AMD公司所开发
 >
 > 简单理解： i386是32位的版本，amd64是64位的版本
+>
+> 报错：level=info ts=2020-07-18T04:38:46.494Z caller=tls_config.go:170 msg="TLS is disabled and it cannot be enabled on the fly." http2=false
+>
+> 原因：node_exporter版本升到1.0.0之后，因为安全性考虑支持了TLS，所以要添加证书
+>
+
+
 
 ```bash
 # 下载 node exporter(64bit)
 wget https://github.com/prometheus/node_exporter/releases/download/v1.1.2/node_exporter-1.1.2.linux-amd64.tar.gz
 
-
 # 解压
 tar xvfz node_exporter-1.1.2.linux-amd64.tar.gz
 
+# 移动到exporter 目录下
+mkdir exporter
+mv node_exporter-1.1.2.linux-amd64/* exporter
+
 # 进入目录
-cd node_exporter-1.1.2.linux-amd64
+# 将node_exporter和node_exporter.crt和node_exporter.key放在同一个目录
+cd exporter
+
+# 生成证书
+# 得到node_exporter.crt和node_exporter.key两个文件
+openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 -keyout node_exporter.key -out node_exporter.crt -subj "/C=CN/ST=Beijing/L=Beijing/O=test.cn/CN=localhost"
+
+# 编写配置文件
+vim config.yaml
+
+# 复制进去
+tls_server_config:
+  cert_file: node_exporter.crt
+  key_file: node_exporter.key
 
 # 查看node_exporter是否正常
 ./node_exporter --version
 
-# 启动 Node Exporter(显示端口)
-./node_exporter
+# 使用配置文件启动
+./node_exporter --web.config=config.yaml
 ```
-
-> 查看已知的端口是否被占用：`netstat -anp |grep 8089`
->
-> 查看服务器已使用的所有端口`netstat  -nultp`
->
-> 报错：
->
-> level=info ts=2020-07-18T04:38:46.494Z caller=tls_config.go:170 msg="TLS is disabled and it cannot be enabled on the fly." http2=false
->
-> 原因：
->
-> node_exporter版本升到1.0.0之后，因为安全性考虑支持了TLS
->
-> 解决：
->
-> ```bash
-> # 生成证书
-> # 得到node_exporter.crt和node_exporter.key两个文件
-> openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 -keyout node_exporter.key -out node_exporter.crt -subj "/C=CN/ST=Beijing/L=Beijing/O=test.cn/CN=localhost"
-> 
-> # 将node_exporter和node_exporter.crt和node_exporter.key放在同一个目录
-> cd /root/aiops/prometheus/Exporter
-> mv /root/aiops/prometheus-tls/* .
-> 
-> # 编写配置文件
-> vim config.yaml
-> # 复制
-> tls_server_config:
->   cert_file: node_exporter.crt
->   key_file: node_exporter.key
->   
-> # 使用配置文件启动
-> ./node_exporter --web.config=config.yaml
-> ```
 
 通过 http://49.232.207.245:9100/metrics 可以看到采集的监控数据
 
-只需在Prometheus服务的配置文件prometheus.yml中添加相应的配置就可以收集Node Exporter的监控数据
+在Prometheus服务的配置文件prometheus.yml中添加相应的配置就可以收集Node Exporter的监控数据
 
-在scrape_configs下添加一个新的job
+- 在scrape_configs下添加一个新的job
+- 重启prometheus服务然后进入其Web管理页面http://49.232.207.245:9090
+
+- 输入up，点击Execute按钮，可看到刚刚添加的job（1表示正常，0表示异常）
+
+
+> 访问http://49.232.207.245:9090/targets查看页面
 
 ```yaml
 ...
@@ -279,16 +279,17 @@ scrape_configs:
       ca_file: node_exporter.crt
     metrics_path: '/actuator/prometheus'
     static_configs:
+    # 多个node_exporter，在targets数组后面加即可
     - targets: ['49.232.207.245:9090']
 ```
 
-重启prometheus服务然后进入其Web管理页面( http://49.232.207.245:9090 )
 
-输入up，点击Execute按钮，可看到刚刚添加的job。1表示正常，0表示异常
-
-访问http://49.232.207.245:9090/targets查看页面
 
 # 配置Grafana
+
+访问http://49.232.207.245:3000进入Grafana的Web页面
+
+默认账号密码均为admin，进入后修改密码（123456）
 
 ```bash
 # 拉取镜像
@@ -300,19 +301,33 @@ docker run --name myGrafana \
 grafana/grafana
 ```
 
-访问http://localhost:3000 可以看到Grafana的Web页面，账号、缺省密码均为admin。
 
-添加一个Prometheus类型的数据源
 
-在设置Configuration中选择`Data Sources`，点击`Add data source`，选择`Time series databases`时序数据库中的`Prometheus`，依次填写数据源名称和URL地址并保存
+## 添加数据源
 
-## 仪表盘
+- 设置`Configuration`
+- 选择`Data Sources`
+- 点击`Add data source`，
+- 选择`Time series databases`时序数据库中的`Prometheus`
+- 填写数据源名称和URL地址http://49.232.207.245:9090并保存
 
-在Grafana中可以自定义各种监控所需的仪表盘，
+![Grafana连接Prometheus](Prometheus.assets/Grafana连接Prometheus.png)
 
-> 完全自己搭建较为麻烦，可在现有模板的基础上根据需要进行微调
+## 配置仪表盘
 
-进入Grafana官网( [https://grafana.com](https://link.zhihu.com/?target=https%3A//grafana.com) )选择仪表盘，过滤出适用Node Exporter类型的相关模板，选择支持中文的，复制该模板的ID——8919。回到Grafana的Web管理页面，点加号选择import导入模板，再选择数据源导入
+在Grafana中可以自定义各种监控所需的仪表盘
+
+进入Grafana官网( [https://grafana.com](https://link.zhihu.com/?target=https%3A//grafana.com) )，选择仪表盘
+
+![Grafana仪表盘](Prometheus.assets/Grafana仪表盘.png)
+
+过滤出适用Node Exporter类型的相关模板，选择支持中文的，复制该**模板ID——8919**。回到Grafana的Web管理页面，点加号选择import导入模板，再选择数据源导入
+
+![过滤仪表盘](Prometheus.assets/过滤仪表盘.png)
+
+> 完全自己搭建较麻烦，可在现有模板的基础上根据需要进行微调
+
+
 
 
 

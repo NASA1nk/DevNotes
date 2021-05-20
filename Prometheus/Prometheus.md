@@ -317,15 +317,25 @@ grafana/grafana
 
 在Grafana中可以自定义各种监控所需的仪表盘
 
+> 完全自己搭建较麻烦，可在现有模板的基础上根据需要进行微调
+
 进入Grafana官网( [https://grafana.com](https://link.zhihu.com/?target=https%3A//grafana.com) )，选择仪表盘
 
 ![Grafana仪表盘](Prometheus.assets/Grafana仪表盘.png)
 
-过滤出适用Node Exporter类型的相关模板，选择支持中文的，复制该**模板ID——8919**。回到Grafana的Web管理页面，点加号选择import导入模板，再选择数据源导入
+过滤出适用Node Exporter类型的相关模板
+
+- 选择中文版本
+- 复制该**模板ID——8919**
 
 ![过滤仪表盘](Prometheus.assets/过滤仪表盘.png)
 
-> 完全自己搭建较麻烦，可在现有模板的基础上根据需要进行微调
+回到Grafana的Web管理页面
+
+- 点加号选择import导入模板，输入模板ID
+- 点击loda，在VictoriaMetrics中选择Prometheus，点击import
+
+![导入模板](Prometheus.assets/导入模板.png)
 
 
 

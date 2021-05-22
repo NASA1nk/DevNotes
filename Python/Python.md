@@ -2708,7 +2708,7 @@ python的`os`模块封装了`fork`系统调用
 
 `Process`
 
-`multiprocessing`是跨平台版本的多进程模块，提供了一个`Process`类来代表一个进程对象
+`multiprocessing`是**跨平台版本**的**多进程模块**，提供了一个`Process`类来代表一个进程对象
 
 > Windows没有`fork`调用，`multiprocessing`其实是**模拟**`fork`的效果，父进程所有python对象都必须通过`pickle`序列化再传到子进程去
 
@@ -2778,7 +2778,7 @@ if __name__=='__main__':
 
 `subprocess`
 
-`subprocess`模块可以非常方便地启动一个子进程，然后控制其输入和输出
+`subprocess`模块可以启动一个子进程，然后控制其输入和输出
 
 `subprocess.call()`：调用
 
@@ -2877,3 +2877,4 @@ t.join()
 print('thread %s ended.' % threading.current_thread().name)
 ```
 
+wo

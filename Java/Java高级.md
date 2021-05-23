@@ -1269,7 +1269,10 @@ Java集合分为`Collection`和`Map`两种体系（接口）
 - **集合转成对象（Object）数组**
   - `Object[] toArray()`
 - **数组转换为集合**
+  
   - `Arrays.asList()`：调用`Arrays`类的静态方法（）
+  
+    > Arrays.asList方法返回的是一个固定长度的List集合（既不是ArrayList实例也不是Vector实例）
 - **获取集合对象的哈希值**
   - `hashCode()`
 - **遍历**
@@ -1560,9 +1563,140 @@ public class ForTest {
 
 ### List接口
 
-`ArrayList`**是一个采用类型参数的泛型类**
+Collection的子接口
 
-`<>`指定数组列表保存的元素**对象类型**·
+List容器中的元素有序、可重复
+
+List容器中的元素都对应一个整数型的索引，可以根据索引存取容器中的元素
+
+`List`集合除了从`Collection`集合继承的方法外，还添加了一些**根据索引来操作集合元素**的方法
+
+> List有索引所以使用普通的for循环遍历（`list.size()`）
+
+List接口的常用**实现类**
+
+- `ArrayList`：
+
+  - List接口的主要（典型）实现类
+
+  - **线程不安全的，效率高**
+
+  - 底层使用`Object[] elementData`存储
+
+    ![ArrayList底层数组](Java高级.assets/ArrayList底层数组.png)
+
+- `LinkedList`：
+
+  - 底层使用**双向链表**存储
+  - **线程不安全的，效率高**
+  - 对于频繁的插入，删除操作效率比`ArrayList`高
+
+- `Vector`：
+
+  - List接口的古老实现类
+  - **线程安全的，效率低**
+  - 底层使用`Object[] elementData`存储（扩容是2倍）
+
+#### ArrayList 
+
+- `ArrayList`是一个采用类型参数的泛型类
+- `<>`指定数保存元素的**对象类型**
+- 底层使用`Object[] elementData`存储
+
+> 建议使用带参构造器
+
+
+
+**源码分析**
+
+- 搜索类快捷键：`ctrl+n`
+- 搜索类中方法快捷键：`ctrl+F12`
+
+JDK7：饿汉式
+
+**直接创建一个初始容量为10的数组**
+
+````java
+// 空参构造器的底层创建一个初始容量为10的Object数组elementData
+ArrayList list = new Arraylist();
+
+// elementData[0] = new Integer(123)
+list.add(123);
+
+// 当添加导致容量不够时,默认扩容为原来容量的1.5倍,再将原数组数据复制到新数组中
+````
+
+![JDK7饿汉](Java高级.assets/JDK7饿汉.png)
+
+![JDK7扩容](Java高级.assets/JDK7扩容.png)
+
+JDK8：懒汉式
+
+**一开始创建一个长度为0的数组，当添加第一个元素时再创建一个始容量为10的数组**（延迟数组的创建时间，节省内存）
+
+```java
+// 空参构造器的底层创建一个空的Object[] elementData
+// 并没有创建一个长度为10的Object[] elementData
+ArrayList list = new Arraylist();
+
+// 创建一个长度为10的Object[] elementData
+// elementData[0] = new Integer(123)
+list.add(123);
+
+// 当添加导致容量不够时,默认扩容为原来容量的1.5倍,再将原数组数据复制到新数组中
+```
+
+![JDK8初始化](Java高级.assets/JDK8初始化.png)
+
+![JDK8懒汉式](Java高级.assets/JDK8懒汉式.png)
+
+#### LinkedList
+
+底层使用**双向链表**存储
+
+```java
+// 内部声明了Node(双向链表)类型的first和last属性,默认为NULL
+LinkedList list = new LinkedList();
+
+// 将123封装到Node中(相当于创建了Node对象)
+list.add(123);
+```
+
+![LinkedList底层存储](Java高级.assets/LinkedList底层存储.png)
+
+![Node内部类](Java高级.assets/Node内部类.png)
+
+![LinkedListadd](Java高级.assets/LinkedListadd.png)
+
+![LinkedListlinklast](Java高级.assets/LinkedListlinklast.png)
+
+
+
+**List常用方法**
+
+- `void add(int index, Object ele)`：在index位置添加元素ele
+- `boolean addAll(int index, Collection e)`：从index位置开始将e中的**所有元素**添加进来
+- `Object get(int index)`：获取指定index位置的元素
+- `int indexOf(Object obj)`：返回obj在集合中**第一次**出现的位置（没有则返回-1）
+- `int last IndexOf(Object obj)`：返回obj在当前集合中**最后一次**出现的位置（没有则返回-1）
+- `Object remove(int index)`：移除指定index位置的元素，**并返回此元素**（重载）
+- `Object set(int index, Object ele)`：设置指定index位置的元素为ele
+- `List subList(int fromIndex, int toIndex)`：返回从fromIndex到toIndex位置的**子集合**
+
+> List中的`remove()`方法重载了Collection的方法，一个根据索引删除，一个根据元素删除。
+>
+> 因为Collection集合添加int类型的元素也会自动装箱为Integer，所以当参数是int类型时默认是索引。
+>
+> 如果想删除元素，则需调用`new Integer()`
+
+### set接口
+
+- Collection的子接口
+- Set 集合元素不重复
+- Set接口没有提供额外的方法
+- Set判断两个对象是否相同不是使用`==`运算符，而是根据`equals()`方法
+- Set的实现类
+- `HashSet`
 
 ## Map接口
 

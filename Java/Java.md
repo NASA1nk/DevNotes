@@ -156,8 +156,8 @@
   2. 删除对应目录下文件，然后删除`JAVA_HOME`，最后删除**PATH**中关于java的目录
   3. 验证：`java -version`
 - **安装JDK**
-  1. 下载：直接搜索 jdk8（可专门设置env文件夹存放）
-  2. 配置环境变量：在path中添加`jdk\bin`路径即可
+  1. 下载
+  2. 配置环境变量：在path中添加`jdk\bin`路径
 
 > jdk11已经不用配置jre了
 >
@@ -348,7 +348,7 @@ java HelloWorld			#运行	不带class后缀
 
 - **单行注释**：line comment
 
-  快捷键：ctrl+/
+  快捷键：`ctrl+/`
 
   ```java
   //
@@ -356,7 +356,7 @@ java HelloWorld			#运行	不带class后缀
 
 - **多行注释**：Block comment
 
-  快捷键：ctrl+shift+/
+  快捷键：`ctrl+shift+/`
 
   ```java
   /**/
@@ -364,7 +364,7 @@ java HelloWorld			#运行	不带class后缀
 
 - **文档注释**：**JavaDoc**
 
-  快捷键：/**+空格
+  快捷键：`/**+空格`
   
   ```java
   /**

@@ -2209,7 +2209,7 @@ System.out.println(user);
 
 **优点**
 
-- **类型安全**：只有指定类型才可以添加到集合中
+- **类型安全**：只有指定类型才可以添加到集合中（**编译时**检查）
 - **便捷**：读取出来的对象不需要强转，运行时就不会产生`ClassCastException`异常
 
 > 使用Object的**缺点**
@@ -2258,4 +2258,176 @@ public class GenericTest {
 }
 ```
 
-## 自定义泛型类
+## 自定义泛型结构
+
+**三种结构**
+
+- 自定义泛型类
+- 自定义泛型接口
+- 自定义泛型方法
+
+**注意**
+
+- 实例化后，操作原来泛型位置的结构必须与指定的泛型类型一致
+- 泛型不同的引用不能相互赋值（`ArrayList<String>`和`ArrayList<Integer>`不能相互赋值）
+- 泛型如果不指定，就会被擦除（编译不会类型检查），泛型对应的类型均按照`Object`处理
+- 如果泛型结构是一个接口或抽象类，则不可创建泛型类的对象
+-  JDK7后，泛型的简化操作`ArrayList<String> f = new ArrayList<>()`（后面不用再加泛型）
+- 在类/接口上声明的泛型在本类或本接口中即代表某种类型，可以作为非静态属性的类型、非静态方法的参数类型、非静态方法的返回值类型。但在静态方法中不能使用类的泛型（泛型是在实例化的时候确定，但是静态方法是随着类的创建一起加载的，所以无法使用泛型）
+- 异常类不能是泛型的
+- 不能声明泛型数组`new E[]`，但是可以使用`Object`数组强转：`E[] elements = (E[])new Object[capacity]`
+
+> 泛型要使用一路都用，要不用一路都不用
+>
+> 泛型擦除不等价于Object，因为指定Object，编译会类型检查，必须按照Object处理，擦除则编译不会类型检查
+
+
+
+### 自定义泛型类/接口
+
+定义时不知道数据类型（在实例化的时候才知道）就可以使用泛型
+
+- 泛型类可以有多个参数，一起放在尖括号内，逗号隔开（`<E1,E2,E3>`） 
+- 泛型类的构造器没有变化，实例化的时候需要加上`<T>`
+- 如果定义了泛型类，实例化的时候就要指明类的泛型（不指明默认泛型类型是`Object`类型）
+
+> 常用`<T>`表示（Type的缩写）
+
+```java
+package com.ink.Generic;
+
+/**
+ * @author ink
+ * @date 2021年05月25日16:13
+ */
+public class Order<T>{
+    String orderName;
+    int orderId;
+    // 类的内部结构可以使用类的泛型
+    T orderT;
+
+    public Order() {
+    }
+
+    public Order(String orderName, int orderId, T orderT) {
+        this.orderName = orderName;
+        this.orderId = orderId;
+        this.orderT = orderT;
+    }
+
+    public T getOrderT() {
+        return orderT;
+    }
+
+    public void setOrderT(T orderT) {
+        this.orderT = orderT;
+    }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "orderName='" + orderName + '\'' +
+                ", orderId=" + orderId +
+                ", orderT=" + orderT +
+                '}';
+    }
+}
+```
+
+```java
+package com.ink.Generic;
+
+import org.junit.Test;
+
+import java.util.*;
+
+public class GenericTest {
+    @Test
+    public void test(){
+        Order<String> order = new Order<String>("A",1001,"order(A)");
+        // Order{orderName='A', orderId=1001, orderT=order(A)}
+        System.out.println(order.toString());
+        order.setOrderT("AA:order");
+        // Order{orderName='A', orderId=1001, orderT=AA:order}
+        System.out.println(order.toString());
+    }
+}
+```
+
+**继承**
+
+父类有泛型，子类可以选择**保留泛型**也可以选择**指定泛型类型**
+
+指定了泛型类型的子类不再是泛型类
+
+> 没有保留也没有指定泛型类型，则泛型擦除
+
+```java
+package com.ink.Generic;
+
+//继承带泛型的父类时,指明了泛型类型
+public class SubOrder extends Order<Integer>{
+}
+```
+
+```java
+package com.ink.Generic;
+
+import org.junit.Test;
+
+import java.util.*;
+
+public class GenericTest {
+    @Test
+    public void test(){
+        // 实例化时不再需要指明泛型类型
+        SubOrder subOrder = new SubOrder();
+        subOrder.setOrderT(1122);
+        // Order{orderName='null', orderId=0, orderT=1122}
+        System.out.println(subOrder.toString());
+    }
+}
+```
+
+保留了泛型类型的子类仍然是泛型类
+
+> 可以全部保留也可以部分保留（部分指定），还可以增加自己的泛型
+
+```java
+package com.ink.Generic;
+
+//继承带泛型的父类时,没有指明泛型类型
+public class SubOrder<T> extends Order<T>{
+}
+```
+
+```java
+package com.ink.Generic;
+
+import org.junit.Test;
+
+import java.util.*;
+
+public class GenericTest {
+    @Test
+    public void test(){
+        SubOrder<String> subOrder = new SubOrder<>();
+        subOrder.setOrderT("ink");
+        // Order{orderName='null', orderId=0, orderT=ink}
+        System.out.println(subOrder.toString());
+    }
+}
+```
+
+
+
+### 自定义泛型方法
+
+在**方法中**使用了泛型结构的方法，泛型参数与类的泛型参数无关
+
+泛型方法和所在类或接口无关（与它们是不是泛型类无关）
+
+> 不是方法中使用了类或接口的泛型就是泛型方法
+
+
+

@@ -1257,7 +1257,7 @@ Java集合分为`Collection`和`Map`两种体系（接口）
 - **判断集合是否为空**
   - `boolean isEmpty()`
 - **判断集合是否包含某个元素**
-  - `boolean contains(Object obj)`：调用对象所在类的`equals`方法来判断集合中每一个元素是否是目标对象（**obj对象需要重写`equals`方法**）
+  - `boolean contains(Object obj)`：调用对象所在类的`equals`方法来判断集合中每一个元素是否是目标元素（**obj对象需要重写`equals`方法**）
   - `boolean containsAll(Collection c)`：调用对象所在类的`equals`方法来比较集合的每一个元素是否被包含
 - **删除**
   - `boolean remove(Object obj)` ：调用对象所在类的`equals`方法判断是否是要删除的那个元素，只会删除匹配的第一个元素（**obj对象需要重写`equals`方法**）
@@ -1493,7 +1493,7 @@ public class IteratorTest {
 
 `Iterator iterator = coll.iterator();`
 
-- `iterator`**仅用于遍历集合**，`iterator`本身并不提供承装对象的能力（并不是容器）。创建`Iterator`对象**必须有一个被迭代的集合**
+- `iterator`**仅用于遍历集合**，`iterator`本身并不提供承存储对象的能力（并不是容器）。创建`Iterator`对象**必须有一个被迭代的集合**
 - 集合对象每次调用`iterator()`方法都得到**一个全新的迭代器对象**，**默认游标都在集合的第一个元素之前**（`next()`先下移，再返回元素）
 
 ```java
@@ -1599,8 +1599,7 @@ List接口的常用**实现类**
 
 #### ArrayList 
 
-- `ArrayList`是一个采用类型参数的泛型类
-- `<>`指定数保存元素的**对象类型**
+- `ArrayList`是一个采用类型参数的**泛型类**
 - 底层使用`Object[] elementData`存储
 
 > 建议使用带参构造器
@@ -1816,33 +1815,91 @@ list.add(123);
 
 **Abstract Methods**
 
-`Object put(Object key,Object value)`：将指定`key:value`添加到（或修改）当前map对象中
+- `Object put(Object key,Object value)`：将指定`key:value`添加到（或修改）当前map对象中
 
-`void putAll(Map m)`：将m中的所有`key:value`对存放到当前map中
+- `void putAll(Map m)`：将m中的所有`key:value`对存放到当前map中
+- `Object remove(Object key)`：移除指定`key`的`key:value`对并返回对应的`value`
+- `void clear()`：清空map中的所有数据（并不是将map赋值为`null`）
+- `Object get(Object key)`：获取指定`key`对应的`value`（没有返回`null`）
+- `boolean containsKey(Object key)`：查询是否包含指定的`key`
+- `boolean containsValue(Object value)`：查询是否包含指定的`value`
 
-`Object remove(Object key)`：移除指定`key`的`key:value`对并返回`value`
+- `int size()`：返回map中`key:value`对的个数
 
-`void clear()`：清空当前map中的所有数据
+- `boolean isEmpty()`：判断当前map是否为空
 
-`Object get(Object key)`：获取指定`key`对应的`value`
+- `boolean equals(Object obj)`：判断当前map和参数对象obj是否相等
 
-`boolean containsKey(Object key)`：查询是否包含指定的`key`
+- `Set keySet()`：返回所有`key`构成的Set集合
 
-`boolean containsValue(Object value)`：查询是否包含指定的`value`
+- `Collection values()`：返回所有`value`构成的Collection集合
 
-`int size()`：返回map中`key:value`对的个数
+- `Set entrySet()`：返回所有`key:value`对构成的Set集合
 
-`boolean isEmpty()`：判断当前map是否为空
+> 迭代器是用来遍历collection集合的，遍历map集合一般是操作`key`或者`value`，再使用迭代器
+>
+> `Map.Entry`：内部接口`interface Entry<K,V>`
 
-`boolean equals(Object obj)`：判断当前map和参数对象obj是否相等
+```java
+package com.ink.collection;
 
-`Set keySet()`：返回所有`key`构成的Set集合
+import org.junit.Test;
 
-`Collection values()`：返回所有`value`构成的Collection集合
+import java.util.HashMap;
+import java.util.Map;
 
-`Set entrySet()`：返回所有`key:value`对构成的Set集合
-
-
+public class MapTest {
+    @Test
+    public void test1(){
+        // {A=87, b=898, 45=23}
+        // {GG=87, A=87, 23=898, b=898, 45=23}
+        // {GG=87, 23=898, b=898, 45=23}
+        // 0
+        // 23
+        // null
+        // true
+        // false
+        // 4
+        // [GG, 23, b, 45]
+        // [87, 898, 898, 23]
+        // [GG=87, 23=898, b=898, 45=23]
+        // A:87
+		// b:898
+		// 45:23
+        Map map = new HashMap();
+        map.put("A",87);
+        map.put("b",898);
+        map.put(45,23);
+        System.out.println(map);
+        Map map1 = new HashMap();
+        map1.put("GG",87);
+        map1.put("23",898);
+        map1.put(45,23);
+        map.putAll(map1);
+        System.out.println(map);
+        Object value = map.remove("A");
+        System.out.println(map);
+        map1.clear();
+        System.out.println(map1.size());
+        System.out.println(map.get(45));
+        System.out.println(map.get("45"));
+        System.out.println(map.containsKey(45));
+        System.out.println(map.containsKey("45"));
+        System.out.println(map.size());
+        System.out.println(map.keySet());
+        System.out.println(map.values());
+        System.out.println(map.entrySet());
+        Set set = map.entrySet();
+        Iterator iterator = set.iterator();
+        while(iterator.hasNext()){
+            Object obj = iterator.next();
+			// 内部接口Entry
+            Map.Entry entry = (Map.Entry)obj;
+            System.out.println(entry.getKey() + ":" + entry.getValue());
+        }
+    }
+}
+```
 
 ### HashMap
 
@@ -1884,7 +1941,7 @@ list.add(123);
 
 - `DEFAULT_INITIAL_CAPACITY`：HashMap的默认容量（16）
 - `MAXIMUM_CAPACITY`：HashMap支持的最大容量（2<sup>30</sup>）
-- `DEFAULT_LOAD_FACTOR`：HashMap的默认加载因子（0.75）
+- `DEFAULT_LOAD_FACTOR`：HashMap的默认负载因子（0.75）
 - `TREEIFY_THRESHOLD`：Bucket中存储的Node个数大于该默认值时转化为红黑树（8）
 - `UNTREEIFY_THRESHOLD`：Bucket中红黑树存储的Node个数小于该默认值时转化为链表（6）
 - `MIN_TREEIFY_CAPACITY`：Bucket中的Node被树化时最小的hash表容量（64）
@@ -1892,7 +1949,14 @@ list.add(123);
 - `size`：HashMap存储的键值对的数量
 - `modCount`：HashMap扩容和结构改变的次数
 - `loadFactor`：填充因子`DEFAULT_LOAD_FACTOR`
-- `threshold`：HashMap扩容的临界值（**容量*填充因子** 16*0.75 = 12）
+- `threshold`：HashMap扩容的临界值（**容量*负载因子** 16*0.75 = 12）
+
+**负载因子**
+
+- 负载因子的大小决定了HashMap的数据密度
+- 负载因子越大，密度越大，发生碰撞的几率越高，数组中的链表越容易长，造成查询或插入时的比较次数增多，性能会下降
+- 负载因子越小，就越容易触发扩容，数据密度也越小，意味着发生碰撞的几率越小，数组中的链表也就越短，查询和插入时比较的次数也越小，性能会更高。但是会浪费一定的内容空间。而且经常扩容也会影响性能，建议初始化预设大一点的空间
+- 按照其他语言的参考及研究经验，会考虑将负载因子设置为0.7~0.75，此时平均检索长度接近于常数
 
 > 当超出threshold临界值时，若要存放的位置非空，则默认扩容为原来容量的2倍
 >
@@ -1906,6 +1970,10 @@ list.add(123);
 > 当Bucket中存储的Node个数大到需要转化红黑树存储时，若hash表容量小于`MIN_TREEIFY_CAPACITY`，执行`resize()`扩容而不转化为红黑树
 >
 > `MIN_TREEIFY_CAPACITY`的值至少是`TREEIFY_THRESHOLD`的4倍
+
+
+
+**HashMap扩容**
 
 
 
@@ -2061,7 +2129,133 @@ final Node<K,V>[] resize() {
 
 
 
+### LinkedHashMap
+
+- `LinkedHashMap`是`HashMap`的子类 
+- 在`HashMap`存储结构的基础上，使用双向链表来**记录添加元素的顺序**（`before`，`after`）
+- `LinkedHashMap`可以维护Map的迭代顺序（迭代顺序与`key:value`键值对的插入顺序一致）
 
 
-**HashMap扩容**
 
+### TreeMap
+
+- `TreeSet`底层使用红黑树结构存储数据
+- `TreeMap`存储`key:value`对时，会根据key进行排序
+- `TreeMap`判断两个`key`相等的标准：两个`key`通过`compareTo()`方法或者`compare()`方法返回0
+- `TreeMap`的`key`的排序：
+  - **自然排序**：TreeMap的所有的`key`必须实现`Comparable`接口，且都应该是同一个类的对象，否则将会抛出`ClasssCastException`异常
+  - **定制排序**：`TreeMap`创建时传入一个`Comparator`对象，该对象负责对`TreeMap`中的所有`key`进行排序。不需要`key`实现`Comparable`接口
+
+
+
+### Properties
+
+- `Properties`类是`Hashtable`的子类，用于**处理属性文件**
+- 因为属性文件里的`key`和`value` 都是字符串类型，所以`Properties`里的`key`和`value`都是**字符串类型**
+- 创建文件：`New`-`File`（手动添加`properties`后缀）或者`Resource Bundle`（自动添加）
+- 存取数据时使用`setProperty()`方法和`getProperty()`方法
+
+```java
+Properties pros = new Properties();
+FileInputSream fis = new FileInputStream("jdbc.properties");
+pros.load(fis);
+String usernamer = pros.getProperty("username");
+String password = pros.getProperty("password");
+System.out.println(user);
+```
+
+遇到乱码问题，需要勾上，再重新导入`properties`文件
+
+![properties编码](Java高级.assets/properties编码.png)
+
+## Collections工具类
+
+`Collections`是一个操作`Set`、`List`和`Map`等集合的工具类
+
+`Collections`中提供了一系列**静态方法**，用来对集合元素进行排序、查询和修改等操作，还提供了对集合对象设置不可变、对集合对象实现同步控制等方法
+
+> 操作数组的工具类：`Arrays`
+
+
+
+**排序(静态方法)**
+
+- `reverse(List)`：反转`List`中元素的顺序（修改`list`）
+- `shuffle(List)`：对`List`中元素进行随机排序
+- `sort(List)`：对`List`中元素按升序排序（根据元素的自然顺序）
+- `sort(List,Comparator)`：根据指定`Comparator`的顺序对`List`中元素进行排序
+- `swap(List,int,int)`：将指定`List`中的i处元素和j处元素进行交换
+- `int frequency(Collection,Object)`：返回指定集合中指定元素的出现次数
+- `void copy(List dest,Listsrc)`：将src中的内容复制到dest中（要求长度满足）
+- `boolean replaceAll(List list,Object oldVal,Object newVal)`：使用`newVal`替换List对象的所有`oldVal`
+
+**同步控制**
+
+**Collections**类中提供了多个`synchronizedXxx()`方法，可以**将指定集合包装成线程同步的集合**，从而可以解决多线程并发访问集合时的线程安全问题
+
+
+
+# 泛型
+
+- `<E>`：E表示**类型**（必须是类，不能是基本数据类型）
+- 允许在定义类、接口时通过一个标识（**类型参数**）表示类中某个属性类型或者某个方法返回值及参数类型
+- 实例化集合类时指定具体的泛型类型，在集合类或者接口中定义类或者接口时，内部结构使用到类的泛型的位置都指定为实例化时的泛型类型
+- 实例化时没有指明泛型类型，则默认为`java.lang.Object`
+
+> 集合容器类在设计阶、声明阶段**不能确定容器中实际存的是什么类型的对象**
+>
+> - JDK5之前只能把元素类型设计为`Object`
+> - JDK5之后改写了集合框架中的全部接口和类，为这些接口、类增加了泛型支持，把**元素的类型设计成一个参数**（这时除了元素的类型不确定，其他的部分是确定的），这个**类型参数**就叫做泛型。从而可以在声明集合变量、创建集合对象时传入类型实参
+
+**优点**
+
+- **类型安全**：只有指定类型才可以添加到集合中
+- **便捷**：读取出来的对象不需要强转，运行时就不会产生`ClassCastException`异常
+
+> 使用Object的**缺点**
+>
+> - **类型不安全**：任何类型都可以添加到集合中（没有类型检查）
+> - **繁琐**：读取出来的对象需要强转，可能有`ClassCastException`
+
+```java
+package com.ink.Generic;
+
+import org.junit.Test;
+
+import java.util.*;
+
+public class GenericTest {
+    @Test
+    public void test(){
+        ArrayList<Integer> list = new ArrayList<>();
+        list.add(12);
+        list.add(25);
+//        for中可以使用int,Integer自动拆箱
+        for (int number: list
+             ) {
+            System.out.println(number);
+        }
+        Iterator<Integer> iterator = list.iterator();
+        while(iterator.hasNext()){
+            System.out.println(iterator.next());
+        }
+    }
+    @Test
+    public void test2(){
+        HashMap<String,Integer> map = new HashMap<>();
+        map.put("ink",23);
+        map.put("yinke",24);
+//        泛型嵌套
+        Set<Map.Entry<String, Integer>> entry = map.entrySet();
+        Iterator<Map.Entry<String, Integer>> iterator = entry.iterator();
+        while(iterator.hasNext()){
+            Map.Entry<String, Integer> e = iterator.next();
+            String key = e.getKey();
+            Integer value = e.getValue();
+            System.out.println(key + ":" + value);
+        }
+    }
+}
+```
+
+## 自定义泛型类

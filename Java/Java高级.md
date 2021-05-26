@@ -2538,11 +2538,10 @@ public class GenericTest {
 
 **通配符的使用**
 
-- 使用通配符后，除了`null`不能再向其中写入数据，但是可以获取其中的数据（`Object`类型）
-
 - 通配符**不能**用在泛型方法声明上，返回值类型前面<>不能使用?
 - 通配符**不能**用在泛型类的声明上
 - 通配符**不能**用在创建对象上
+- 使用通配符后，除了`null`不能再向其中写入数据，**但是可以读取其中的数据**（`Object`类型）
 
 > 读取List<?>的对象list中的元素永远是安全的，因为不管list的真实类型是什么，它包含的都是Object
 
@@ -2550,10 +2549,10 @@ public class GenericTest {
 // 编译错误
 public static <?> void test(ArrayList<?> list){
 }
-
+// 编译错误
 class GenericTypeClass<?>{
 }
-
+// 编译错误
 ArrayList<?> list = newArrayList<?>();
 ```
 
@@ -2561,8 +2560,12 @@ ArrayList<?> list = newArrayList<?>();
 
 **有限制的通配符**
 
-- 指定上限`extends`：使用时指定的类型必须继承某个类或者实现某个接口（<=） 
-- 指定下限`super`：使用时指定的类型不能小于操作的类（>=）
+指定赋值的**区间范围**
+
+- 指定上限`extends`：使用时指定的类型必须**继承某个类**或者**实现某个接口**（<=） 
+- 指定下限`super`：使用时指定的类型**不能小于操作的类**（>=）
+
+> 注意读取数据时的赋值对象（多态）
 
 ```java
 // 只允许泛型为Number及Number子类的引用调用
@@ -2594,10 +2597,10 @@ public class GenericTest {
        // 可以赋值
        list1 = list3;
        list1 = list4;
-       // 报错
+       // 报错, Object超过了Person
        list1 = list5;
        
-       // 报错
+       // 报错, Student低于Person
        list2 = list3;
        // 可以赋值
        list2 = list4;
@@ -2607,4 +2610,18 @@ public class GenericTest {
 ```
 
 
+
+# IO流
+
+input/output 输入输出流
+
+## File类
+
+`java.io.File`
+
+- File类是文件和文件目录路径的抽象表示形式，与平台无关
+- File类能新建、删除、重命名文件和目录，但File类不能访问文件内容本身
+- 访问文件内容本身，需要使用输入/输出流
+- 想要在Java程序中表示一个真实存在的文件或目录，那么必须有一个File对象，但是Java程序中的一个File对象，可能没有一个真实存在的文件或目录。
+- File对象可以作为参数传递给流的构造器
 

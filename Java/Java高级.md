@@ -2273,7 +2273,7 @@ public class GenericTest {
 - 泛型如果不指定，就会被擦除（编译不会类型检查），泛型对应的类型均按照`Object`处理
 - 如果泛型结构是一个接口或抽象类，则不可创建泛型类的对象
 -  JDK7后，泛型的简化操作`ArrayList<String> f = new ArrayList<>()`（后面不用再加泛型）
-- 在类/接口上声明的泛型在本类或本接口中即代表某种类型，可以作为非静态属性的类型、非静态方法的参数类型、非静态方法的返回值类型。但在静态方法中不能使用类的泛型（泛型是在实例化的时候确定，但是静态方法是随着类的创建一起加载的，所以无法使用泛型）
+- 在类/接口上声明的泛型在本类或本接口中即代表某种类型，可以作为非静态属性的类型、非静态方法的参数类型、非静态方法的返回值类型。但在**静态方法中不能使用类的泛型**（泛型是在实例化的时候确定，但是静态方法是随着类的创建一起加载的，所以无法使用类的泛型）
 - 异常类不能是泛型的
 - 不能声明泛型数组`new E[]`，但是可以使用`Object`数组强转：`E[] elements = (E[])new Object[capacity]`
 
@@ -2423,11 +2423,188 @@ public class GenericTest {
 
 ### 自定义泛型方法
 
-在**方法中**使用了泛型结构的方法，泛型参数与类的泛型参数无关
+在**方法中**使用了泛型结构的方法
 
-泛型方法和所在类或接口无关（与它们是不是泛型类无关）
+- 泛型方法的泛型参数与方法所在类的泛型参数无关
+- 泛型方法和所在类或接口无关（与它们是不是泛型类无关）
+- 泛型方法可以声明为静态，因为泛型参数是在调用方法时确定的，而不是在实例化的时候确定的
 
 > 不是方法中使用了类或接口的泛型就是泛型方法
+
+**泛型方法格式**
+
+[访问权限] <泛型> 返回类型 方法名（[泛型标识 参数名称]） 抛出的异常
+
+```java
+public class Order<T>{
+    String orderName;
+    int orderId;
+    T orderT;
+
+    public Order() {
+    }
+    public <E> List<E> copyFromArrayToList(E[] arr){
+        ArrayList<E> list = new ArrayList<>();
+        for (E e:arr
+        ) {list.add(e);
+        }
+        return list;
+    }
+}
+```
+
+```java
+package com.ink.Generic;
+
+import org.junit.Test;
+
+import java.util.*;
+
+public class GenericTest {
+    @Test
+    public void test(){
+        Order<String> order = new Order<>();
+        Integer[] arr = new Integer[]{1,2,3,4};
+        List<Integer> list = order.copyFromArrayToList(arr);
+        System.out.println(list);
+        String[] arr1 = new String[]{"ink","yinke"};
+        List<String> strings = order.copyFromArrayToList(arr1);
+        System.out.println(strings);
+    }
+}
+```
+
+**实际应用**
+
+**返回值不确定**
+
+```java
+// data(base) access object
+public class DAO<T>{
+    public <E> E get(int id, E e){
+        E result = null;
+        return result;                        
+    }
+}
+```
+
+
+
+## 泛型与继承
+
+B是A的一个**子类型**（子类或者子接口），G是具有泛型声明的类或接口
+
+- `G<B>`并不是`G<A>`的子类型（`List<String>`并不是`List<Object>`的子类），二者是并列关系
+- `B<G>`是`A<G>`的子类型（`ArrayList<String>`是`List<String>`的子类）
+
+
+
+## 通配符
+
+`?`
+
+B是A的一个**子类型**（子类或者子接口），G是具有泛型声明的类或接口。`G<B>`并不是`G<A>`的子类型，二者是并列关系，共同的父类是`G<?>`
+
+```java
+package com.ink.Generic;
+
+import org.junit.Test;
+
+import java.util.*;
+
+public class GenericTest {
+    @Test
+    public void test(){
+        List<String> list1 = null;
+        List<Integer> list2 = null;
+        List<?> list = null;
+        list = list1;
+        list = list2;
+        // 只能添加null
+        list.add(null);
+        
+    }
+    public void print(List<?> list){
+        Iterator<?> iterator = list.iterator();
+        while(iterator.hasNext()){
+            Object next = iterator.next();
+            System.out.println(next);
+        }
+    }
+}
+```
+
+
+
+**通配符的使用**
+
+- 使用通配符后，除了`null`不能再向其中写入数据，但是可以获取其中的数据（`Object`类型）
+
+- 通配符**不能**用在泛型方法声明上，返回值类型前面<>不能使用?
+- 通配符**不能**用在泛型类的声明上
+- 通配符**不能**用在创建对象上
+
+> 读取List<?>的对象list中的元素永远是安全的，因为不管list的真实类型是什么，它包含的都是Object
+
+```java
+// 编译错误
+public static <?> void test(ArrayList<?> list){
+}
+
+class GenericTypeClass<?>{
+}
+
+ArrayList<?> list = newArrayList<?>();
+```
+
+
+
+**有限制的通配符**
+
+- 指定上限`extends`：使用时指定的类型必须继承某个类或者实现某个接口（<=） 
+- 指定下限`super`：使用时指定的类型不能小于操作的类（>=）
+
+```java
+// 只允许泛型为Number及Number子类的引用调用
+<?extends Number>
+    
+// 只允许泛型为Number及Number父类的引用调用
+<? super Number>
+    
+// 只允许泛型为实现Comparable接口的实现类的引用调用
+<? extends Comparable>
+    
+
+package com.ink.Generic;
+
+import com.ink.collection.Person;
+import org.junit.Test;
+
+import java.util.*;
+
+public class GenericTest {
+    @Test
+    public void test(){
+       List<? extends Person> list1 = null;
+       List<? super Person> list2 = null;
+
+       List<Student> list3 = null;
+       List<Person> list4 = null;
+       List<Object> list5 = null;
+       // 可以赋值
+       list1 = list3;
+       list1 = list4;
+       // 报错
+       list1 = list5;
+       
+       // 报错
+       list2 = list3;
+       // 可以赋值
+       list2 = list4;
+       list2 = list5;
+    }
+}
+```
 
 
 

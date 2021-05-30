@@ -2358,14 +2358,14 @@ public class GenericTest {
 
 父类有泛型，子类可以选择**保留泛型**也可以选择**指定泛型类型**
 
-指定了泛型类型的子类不再是泛型类
+**指定了泛型类型的子类不再是泛型类**（实例化时不再需要指明泛型类型）
 
 > 没有保留也没有指定泛型类型，则泛型擦除
 
 ```java
 package com.ink.Generic;
 
-//继承带泛型的父类时,指明了泛型类型
+//继承带泛型的父类时指明了泛型类型
 public class SubOrder extends Order<Integer>{
 }
 ```
@@ -2389,7 +2389,7 @@ public class GenericTest {
 }
 ```
 
-保留了泛型类型的子类仍然是泛型类
+**保留了泛型类型的子类仍然是泛型类**
 
 > 可以全部保留也可以部分保留（部分指定），还可以增加自己的泛型
 
@@ -2613,15 +2613,229 @@ public class GenericTest {
 
 # IO流
 
-input/output 输入输出流
+`input/output` 输入输出流
+
+- I/O技术用于处理**设备之间的数据传输**
+- Java对于数据的输入输出操作以**流**stream的方式进行
+- `java.io`包提供了各种**流**类和接口用以获取**不同种类的数据**，并通过**标准输入输出**数据
 
 ## File类
 
 `java.io.File`
 
-- File类是文件和文件目录路径的抽象表示形式，与平台无关
-- File类能新建、删除、重命名文件和目录，但File类不能访问文件内容本身
-- 访问文件内容本身，需要使用输入/输出流
-- 想要在Java程序中表示一个真实存在的文件或目录，那么必须有一个File对象，但是Java程序中的一个File对象，可能没有一个真实存在的文件或目录。
-- File对象可以作为参数传递给流的构造器
+- File类是**文件和文件目录路径**的抽象表示形式，与平台无关
+- File类能新建、删除、重命名文件和目录，但**File类不能访问文件内容本身**
+- 访问文件内容本身需要使用**IO流**
+- **一个File类的对象代表一个文件或文件目录**
+- 在Java程序中表示一个**真实存在**的文件或文件目录必须有一个**File对象**，但是有一个File对象，可能没有一个真实存在的文件或文件目录
+- File对象可以作为**参数**传递给**流构造器**
+
+> 万物皆对象
+
+
+
+### 构造器
+
+- `public File(String pathname)`：以`pathname`为路径创建File对象，可以是**绝对路径或相对路径**。相对路径是相对于当前的`module`（文件和`src`目录同级）
+- `public File(String parent,String child)`：以`parent`为父路径，`child`为子路径创建File对象
+- `public File(File parent,String child)`：根据一个父File对象和子文件路径创建File对象
+
+**构造器创建File对象后只是在内存层面存在一个对象，还没有对应硬盘中的真实文件或文件目录**（文件夹中没有）
+
+```java
+package com.ink.File;
+
+import org.junit.Test;
+
+import java.io.File;
+
+public class FileTest {
+    @Test
+    public void test(){
+        File file1 = new File("ink.md");
+        // ink.md
+        System.out.println(file1);
+        
+        File file2 = new File("C:\\Users\\54164\\Desktop\\File");
+        // C:\Users\54164\Desktop\File
+        System.out.println(file2);
+        
+        File file3 = new File("C:\\Users\\54164\\Desktop\\File", "ink");
+        // C:\Users\54164\Desktop\File\ink
+        System.out.println(file3);
+        
+        File file4 = new File("file3", "ink.txt");
+        // file3\ink.txt
+        System.out.println(file4);
+    }
+}
+```
+
+**路径分隔符**
+
+- 文件目录的**路径分隔符**需要转义
+- 路径分隔符和系统有关：
+  - **Windows和DOS系统使用`\`来表示（用`/`也可以识别出）**
+  - **Unix和Url使用`/`来表示**
+- File类提供了一个**常量**`separator`（`public  static final String`）： 可以根据操作系统**动态提供分隔符**
+
+```java
+// Windows
+File file1= newFile("d:\\ink\\info.txt");
+
+// Unix
+File file3= newFile("d:/ink");
+
+// separator
+File file2= newFile("d:"+ File.separator+ "ink"+ File.separator+ "info.txt");
+```
+
+
+
+### 常用方法
+
+**文件信息获取**
+
+- `public String getAbsolutePath()`：获取绝对路径
+
+- `public String getPath()`：获取路径
+
+  - 绝对路径创建：绝对路径
+  - 相对路径创建：文件或文件目录名
+
+- `public String getName()`：获取名称 
+
+- `public String getParent()`：获取**上层文件目录**路径，无则返回`null`
+
+- `public long length()`：获取文件长度（字节数），**不能获取目录的长度**
+
+- `public long lastModified()`：获取最后一次的修改时间（毫秒值）
+
+  > 可以通过`new Date(file.lastModified())`获取具体时间
+
+```java
+package com.ink.File;
+
+import org.junit.Test;
+
+import java.io.File;
+
+public class FileTest {
+    @Test
+    public void test(){
+        File file1 = new File("ink.md");
+        File file2 = new File("C:\\Users\\54164\\Desktop\\File");
+        System.out.println(file1.getAbsoluteFile());
+        System.out.println(file1.getPath());
+        System.out.println(file1.getName());
+        System.out.println(file1.getParent());
+        System.out.println(file1.length());
+        System.out.println(file1.lastModified());
+        System.out.println();
+        System.out.println(file2.getAbsoluteFile());
+        System.out.println(file2.getPath());
+        System.out.println(file2.getName());
+        System.out.println(file2.getParent());
+        System.out.println(file2.length());
+        System.out.println(file2.lastModified());
+        // 转换为当前时间
+        System.out.println(new Date(file2.lastModified()));
+    }
+}
+```
+
+没有真正创建ink.md，所以返回null和0，创建了空的File文件目录，返回了修改时间
+
+![文件获取](Java高级.assets/文件获取.png)
+
+**文件目录信息获取**
+
+- `public String[] list()`：获取指定目录下的所有文件或文件目录的**名称数组**
+- `public File[] listFiles()`：获取指定目录下的所有文件或文件目录的**File数组**
+
+```java
+package com.ink.File;
+
+import org.junit.Test;
+
+import java.io.File;
+import java.util.Date;
+
+public class FileTest {
+    @Test
+    public void test(){
+        File file = new File("C:\\Users\\54164\\Desktop\\javase\\javase\\src\\com\\ink");
+        String[] lists = file.list();
+        for(String l : lists){
+            System.out.println(l);
+        }
+        File[] files = file.listFiles();
+        for(File f : files){
+            System.out.println(f);
+        }
+    }
+}
+```
+
+File类对象输出是调用的`tostring()`方法输出的**路径字符串**
+
+![文件目录获取](Java高级.assets/文件目录获取.png)
+
+**文件重命名**
+
+- `public boolean renameTo(File dest)`：把文件重命名（移动）为指定的文件路径，返回值表示是否成功
+
+> 如果是相对路径创建的文件，要求文件在module下，而不是package下
+>
+> 如果想返回true：要求源文件存在，指定的文件路径的文件不存在
+
+```java
+package com.ink.File;
+
+import org.junit.Test;
+
+import java.io.File;
+
+public class FileTest {
+    @Test
+    public void test(){
+        File file1 = new File("ink.txt");
+        File file2 = new File("C:\\Users\\54164\\Desktop\\File\\yinke.txt");
+        boolean renameTo = file1.renameTo(file2);
+        System.out.println(renameTo);
+    }
+}
+```
+
+**判断文件属性**
+
+- `public boolean isDirectory()`：判断是否是文件目录
+- `public boolean isFile()`：判断是否是文件
+- `public boolean exists()`：判断是否存在
+- `public boolean canRead()`：判断是否可读
+- `public boolean canWrite()`：判断是否可写
+- `public boolean isHidden()`：判断是否隐藏
+
+**创建文件**
+
+- `public boolean createNewFile()`：创建文件，若文件存在则不创建，返回`false`
+- `publicbooleanmkdir()`：创建文件目录
+  - 如果文件目录存在则不创建
+  - 如果文件目录的上层目录不存在也不创建
+- `public boolean mkdirs()`：创建文件目录，如果上层文件目录不存在则一起创建
+
+> 如果创建文件或文件目录没有写盘符路径，默认在项目路径下创建
+
+**删除文件**
+
+- `public boolean delete()`：删除文件或文件目录
+
+> 注意：
+>
+> - Java中的删除不是放进回收站。
+> - 删除一个文件目录要求该文件目录内不能包含文件或文件目录
+
+
+
+## IO流原理
 

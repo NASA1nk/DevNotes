@@ -2921,14 +2921,22 @@ Java的IO流共涉及40多个类，**都是从4个抽象基类派生的**。由�
 
 **流的使用**
 
-`FileReader`
+读入`FileReader`
 
 - `File`类的实例化
 - `FileReader`流的实例化
 - 使用`read()`方法读入文件内容（**读入的文件必须存在**）
 - 流使用后必须使用`close()`方法手动关闭
 
-> 垃圾回收机制只回收JVM堆内存中国的对象空间，对IO流等物理连接没有办法处理，需要手动关闭
+> `read()`方法可以重载
+>
+> 垃圾回收机制只回收JVM堆内存中国的对象空间，对IO流等物理连接没有办法处理（程序中打开的文件IO资源不属于内存里的资源），需要手动关闭
+
+
+
+**read()方法**
+
+读取单个字符。作为整数读取的字符，范围在0到65535之间(0x00-0xffff)（2个字节的Unicode码），如果已到达流的末尾，则返回-1
 
 ```java
 package com.ink.IO;
@@ -2959,6 +2967,59 @@ public class FileReaderWriterTest {
 
 ![read方法](Java高级.assets/read方法.png)
 
+**read(charbuffer)方法**
+
+将字符读入数组。如果已到达流的末尾，则返回-1。否则返回本次读取的字符数。
+
+在遍历时不要使用`charbuffer.lenth`，而要使用返回的字符数`len`。因为最后一次读取的长度可能不够数组长度，此时**数组中剩下的内容还是上一次存储的文件内容，而没有被覆盖**，会输出错误的信息
+
+```java
+package com.ink.IO;
+
+import org.junit.Test;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class FileReaderWriterTest {
+    @Test
+    public void test(){
+        FileReader fr = null;
+        try {
+//            实例化File对象，指明操作文件
+            File file = new File("ink.txt");
+//            提供具体流
+            fr = new FileReader(file);
+            char[] charbuffer = new char[5];
+            int len;
+//            read(charbuffer):返回每次读入到charbuffer数组中的字符的个数,达到文件末尾返回-1
+            while((len = fr.read(charbuffer)) != -1){
+                for (int i = 0; i < len; i++) {
+                    System.out.print("第 " + i + "次" + " ");
+                    System.out.print(charbuffer[i] + " ");
+                }
+                System.out.println();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+//            if中try catch也可以
+            try {
+//                关闭流
+                if(fr != null) {
+                    fr.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+```
+
+![read(cbuf)](Java高级.assets/read(cbuf).png)
+
 
 
 **流的异常处理**
@@ -2978,7 +3039,7 @@ import java.io.IOException;
 
 public class FileReaderWriterTest {
     @Test
-    public void test(){
+    public void readtest(){
         FileReader fr = null;
         try {
 //            实例化File对象，指明操作文件
@@ -3007,6 +3068,15 @@ public class FileReaderWriterTest {
 }
 
 ```
+
+
+
+写出`FileWriter`
+
+- `File`类的实例化
+- `FileWriter`流的实例化
+- 使用`write()`方法将内容写出到文件中
+- 流使用后必须使用`close()`方法手动关闭
 
 ### 处理流
 

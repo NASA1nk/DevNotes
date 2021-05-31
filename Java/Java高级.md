@@ -2618,6 +2618,8 @@ public class GenericTest {
 - I/O技术用于处理**设备之间的数据传输**
 - Java对于数据的输入输出操作以**流**stream的方式进行
 - `java.io`包提供了各种**流**类和接口用以获取**不同种类的数据**，并通过**标准输入输出**数据
+  - `read`
+  - `write`
 
 ## File类
 
@@ -2628,7 +2630,7 @@ public class GenericTest {
 - 访问文件内容本身需要使用**IO流**
 - **一个File类的对象代表一个文件或文件目录**
 - 在Java程序中表示一个**真实存在**的文件或文件目录必须有一个**File对象**，但是有一个File对象，可能没有一个真实存在的文件或文件目录
-- File对象可以作为**参数**传递给**流构造器**
+- File对象作为**参数**传递给**流构造器**，指明读取或写入的"对象"
 
 > 万物皆对象
 
@@ -2670,6 +2672,10 @@ public class FileTest {
     }
 }
 ```
+
+**文件属性**
+
+![File对象和文件](Java高级.assets/File对象和文件.png)
 
 **路径分隔符**
 
@@ -2750,7 +2756,7 @@ public class FileTest {
 
 **文件目录信息获取**
 
-- `public String[] list()`：获取指定目录下的所有文件或文件目录的**名称数组**
+- `public String[] list()`：获取指定目录下的所有文件或文件目录的**名称数组**（包含后缀 ）
 - `public File[] listFiles()`：获取指定目录下的所有文件或文件目录的**File数组**
 
 ```java
@@ -2781,9 +2787,9 @@ File类对象输出是调用的`tostring()`方法输出的**路径字符串**
 
 ![文件目录获取](Java高级.assets/文件目录获取.png)
 
-**文件重命名**
+**文件移动和重命名**
 
-- `public boolean renameTo(File dest)`：把文件重命名（移动）为指定的文件路径，返回值表示是否成功
+- `public boolean renameTo(File dest)`：把文件移动到指定的文件路径并重命名，返回值表示是否成功
 
 > 如果是相对路径创建的文件，要求文件在module下，而不是package下
 >
@@ -2801,6 +2807,7 @@ public class FileTest {
     public void test(){
         File file1 = new File("ink.txt");
         File file2 = new File("C:\\Users\\54164\\Desktop\\File\\yinke.txt");
+        // 将ink.txt移动到C:\Users\54164\Desktop\File下并重命名为yinke.txt
         boolean renameTo = file1.renameTo(file2);
         System.out.println(renameTo);
     }
@@ -2809,20 +2816,23 @@ public class FileTest {
 
 **判断文件属性**
 
+- `public boolean exists()`：**判断是否存在**
 - `public boolean isDirectory()`：判断是否是文件目录
 - `public boolean isFile()`：判断是否是文件
-- `public boolean exists()`：判断是否存在
 - `public boolean canRead()`：判断是否可读
 - `public boolean canWrite()`：判断是否可写
 - `public boolean isHidden()`：判断是否隐藏
 
 **创建文件**
 
-- `public boolean createNewFile()`：创建文件，若文件存在则不创建，返回`false`
-- `publicbooleanmkdir()`：创建文件目录
-  - 如果文件目录存在则不创建
-  - 如果文件目录的上层目录不存在也不创建
-- `public boolean mkdirs()`：创建文件目录，如果上层文件目录不存在则一起创建
+- `public boolean createNewFile()`：使用File类对象在**硬盘中**创建对应的文件，若文件存在则不创建，返回`false`
+
+**创建文件目录**
+
+- `public boolean mkdir()`：在**硬盘中**创建对应的文件目录
+  - 如果文件目录**存在则不创建**
+  - 如果文件目录的**上层目录不存在则不创建**
+- `public boolean mkdirs()`：创建文件目录，如果上层文件目录**不存在则一起创建**
 
 > 如果创建文件或文件目录没有写盘符路径，默认在项目路径下创建
 
@@ -2832,10 +2842,73 @@ public class FileTest {
 
 > 注意：
 >
-> - Java中的删除不是放进回收站。
-> - 删除一个文件目录要求该文件目录内不能包含文件或文件目录
+> - Java中的删除不是放进回收站
+> - 删除一个文件目录要求该文件目录内不能包含子文件或子文件目录
+
+```java
+package com.ink.File;
+
+import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+
+public class FileTest {
+    @Test
+    // 抛出异常
+    public void test6() throws IOException {
+        File file = new File("ink.md");
+        if(!file.exists()){
+            file.createNewFile();
+            System.out.println("创建成功");
+        }
+        else{
+            file.delete();
+            System.out.println("删除成功");
+        }
+    }
+}
+```
 
 
 
-## IO流原理
+## 流的分类
 
+- 按操作**数据单位**不同分为：
+  - 字节流(8 bit)：适合图片，视频等（非文本数据）
+  - 字符流(16 bit)：一个`char`，适合文本数据传输
+- 按数据流的**流向**不同分为：
+  - 输入流
+  - 输出流
+- 按流的**角色**的不同分为：
+  - 节点流：**直接作用于文件**的流
+  - 处理流：**封装**了节点流
+
+![流的分类](Java高级.assets/流的分类.png)
+
+Java的IO流共涉及40多个类，**都是从4个抽象基类派生的**。由这4个抽象基类派生出来的子类名称都是**以其父类名作为子类名后缀**。
+
+> 抽象类不能实例化
+
+| 抽象基类 | 字节流       | 字符流 |
+| -------- | ------------ | ------ |
+| 输入流   | InputStream  | Reader |
+| 输出流   | OutputStream | Writer |
+
+
+
+### 节点流
+
+**文件流**
+
+- FileInputStream
+- FileOutputStream
+- FileReader
+- FileWriter
+
+
+
+### 处理流
+
+**缓冲流**

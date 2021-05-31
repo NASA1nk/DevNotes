@@ -3069,5 +3069,5 @@ public class Test {
 1. 创建单元测试类
 2. 在类中声明单元测试方法
 3. 在此单元测试方法上加上注解`@Test`
-4. `alt+enter`一键导入
+4. `alt+enter`一键导入：`import org.junit.Test;`
 

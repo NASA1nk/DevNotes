@@ -2638,7 +2638,9 @@ public class GenericTest {
 
 ### 构造器
 
-- `public File(String pathname)`：以`pathname`为路径创建File对象，可以是**绝对路径或相对路径**。相对路径是相对于当前的`module`（文件和`src`目录同级）
+- `public File(String pathname)`：以`pathname`为路径创建File对象，可以是**绝对路径或相对路径**。
+  - 单元测试方法中相对路径是相对于当前的`module`（文件和`src`目录同级）
+  - `main()`方法中相对路径是相对于当前的工程（文件和`src`目录同级）
 - `public File(String parent,String child)`：以`parent`为父路径，`child`为子路径创建File对象
 - `public File(File parent,String child)`：根据一个父File对象和子文件路径创建File对象
 
@@ -2876,12 +2878,20 @@ public class FileTest {
 ## 流的分类
 
 - 按操作**数据单位**不同分为：
+
   - 字节流(8 bit)：适合图片，视频等（非文本数据）
+
   - 字符流(16 bit)：一个`char`，适合文本数据传输
+
+    > Java的字节是有符号类型，字符是无符号类型
+
 - 按数据流的**流向**不同分为：
+
   - 输入流
   - 输出流
+
 - 按流的**角色**的不同分为：
+
   - 节点流：**直接作用于文件**的流
   - 处理流：**封装**了节点流
 
@@ -2900,14 +2910,103 @@ Java的IO流共涉及40多个类，**都是从4个抽象基类派生的**。由�
 
 ### 节点流
 
-**文件流**
+**文件流**（处理文件内容）
 
-- FileInputStream
-- FileOutputStream
-- FileReader
-- FileWriter
+- `FileInputStream`
+- `FileOutputStream`
+- `FileReader`
+- `FileWriter`
 
 
+
+**流的使用**
+
+`FileReader`
+
+- `File`类的实例化
+- `FileReader`流的实例化
+- 使用`read()`方法读入文件内容（**读入的文件必须存在**）
+- 流使用后必须使用`close()`方法手动关闭
+
+> 垃圾回收机制只回收JVM堆内存中国的对象空间，对IO流等物理连接没有办法处理，需要手动关闭
+
+```java
+package com.ink.IO;
+
+import org.junit.Test;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class FileReaderWriterTest {
+    @Test
+    public void test() throws IOException {
+//        实例化File对象，指明操作文件
+        File file = new File("ink.txt");
+//        提供具体流的实例化对象
+        FileReader fr = new FileReader(file);
+//        读入read():返回读入的一个字符,达到文件末尾返回-1
+        int data;
+        while((data = fr.read()) != -1){
+            System.out.print((char) data);
+        }
+//        关闭流
+        fr.close();
+    }
+}
+```
+
+![read方法](Java高级.assets/read方法.png)
+
+
+
+**流的异常处理**
+
+关于流的异常处理，要使用`try catch finally`处理。因为如果使用throws抛出异常的话，可能无法正确关闭流，并且如果`fr = new FileReader(file)`实例化时候捕捉异常，则`finally`中的关闭操作也无法执行，所以要添加判断
+
+**快捷键**：选中 + `Ctrl + Alt +t`
+
+```java
+package com.ink.IO;
+
+import org.junit.Test;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class FileReaderWriterTest {
+    @Test
+    public void test(){
+        FileReader fr = null;
+        try {
+//            实例化File对象，指明操作文件
+            File file = new File("ink.txt");
+//            提供具体流
+            fr = new FileReader(file);
+//            read():返回读入的一个字符,达到文件末尾返回-1
+            int data;
+            while((data = fr.read()) != -1){
+                System.out.print((char) data);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+//            if中try catch也可以
+            try {
+//                关闭流
+                if(fr != null) {
+                    fr.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+
+```
 
 ### 处理流
 

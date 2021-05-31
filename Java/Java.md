@@ -196,23 +196,23 @@ java HelloWorld			#运行	不带class后缀
 
 **安装目录**
 
-- bin：
+- `bin`：
   - 启动文件，64位是`idea64.exe`（32位是`idea.exe`）
   - 相关的一些虚拟机的配置信息（在`idea64.exe.vmoptions`文件中）
   - IDEA基本的属性信息（在`idea.properties`文件中）
-- help：快捷键文档和其他帮助文档
-- jbr：在jbr目录中已经提供好了Java的运行环境（JRE），如果要开发Java程序需要独立安装JDK
-- lib：IDEA依赖的一些相关的类库
-- license：相关插件的许可信息
-- plugins：插件
+- `help`：快捷键文档和其他帮助文档
+- `jbr`：在jbr目录中已经提供好了Java的运行环境（JRE），如果要开发Java程序需要独立安装JDK
+- `lib`：IDEA依赖的一些相关的类库
+- `license`：相关插件的许可信息
+- `plugins`：插件
 
 **配置目录**
 
-- config：`C:\Users\54164\AppData\Roaming\JetBrains\IntelliJIdea2021.1`
+- `config`：`C:\Users\54164\AppData\Roaming\JetBrains\IntelliJIdea2021.1`
 
 **系统目录**
 
-- system：`C:\Users\54164\AppData\Local\JetBrains\IntelliJIdea2021.1`
+- `system`：`C:\Users\54164\AppData\Local\JetBrains\IntelliJIdea2021.1`
 
 > 在对IntelliJ IDEA进行配置后，想进行还原，就可以找到本机上的这两个目录，把它们都删掉，然后重启IDEA。这时IDEA就会生成最初的类似config和system的那两个目录，就还原成最初的一个状态了
 
@@ -723,7 +723,7 @@ final double PI = 3.14;
 
    ![包路径](Java.assets/包路径.png)
 
-3. 在com下建立新的包，在com.ink后面输入包名
+3. 在`com`下建立新的包，在`com.ink`后面输入包名
 
    ![建包](Java.assets/建包.png)
 

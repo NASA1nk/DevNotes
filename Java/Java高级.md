@@ -2879,11 +2879,9 @@ public class FileTest {
 
 - 按操作**数据单位**不同分为：
 
-  - 字节流(8 bit)：适合图片，视频等（非文本数据）
+  - 字节流(8 bit)：用于图片，视频等非文本数据传输
 
-  - 字符流(16 bit)：一个`char`，适合文本数据传输
-
-    > Java的字节是有符号类型，字符是无符号类型
+  - 字符流(16 bit)：`char`用于文本数据传输
 
 - 按数据流的**流向**不同分为：
 
@@ -2894,6 +2892,12 @@ public class FileTest {
 
   - 节点流：**直接作用于文件**的流
   - 处理流：**封装**了节点流
+
+> 字节流操作字节，如.mp3，.avi，.rmvb，mp4，.jpg，.doc，.ppt
+>
+> 字符流操作字符，只能操作普通文本文件，如.txt，.java，.c，.cpp 等语言的源代码
+>
+> Java的字节是有符号类型，字符是无符号类型
 
 ![流的分类](Java高级.assets/流的分类.png)
 
@@ -2910,23 +2914,26 @@ Java的IO流共涉及40多个类，**都是从4个抽象基类派生的**。由�
 
 ### 节点流
 
-**文件流**（处理文件内容）
-
 - `FileInputStream`
 - `FileOutputStream`
 - `FileReader`
 - `FileWriter`
 
+#### 字符流
+
+- `FileReader`
+- `FileWriter`
 
 
-**流的使用**
+
+**文件流的使用**
 
 读入`FileReader`
 
 - `File`类的实例化
 - `FileReader`流的实例化
 - 使用`read()`方法读入文件内容（**读入的文件必须存在**）
-- 流使用后必须使用`close()`方法手动关闭
+- 使用`close()`方法手动关闭流资源
 
 > `read()`方法可以重载
 >
@@ -3026,6 +3033,8 @@ public class FileReaderWriterTest {
 
 关于流的异常处理，要使用`try catch finally`处理。因为如果使用throws抛出异常的话，可能无法正确关闭流，并且如果`fr = new FileReader(file)`实例化时候捕捉异常，则`finally`中的关闭操作也无法执行，所以要添加判断
 
+> 自动添加的`FileReader fr = null`
+
 **快捷键**：选中 + `Ctrl + Alt +t`
 
 ```java
@@ -3075,9 +3084,129 @@ public class FileReaderWriterTest {
 
 - `File`类的实例化
 - `FileWriter`流的实例化
-- 使用`write()`方法将内容写出到文件中
-- 流使用后必须使用`close()`方法手动关闭
+- 使用`write()`方法将内容写出到文件中（**写出的文件不存在会自动创建**）
+- 使用`close()`方法手动关闭流资源
+
+> 写出文件存在时，通过FileWriter的构造器中的append参数选择覆盖或者追加内容
+
+```java
+package com.ink.IO;
+
+import org.junit.Test;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class FileReaderWriterTest {
+    @Test
+    public void writetest(){
+        FileWriter fw = null;
+        try {
+            File file = new File("yinke.txt");
+            fw = new FileWriter(file,false);
+
+            fw.write("FileWriter test\n");
+            fw.write("write test");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(fw != null){
+                try {
+                    fw.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+```
+
+
+
+**读入写出实现复制文件操作**
+
+- `File`类的实例化（读入和写出）
+- `FileReader`和`FileWriter`流的实例化
+- 使用`read()`和`write()`方法复制内容
+- 使用`close()`方法手动关闭流资源
+
+```java
+package com.ink.IO;
+
+import org.junit.Test;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class FileReaderWriterTest {
+    @Test
+    public void copytest() throws IOException {
+        FileReader fr = null;
+        FileWriter fw = null;
+        try {
+            File srcFile = new File("ink.txt");
+            File destFile = new File("copy.txt");
+            fr = new FileReader(srcFile);
+            fw = new FileWriter(destFile);
+            char[] cbuf = new char[5];
+            int len;
+            while((len = fr.read(cbuf)) != -1){
+                fw.write(cbuf,0,len);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+//            方法一
+//            try {
+//                if(fw != null){
+//                    fw.close();
+//                }
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            } finally {
+//                try {
+//                    if(fr != null){
+//                        fr.close();
+//                    }
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//          方法二
+            try {
+                if(fw != null){
+                    fw.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                if(fr != null){
+                    fr.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+```
+
+
+
+#### 字节流
+
+- `FileInputStream`
+- `FileOutputStream`
+
+>   UTF-8中英文一个字符就是一个字节，所以字节流也可以处理
 
 ### 处理流
 
-**缓冲流**
+#### 缓冲流
+

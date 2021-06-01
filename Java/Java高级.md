@@ -2901,7 +2901,7 @@ public class FileTest {
 
 ![流的分类](Java高级.assets/流的分类.png)
 
-Java的IO流共涉及40多个类，**都是从4个抽象基类派生的**。由这4个抽象基类派生出来的子类名称都是**以其父类名作为子类名后缀**。
+Java的IO流共涉及40多个类，**都是从4个抽象基类派生的**。由这4个抽象基类派生出来的子类名称都是**以其父类名作为子类名后缀**（最后面）。
 
 > 抽象类不能实例化
 
@@ -3516,13 +3516,19 @@ public class WordCount {
 
 #### 转换流
 
-使用转换流可以实现在**字节流和字符流之间的转换**
+使用转换流可以实现**字节流和字符流之间的转换**
 
-- `InputStreamReader`：将`InputStream`转换为`Reader`
-- `OutputStreamWriter`：将`Writer`转换为`OutputStream`
+**字符流**
 
-> 字节流中的数据都是字符时，转成字符流操作更高效。
+- `InputStreamReader`：将字节的输入流`InputStream`转换为字符的输入流`Reader`
+- `OutputStreamWriter`：将字符的输出流`Writer`转换为字节的输出流`OutputStream`
+
+> 字节流中的数据都是字符时，转成字符流操作更高效
 >
 > 使用转换流实现编码和解码的功能（处理文件乱码问题）
+>
+> - 编码：字符——字节
+> - 解码：字节——字符
 
 ![转换流](Java高级.assets/转换流.png)
+

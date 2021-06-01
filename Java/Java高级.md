@@ -3204,9 +3204,325 @@ public class FileReaderWriterTest {
 - `FileInputStream`
 - `FileOutputStream`
 
->   UTF-8中英文一个字符就是一个字节，所以字节流也可以处理
+> UTF-8中英文一个字符就是一个字节，所以字节流也可以处理
+>
+> buffer[]数组一般设置大小位1024
+
+```java
+package com.ink.IO;
+
+import org.junit.Test;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class FileInputOutputStreamTest {
+    @Test
+    public void copytest(){
+
+        FileInputStream fis = null;
+        FileOutputStream fos = null;
+        try {
+            File srcFile = new File("ink.png");
+            File destFile = new File("yinke.png");
+            fis = new FileInputStream(srcFile);
+            fos = new FileOutputStream(destFile);
+            byte[] buffer = new byte[1024];
+            int len;
+            while((len = fis.read(buffer)) != -1){
+                fos.write(buffer,0,len);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(fos != null){
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(fis != null){
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+```
+
+
 
 ### 处理流
 
+对节点流进行**包装**
+
 #### 缓冲流
 
+为了**提高数据读写的速度**，Java API提供了带缓冲功能的流类。使用这些流类时会创建一个**内部缓冲区数组**（默认使用8Kb(8192个字节)的缓冲区）
+
+> `BufferedOutputStream`中存在`flush()`方法，用来强制刷新缓冲区（输出并清空）
+
+![缓冲流缓冲区](Java高级.assets/缓冲流缓冲区.png)
+
+缓冲流要**包装**在相应的节点流之上
+
+- `BufferedInputStream`
+- `BufferedOutputStream`
+- `BufferedReader`
+- `BufferedWriter`
+
+
+
+**缓冲流的使用**
+
+-  `File`类的实例化（读入和写出）
+- 节点流的实例化
+- 处理流的实例化
+- 使用`read()`和`write()`方法复制内容
+- 使用`close()`方法手动关闭流资源
+
+> 要求先关闭外层的处理流，再关闭内层的节点流
+>
+> 关闭外层流的同时，内层流会自动关闭，可以省略
+>
+> 带缓冲区的流对象的close()方法，不但会关闭流，还会在关闭流之前刷新缓冲区，关闭后不能再写出
+
+- `BufferedInputStream`
+- `BufferedOutputStream`
+
+```java
+package com.ink.IO;
+
+import org.junit.Test;
+
+import java.io.*;
+
+/**
+ * @author ink
+ * @date 2021年06月01日20:57
+ */
+public class BufferedTest {
+    @Test
+    public void test(){
+        BufferedInputStream bis = null;
+        BufferedOutputStream bos = null;
+        try {
+            File srcFile = new File("yinke.png");
+            File destFile = new File("inkyinke.png");
+            
+            FileInputStream fis = new FileInputStream(srcFile);
+            FileOutputStream fos = new FileOutputStream(destFile);
+            
+            bis = new BufferedInputStream(fis);
+            bos = new BufferedOutputStream(fos);
+            
+            byte[] buffer = new byte[10];
+            int len;
+            while((len = bis.read(buffer)) != -1){
+                bos.write(buffer,0,len);
+                // 自动执行
+                // bos.flush();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(bos != null){
+                try {
+                    bos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(bis != null){
+                try {
+                    bis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+//           fos.close();
+//           fis.close();
+        }
+    }
+}
+```
+
+
+
+- `BufferedReader`
+- `BufferedWriter`
+
+`readLine()`方法可以一次读一行数据
+
+> 可以使用匿名对象一次性直接创建缓冲流对象
+
+![readline方法](Java高级.assets/readline方法.png)
+
+```java
+package com.ink.IO;
+
+import org.junit.Test;
+
+import java.io.*;
+
+/**
+ * @author ink
+ * @date 2021年06月01日20:57
+ */
+public class BufferedTest {
+    @Test
+    public void test2(){
+        BufferedReader br = null;
+        BufferedWriter bw = null;
+        try {
+            // br = new BufferedReader(new FileReader("ink.txt"));
+            br = new BufferedReader(new FileReader(new File("ink.txt")));
+            bw = new BufferedWriter(new FileWriter(new File("yinke.txt")));
+//        方法一:
+//        char[] cbuf = new char[1024];
+//        int len;
+//        while((len = br.read(cbuf)) != -1){
+//            bw.write(cbuf,0,len);
+//        }
+//        方法二:
+            String data;
+            while((data = br.readLine()) != null) {
+//                不包括换行符
+                bw.write(data);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(br != null){
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(bw != null){
+                try {
+                    bw.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+//           fos.close();
+//           fis.close();
+        }
+    }
+}
+```
+
+
+
+**获取文本上字符出现的次数并把数据写入文件**
+
+ 1. 遍历文本的每一个字符
+ 2. 字符出现的次数存在Map中
+ 3. 把Map中的数据写入文件
+
+``` java
+package com.atguigu.java;
+
+import org.junit.Test;
+
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+public class WordCount {
+    @Test
+    public void testWordCount() {
+        FileReader fr = null;
+        BufferedWriter bw = null;
+        try {
+            //1.创建Map集合
+            Map<Character, Integer> map = new HashMap<Character, Integer>();
+
+            //2.遍历每一个字符,每一个字符出现的次数放到map中
+            fr = new FileReader("dbcp.txt");
+            int c = 0;
+            while ((c = fr.read()) != -1) {
+                //int 还原 char
+                char ch = (char) c;
+                // 判断char是否在map中第一次出现
+                if (map.get(ch) == null) {
+                    map.put(ch, 1);
+                } else {
+                    map.put(ch, map.get(ch) + 1);
+                }
+            }
+
+            //3.把map中数据存在文件count.txt
+            //3.1 创建Writer
+            bw = new BufferedWriter(new FileWriter("wordcount.txt"));
+
+            //3.2 遍历map,再写入数据
+            Set<Map.Entry<Character, Integer>> entrySet = map.entrySet();
+            for (Map.Entry<Character, Integer> entry : entrySet) {
+                switch (entry.getKey()) {
+                    case ' ':
+                        bw.write("空格=" + entry.getValue());
+                        break;
+                    case '\t'://\t表示tab 键字符
+                        bw.write("tab键=" + entry.getValue());
+                        break;
+                    case '\r'://
+                        bw.write("回车=" + entry.getValue());
+                        break;
+                    case '\n'://
+                        bw.write("换行=" + entry.getValue());
+                        break;
+                    default:
+                        bw.write(entry.getKey() + "=" + entry.getValue());
+                        break;
+                }
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            //4.关闭流
+            if (fr != null) {
+                try {
+                    fr.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            if (bw != null) {
+                try {
+                    bw.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+    }
+}
+```
+
+
+
+#### 转换流
+
+使用转换流可以实现在**字节流和字符流之间的转换**
+
+- `InputStreamReader`：将`InputStream`转换为`Reader`
+- `OutputStreamWriter`：将`Writer`转换为`OutputStream`
+
+> 字节流中的数据都是字符时，转成字符流操作更高效。
+>
+> 使用转换流实现编码和解码的功能（处理文件乱码问题）
+
+![转换流](Java高级.assets/转换流.png)

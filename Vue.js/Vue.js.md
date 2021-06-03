@@ -1,14 +1,14 @@
 # Vue.js
 
-渐进式JavaScript框架
+**渐进式**JavaScript框架：将Vue作为应用的一部分**嵌入其中**
 
 > 尤雨溪
 >
-> Vue 被设计为可以自底向上逐层应用
+> Vue被设计为可以自底向上逐层应用
 >
 > `Soc`：Separation of concerns 关注点分离原则
 
-Vue 的核心库只关注**视图层**（HTML + CSS + JavaScript）
+**Vue生态**
 
 - 网络通信：Axios
 - 页面跳转：Vue-router
@@ -17,7 +17,7 @@ Vue 的核心库只关注**视图层**（HTML + CSS + JavaScript）
 
 **虚拟DOM**
 
-预先通过JavaScript进行各种计算，把最终的DOM计算出来并优化的技术。这个DOM操作属于预处理操作，没有真正的操作DOM。
+预先通过JavaScript进行各种计算，把最终的DOM计算出来并优化的技术。这个DOM操作属于**预处理操作**，没有真正的操作DOM。
 
 
 
@@ -27,9 +27,7 @@ Vue 的核心库只关注**视图层**（HTML + CSS + JavaScript）
 
 - Model：模型层
 - View：视图层
-- **ViewModel**：**核心**中间件，**双向数据绑定**
-
-
+- **ViewModel**：核心中间件，双向数据绑定
 
 **MVVM架构不允许数据和视图直接通信，必须通过ViewModel来通信**
 
@@ -38,6 +36,8 @@ Vue 的核心库只关注**视图层**（HTML + CSS + JavaScript）
 
 > Vue.js是ViewModel层的实现者
 >
+> Vue的核心库只关注视图层
+>
 > 核心：
 >
 > - DOM监听
@@ -45,28 +45,43 @@ Vue 的核心库只关注**视图层**（HTML + CSS + JavaScript）
 
 
 
-**优点**：
+**Vue特点**：
 
-1. **低耦合**
+1. **低耦合（视图和数据）**
 
    View可以独立于model变化和修改。一个ViewModel可以绑定到不同的View上
 
    - 当View变化的时候Model可以不变
    - 当Model变化的时候View可以不变
 
-2. **可复用**
+2. **可复用组件**
 
    可以把视图逻辑放在一个ViewModel里面，让很多View复用这个视图逻辑
 
-3. **独立开发**
+3. **前端路由技术**
 
-4. **可测试**
+4. **状态管理**
+
+5. **虚拟DOM**
+
+6. **可测试**
 
 
 
-## 安装Vue
+## 安装Vue.js
 
-**使用`<script>`标签引入**
+**CDN引入**
+
+- 开发版本
+- 生产版本
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+```
+
+
+
+**下载和引用**
 
 导入后会暴露一个全局的变量`Vue()`
 
@@ -85,31 +100,33 @@ Vue 的核心库只关注**视图层**（HTML + CSS + JavaScript）
 
 
 
-**CDN引入**
+**NPM安装**
 
-```html
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+在用Vue构建大型应用时推荐使用NPM安装。
+
+NPM能很好地和诸如webpack模块打包器配合使用。同时Vue也提供配套工具来开发单文件组件
+
+```shell
+npm install vue
 ```
 
 
 
-## 使用idea开发
+## Idea开发
 
 1. 创建文件夹并用idea打开
 
 2. 安装Vue插件
 
-3. 设置Vue新建文件模板
+3. 设置Vue文件模板
 
-   > file->setting->editor->file and code Templates，选择Vue Single File Component
+   file->setting->editor->file and code Templates，选择Vue Single File Component
 
+   > 如果安装完vue插件后，右键new发现没有Vue component选项，需要自己新建模板
+   >
+   > https://blog.csdn.net/weixin_38556197/article/details/113838663
+   
    ![Vue模板](Vue.js.assets/Vue模板.png)
-
-**注意**：
-
-安装完vue插件后，右键new发现没有Vue component这个选项，需要自己新建模板
-
-> https://blog.csdn.net/weixin_38556197/article/details/113838663
 
 
 
@@ -119,10 +136,12 @@ Vue 的核心库只关注**视图层**（HTML + CSS + JavaScript）
 
 **Vue属性**
 
-- `el`：用来指示vue编译器从什么地方开始解析vue的语法（一个占位符）
-- `data`：用来组织从view中抽象出来的属性（将视图的数据抽象出来存放在data中）
-- `template`：用来设置模板，会替换页面元素（包括占位符）
-- `methods`：放置页面中的业务逻辑，JavaScript**方法**一般都放置在methods中
+创建Vue对象传入的`options:{}`
+
+- `el`：用于挂载Vue对象要管理的元素（指示vue编译器解析）
+- `data`：用来组织从view中抽象出来的属性
+- `template`：设置模板，会替换页面元素（包括占位符）
+- `methods`：放置页面中的业务逻辑，JavaScript方法一般都放置在methods中
 - `render`：创建真正的Virtual Dom
 - `computed`：计算属性
 - `watch`：监听data中数据的变化
@@ -131,28 +150,30 @@ Vue 的核心库只关注**视图层**（HTML + CSS + JavaScript）
 
 ## Vue实例
 
-每个 Vue 应用都是通过用 `Vue` 函数创建一个新的 **Vue 实例**开始的，所有的 Vue 组件都是 Vue 实例
+每个Vue应用都是通过用`Vue({})`函数创建一个新的**Vue实例**开始，所有的Vue组件都是Vue实例
+
+### 声明式编程
 
 1. **导入Vue**
 2. **new一个Vue对象**
-3. **对象绑定元素**
+3. **Vue对象绑定元素**
 4. **存放数据**
 
-不再和 HTML 直接交互。一个 Vue 应用会将其挂载到一个DOM 元素上对其进行完全控制
+> JavaScript是命令式编程
+>
+> vue()函数传入的是一个对象{}
+>
+> 在文档中经常会使用 `vm` (ViewModel ) 这个变量名表示Vue实例
+>
+> 不再HTML直接交互，Vue应用会将其挂载到一个DOM元素上对其进行完全控制
 
-> 在文档中经常会使用 `vm` (ViewModel ) 这个变量名表示 Vue 实例
-
-
-
-## 插值
-
-### 文本
-
-**数据绑定**最常见的形式就是使用**Mustache语法** (双大括号) 的**文本插值**
-
-使用`v-once`指令能执行一次性地插值，当数据改变时，插值处的内容不会更新
-
-```html
+```htmL
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
 <body>
 <!--view层 模板-->
 <div id="app">
@@ -161,56 +182,66 @@ Vue 的核心库只关注**视图层**（HTML + CSS + JavaScript）
 
 <!--导入Vue.js-->
 <script src="vue.js"></script>
-<script src="js/ink.js"></script>
+<script>
+    // var 没有作用域
+    const vm = new Vue({
+        // 元素element,json对象,逗号隔开
+        el: "#app",
+        // 对象:键值对
+        // model层 数据
+        data: {
+            message:"Hello Vue!"
+        }
+    })
+</script>
 </body>
+</html>
 ```
 
-```javascript
-var vm = new Vue({
-    // 元素element,json对象,逗号隔开
-    el: "#app",
-    // 对象:键值对
-    // model层 数据
-    data: {
-        message:"Hello Vue!"
-    }
-})
-```
 
-**数据双向绑定**
 
-修改**vm对象**就可以修改内容
+### 双向绑定
+
+修改**Vue对象**就可以修改内容
 
 > Vue不改变DOM
 
 ![hellovue](Vue.js.assets/hellovue.png)
 
-### HTML
-
-双大括号`{{}}`会将数据解释为普通文本，而非 HTML 代码
-
-使用 `v-html`指令输出真正的HTML
 
 
+### 插值
 
-### Attribute
+**文本**
 
-`v-bind`
+**数据绑定**最常见的形式就是使用**Mustache语法** (双大括号) 的**文本插值**
 
-Mustache语法也不能作用在 HTML标签的属性（`attribute`）上
+使用`v-once`指令能执行一次性地插值，当数据改变时，**插值处的内容不会更新**
 
-使用 `v-bind`（`:`）绑定HTML标签的属性
 
-> 对于布尔`attribute` (它们只要存在就意味着值为 `true`)
+
+**HTML**
+
+双大括号`{{}}`会将数据解释为**普通文本**而非HTML代码
+
+使用 `v-html`指令可以输出真正的HTML
+
+
+
+**Attribute**
+
+Mustache语法不能作用在HTML标签的属性`attribute`上
+
+在HTML标签中使用 `v-bind`（简写`:`）绑定HTML标签的属性
+
+> `v-bind:标签属性="变量值"`
+>
+> 对于布尔`attribute` ，只要存在就意味着值为 `true`
 
 ```html
-<!-- 在HTML标签中 -->
-v-bind:标签属性="变量值"
-```
-
-```html
+<body>
 <div id="app">
-	<!-- title是参数，将span标签的title属性和Vue实例的message的值绑定 -->
+	<!-- 将span标签的title属性和Vue实例的message的值绑定 -->
     <span v-bind:title="message">     
         鼠标悬停几秒钟查看此处动态绑定的提示信息！   
     </span> 
@@ -219,57 +250,56 @@ v-bind:标签属性="变量值"
         鼠标悬停几秒钟查看此处动态绑定的提示信息！   
     </span> 
 </div>
+<script src="vue.js"></script>
+<script>
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            message:"Hello Vue!"
+        }
+    })
+</script>
+</body>
 ```
 
-```javascript
-var app = new Vue({
-  el: '#app',
-  data: {
-      message:"Hello Vue!"
-  }
-})
-```
 
-### JavaScript表达式
+
+**JavaScript表达式**
 
 
 
-## 指令
+## Vue指令
 
-### Vue指令
+指令带有前缀 `v-`，表示是Vue提供的特殊`attribute`
 
-指令带有前缀 `v-`，表示它们是Vue提供的特殊attribute
+当表达式的值改变时，Vue指令将其产生的连带影响**响应式**地作用于绑定的DOM元素
 
-指令的职责时当表达式的值改变时，将其产生的连带影响，**响应式**地作用于 DOM
-
-- `v-bind`：响应式的更新HTML的`attribute`
-- `v-on` ：监听 DOM 事件
-
-> `v-bind` 缩写 `:`，`v-on` 缩写 `@`
+- `v-bind`：（简写 `:`）**响应式**的更新HTML标签中的`attribute`
+- `v-on` ：（简写 `@`）监听绑定的DOM事件并执行相应方法
 
 
 
 ### 参数
 
-上述两条指令能够接收一个**参数**，在指令名称之后以**冒号表示**
+指令能够接收一个**参数**（HTML标签属性），在指令后以**冒号**表示
+
+- 参数：`href`，`v-bind` 指令将该元素的 `href` 属性与 Vue对象的`url` 的值绑定
+- 参数：`click`，`v-on`指令监听`click`事件，触发会执行`methods`方法
 
 ```html
 <a v-bind:href="url">...</a>
+<a :href="url">...</a>
+
+<a v-on:click="methods">...</a>
+<a @click="methods">...</a>
 ```
-
-`:`后面的`href` 就是参数，`v-bind` 指令将该元素的 `href` 属性与 `url` 的值绑定
-
-```html
-<a v-on:click="doSomething">...</a>
-```
-
-`:`后面的`click` 就是参数，它是监听的事件名
 
 
 
 ### 动态参数
 
-可以用方括号`[]`括起来的 **JavaScript 表达式**作为一个指令的参数（求得的值作为最终的参数），也可以使用动态参数为一个**动态的事件名**绑定处理函数（不同事件不同的处理函数）
+- 可以用方括号`[]`括起来的 **JavaScript 表达式**作为一个指令的参数（求得的值作为最终的参数）
+- 可以使用动态参数为一个**动态的事件名**绑定处理函数（不同事件不同的处理函数）
 
 > 在 DOM 中使用模板时 (直接在一个 HTML 文件里撰写模板)，需要避免使用大写字符来命名键名，因为浏览器会把 **attribute 名全部强制转为小写**（所有字符）
 
@@ -277,18 +307,17 @@ var app = new Vue({
 
 ### 修饰符
 
-修饰符是以 `.` 指明的**特殊后缀**，用于指出一个指令应该以特殊方式绑定
+修饰符是以 `.` 指明的**特殊后缀**，用于指出一个指令应该以**特殊方式绑定**
 
 
 
 ## 条件渲染
 
-### v-if
-
+- `v-if`
 - `v-else-if`
 - `v-else`
 
-> ===：JavaScript中：先判断类型是否一致，再比较值
+> ===：JavaScript中先判断**类型**是否一致，再比较值
 
 ```html
 <body>
@@ -352,16 +381,16 @@ var vm = new Vue({
 
 ## 列表渲染	
 
-`v-for`
-
 ### 遍历数组
 
-基于一个数组来渲染一个列表，使用 `item in items` 形式的语法
+使用`v-for`指令和 `item in items` 语法，基于一个数组来渲染一个列表。
 
--  `items` 是**源**数据数组
-- `item` 是被迭代的数组元素的**别名**
+-  `item` ：被迭代的数组元素
+-  `items` ：**源**数据数组
 
-> 也可以用 `of` 替代 `in` 作为分隔符
+> 响应式：追加数据可以自动展示
+>
+> 可以用 `of` 替代 `in` 作为分隔符
 
 ```html
 <body>
@@ -371,20 +400,18 @@ var vm = new Vue({
     </li>
 </div>
 <script src="vue.js"></script>
-<script src="js/ink.js"></script>
+<script>
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            items: [
+                {message: 'ink'},
+                {message: 'yinke'}
+            ]
+        }
+    })
+</script>
 </body>
-```
-
-```javascript
-var vm = new Vue({
-    el: "#app",
-    data: {
-        items: [
-            {message: 'ink'},
-            {message: 'yinke'}
-        ]
-    }
-})
 ```
 
 

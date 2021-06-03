@@ -176,6 +176,11 @@ docker run --name myPrometheus \
 -d -p 9090:9090 \
 -v /root/aiops/prometheus/Config/prometheus.yml:/etc/prometheus/prometheus.yml \
 prom/prometheus
+
+docker run --name inkPrometheus \
+-d -p 9090:9090 \
+-v /home/dog/yinke/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml \
+prom/prometheus
 ```
 
 
@@ -333,7 +338,7 @@ Grafana是一个开源的跨平台的度量分析、可视化工具
 docker pull grafana/grafana
 
 # 启动容器
-docker run --name myGrafana \
+docker run --name iGrafana \
 -d -p 3000:3000 \
 grafana/grafana
 ```

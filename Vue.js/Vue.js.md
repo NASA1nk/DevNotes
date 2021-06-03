@@ -2825,3 +2825,25 @@ export default {
 }
 ```
 
+
+
+# Vue CLI
+
+vue cli3版本和vue cli2 相比文件目录少了很多配置，没有了build和config目录，那么像vue cli2 之前的关于端口号的配置，打包之后路径的配置，图片的配置 等等
+
+vue cli3 可以在项目根目录新建一个vue.config.js文件，像之前的很多繁琐配置，都可以在这个文件里配置啦
+
+
+vue.config.js
+
+一个可选的配置文件，如果项目的 (和 `package.json` 同级的) **根目录**中存在这个文件，那么它会被 `@vue/cli-service` 自动加载。
+
+[Vue CLI (vuejs.org)](https://cli.vuejs.org/zh/config/#vue-config-js)
+
+
+
+process（进程）其实就是存在nodejs中的一个全局变量。
+
+process.env属性返回一个包含用户环境信息的对象。
+
+[Node.js中环境变量process.env详解](https://www.jb51.net/article/126838.htm#)

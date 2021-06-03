@@ -383,6 +383,64 @@ grafana/grafana
 
 
 
+# 监控MySQL
+
+访问http://49.232.207.245:9104/metrics可查看MySQLD Exporter采集的MySQL监控数据
+
+```bash
+# 拉取镜像
+docker pull prom/mysqld-exporter
+
+# 启动容器
+docker run -d --name mysqldExporter \
+-p 9104:9104 \
+-e DATA_SOURCE_NAME="root:123456@(49.232.207.245:3306)/"  \
+prom/mysqld-exporter
+```
+
+![监控MySQLD](Prometheus.assets/监控MySQLD.png)
+
+在Prometheus服务的配置文件prometheus.yml中添加相应的配置，收集MySQLD Exporter的监控数据
+
+重启Prometheus服务
+
+```yaml
+vim prometheus.yml
+
+...
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'prometheus'
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    static_configs:
+    - targets: ['localhost:9090']
+
+  # 收集MySQL的监控数据      
+  - job_name: 'MySQL'
+    static_configs:
+    - targets: ['49.232.207.245:9104']
+```
+
+![监控MySQLD-Target](Prometheus.assets/监控MySQLD-Target.png)
+
+进入Grafana官网( [https://grafana.com](https://link.zhihu.com/?target=https%3A//grafana.com) )，选择适用于监控MySQL的模板选择仪表盘
+
+过滤条件：
+
+- Name/Description：mysql 
+- Data Source：Prometheus
+
+复制**模板ID—12826**
+
+导入
+
+![MySQL仪表盘](Prometheus.assets/MySQL仪表盘.png)
+
+
+
 # 配置cAdvisor
 
 cAdvisor是Google一款开源的用于分析、展示容器运行状态的可视化工具，用于监控Dcoker整体的运行情况
@@ -451,59 +509,103 @@ scrape_configs:
 
 ![cAdvisior](Prometheus.assets/cAdvisior.png)
 
-# 监控MySQL
+# AlterManager
 
-访问http://49.232.207.245:9104/metrics可查看MySQLD Exporter采集的MySQL监控数据
+Pormetheus的告警由独立的两部分组成
+
+- Prometheus服务中的告警规则发送告警到Alertmanager。
+- Alertmanager管理这些告警，包括silencing, inhibition, aggregation，并通过邮件发送通知
+
+建立警告和通知的主要步骤：
+
+- 创建和配置Alertmanager
+- 启动Prometheus服务时，通过-alertmanager.url标志配置Alermanager地址，以便Prometheus服务能和Alertmanager建立连接。
+
+
+
+在报警邮箱中开通smtp功能，并获取授权码（smtp_auth_password中填写）
+
+> pttg hhoz jymp bcjf
+
+![报警邮箱设置](Prometheus.assets/报警邮箱设置.png)
+
+>  smtp.qq.com:465 ，端口使用465。其他资料说用587端口也可以（如果是云服务器，25端口通常是被服务商封闭的，所有也不能使用25端口）
+>
+>  报错信息：
+>
+> msg="Notify for alerts failed" num_alerts=1 err="*notify.loginAuth failed: 530 Must issue a STARTTLS command first."
+>
+> 3.smtp_require_tls: false 必须加上，因为smtp_require_tls默认为true。
+
+
+
+在`/home/dog/yinke/prometheus/alertmanager`目录下创建配置文件`alertmanager.yml`
 
 ```bash
-# 拉取镜像
-docker pull prom/mysqld-exporter
-
-# 启动容器
-docker run -d --name mysqldExporter \
--p 9104:9104 \
--e DATA_SOURCE_NAME="root:123456@(49.232.207.245:3306)/"  \
-prom/mysqld-exporter
+global:
+  resolve_timeout: 5m
+route:
+  group_by: ['cqh']
+  group_wait: 10s #组报警等待时间
+  group_interval: 10s #组报警间隔时间
+  repeat_interval: 1m #重复报警间隔时间
+  receiver: 'email'
+receivers:
+  - name: 'email'
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'dev', 'instance']
+    
+global:
+resolve_timeout: 5m
+smtp_smarthost: 'smtp.qq.com:465'
+smtp_from: '541640794@qq.com'
+smtp_auth_username: 'xxxxxx@qq.com'
+smtp_auth_password: 'xxxxxxxxxx'
+smtp_require_tls: false
 ```
 
-![监控MySQLD](Prometheus.assets/监控MySQLD.png)
 
-在Prometheus服务的配置文件prometheus.yml中添加相应的配置，收集MySQLD Exporter的监控数据
 
-重启Prometheus服务
+## Grafana配置邮箱
 
-```yaml
-vim prometheus.yml
+**安装邮件发送服务** 
 
+```bash
+sudo apt-get install sendmail
+sudo apt-get install sendmail-cf
+```
+
+**添加邮件配置**
+
+进入grafana容器中，默认的配置文件在`/etc/grafana/`目录下
+
+修改`grafana.ini`文件的smtp部分
+
+```bash
+docker exec -it ContainerID /bin/bash
+
+vim /etc/grafana/grafana.ini 
+
+[admin@prometheus ~]$ sudo vim /etc/grafana/grafana.ini
 ...
-scrape_configs:
-  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
-  - job_name: 'prometheus'
+enabled = true                                          #默认是false
+host = smtp.mxhichina.com:465                           #smtp服务器的地址和端口，阿里云的企业邮箱。465加密端口    25非加密端口
+user = 541640794@qq.com                                     #登录邮箱的账号
+password =                                       #你邮箱账号的密码
+from_address = 541640794@qq.com                             #发邮件的账号
+from_name = Grafana                                     #自定义的名字
+ehlo_identity = example.com                   #无关紧要的一个标示
+...
 
-    # metrics_path defaults to '/metrics'
-    # scheme defaults to 'http'.
-
-    static_configs:
-    - targets: ['localhost:9090']
-
-  # 收集MySQL的监控数据      
-  - job_name: 'MySQL'
-    static_configs:
-    - targets: ['49.232.207.245:9104']
+# 重启grafana服务
+sudo service grafana-server restart  
 ```
 
-![监控MySQLD-Target](Prometheus.assets/监控MySQLD-Target.png)
 
-进入Grafana官网( [https://grafana.com](https://link.zhihu.com/?target=https%3A//grafana.com) )，选择适用于监控MySQL的模板选择仪表盘
 
-过滤条件：
 
-- Name/Description：mysql 
-- Data Source：Prometheus
-
-复制**模板ID—12826**
-
-导入
-
-![MySQL仪表盘](Prometheus.assets/MySQL仪表盘.png)
 

@@ -585,6 +585,8 @@ sudo apt-get install sendmail-cf
 
 修改`grafana.ini`文件的smtp部分
 
+> `.ini`文件中分号`;`是表示注释该行，更改设置必须先删除设置前面的分号`;`才能起作用
+
 ```bash
 docker exec -it ContainerID /bin/bash
 
@@ -605,7 +607,15 @@ ehlo_identity = example.com                   #无关紧要的一个标示
 sudo service grafana-server restart  
 ```
 
+##### 通过配置Grafana的环境变量修改
 
+grafana的配置选项也可以使用环境变量指定覆盖配置文件中的**所有选项**
 
+`SectionName`是`.ini`文件中**方括号中的文本**，字母大写，`.`用`_`代替
 
+```bash
+GF_<SectionName>_<KeyName>
+```
+
+![SectionName](Prometheus.assets/SectionName.png)
 

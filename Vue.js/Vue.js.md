@@ -1,3 +1,65 @@
+# ES6规范
+
+**let**
+
+- ES6前`var`，`if`和`for`中都没有块级作用域的概念，使用`var`声明的变量就是全局变量
+- ES6后`let`拥有了块级作用域
+
+> ES6之前所以很多时候需要使用function的作用域，比如闭包
+
+
+
+**const**
+
+- const定义的常量必须赋值
+- 不能改变`const`常量指向的对象，但可以改变对象的属性
+
+> 开发中优先使用`const`，只有需要改变一个标识符的时候才使用`let`
+
+ 
+
+**对象字面值的增强写法**
+
+- 属性的增强写法
+- 函数的增强写法
+
+```javascript
+const name = "ink";
+const age = 24;
+// ES6以前
+const user = {
+  name: name,
+  age: age
+}
+// ES6:属性的增强写法
+const user = {
+	name,
+    age
+}
+
+// ES6以前
+const obj = {
+  run: function(){
+     console.log("奔跑");
+  }
+}
+// ES6:函数的增强写法
+const obj = {
+  run(){
+     console.log("奔跑");
+  },
+  eat(){
+      
+  }
+}
+```
+
+
+
+**箭头函数**
+
+
+
 # Vue.js
 
 **渐进式**JavaScript框架：将Vue作为应用的一部分**嵌入其中**
@@ -87,7 +149,7 @@
 
 ```html
 <body>
-<script src="vue.js"></script>
+  <script src="vue.js"></script>
 </body>
 ```
 
@@ -197,28 +259,28 @@ eslint
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+  <meta charset="UTF-8">
+  <title>Title</title>
 </head>
 <body>
 <!--view层 模板-->
 <div id="app">
-    {{message}}
+  {{message}}
 </div>
 
 <!--导入Vue.js-->
 <script src="vue.js"></script>
 <script>
-    // var 没有作用域
-    const vm = new Vue({
-        // 元素element,json对象,逗号隔开
-        el: "#app",
-        // 对象:键值对
-        // model层 数据
-        data: {
-            message:"Hello Vue!"
-        }
-    })
+  // var 没有作用域
+  const vm = new Vue({
+    // 元素element,json对象,逗号隔开
+    el: "#app",
+    // 对象:键值对
+    // model层 数据
+    data: {
+      message:"Hello Vue!"
+    }
+  })
 </script>
 </body>
 </html>
@@ -240,20 +302,21 @@ eslint
 
 ## Vue模板
 
+> 生成在user组下
+
 ```html
 <div id="app">
-    {{message}}
+  {{message}}
 </div>
 
 <script src="vue.js"></script>
 <script>
-    const app = new Vue({
-        el: '#app',
-        data: {
-            message: 'hello vue'
-        },
-
-    });
+  const app = new Vue({
+    el: '#app',
+    data: {
+      message: 'hello vue'
+    },
+  });
 </script>
 ```
 
@@ -286,17 +349,17 @@ Mustache语法`{{}}`中也**可以是简单的表达式**
 ```html
 <body>
 <div id="app">
-    <h2 v-once> {{message}}</h2>
+  <h2 v-once> {{message}}</h2>
 </div>
 
 <script src="vue.js"></script>
 <script>
-    const app = new Vue({
-        el: '#app',
-        data: {
-            message: 'hello vue'
-        },
-    });
+  const app = new Vue({
+    el: '#app',
+    data: {
+      message: 'hello vue'
+    },
+  });
 </script>
 </body>
 ```
@@ -323,23 +386,23 @@ Mustache语法`{{}}`中也**可以是简单的表达式**
 
 ```html
 <body>
-  <div id="app">
-    <h2>不使用v-html</h2>
-    <h2>{{url}}</h2>
-    <h2>使用v-html，直接插入html</h2>
-    <h2 v-html="url"></h2>
+<div id="app">
+  <h2>不使用v-html</h2>
+  <h2>{{url}}</h2>
+  <h2>使用v-html，直接插入html</h2>
+  <h2 v-html="url"></h2>
 
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
-  <script>
-    const app = new Vue({
-      el:"#app",
-      data:{
-        message:"你好啊",
-        url:"<a href='http://www.baidu.com'>百度一下</a>"
-      }
-    })
-  </script>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+<script>
+  const app = new Vue({
+    el: "#app",
+    data: {
+      message:"你好啊",
+      url: "<a href='http://www.baidu.com'>百度一下</a>"
+    }
+  })
+</script>
 </body>
 ```
 
@@ -371,24 +434,23 @@ Mustache语法`{{}}`中也**可以是简单的表达式**
 </head>
 
 <body>
-  <div id="app" v-cloak>
-    <h2>{{message}}</h2>
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
-  <script>
-    //在vue解析前，div中有一个属性cloak
-    //在vue解析之后，div中没有一个属性v-cloak
-    setTimeout(() => {
-      const app = new Vue({
-        el: "#app",
-        data: {
-          message: "你好啊"
-        }
-      })
-    }, 1000);
-  </script>
+<div id="app" v-cloak>
+  <h2>{{message}}</h2>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+<script>
+  //在vue解析前，div中有一个属性cloak
+  //在vue解析之后，div中没有一个属性v-cloak
+  setTimeout(() => {
+    const app = new Vue({
+      el: "#app",
+      data: {
+        message: "你好啊"
+      }
+    })
+  }, 1000);
+</script>
 </body>
-
 </html>
 ```
 
@@ -407,23 +469,23 @@ Mustache语法不能作用在HTML标签的属性`attribute`上
 ```html
 <body>
 <div id="app">
-	<!-- 将span标签的title属性和Vue实例的message的值绑定 -->
-    <span v-bind:title="message">     
+  <!-- 将span标签的title属性和Vue实例的message的值绑定 -->
+  <span v-bind:title="message">     
         鼠标悬停几秒钟查看此处动态绑定的提示信息！   
-    </span> 
-    <!-- 缩写 -->
-    <span :title="message">     
+    </span>
+  <!-- 缩写 -->
+  <span :title="message">     
         鼠标悬停几秒钟查看此处动态绑定的提示信息！   
-    </span> 
+    </span>
 </div>
 <script src="vue.js"></script>
 <script>
-    const vm = new Vue({
-        el: "#app",
-        data: {
-            message:"Hello Vue!"
-        }
-    })
+  const vm = new Vue({
+    el: "#app",
+    data: {
+      message:"Hello Vue!"
+    }
+  })
 </script>
 </body>
 ```
@@ -436,10 +498,11 @@ Mustache语法不能作用在HTML标签的属性`attribute`上
 
 ## 动态绑定
 
-当表达式的值改变时，Vue指令将其产生的连带影响**响应式**地作用于绑定的DOM元素
+`v-bind`（简写 `:`）
 
-- `v-bind`：简写 `:`，动态绑定属性（**响应式**的更新HTML标签中的属性）
-- `v-on` ：（简写 `@`）监听绑定的DOM事件并执行相应方法
+动态绑定属性（**响应式**的更新HTML标签中的属性）
+
+当表达式的值改变时，将其产生的连带影响**响应式**地作用于绑定的DOM元素
 
 
 
@@ -452,21 +515,20 @@ Mustache语法不能作用在HTML标签的属性`attribute`上
 ```html
 <body>
 <div id="app">
-    <image v-bind:src="url"></image>
-    <a :href="link">点击跳转</a>
-    <a href=""></a>
+  <image v-bind:src="url"></image>
+  <a :href="link">点击跳转</a>
+  <a href=""></a>
 </div>
 
 <script src="vue.js"></script>
 <script>
-    const app = new Vue({
-        el: '#app',
-        data: {
-            url: 'https://img2.baidu.com/it/u=3228549874,2173006364&fm=26&fmt=auto&gp=0.jpg',
-            link: 'http://www.baidu.com'
-        },
-
-    });
+  const app = new Vue({
+    el: '#app',
+    data: {
+      url: 'https://img2.baidu.com/it/u=3228549874,2173006364&fm=26&fmt=auto&gp=0.jpg',
+      link: 'http://www.baidu.com'
+    },
+  });
 </script>
 </body>
 ```
@@ -491,38 +553,38 @@ Mustache语法不能作用在HTML标签的属性`attribute`上
 <!DOCTYPE html>
 <html lang="en" xmlns:v-bind="">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <style>
-        .active{
-            color: red;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <style>
+    .active{
+      color: red;
+    }
+  </style>
 </head>
 <body>
 <div id="app">
-    <image v-bind:src="url"></image>
-    <a :href="link">点击跳转</a>
-    <h1 v-bind:class="{active: isActive, line: isLine}">class属性绑定</h1>
-    <h1 :class="getClasses()">class属性绑定</h1>
+  <image v-bind:src="url"></image>
+  <a :href="link">点击跳转</a>
+  <h1 v-bind:class="{active: isActive, line: isLine}">class属性绑定</h1>
+  <h1 :class="getClasses()">class属性绑定</h1>
 
 </div>
 <script src="vue.js"></script>
 <script>
-    const app = new Vue({
-        el: '#app',
-        data: {
-            url: 'https://img2.baidu.com/it/u=3228549874,2173006364&fm=26&fmt=auto&gp=0.jpg',
-            link: 'http://www.baidu.com',
-            isActive: true,
-            isLine: true
-        },
-        methods: {
-            getClasses(){
-                return {active: this.isActive, line: this.isLine}
-            }
-        }
-    });
+  const app = new Vue({
+    el: '#app',
+    data: {
+      url: 'https://img2.baidu.com/it/u=3228549874,2173006364&fm=26&fmt=auto&gp=0.jpg',
+      link: 'http://www.baidu.com',
+      isActive: true,
+      isLine: true
+    },
+    methods: {
+      getClasses(){
+        return {active: this.isActive, line: this.isLine}
+      }
+    }
+  });
 </script>
 </body>
 </html>
@@ -539,31 +601,31 @@ class属性中可以放数组，会依次解析成对应的class，数组也可�
 
 ```html
 <body>
-  <div id="app">
-    <!-- 加上单引号表示字符串 -->
-    <h2 class="title" :class="['active','line']">{{message}}</h2>
-    <!-- 不加表示变量 -->
-    <h2 class="title" :class="[active,line]">{{message}}</h2>
-    <!-- 方法返回数组 -->
-    <h2 class="title" :class="getClasses()">{{message}}</h2>
+<div id="app">
+  <!-- 加上单引号表示字符串 -->
+  <h2 class="title" :class="['active','line']">{{message}}</h2>
+  <!-- 不加表示变量 -->
+  <h2 class="title" :class="[active,line]">{{message}}</h2>
+  <!-- 方法返回数组 -->
+  <h2 class="title" :class="getClasses()">{{message}}</h2>
 
-  </div>
-  <script src="vue.js"></script>
-  <script>
-    const app = new Vue({
-      el:"#app",
-      data:{
-        message:"你好啊",
-        active:"aaaa",
-        line:'bbbb'
-      },
-      methods: {
-        getClasses(){
-          return [this.active,this.line]
-        }
-      },
-    })
-  </script>
+</div>
+<script src="vue.js"></script>
+<script>
+  const app = new Vue({
+    el: "#app",
+    data:{
+      message: "你好啊",
+      active: "ink",
+      line: 'yinke'
+    },
+    methods: {
+      getClasses(){
+        return [this.active,this.line]
+      }
+    },
+  })
+</script>
 </body>
 ```
 
@@ -583,74 +645,78 @@ class属性中可以放数组，会依次解析成对应的class，数组也可�
 ```html
 <body>
 <div id="app">
-    <!-- 加单引号表示字符串 -->
-    <h2 :style="{fontSize: '50px'}">{{message}}</h2>
-    <!-- 不加单引号表示变量 -->
-    <h2 :style="{fontSize: fontSize}">{{message}}</h2>
-    <!-- 连接 -->
-    <h2 :style="{fontSize: fontSizenopx + 'px'}">{{message}}</h2>
-    <!-- 方法 -->
-    <h2 :style="getStyle1()">{{message}}</h2> 
-    
-    <!-- 数组语法:对象数组 -->
-    <h2 :style="[baseStyle1,baseStyle2]">{{message}}</h2>
+  <!-- 加单引号表示字符串 -->
+  <h2 :style="{fontSize: '50px'}">{{message}}</h2>
+  <!-- 不加单引号表示变量 -->
+  <h2 :style="{fontSize: fontSize}">{{message}}</h2>
+  <!-- 连接 -->
+  <h2 :style="{fontSize: fontSizenopx + 'px'}">{{message}}</h2>
+  <!-- 方法 -->
+  <h2 :style="getStyle1()">{{message}}</h2>
+  
+  <!-- 数组语法:对象数组 -->
+  <h2 :style="[baseStyle1,baseStyle2]">{{message}}</h2>
 </div>
 <script src="vue.js"></script>
 <script>
-    const app = new Vue({
-        el:"#app",
-        data:{
-            message: '你好啊',
-            fontSize: '50px',
-            fontSizenopx: 100,
-            baseStyle1: {backgroundColor: 'red'},
-        	baseStyle2: {fontSize: '100px'}
-        },
-        methods: {
-            getStyle1(){
-                return {fontSize: this.fontSize}
-            },
-            getStyle2(){
-                return [this.baseStyle]
-            }
-        },
-    })
+  const app = new Vue({
+    el:"#app",
+    data:{
+      message: '你好啊',
+      fontSize: '50px',
+      fontSizenopx: 100,
+      baseStyle1: {backgroundColor: 'red'},
+      baseStyle2: {fontSize: '100px'}
+    },
+    methods: {
+      getStyle1(){
+        return {fontSize: this.fontSize}
+      },
+      getStyle2(){
+        return [this.baseStyle]
+      }
+    },
+  })
 </script>
 </body>
 ```
 
 
 
-## 事件处理
+## 事件监听
 
-`v-on`指令可以监听DOM事件并在事件触发时运行`methods`中的对应方法
+`v-on` （简写 `@`）
 
-> `v-on`可以绑定HTML所有的事件
+可以监听DOM事件并绑定在事件触发时要运行的`methods`中的方法
+
+> `v-on`指令可以绑定HTML所有的事件
 
 ```html
 <body>
 <div id="app">
-	<!-- 通过方法响应点击事件 --> 
-	<button v-on:click="sayhi">点击</button>
+  <!-- 通过方法响应点击事件 -->
+  <button v-on:click="sayhi">点击</button>
+  <!-- 简写 -->
+  <button @click="sayhi">点击</button>
 </div>
 <script src="vue.js"></script>
-<script src="js/ink.js"></script>
-</body>
-```
-
-```javascript
-var vm = new Vue({
+<script src="vue.js"></script>
+<script>
+  const app = new Vue({
     el: "#app",
-    data:{
-        message: "hi ink"
+    data: {
+      message: "hi ink"
     },
     // 方法也是K-V键值对
-    methods:{
-        sayhi: function (){
-            alert(this.message);
-        }
+    methods: {
+      // sayhi: function ()
+      sayhi(){
+        alert(this.message);
+      }
     }
-})
+  })
+</script>
+</body>
 ```
 
 ![Vue事件](Vue.js.assets/Vue事件.png)
@@ -1037,64 +1103,64 @@ data: {
 
 ```html
 <body>
-  <div id="app">
-    <!-- Mastache语法 -->
-    <h2>{{firstName+ " " + lastName}}</h2>
-    <!-- 方法 -->
-    <h2>{{getFullName()}}</h2>
-    <!-- 计算属性 -->
-    <h2>{{fullName}}</h2>
-  </div>
-  <script src="vue.js"></script>
-  <script>
-    const app = new Vue({
-      el: "#app",
-      data:{
-        firstName: "ink",
-        lastName: "yinke"
-      },
-      computed: {
-        fullName: function(){
-          return this.firstName + " " + this.lastName
-        }
-      },
-      methods: {
-        getFullName(){
-          return this.firstName + " " + this.lastName
-        }
-      },
-    })
-  </script>
+<div id="app">
+  <!-- Mastache语法 -->
+  <h2>{{firstName+ " " + lastName}}</h2>
+  <!-- 方法 -->
+  <h2>{{getFullName()}}</h2>
+  <!-- 计算属性 -->
+  <h2>{{fullName}}</h2>
+</div>
+<script src="vue.js"></script>
+<script>
+  const app = new Vue({
+    el: "#app",
+    data:{
+      firstName: "ink",
+      lastName: "yinke"
+    },
+    computed: {
+      fullName(){
+        return this.firstName + " " + this.lastName
+      }
+    },
+    methods: {
+      getFullName(){
+        return this.firstName + " " + this.lastName
+      }
+    },
+  })
+</script>
 </body>
 ```
 
 ```html
 <body>
 <div id="app">
-    <h2>总价格：{{totalPrice}}</h2>
+  <h2>总价格：{{totalPrice}}</h2>
 </div>
 <script src="vue.js"></script>
 <script>
-    const app = new Vue({
-        el:"#app",
-        data:{
-            books:[
-                {id:110,name:"JavaScript从入门到入土",price:119},
-                {id:111,name:"Java从入门到放弃",price:80},
-                {id:112,name:"编码艺术",price:99},
-                {id:113,name:"代码大全",price:150},
-            ]
-        },
-        computed: {
-            totalPrice: function (){
-                let result= 0;
-                for (let i = 0; i < this.books.length; i++) {
-                    result += this.books[i].price;
-                }
-                return result
-            }
+  const app = new Vue({
+    el: '#app',
+    data: {
+      books:[
+        {id:110,name:"JavaScript从入门到入土",price:119},
+        {id:111,name:"Java从入门到放弃",price:80},
+        {id:112,name:"编码艺术",price:99},
+        {id:113,name:"代码大全",price:150},
+      ]
+    },
+    computed: {
+      totalPrice(){
+        let result= 0;
+        for (let i = 0; i < this.books.length; i++) {
+          result += this.books[i].price;
         }
-    })
+        return result
+      }
+    }
+  })
 </script>
 </body>
 ```
@@ -1108,27 +1174,43 @@ data: {
 > 也可以实现`set`方法：`set:function(newValue){}`
 
 ```html
+<body>
+<div id="app">
+  <!-- Mastache语法 -->
+  <h2>{{firstName+ " " + lastName}}</h2>
+  <!-- 方法 -->
+  <h2>{{getFullName()}}</h2>
+  <!-- 计算属性 -->
+  <h2>{{fullName}}</h2>
+</div>
+<script src="vue.js"></script>
 <script>
-    const app = new Vue({
-      el: "#app",
-      data:{
-        firstName: "ink",
-        lastName: "yinke"
-      },
-      computed: {
-        // 实际实现,但一般省略get
-        fullName:{
-          get:function(){
-            return this.firstName + " " + this.lastName
-          }
+  const app = new Vue({
+    el: '#app',
+    data:{
+      firstName: 'ink',
+      lastName: 'yinke'
+    },
+    computed: {
+      // 实际实现,但一般省略get
+      fullName:{
+        get(){
+          return this.firstName + " " + this.lastName
         }
-        // 等价写法
-        // fullName: function(){
-        //   return this.firstName + " " + this.lastName
-        // }
       }
-    })
+      // 等价写法
+      // fullName: function(){
+      //   return this.firstName + " " + this.lastName
+      // }
+    },
+    methods: {
+      getFullName(){
+        return this.firstName + " " + this.lastName
+      }
+    }
+  })
 </script>
+</body>
 ```
 
 
@@ -1138,7 +1220,7 @@ data: {
 **缓存**
 
 - 计算属性是基于响应式依赖进行**缓存**的，只有相关响应式依赖发生**改变时才会重新计算**求值。只要计算值没有发生改变，多次访问计算属性都会立即返回之前的计算结果而不必再次执行函数（**只执行一次**）
-- 方法**只要被调用就会再次执行函数**
+- `methods`没有缓存特性，方法**只要被调用就会再次执行函数**
 
 **使用**
 
@@ -1150,33 +1232,37 @@ data: {
 ```html
 <body>
 <div id="vue">
-    <p>{{currentTime1()}}: methods</p>
-    <!-- 计算属性将不再更新，因为Date.now()不是响应式依赖 -->
-    <p>{{currentTime2}}: computed</p>
+  <p>{{currentTime1()}}: methods</p>
+  <!-- 计算属性将不再更新，因为Date.now()不是响应式依赖 -->
+  <p>{{currentTime2}}: computed</p>
 </div>
 <script src="vue.js"></script>
 <script>
-    const app = new Vue({
-        el: '#vue',
-        data: {
-            message: "ink"
-        },
-        methods: {
-            currentTime1: function (){
-                return Date.now();
-            }
-        },
-        computed: {
-            currentTime2: function (){
-                return Date.now();
-            }
-        }
-    })
+  const app = new Vue({
+    el: '#vue',
+    data: {
+      message: "ink"
+    },
+    methods: {
+      currentTime1(){
+        return Date.now();
+      }
+    },
+    computed: {
+      currentTime2(){
+        return Date.now();
+      }
+    }
+  })
 </script>
 </body>
 ```
 
 ![计算属性](Vue.js.assets/计算属性.png)
+
+
+
+## 监听器
 
 
 
@@ -1574,9 +1660,7 @@ Vue实例提供了一个**自定义事件的系统**来解决这个问题：父�
 
 
 
-# 插槽
-
-`slot`：插槽
+# 插槽slot
 
 Vue.js中使用`<slot>`元素作为承载**分发内容**的出口，可以应用在组合组件中
 
@@ -1645,7 +1729,7 @@ var vm = new Vue({
 
 
 
-### 作用域
+## 作用域
 
 - **父级模板里的所有内容都是在父级作用域中编译的**
 - **子模板里的所有内容都是在子作用域中编译的**

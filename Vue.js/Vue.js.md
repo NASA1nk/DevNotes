@@ -265,6 +265,8 @@ eslint
 
 ## 插值操作
 
+将**值**插到模板的**内容**中
+
 ### 文本
 
 **Mustache语法**
@@ -272,6 +274,8 @@ eslint
 数据绑定最常见的形式就是使用Mustache语法 (**双大括号**) 的文本插值
 
 Mustache语法`{{}}`中也**可以是简单的表达式**
+
+> 用于内容
 
 
 
@@ -430,9 +434,7 @@ Mustache语法不能作用在HTML标签的属性`attribute`上
 
 
 
-## Vue指令
-
-指令带有前缀 `v-`，表示是Vue提供的特殊`attribute`
+## 动态绑定
 
 当表达式的值改变时，Vue指令将其产生的连带影响**响应式**地作用于绑定的DOM元素
 
@@ -445,33 +447,252 @@ Mustache语法不能作用在HTML标签的属性`attribute`上
 
 指令能够接收一个**参数**（HTML标签属性），在指令后以**冒号**表示
 
-- 参数：`href`，`v-bind` 指令将该元素的 `href` 属性与 Vue对象的`url` 的值绑定
-- 参数：`click`，`v-on`指令监听`click`事件，触发会执行`methods`方法
+> 参数：`src`，`v-bind` 指令将该元素的 `src` 属性与 Vue对象的`url` 值绑定
 
 ```html
-<a v-bind:href="url">...</a>
-<a :href="url">...</a>
+<body>
+<div id="app">
+    <image v-bind:src="url"></image>
+    <a :href="link">点击跳转</a>
+    <a href=""></a>
+</div>
 
-<a v-on:click="methods">...</a>
-<a @click="methods">...</a>
+<script src="vue.js"></script>
+<script>
+    const app = new Vue({
+        el: '#app',
+        data: {
+            url: 'https://img2.baidu.com/it/u=3228549874,2173006364&fm=26&fmt=auto&gp=0.jpg',
+            link: 'http://www.baidu.com'
+        },
+
+    });
+</script>
+</body>
 ```
-
-
-
-### 动态参数
-
-- 可以用方括号`[]`括起来的 **JavaScript 表达式**作为一个指令的参数（求得的值作为最终的参数）
-- 可以使用动态参数为一个**动态的事件名**绑定处理函数（不同事件不同的处理函数）
-
-> 在 DOM 中使用模板时 (直接在一个 HTML 文件里撰写模板)，需要避免使用大写字符来命名键名，因为浏览器会把 **attribute 名全部强制转为小写**（所有字符）
-
-
 
 ### 修饰符
 
 修饰符是以 `.` 指明的**特殊后缀**，用于指出一个指令应该以**特殊方式绑定**
 
 
+
+### 绑定class
+
+可以对Dom元素的`class`属性进行动态绑定（用来选择Dom是否有指定的`class`属性）
+
+**对象语法**
+
+传入`class`属性**对象**并使用布尔值选择：`<h2 :class="{类名1: boolean,类名2: boolean}">`
+
+当对象中属性太多时也可以使用方法调用：`<h1 :class="getClasses()">class属性绑定</h1>`
+
+```html
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .active{
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <image v-bind:src="url"></image>
+    <a :href="link">点击跳转</a>
+    <h1 v-bind:class="{active: isActive, line: isLine}">class属性绑定</h1>
+    <h1 :class="getClasses()">class属性绑定</h1>
+
+</div>
+<script src="vue.js"></script>
+<script>
+    const app = new Vue({
+        el: '#app',
+        data: {
+            url: 'https://img2.baidu.com/it/u=3228549874,2173006364&fm=26&fmt=auto&gp=0.jpg',
+            link: 'http://www.baidu.com',
+            isActive: true,
+            isLine: true
+        },
+        methods: {
+            getClasses(){
+                return {active: this.isActive, line: this.isLine}
+            }
+        }
+    });
+</script>
+</body>
+</html>
+```
+
+
+
+**数组语法**
+
+class属性中可以放数组，会依次解析成对应的class，数组也可以由方法返回
+
+-  加上单引号表示字符串（写死）
+-  不加单引号的表示变量
+
+```html
+<body>
+  <div id="app">
+    <!-- 加上单引号表示字符串 -->
+    <h2 class="title" :class="['active','line']">{{message}}</h2>
+    <!-- 不加表示变量 -->
+    <h2 class="title" :class="[active,line]">{{message}}</h2>
+    <!-- 方法返回数组 -->
+    <h2 class="title" :class="getClasses()">{{message}}</h2>
+
+  </div>
+  <script src="vue.js"></script>
+  <script>
+    const app = new Vue({
+      el:"#app",
+      data:{
+        message:"你好啊",
+        active:"aaaa",
+        line:'bbbb'
+      },
+      methods: {
+        getClasses(){
+          return [this.active,this.line]
+        }
+      },
+    })
+  </script>
+</body>
+```
+
+### 绑定style
+
+绑定CSS内联样式：`<h2 :style="{key(属性名):value(属性值)}">`
+
+- 对象语法
+- 数组语法
+
+> 组件化开发中可复用组件的使用，动态绑定样式属性
+>
+> 驼峰命名法
+>
+> 数字和字符串连接成字符串
+
+```html
+<body>
+<div id="app">
+    <!-- 加单引号表示字符串 -->
+    <h2 :style="{fontSize: '50px'}">{{message}}</h2>
+    <!-- 不加单引号表示变量 -->
+    <h2 :style="{fontSize: fontSize}">{{message}}</h2>
+    <!-- 连接 -->
+    <h2 :style="{fontSize: fontSizenopx + 'px'}">{{message}}</h2>
+    <!-- 方法 -->
+    <h2 :style="getStyle1()">{{message}}</h2> 
+    
+    <!-- 数组语法:对象数组 -->
+    <h2 :style="[baseStyle1,baseStyle2]">{{message}}</h2>
+</div>
+<script src="vue.js"></script>
+<script>
+    const app = new Vue({
+        el:"#app",
+        data:{
+            message: '你好啊',
+            fontSize: '50px',
+            fontSizenopx: 100,
+            baseStyle1: {backgroundColor: 'red'},
+        	baseStyle2: {fontSize: '100px'}
+        },
+        methods: {
+            getStyle1(){
+                return {fontSize: this.fontSize}
+            },
+            getStyle2(){
+                return [this.baseStyle]
+            }
+        },
+    })
+</script>
+</body>
+```
+
+
+
+## 事件处理
+
+`v-on`指令可以监听DOM事件并在事件触发时运行`methods`中的对应方法
+
+> `v-on`可以绑定HTML所有的事件
+
+```html
+<body>
+<div id="app">
+	<!-- 通过方法响应点击事件 --> 
+	<button v-on:click="sayhi">点击</button>
+</div>
+<script src="vue.js"></script>
+<script src="js/ink.js"></script>
+</body>
+```
+
+```javascript
+var vm = new Vue({
+    el: "#app",
+    data:{
+        message: "hi ink"
+    },
+    // 方法也是K-V键值对
+    methods:{
+        sayhi: function (){
+            alert(this.message);
+        }
+    }
+})
+```
+
+![Vue事件](Vue.js.assets/Vue事件.png)
+
+
+
+### 事件修饰符
+
+> 方法只有纯粹的数据逻辑，而不是去处理 DOM 事件细节
+
+Vue为 `v-on` 提供了**事件修饰符**（修饰符是由**点开头的指令后缀**表示）
+
+- `.stop`
+- `.prevent`
+- `.capture`
+- `.self`
+- `.once`
+- `.passive`
+
+```html
+<!-- 阻止单击事件继续传播 -->
+<a v-on:click.stop="doThis"></a>
+
+<!-- 提交事件不再重载页面 -->
+<form v-on:submit.prevent="onSubmit"></form>
+
+<!-- 修饰符可以串联 -->
+<a v-on:click.stop.prevent="doThat"></a>
+
+<!-- 只有修饰符 -->
+<form v-on:submit.prevent></form>
+
+<!-- 添加事件监听器时使用事件捕获模式 -->
+<!-- 即内部元素触发的事件先在此处理，然后才交由内部元素进行处理 -->
+<div v-on:click.capture="doThis">...</div>
+
+<!-- 只当在 event.target 是当前元素自身时触发处理函数 -->
+<!-- 即事件不是从内部元素触发的 -->
+<div v-on:click.self="doThat">...</div>
+```
+
+> 使用修饰符时，顺序很重要。相应的代码会以同样的顺序产生
 
 ## 条件渲染
 
@@ -545,7 +766,7 @@ var vm = new Vue({
 
 ### 遍历数组
 
-使用`v-for`指令和 `item in items` 语法，基于一个数组来渲染一个列表。
+使用`v-for`指令和 `item in items` 语法，基于一个数组来渲染一个列表
 
 -  `item` ：被迭代的数组元素
 -  `items` ：**源**数据数组
@@ -585,25 +806,27 @@ var vm = new Vue({
 `v-for` 还支持一个可选的第二个参数，即**当前项的索引**
 
 ```html
-<ul id="app">
-  <!-- 同时获取item和index -->
-  <li v-for="(item, index) in items">
-    {{ parentMessage }} - {{ index }} - {{ item.message }}
-  </li>
-</ul>
-```
-
-```javascript
-var vm = new Vue({
-  el: '#app',
-  data: {
-    parentMessage: 'Parent',
-    items: [
-      { message: 'Foo' },
-      { message: 'Bar' }
-    ]
-  }
-})
+<div id="app">
+    <ul id="app">
+        <!-- 同时获取item和index -->
+        <li v-for="(item, index) in items">
+            {{ parentMessage }} - {{ index }} - {{ item.message }}
+        </li>
+    </ul>
+</div>
+<script src="vue.js"></script>
+<script>
+    const app = new Vue({
+        el: '#app',
+        data: {
+            parentMessage: 'Parent',
+            items: [
+                { message: 'Foo' },
+                { message: 'Bar' }
+            ]
+        }
+    });
+</script>
 ```
 
 ![v-for获取父作用域属性](Vue.js.assets/v-for获取父作用域属性.png)
@@ -651,83 +874,6 @@ Vue 更新使用 `v-for` 渲染的元素列表时默认使用“就地更新”�
 ### 数组更新
 
 
-
-## 事件处理
-
-`v-on`
-
-`v-on`(`@`)指令可以监听DOM事件并在触发时运行JavaScript代码
-
-通过它**调用在 Vue 实例中定义的方法**（执行事件处理方法），方法定义在Vue的`methods`属性中
-
-> `v-on`可以绑定HTML所有的事件
-
-```html
-<body>
-<div id="app">
-	<!-- 通过方法响应点击事件 --> 
-	<button v-on:click="sayhi">点击</button>
-</div>
-<script src="vue.js"></script>
-<script src="js/ink.js"></script>
-</body>
-```
-
-```javascript
-var vm = new Vue({
-    el: "#app",
-    data:{
-        message: "hi ink"
-    },
-    // 方法也是K-V键值对
-    methods:{
-        sayhi: function (){
-            alert(this.message);
-        }
-    }
-})
-```
-
-![Vue事件](Vue.js.assets/Vue事件.png)
-
-
-
-### 事件修饰符
-
-> 方法只有纯粹的数据逻辑，而不是去处理 DOM 事件细节
-
-Vue为 `v-on` 提供了**事件修饰符**（修饰符是由**点开头的指令后缀**表示）
-
-- `.stop`
-- `.prevent`
-- `.capture`
-- `.self`
-- `.once`
-- `.passive`
-
-```html
-<!-- 阻止单击事件继续传播 -->
-<a v-on:click.stop="doThis"></a>
-
-<!-- 提交事件不再重载页面 -->
-<form v-on:submit.prevent="onSubmit"></form>
-
-<!-- 修饰符可以串联 -->
-<a v-on:click.stop.prevent="doThat"></a>
-
-<!-- 只有修饰符 -->
-<form v-on:submit.prevent></form>
-
-<!-- 添加事件监听器时使用事件捕获模式 -->
-<!-- 即内部元素触发的事件先在此处理，然后才交由内部元素进行处理 -->
-<div v-on:click.capture="doThis">...</div>
-
-<!-- 只当在 event.target 是当前元素自身时触发处理函数 -->
-<!-- 即事件不是从内部元素触发的 -->
-<div v-on:click.self="doThat">...</div>
-```
-
-> 使用修饰符时，顺序很重要。相应的代码会以同样的顺序产生
 
 
 
@@ -878,6 +1024,161 @@ data: {
 ```html
 <div class="active text-danger"></div>
 ```
+
+
+
+# 计算属性
+
+`computed`
+
+计算属性：在内存中运行，能够将计算结果缓存起来的属性（将行为转换为静态的属性）
+
+对于任何复杂逻辑都应当使用**计算属性**
+
+```html
+<body>
+  <div id="app">
+    <!-- Mastache语法 -->
+    <h2>{{firstName+ " " + lastName}}</h2>
+    <!-- 方法 -->
+    <h2>{{getFullName()}}</h2>
+    <!-- 计算属性 -->
+    <h2>{{fullName}}</h2>
+  </div>
+  <script src="vue.js"></script>
+  <script>
+    const app = new Vue({
+      el: "#app",
+      data:{
+        firstName: "ink",
+        lastName: "yinke"
+      },
+      computed: {
+        fullName: function(){
+          return this.firstName + " " + this.lastName
+        }
+      },
+      methods: {
+        getFullName(){
+          return this.firstName + " " + this.lastName
+        }
+      },
+    })
+  </script>
+</body>
+```
+
+```html
+<body>
+<div id="app">
+    <h2>总价格：{{totalPrice}}</h2>
+</div>
+<script src="vue.js"></script>
+<script>
+    const app = new Vue({
+        el:"#app",
+        data:{
+            books:[
+                {id:110,name:"JavaScript从入门到入土",price:119},
+                {id:111,name:"Java从入门到放弃",price:80},
+                {id:112,name:"编码艺术",price:99},
+                {id:113,name:"代码大全",price:150},
+            ]
+        },
+        computed: {
+            totalPrice: function (){
+                let result= 0;
+                for (let i = 0; i < this.books.length; i++) {
+                    result += this.books[i].price;
+                }
+                return result
+            }
+        }
+    })
+</script>
+</body>
+```
+
+## setter和getter
+
+完整的计算属性是一个对象，里面包含`set`方法和`get`方法。一般只实现`get`方法（默认）
+
+> 不实现`set`方法的计算属性相当于只读属性
+>
+> 也可以实现`set`方法：`set:function(newValue){}`
+
+```html
+<script>
+    const app = new Vue({
+      el: "#app",
+      data:{
+        firstName: "ink",
+        lastName: "yinke"
+      },
+      computed: {
+        // 实际实现,但一般省略get
+        fullName:{
+          get:function(){
+            return this.firstName + " " + this.lastName
+          }
+        }
+        // 等价写法
+        // fullName: function(){
+        //   return this.firstName + " " + this.lastName
+        // }
+      }
+    })
+</script>
+```
+
+
+
+## 计算属性和方法对比
+
+**缓存**
+
+- 计算属性是基于响应式依赖进行**缓存**的，只有相关响应式依赖发生**改变时才会重新计算**求值。只要计算值没有发生改变，多次访问计算属性都会立即返回之前的计算结果而不必再次执行函数（**只执行一次**）
+- 方法**只要被调用就会再次执行函数**
+
+**使用**
+
+- `methods`定义方法，调用要加上`()`
+- `computed`定义计算属性，直接调用属性名
+
+> `computed`中的方法不要和`methods`中的方法同名，同名时默认使用`methods`中的方法
+
+```html
+<body>
+<div id="vue">
+    <p>{{currentTime1()}}: methods</p>
+    <!-- 计算属性将不再更新，因为Date.now()不是响应式依赖 -->
+    <p>{{currentTime2}}: computed</p>
+</div>
+<script src="vue.js"></script>
+<script>
+    const app = new Vue({
+        el: '#vue',
+        data: {
+            message: "ink"
+        },
+        methods: {
+            currentTime1: function (){
+                return Date.now();
+            }
+        },
+        computed: {
+            currentTime2: function (){
+                return Date.now();
+            }
+        }
+    })
+</script>
+</body>
+```
+
+![计算属性](Vue.js.assets/计算属性.png)
+
+
 
 
 
@@ -1270,64 +1571,6 @@ Vue实例提供了一个**自定义事件的系统**来解决这个问题：父�
   ```html
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   ```
-
-
-
-# 计算属性
-
-`computed`
-
-对于任何复杂逻辑都应当使用**计算属性**
-
-在内存中运行，能够将计算结果缓存起来的属性（将行为转换为静态的属性）
-
-
-
-**计算属性和方法对比**
-
-- **计算属性是基于它们的响应式依赖进行缓存的**。只在相关响应式依赖发生改变时它们才会重新求值。这就意味着只要计算值没有发生改变，多次访问计算属性会立即返回之前的计算结果而不必再次执行函数
-- 每当触发重新渲染时，**方法调用将总会再次执行函数**
-
-
-
-- methods定义方法，调用要加上`()`
-- computed定义计算属性，属性可以直接调用
-
-> computed中的方法不要和methods中的方法同名，同名时默认使用methods中的方法
-
-```html
-<body>
-<div id="vue">
-    <p>{{currentTime1()}}: methods</p>
-    <!-- 计算属性将不再更新，因为Date.now()不是响应式依赖 -->
-    <p>{{currentTime2}}: computed</p>
-</div>
-<script src="vue.js"></script>
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script src="js/ink.js"></script>
-</body>
-```
-
-```javascript
-var vm = new Vue({
-    el: '#vue',
-    data: {
-        message: "ink"
-    },
-    methods: {
-        currentTime1: function (){
-            return Date.now();
-        }
-    },
-    computed: {
-        currentTime2: function (){
-            return Date.now();
-        }
-    }
-});
-```
-
-![计算属性](Vue.js.assets/计算属性.png)
 
 
 

@@ -60,6 +60,10 @@ const obj = {
 
 
 
+**字符串**
+
+使用``包裹的字符串可以换行
+
 # Vue.js
 
 **渐进式**JavaScript框架：将Vue作为应用的一部分**嵌入其中**
@@ -1793,35 +1797,36 @@ Vue 更新使用 `v-for` 渲染的元素列表时默认使用**就地更新**的
 
 ```html
 <body>
-<div id="vue">
-    <div>{{info.name}}</div>
-    <div>{{info.links[0].name}}</div>
-    <!-- 错误:<a href="{{info.url}}">点击</a> -->
-    <!-- 要用v-bind绑定 -->
-    <a v-bind:href="info.url">点击跳转</a>
+<div id="app">
+  <div>{{info.name}}</div>
+  <div>{{info.links[0].name}}</div>
+  <!-- 错误:<a href="{{info.url}}">点击</a> -->
+  <!-- 要用v-bind绑定 -->
+  <a v-bind:href="info.url">点击跳转</a>
 </div>
 <script src="vue.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
-    var vm = new Vue({
-        el: '#vue',
-        data: {
-            // 设置info为{}，自动绑定response的各个属性
-            info: {}
-        },
-        // 钩子函数（链式编程）
-        // data.json路径
-        mounted(){
-            // GET请求得到返回数据绑定到data中
-            axios.get('data.json').then(response=>(this.info = response.data));
-        }
-    });
+  const app = new Vue({
+    el: '#app',
+    data: {
+      // 设置info为{}，自动绑定response的各个属性
+      info: {}
+    },
+    // 钩子函数（链式编程）
+    // data.json路径
+    mounted(){
+      // GET请求得到返回数据绑定到data中
+      axios.get('data.json').then(response=>(this.info = response.data));
+    }
+  });
 </script>
 </body>
 ```
 
+json文件
+
 ```json
-// json文件
 {
   "name": "ink",
   "url": "https://www.baidu.com/",
@@ -1853,29 +1858,31 @@ Vue 更新使用 `v-for` 渲染的元素列表时默认使用**就地更新**的
 
 ![axios](Vue.js.assets/axios.png)
 
+
+
 # Vue组件
 
+**Vue组件化思想**
 
+将一个页面拆分成多个组件（功能块），每一个组件又可以进行细分。每个组件完成属于自己的独立功能
 
-使用`Vue.component()`函数创建Vue组件
+几乎任意类型的应用界面都可以抽象为一个**组件树**
 
-- 一个组件本质上是一个拥有预定义选项的**一个 Vue 实例**
-- 组件是可复用的 Vue 实例，所以它与 `new Vue` 接收相同的选项（如 `data`、`computed`、`watch`、`methods` 以及生命周期钩子函数等），但不包括`el` 这样的根实例特有的选项
+> 组件系统是一种抽象，可以使用小型、独立和可复用的组件构建大型应用
+>
+> 尽可能的将页面拆分成一个个小的、可复用的组件
+
+![VueComponents](Vue.js.assets/VueComponents.png)**Vue组件**
+
+- 一个组件本质上是一个拥有预定义选项的，可复用的一个**Vue实例**
+- 组件是的Vue实例，所以它与 `new Vue` 接收相同的选项（如 `data`、`computed`、`watch`、`methods` 以及生命周期钩子函数等），但不包括`el` 这样的**根实例**特有的选项
 - 每个组件都会各自独立维护它的属性。每用一次组件，就会有一个它的新**实例**被创建
 
-> 自定义标签组件化（**模板复用**）
->
 > Vue 组件提供了纯自定义元素所不具备的一些重要功能，最突出的是跨组件数据流、自定义事件通信以及构建工具集成。
 
-## 组件组织
 
-几乎任意类型的应用界面都可以抽象为一个组件树
 
-> 组件系统是一种抽象。可以使用小型、独立和通常可复用的组件构建大型应用
-
-![VueComponents](Vue.js.assets/VueComponents.png)
-
-## Vue component
+**idea新建Vue组件**
 
 ![新建组件](Vue.js.assets/新建组件.png)
 
@@ -1883,16 +1890,68 @@ Vue 更新使用 `v-for` 渲染的元素列表时默认使用**就地更新**的
 
 
 
+## 使用组件
+
+**步骤**
+
+1. 调用`Vue.extend()`方法创建**组件构造器**
+   - 传入`template`代表自定义组件模板（模板是在使用到组件的地方要显示的HTML代码）
+2. 调用`Vue.component()`方法**注册组件**
+   - 将组件构造器注册为一个组件，并给它起一个标签名称，需要传递两个参数：
+     - 注册组件的**标签名**
+     - **组件构造器**
+3. 在**Vue实例的作用范围内**使用组件
+
+> 下面这种写法在Vue2.x的文档中几乎已经看不到了，但是是基础
+
+```html
+<body>
+<div id="app">
+  <!--3.使用组件-->
+  <my-cpn></my-cpn>
+  <my-cpn></my-cpn>
+</div>
+<script src="vue.js"></script>
+<script>
+  // 1.创建组件构造器对象
+  const cpnC = Vue.extend({
+    template: `
+    <div>
+      <h2>我是标题</h2>
+      <p>我是内容, 哈哈哈哈</p>
+      <p>我是内容, 呵呵呵呵</p>
+    </div>`
+  })
+  // 2.注册组件
+  Vue.component('my-cpn', cpnC)
+  
+  const app = new Vue({
+    el: '#app',
+    data: {
+      message: '你好啊'
+    }
+  })
+</script>
+</body>
+```
+
+
+
 **组件注册类型**
 
-- 全局注册
-- 局部注册
+- **全局注册**
 
-全局注册Vue组件可以用在其被注册之后的任何 (通过 `new Vue`) 新创建的 Vue 根实例，也包括其组件树中的所有子组件的模板中
+  调用`Vue.component()`注册的组件。该组件可以在任意Vue实例下使用
+
+- **局部注册**
+
+  通过 `components`注册的组件，挂载在某个实例中。只能在当前vue实例挂载的对象中使用
 
 
 
-**创建组件**
+**注册组件语法糖**
+
+Vue为了简化，省去了调用`Vue.extend()`的步骤，可以直接**使用一个对象**来代替
 
 `component()`函数包含两个参数
 
@@ -1931,9 +1990,13 @@ new Vue({
 });
 ```
 
+## 父子组件
+
+组件和组件之间存在层级关系，其中一种非常重要的关系就是**父子组件的关系**
+
 ## data
 
-一个组件的 `data` 选项**必须是一个函数**，因此每个实例可以维护一份被返回对象的独立的拷贝
+组件的 `data` **必须是一个函数**，因此每个实例可以维护一份被返回对象的独立的拷贝
 
 > 否则可能会影响其他实例
 

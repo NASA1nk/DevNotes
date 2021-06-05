@@ -500,9 +500,10 @@ Mustache语法不能作用在HTML标签的属性`attribute`上
 
 `v-bind`（简写 `:`）
 
-动态绑定属性（**响应式**的更新HTML标签中的属性）
+- 动态绑定属性（**响应式**的更新HTML**标签中的属性**）。当表达式的值改变时，将其产生的连带影响**响应式**地作用于绑定的DOM元素
 
-当表达式的值改变时，将其产生的连带影响**响应式**地作用于绑定的DOM元素
+-  `v-bind` 用于绑定`class`和`style`时，Vue做了专门的增强。表达式结果的类型除了字符串之外，还可以是**对象或数组**
+
 
 
 
@@ -545,9 +546,12 @@ Mustache语法不能作用在HTML标签的属性`attribute`上
 
 **对象语法**
 
-传入`class`属性**对象**并使用布尔值选择：`<h2 :class="{类名1: boolean,类名2: boolean}">`
-
-当对象中属性太多时也可以使用方法调用：`<h1 :class="getClasses()">class属性绑定</h1>`
+- 传入`class`属性**对象**并使用**布尔值选择**来动态地切换`class`属性
+  - `<h2 :class="{类名1: boolean,类名2: boolean}">`
+- 当对象中属性很多时也可以使用**方法调用**
+  - `<h1 :class="getClasses()">class属性绑定</h1>`
+- 动态绑定的`class`属性可以与普通的`class`属性共存
+- 可以绑定计算属性（返回对象）
 
 ```html
 <!DOCTYPE html>
@@ -566,7 +570,7 @@ Mustache语法不能作用在HTML标签的属性`attribute`上
   <image v-bind:src="url"></image>
   <a :href="link">点击跳转</a>
   <h1 v-bind:class="{active: isActive, line: isLine}">class属性绑定</h1>
-  <h1 :class="getClasses()">class属性绑定</h1>
+  <h1 class="title" :class="getClasses()">class属性绑定</h1>
 
 </div>
 <script src="vue.js"></script>
@@ -594,7 +598,7 @@ Mustache语法不能作用在HTML标签的属性`attribute`上
 
 **数组语法**
 
-class属性中可以放数组，会依次解析成对应的class，数组也可以由方法返回
+`class`属性可以是一个数组，会依次解析成对应的`class`，数组也可以由方法返回
 
 -  加上单引号表示字符串（写死）
 -  不加单引号的表示变量
@@ -613,10 +617,10 @@ class属性中可以放数组，会依次解析成对应的class，数组也可�
 <script src="vue.js"></script>
 <script>
   const app = new Vue({
-    el: "#app",
+    el: '#app',
     data:{
-      message: "你好啊",
-      active: "ink",
+      message: '你好啊',
+      active: 'ink',
       line: 'yinke'
     },
     methods: {
@@ -700,7 +704,6 @@ class属性中可以放数组，会依次解析成对应的class，数组也可�
   <button @click="sayhi">点击</button>
 </div>
 <script src="vue.js"></script>
-<script src="vue.js"></script>
 <script>
   const app = new Vue({
     el: "#app",
@@ -725,52 +728,101 @@ class属性中可以放数组，会依次解析成对应的class，数组也可�
 
 ### 参数
 
-- 方法不需要传递参数，方法后的`()`可以不添加
-- 方法需要传递参数，但没添加方法后的`()`，默认将原生事件`event`当成参数传递
-- 方法需要传递参数，同时需要`event`，可以通过`$event`传入事件
+- 事件调用的方法不需要传递参数，方法后的`()`可以不添加
+- 事件调用的方法需要传递参数，但方法后没加`()`，默认将原生事件`event`对象当成参数传递
+- 事件调用的方法需要传递参数，而且还需要`event`对象，可以通过`$event`获取`event`对象
 
-### 事件修饰符
+```html
+<body>
+<div id="app">
+  <!-- 不传参 -->
+  <button @click="btnClick1">按钮1</button>
+  <button @click="btnClick1()">按钮1</button>
+  <!-- 事件调用方法需要传参，但省略了小括号 -->
+  <button @click="btnClick2(123)">按钮3</button>
+  <button @click="btnClick2()">按钮4</button>
+  <button @click="btnClick2">按钮5</button>
+  <!-- 事件调用方法需要传入event和其他参数 -->
+  <button @click="btnClick3($event,123)">按钮6</button>
+</div>
+<script src="vue.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    methods: {
+      btnClick1(){
+        console.log("点击");
+      },
+      btnClick2(value){
+        console.log(value);
+      },
+      btnClick3(event,value){
+        console.log(event+" "+value);
+      }
+    }
+  })
+</script>
+</body>
+```
 
-方法只有纯粹的数据逻辑而不去处理DOM事件细节
+![事件监听方法参数](Vue.js.assets/事件监听方法参数.png)
+
+### 修饰符
+
+方法只有纯粹的数据逻辑，不会去处理DOM事件细节
+
+> 事件冒泡
 
 Vue为`v-on` 指令提供了**事件修饰符**（点开头的指令后缀表示）
 
-- `.stop`
-- `.prevent`
+- `.stop`：调用`event.stopPropagation()`，阻止事件冒泡
+- `.prevent`：调用`event.preventDefault()`，阻止默认事件
+- `.{keyCode}` ：只有当事件是**键盘特定键**触发时才触发回调
+- `.enter`：监听键盘**回车键**敲击事件
+- `.native`：监听**组件**根元素的原生事件
+- `.once`：只触发一次回调
 - `.capture`
 - `.self`
-- `.once`
 - `.passive`
 
 > 使用修饰符时，顺序很重要。相应的代码会以同样的顺序产生
 
 ```html
 <!-- 阻止单击事件继续传播 -->
-<a v-on:click.stop="doThis"></a>
+<a @click.stop="doThis"></a>
 
 <!-- 提交事件不再重载页面 -->
-<form v-on:submit.prevent="onSubmit"></form>
+<form @submit.prevent="onSubmit"></form>
 
 <!-- 修饰符可以串联 -->
-<a v-on:click.stop.prevent="doThat"></a>
+<a @click.stop.prevent="doThat"></a>
 
 <!-- 只有修饰符 -->
-<form v-on:submit.prevent></form>
+<form @submit.prevent></form>
 
 <!-- 添加事件监听器时使用事件捕获模式 -->
 <!-- 即内部元素触发的事件先在此处理，然后才交由内部元素进行处理 -->
-<div v-on:click.capture="doThis">...</div>
+<div @click.capture="doThis">...</div>
 
 <!-- 只当在 event.target 是当前元素自身时触发处理函数 -->
 <!-- 即事件不是从内部元素触发的 -->
-<div v-on:click.self="doThat">...</div>
+<div @click.self="doThat">...</div>
+
+<!-- 监听键盘的事件 -->
+<input type="text" @keyup="keyup">
+
+<!-- 监听键盘回车键的事件 -->
+<input type="text" @keyup.enter="keyup">
 ```
 
 
 
 ## 条件渲染
 
+根据表达式的值在DOM中**渲染或销毁**元素或组件
+
 - `v-if`
+  - 单独使用`v-if`，变量为布尔值
 - `v-else-if`
 - `v-else`
 
@@ -779,28 +831,72 @@ Vue为`v-on` 指令提供了**事件修饰符**（点开头的指令后缀表示
 ```html
 <body>
 <div id="app">
-    <h1 v-if="ok">yes</h1>
-    <h1 v-else>no</h1>
+  <h2 v-if="isFlag">isFlag为true显示这个</h2>
+  <h2 v-show="isShow">isShow为true是显示这个</h2>
+  <div v-if="age<18">小于18岁未成年</div>
+  <div v-else-if="age<60">大于18岁小于60岁正值壮年</div>
+  <div v-else="">大于60岁,暮年</div>
 </div>
 <script src="vue.js"></script>
-<script src="js/ink.js"></script>
-</body>
-```
-
-```javascript
-var vm = new Vue({
+<script>
+  const app = new Vue({
     el: "#app",
-    data:{
-        ok: true
+    data: {
+      isFlag: true,
+      isShow: false,
+      age: 52
     }
-})
+  })
+</script>
+</body>
 ```
 
 ![判断结构](Vue.js.assets/判断结构.png)
 
-### template渲染
 
-`v-if` 是一个指令，只能将它添加到一个元素上。如果想切换多个元素，可以把一个 `template` 元素当做不可见的包裹元素，并在上面使用 `v-if`。最终的渲染结果将不包含 `template` 元素
+
+**条件很多时建议使用计算属性** 
+
+```html
+<body>
+<div id="app">
+  <!-- 计算属性 -->  
+  <div>{{show}}</div>
+</div>
+<script src="vue.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    data: {
+      age: 52
+    },
+    computed: {
+      show(){
+        let showm = ''
+        if(this.age <18){
+          showm = '小于18岁未成年'
+        }
+        else if(this.age <60){
+          showm = '大于18岁小于60岁正值壮年'
+        }
+        else{
+          showm = '大于60岁暮年'
+        }
+        return showm
+      }
+    }
+  })
+</script>
+</body>
+```
+
+
+
+### 包裹渲染
+
+`v-if` 是一个指令，只能将它添加到一个元素上
+
+如果想切换多个元素，可以把一个 `template` 元素当做不可见的**包裹元素**，并在上面使用 `v-if`。最终的渲染结果将不包含 `template` 元素
 
 ```html
 <template v-if="ok">
@@ -814,25 +910,71 @@ var vm = new Vue({
 
 ### v-show
 
-- 带有 `v-show` 的元素**始终会被渲染并保留在 DOM 中**
-- `v-show` 只是简单地切换元素的CSS属性（`display`）
+决定一个元素是否渲染
+
+- 带有 `v-show` 的元素**始终会被渲染并保留在DOM中**
+- `v-show` 只是切换元素的CSS属性（`display`）
 - `v-show` 不支持 `template` 元素，也不支持 `v-else`
-
-
 
 **区别**：
 
-- `v-if` 是“真正”的条件渲染，它会确保在切换过程中条件块内的事件监听器和子组件适当地被销毁和重建
+- `v-if` 是**真正的条件渲染**，它会确保在切换过程中条件块内的事件监听器和子组件适当地被销毁和重建
 - `v-if` 是**惰性的**：如果在初始渲染时条件为假，则什么也不做，直到条件第一次变为真时，才会开始渲染条件块
-- `v-show`不管初始条件是什么，元素总是会被渲染，并且只是简单地基于 CSS 进行切换
+- `v-show`不管初始条件是什么，**元素总是会被渲染**，并且只是简单地基于CSS进行切
+- `v-if` 有更高的切换开销，而 `v-show` 有更高的初始渲染开销。如果需要非常频繁地切换，使用 `v-show` 较好。如果在运行时条件很少改变，使用 `v-if` 较好
 
-`v-if` 有更高的切换开销，而 `v-show` 有更高的初始渲染开销
-
-如果需要非常频繁地切换，使用 `v-show` 较好。如果在运行时条件很少改变，使用 `v-if` 较好
-
+> `v-if`当条件为false时，不会有对应的元素在DOM中，`v-show`当条件为false时，将元素的display属性设置为none而已。
+>
 > 当 `v-if` 与 `v-for` 一起使用时，`v-for` 具有比 `v-if` 更高的优先级
 >
 > 不推荐一起使用
+
+
+
+### 登录demo
+
+```html
+<body>
+<div id="app">
+    <span v-if="isUser">
+      <!-- 点击获取聚焦   -->
+      <label for="username">用户账号</label>
+      <input type="text" id="username" placeholder="请输入用户名" >
+    </span>
+  <span v-else="isUser">
+        <label for="email">用户邮箱</label>
+        <input type="text" id="email" placeholder="请输入用户邮箱" >
+    </span>
+  <button @click="isUser=!isUser">切换类型</button>
+</div>
+<script src="vue.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    data: {
+      isUser: true
+    }
+  })
+</script>
+</body>
+```
+
+**渲染问题**
+
+在已有输入内容的情况下，切换类型后不会清空已有内容
+
+**原因**
+
+Vue在进行DOM渲染时，出于性能考虑，会**尽可能的复用已经存在的元素**，而不是重新创建新的元素。所以Vue内部发现原来的`input`元素不再使用后，所以直接将其映射对应成虚拟DOM复用
+
+**解决**
+
+给对应的`input`添加`key`属性，并且需要保证`key`不同
+
+```html
+<input type="text" id="username" placeholder="请输入用户名" key="username">
+<input type="text" id="email" placeholder="请输入用户邮箱" key="email">
+```
 
 
 
@@ -840,12 +982,15 @@ var vm = new Vue({
 
 ### 遍历数组
 
-使用`v-for`指令和 `item in items` 语法，基于一个数组来渲染一个列表
+使用`v-for`指令和 `(item,index) in items` 语法，基于一个数组来渲染一个列表
 
--  `item` ：被迭代的数组元素
+-  `index`：数组元素**索引**
+-  `item` ：被迭代的**数组元素**
 -  `items` ：**源**数据数组
 
 > 响应式：追加数据可以自动展示
+>
+> `(item,index)`：元组
 >
 > 可以用 `of` 替代 `in` 作为分隔符
 
@@ -856,10 +1001,15 @@ var vm = new Vue({
         {{item.message}}
     </li>
 </div>
+<div id="app">
+    <li v-for="(item,index) in items">
+        {{index + "." + item.message}}
+    </li>
+</div>
 <script src="vue.js"></script>
 <script>
     const vm = new Vue({
-        el: "#app",
+        el: ''#app',
         data: {
             items: [
                 {message: 'ink'},
@@ -871,148 +1021,272 @@ var vm = new Vue({
 </body>
 ```
 
-
-
-### 父作用域
-
-`v-for` 块中可以访问所有**父作用域**的`property`
-
-`v-for` 还支持一个可选的第二个参数，即**当前项的索引**
+`v-for` 可以访问到**父作用域**的属性
 
 ```html
+<body>
 <div id="app">
-    <ul id="app">
-        <!-- 同时获取item和index -->
-        <li v-for="(item, index) in items">
-            {{ parentMessage }} - {{ index }} - {{ item.message }}
-        </li>
-    </ul>
+  <ul id="app">
+    <li v-for="(item, index) in items">
+      {{ parentMessage + "-" + index + "-" + item.message}}
+    </li>
+  </ul>
 </div>
 <script src="vue.js"></script>
 <script>
-    const app = new Vue({
-        el: '#app',
-        data: {
-            parentMessage: 'Parent',
-            items: [
-                { message: 'Foo' },
-                { message: 'Bar' }
-            ]
-        }
-    });
+  const app = new Vue({
+    el: '#app',
+    data: {
+      parentMessage: 'Parent',
+      items: [
+        { message: 'Foo' },
+        { message: 'Bar' }
+      ]
+    }
+  });
 </script>
+</body>
 ```
 
 ![v-for获取父作用域属性](Vue.js.assets/v-for获取父作用域属性.png)
 
-### 对象遍历
+### 遍历对象
 
-可以用 `v-for` 来遍历一个对象的`property`的值
-
-- 可以提供第二个参数为 `property` 名称 （`key`）
-- 可以提供第三个参数为索引（`index`）
+- 遍历对象时如果只取一个值`item in items`，默认获取的是`value`
+- 使用`(value,key) in items`获取`value`和`key`
+- 使用`(value,key,index) in items`获取`value`，`key`和`index`
 
 > 遍历对象时会按 `Object.keys()` 的结果遍历
 
 ```html
-<ul id="v-for-object" class="demo">
-  <li v-for="value in object">
-    <!-- 输出对象中的属性值 -->
-    {{ value }}
-  </li>
-</ul>
+<body>
+<div id="app">
+  <ul>
+    <li v-for="(value,key) in user" >{{key+"-"+value}}</li>
+  </ul>
+  <ul>
+    <li v-for="(value,key,index) in user" >{{key+"-"+value+"-"+index}}</li>
+  </ul>
+</div>
+<script src="vue.js"></script>
+<script>
+  const app = new Vue({
+    el: "#app",
+    data: {
+      user: {
+        name: "ink",
+        height: 182,
+        age: 24
+      }
+    }
+  })
+</script>
+</body>
 ```
 
-```javascript
-new Vue({
-  el: '#v-for-object',
-  data: {
-    // 对象  
-    object: {
-      title: 'How to do lists in Vue',
-      author: 'Jane Doe',
-      publishedAt: '2016-04-10'
+![遍历对象](Vue.js.assets/遍历对象.png)
+
+
+
+### key属性
+
+官方推荐在使用`v-for`时给对应的**元素或组件**添加上一个`key`属性
+
+**key的作用主要是为了高效的更新虚拟DOM**
+
+> 要保证key绑定的值和元素一一对应，不要使用`index`，一般就使用`item`
+>
+> 不加`key`渲染的时候会**依次替换**渲染，加了`key`后会直接将其放在指定位置
+
+```html
+<body>
+<div id="app">
+  <!-- 不加key如果要插入f依次改变 -->
+  <ul>
+    <li v-for="item in letters">{{item}}</li>
+  </ul>
+  <button @click="add1">没有key</button>
+  <!-- 加key如果要插入f使用diff算法高效 -->
+  <ul>
+    <li v-for="item in letters" :key="item">{{item}}</li>
+  </ul>
+  <button @click="add2">有key</button>
+</div>
+<script src="vue.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    data: {
+      letters: ['a','b','c','d','e']
+    },
+    methods: {
+      add1(){
+        this.letters.splice(2,0,'f')
+      },
+      add2(){
+        this.letters.splice(2,0,'f')
+      }
     }
-  }
-})
+  })
+</script>
+</body>
 ```
 
 
 
 ### 状态维护
 
-Vue 更新使用 `v-for` 渲染的元素列表时默认使用“就地更新”的策略。如果数据项的顺序被改变，**Vue 将不会移动 DOM 元素来匹配数据项的顺序，而是就地更新每个元素**，确保它们在每个索引位置正确渲染
+Vue 更新使用 `v-for` 渲染的元素列表时默认使用**就地更新**的策略。如果数据项的顺序被改变，**Vue 将不会移动DOM元素来匹配数据项的顺序，而是就地更新每个元素**，确保它们在每个索引位置正确渲染
 
-> 只适用于不依赖子组件状态或临时 DOM 状态 (例如：表单输入值) 的列表渲染输出
+> **只适用**于不依赖子组件状态或临时DOM状态 (例如表单输入值) 的列表渲染输出
+
+
 
 ### 数组更新
 
+改变DOM绑定的数据时DOM会动态改变值（响应式）
+
+对于动态变化数据，**不是所有的改变数据的方法都是响应式的**
+
+- **通过索引值改变数组中元素是非响应式的（不会重新渲染）**
+  - `this.letters[0]='f'`
+- **响应式方法**
+  - `push()`：在数组最后面添加一个元素（可以添加多个）
+  - `pop()`：删除数组最后一个元素
+  - `shift()`：删除数组第一个元素
+  - `unshift()`：在数组最前面添加一个元素（可以添加多个）
+  - `splice(start,number,item)`：删除元素/插入元素/替换元素
+  - `sort()`：排序
+  - `reverse()`：反转
 
 
 
+### 遍历demo
 
-## 表单输入绑定
+1. 给每个`<li>`标签加上点击事件，并将遍历的`index`作为参数传入点击事件的回调函数`liClick()`中
+2. 定义`curIndex`表示当前索引用于表示选中的电影，初始值为-1
+3. 通过`index=curIndex`判断是否是当前选中的电影来改变`class`属性
 
-`v-model` 
+```html
+<!DOCTYPE html>
+<html lang="en">
 
-- `v-model`可以实现**表单输入和应用状态**之间的**双向绑定**，它会根据控件类型自动选取正确的方法来更新元素
-- `v-model`本质上是一个语法糖，它负责监听用户的输入事件以更新数据，并对一些极端场景进行特殊处理
-- `v-model` 在内部为**不同的输入元素使用不同的属性并抛出不同的事件**
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>综合练习</title>
+  <style>
+    .active {
+      background-color: red;
+    }
+  </style>
+</head>
+
+<body>
+<div id="app">
+  <ul>
+    <li v-for="(item,index) in movies"
+        @click="liClick(index)"
+        :class="{active:index===curIndex}">
+      {{index+"---"+item}}
+    </li>
+  </ul>
+</div>
+<script src="vue.js"></script>
+<script>
+  const app = new Vue({
+    el: "#app",
+    data: {
+      movies: ['复仇者联盟', '蝙蝠侠', '海贼王', '星际穿越'],
+      curIndex:-1
+    },
+    methods: {
+      liClick(index){
+        this.curIndex = index
+      }
+    }
+  })
+</script>
+</body>
+</html>
+```
+
+
+
+## 表单绑定
+
+- `v-model`指令可以实现**表单输入和应用状态**之间的**双向绑定**
+- `v-model`会忽略所有表单元素的`value`，`checked`，`selected`的初始值而**将Vue实例数据作为数据来源**（所以要在组件的`data`中声明初始值）
+- `v-model`在内部为**不同的输入元素使用不同的属性并抛出不同的事件**
   - `text/textarea`：使用 `value`属性和 `input` 事件
   - `checkbox/radio`：使用 `checked`属性和 `change` 事件
   - `select`：使用 `value`属性和`change` 作为事件
 
-> `v-model`会忽略所有表单元素的`value`，`checked`，`selected`特性的初始值而总是**将Vue实例数据作为数据来源**，所以要在组件的`data`中声明初始值
->
 > 实际上数据还是单向的
 
 ```html
 <body>
-<div id="vue">
-    <!--绑定表单内容-->
-    输入文本<input type="text" v-model="message">
-    <p>{{message}}</p>
-    <button type="button" @click="submit">提交</button>
-    <div></div>
-    <!-- 单选框-->
-    <input type="checkbox" id="checkbox" v-model="checked">
-    <label for="checkbox">{{ checked }}</label>
-    <div></div>
-    <!-- 复选框-->
-    <input type="checkbox" id="jack" value="Jack" v-model="checkedNames">
-    <label for="jack">Jack</label>
-    <input type="checkbox" id="john" value="John" v-model="checkedNames">
-    <label for="john">John</label>
-    <input type="checkbox" id="mike" value="Mike" v-model="checkedNames">
-    <label for="mike">Mike</label>
-    <br>
-    <span>Checked names: {{ checkedNames }}</span>
+<div id="app">
+  <!--绑定message和input表单内容-->
+  输入文本<input type="text" v-model="message">
+  <p>{{message}}</p>
+  <button type="button" @click="submit">提交</button>
+  <div></div>
+  <!-- 单选框-->
+  <input type="checkbox" id="checkbox" v-model="checked">
+  <label for="checkbox">{{ checked }}</label>
+  <div></div>
+  <!-- 复选框-->
+  <input type="checkbox" id="jack" value="Jack" v-model="checkedNames">
+  <label for="jack">Jack</label>
+  <input type="checkbox" id="john" value="John" v-model="checkedNames">
+  <label for="john">John</label>
+  <input type="checkbox" id="mike" value="Mike" v-model="checkedNames">
+  <label for="mike">Mike</label>
+  <br>
+  <span>Checked names: {{ checkedNames }}</span>
 </div>
 <script src="vue.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script src="js/ink.js"></script>
-</body>
-```
-
-```javascript
-var vm = new Vue({
-    el: '#vue',
+<script>
+  const app = new Vue({
+    el: '#app',
     data: {
-        message: "ink",
-        checked: "",
-        checkedNames: []
+      message: 'ink',
+      checked: '',
+      checkedNames: []
     },
     methods: {
-        submit: function (){
-            alert(this.message)
-        }
+      submit: function (){
+        alert(this.message)
+      }
     }
-});
+  });
+</script>
+</body>
 ```
 
 ![事件双向绑定](Vue.js.assets/事件双向绑定.png)
 
 ![双向绑定](Vue.js.assets/双向绑定.png)
+
+
+
+### v-model原理
+
+`v-model` = `v-bind` + `v-on`
+
+`v-model`本质上是一个语法糖，它负责**监听用户的输入事件**以**更新数据**，并对一些极端场景进行特殊处理
+
+它本质上包含两个操作
+
+- `v-bind`绑定`input`标签的`value`属性
+- `v-on`绑定`input`标签的`input`事件（通过event获取当前`value`值）
+
+![v-model原理](Vue.js.assets/v-model原理.png)
+
+
 
 ### 值绑定
 
@@ -1031,8 +1305,6 @@ var vm = new Vue({
 <input v-model.lazy="ink">
 ```
 
-
-
 `.number`
 
 使用 `number` 修饰符可以自动将用户的输入值转为数值类型
@@ -1043,60 +1315,12 @@ var vm = new Vue({
 
 > 即使 `type="number"` HTML 输入元素的值也总会返回字符串
 
- 
-
 `.trim`
 
 使用`trim`修饰符可以自动过滤用户输入的首尾空白字符
 
 ```html
 <input v-model.trim="ink">
-```
-
-
-
-## Class 与 Style 绑定
-
-操作元素的 class 列表和内联样式是数据绑定的一个常见需求。因为它们都是 attribute，可以用 `v-bind` 处理它们
-
- `v-bind` 用于 `class` 和 `style` 时，Vue.js 做了专门的增强。表达式结果的类型除了字符串之外，还可以是**对象或数组**
-
-
-
-### 对象语法
-
-- 可以传给 `v-bind:class` 一个对象，以动态地切换 class
-- 可以在对象中传入更多字段来动态切换多个 class
-- `v-bind:class` 也可以与普通的 class attribute 共存
-- 可以绑定一个返回对象的计算属性
-
- `active` 这个 class 存在与否取决于数据 property `isActive` 的truthiness
-
-```html
-<div v-bind:class="{ active: isActive }"></div>
-```
-
-
-
-### 数组语法
-
-可以传给 `v-bind:class`一个数组，以应用一个 class 列表
-
-```html
-<div v-bind:class="[activeClass, errorClass]"></div>
-```
-
-```javascript
-data: {
-  activeClass: 'active',
-  errorClass: 'text-danger'
-}
-```
-
-相当于
-
-```html
-<div class="active text-danger"></div>
 ```
 
 
@@ -1122,10 +1346,10 @@ data: {
 <script src="vue.js"></script>
 <script>
   const app = new Vue({
-    el: "#app",
+    el: '#app',
     data:{
-      firstName: "ink",
-      lastName: "yinke"
+      firstName: 'ink',
+      lastName: 'yinke'
     },
     computed: {
       fullName(){
@@ -1172,6 +1396,8 @@ data: {
 </script>
 </body>
 ```
+
+
 
 ## setter和getter
 
@@ -1249,7 +1475,7 @@ data: {
   const app = new Vue({
     el: '#vue',
     data: {
-      message: "ink"
+      message: 'ink'
     },
     methods: {
       currentTime1(){

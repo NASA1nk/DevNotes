@@ -1227,11 +1227,11 @@ Vue 更新使用 `v-for` 渲染的元素列表时默认使用**就地更新**的
   - `checkbox/radio`：使用 `checked`属性和 `change` 事件
   - `select`：使用 `value`属性和`change` 作为事件
 
-> `<label>` 标签
+> `label`标签
 >
 > 在label元素内点击文本就会触发此控件，即选择该标签时浏览器就会自动将焦点转到和标签相关的表单控件上
 
-**text**
+#### text
 
 ```html
 <body>
@@ -1262,7 +1262,7 @@ Vue 更新使用 `v-for` 渲染的元素列表时默认使用**就地更新**的
 
 ![表单双向绑定](Vue.js.assets/表单双向绑定.png)
 
-**radio**
+#### radio
 
 多个`radio`单选框如果绑定相同的属性就可以实现互斥，如果使用`v-model`**绑定相同的属性**，也可以实现互斥
 
@@ -1293,7 +1293,7 @@ Vue 更新使用 `v-for` 渲染的元素列表时默认使用**就地更新**的
 
 ![v-model绑定radio](Vue.js.assets/v-model绑定radio.png)
 
-**checkbox单选**
+#### checkbox单选
 
 ```html
 <body>
@@ -1314,7 +1314,7 @@ Vue 更新使用 `v-for` 渲染的元素列表时默认使用**就地更新**的
 </body>
 ```
 
-**checkbox多选**
+#### checkbox多选
 
 ```html
 <body>
@@ -1343,7 +1343,7 @@ Vue 更新使用 `v-for` 渲染的元素列表时默认使用**就地更新**的
 
 ![checkbox多复选框](Vue.js.assets/checkbox多复选框.png)
 
-**select**
+#### select
 
 `select`也分单选和多选两种情况
 
@@ -1400,37 +1400,187 @@ Vue 更新使用 `v-for` 渲染的元素列表时默认使用**就地更新**的
 
 ### 值绑定
 
-动态的给`value`属性赋值
+动态的给`input`标签的`value`属性赋值
+
+
 
 ### 修饰符
 
 `.lazy`
 
-默认情况下`v-model` 在每次 `input` 事件触发后将输入框的值与数据进行同步 
+默认情况下`v-model` 在每次 `input` 事件触发后就会将输入框的值与数据进行同步（即只要数据变化就会同步）
 
-使用 `lazy` 修饰符可以转为在 `change` 事件**之后**进行同步
+使用 `lazy` 修饰符可以设置为在 `change` 事件**之后**进行同步（只有在回车或者失去焦点后才会同步）
 
 ```html
-<!-- 在“change”时而非“input”时更新 -->
 <input v-model.lazy="ink">
 ```
 
 `.number`
 
-使用 `number` 修饰符可以自动将用户的输入值转为数值类型
+默认情况下输入框中无论输入的是字母还是数字，**都会被当做字符串类型**进行处理
+
+使用 `number` 修饰符可以自动将用户的输入值转为**数字类型**
 
 ```html
 <input v-model.number="age" type="number">
 ```
 
-> 即使 `type="number"` HTML 输入元素的值也总会返回字符串
-
 `.trim`
 
-使用`trim`修饰符可以自动过滤用户输入的首尾空白字符
+使用`trim`修饰符可以自动**过滤输入的首尾空格**
 
 ```html
 <input v-model.trim="ink">
+```
+
+
+
+## 综合demo
+
+![综合练习](Vue.js.assets/综合练习.png)
+
+```html
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <title>综合练习</title>
+  <style>
+    table {
+      border: 1px solid #e9e9e9;
+      border-collapse: collapse;
+      border-spacing: 0;
+    }
+    th, td {
+      padding: 8px 16px;
+      border: 1px solid #e9e9e9;
+      text-align: left;
+    }
+    th {
+      background-color: #f7f7f7;
+      color: #5c6b77;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div v-if="books.length">
+    <table>
+      <thead>
+      <tr>
+        <th></th>
+        <th>书籍名称</th>
+        <th>出版日期</th>
+        <th>价格</th>
+        <th>购买数量</th>
+        <th>操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr v-for="(item,index) in books">
+        
+        <td>{{item.id}}</td>
+        <td>{{item.name}}</td>
+        <td>{{item.date}}</td>
+        <td>{{price(item.price)}}</td>
+        <td>
+          <button @click="reduce(index)" v-bind:disabled="item.count <= 1">-</button>
+          {{item.count}}
+          <button @click="increase(index)">+</button>
+        </td>
+        <td>
+          <button @click="remove(index)">移除</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <h2>总价格: {{price(totleprice)}}</h2>
+  </div>
+  <h1 v-else>购物车为空</h1>
+</div>
+<script src="vue.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    data: {
+      books: [
+        {
+          id: 1,
+          name: '《算法导论》',
+          date: '2006-9',
+          price: 85.00,
+          count: 1
+        },
+        {
+          id: 2,
+          name: '《UNIX编程艺术》',
+          date: '2006-2',
+          price: 59.00,
+          count: 1
+        },
+        {
+          id: 3,
+          name: '《编程珠玑》',
+          date: '2008-10',
+          price: 39.00,
+          count: 1
+        },
+        {
+          id: 4,
+          name: '《代码大全》',
+          date: '2006-3',
+          price: 128.00,
+          count: 1
+        },
+      ]
+    },
+    methods: {
+      price(price) {
+        return '￥' + price.toFixed(2)
+      },
+      reduce(index) {
+        this.books[index].count--
+      },
+      increase(index) {
+        this.books[index].count++
+      },
+      remove(index){
+        this.books.splice(index,1)
+      }
+    },
+    computed: {
+      totleprice(){
+        let totle = 0
+        for(let i=0; i<this.books.length; i++){
+          totle += this.books[i].price * this.books[i].count
+        }
+        // for in
+        // for (let i in this.books) {
+        //   total = total + this.books[i].price * this.books[i].count
+        // }
+        // for of
+        // for (const book of this.books) {
+        //   total = total + book.price * book.count
+        // }
+        return totle
+        
+        // 高阶函数
+        // return this.books.map(function (book) {
+        //   return book.price * book.count
+        //  }).reduce(function (preValue,currentValue) {
+        //     return preValue + currentValue
+        //   })
+        // 高阶函数简写（箭头函数）
+        // return this.books.length === 0 ? 0 : this.books.map(book => book.price * book.count).reduce((preValue,currentVlue) => preValue + currentVlue)
+
+      }
+    }
+  })
+</script>
+</body>
+</html>
 ```
 
 

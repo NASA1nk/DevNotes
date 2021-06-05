@@ -1216,6 +1216,10 @@ Vue 更新使用 `v-for` 渲染的元素列表时默认使用**就地更新**的
 
 ## 表单绑定
 
+多用于用户信息的提交
+
+### 双向绑定
+
 - `v-model`指令可以实现**表单输入和应用状态**之间的**双向绑定**
 - `v-model`会忽略所有表单元素的`value`，`checked`，`selected`的初始值而**将Vue实例数据作为数据来源**（所以要在组件的`data`中声明初始值）
 - `v-model`在内部为**不同的输入元素使用不同的属性并抛出不同的事件**
@@ -1223,7 +1227,11 @@ Vue 更新使用 `v-for` 渲染的元素列表时默认使用**就地更新**的
   - `checkbox/radio`：使用 `checked`属性和 `change` 事件
   - `select`：使用 `value`属性和`change` 作为事件
 
-> 实际上数据还是单向的
+> `<label>` 标签
+>
+> 在label元素内点击文本就会触发此控件，即选择该标签时浏览器就会自动将焦点转到和标签相关的表单控件上
+
+**text**
 
 ```html
 <body>
@@ -1233,29 +1241,14 @@ Vue 更新使用 `v-for` 渲染的元素列表时默认使用**就地更新**的
   <p>{{message}}</p>
   <button type="button" @click="submit">提交</button>
   <div></div>
-  <!-- 单选框-->
-  <input type="checkbox" id="checkbox" v-model="checked">
-  <label for="checkbox">{{ checked }}</label>
-  <div></div>
-  <!-- 复选框-->
-  <input type="checkbox" id="jack" value="Jack" v-model="checkedNames">
-  <label for="jack">Jack</label>
-  <input type="checkbox" id="john" value="John" v-model="checkedNames">
-  <label for="john">John</label>
-  <input type="checkbox" id="mike" value="Mike" v-model="checkedNames">
-  <label for="mike">Mike</label>
-  <br>
-  <span>Checked names: {{ checkedNames }}</span>
+  
 </div>
 <script src="vue.js"></script>
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
   const app = new Vue({
     el: '#app',
     data: {
       message: 'ink',
-      checked: '',
-      checkedNames: []
     },
     methods: {
       submit: function (){
@@ -1267,9 +1260,126 @@ Vue 更新使用 `v-for` 渲染的元素列表时默认使用**就地更新**的
 </body>
 ```
 
-![事件双向绑定](Vue.js.assets/事件双向绑定.png)
+![表单双向绑定](Vue.js.assets/表单双向绑定.png)
 
-![双向绑定](Vue.js.assets/双向绑定.png)
+**radio**
+
+多个`radio`单选框如果绑定相同的属性就可以实现互斥，如果使用`v-model`**绑定相同的属性**，也可以实现互斥
+
+```html
+<body>
+<div id="app">
+  <!-- v-model绑定sex后，用于互斥的name属性可以省略 -->
+  <label for="male">
+    <input type="radio" id="male" name="sex" value="男" v-model="sex">男
+  </label>
+  <label for="female">
+    <input type="radio" id="female" name="sex" value="女" v-model="sex">女
+  </label>
+  <h2>你选择的性别是：{{sex}}</h2>
+
+</div>
+<script src="vue.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    data: {
+      sex: '男'
+    },
+  })
+</script>
+</body>
+```
+
+![v-model绑定radio](Vue.js.assets/v-model绑定radio.png)
+
+**checkbox单选**
+
+```html
+<body>
+<div id="app">
+  <!-- 单个复选框-->
+  <input type="checkbox" id="checkbox" v-model="checked">
+  <label for="checkbox">{{ checked }}</label>
+</div>
+<script src="vue.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    data: {
+      checked: ''
+    }
+  });
+</script>
+</body>
+```
+
+**checkbox多选**
+
+```html
+<body>
+<div id="app">
+  <!-- 多个复选框-->
+  <input type="checkbox" id="jack" value="Jack" v-model="checkedNames">
+  <label for="jack">Jack</label>
+  <input type="checkbox" id="john" value="John" v-model="checkedNames">
+  <label for="john">John</label>
+  <input type="checkbox" id="mike" value="Mike" v-model="checkedNames">
+  <label for="mike">Mike</label>
+  <br>
+  <span>Checked names: {{ checkedNames }}</span>
+</div>
+<script src="vue.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    data: {
+      checkedNames: []
+    }
+  });
+</script>
+</body>
+```
+
+![checkbox多复选框](Vue.js.assets/checkbox多复选框.png)
+
+**select**
+
+`select`也分单选和多选两种情况
+
+> 按住ctrl多选
+
+```html
+<body>
+<div id="app">
+  <!-- select单选 -->
+  <select name="fruit" v-model="fruit">
+    <option value="苹果">苹果</option>
+    <option value="香蕉">香蕉</option>
+    <option value="西瓜">西瓜</option>
+  </select>
+  <h2>你选择的水果是：{{fruit}}</h2>
+  
+  <!-- select多选 -->
+  <select name="fruits" v-model="fruits" multiple>
+    <option value="苹果">苹果</option>
+    <option value="香蕉">香蕉</option>
+    <option value="西瓜">西瓜</option>
+  </select>
+  <h2>你选择的水果是：{{fruits}}</h2>
+</div>
+<script src="vue.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    data: {
+      fruit: "苹果",
+      fruits: []
+    },
+  })
+</script>
+</body>
+```
 
 
 
@@ -1290,7 +1400,7 @@ Vue 更新使用 `v-for` 渲染的元素列表时默认使用**就地更新**的
 
 ### 值绑定
 
-
+动态的给`value`属性赋值
 
 ### 修饰符
 

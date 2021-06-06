@@ -1896,13 +1896,13 @@ json文件
 
 1. 调用`Vue.extend()`方法创建**组件构造器**
    - 传入`template`代表自定义组件模板（模板是在使用到组件的地方要显示的HTML代码）
-2. 调用`Vue.component()`方法**注册组件**
+2. 调用`Vue.component()`方法**注册全局组件**
    - 将组件构造器注册为一个组件，并给它起一个标签名称，需要传递两个参数：
-     - 注册组件的**标签名**
+     - **组件标签名**
      - **组件构造器**
 3. 在**Vue实例的作用范围内**使用组件
 
-> 下面这种写法在Vue2.x的文档中几乎已经看不到了，但是是基础
+> 下面这种写法在Vue2.x的文档中几乎已经看不到了
 
 ```html
 <body>
@@ -1915,11 +1915,12 @@ json文件
 <script>
   // 1.创建组件构造器对象
   const cpnC = Vue.extend({
+    // `` ES6
     template: `
     <div>
       <h2>我是标题</h2>
-      <p>我是内容, 哈哈哈哈</p>
-      <p>我是内容, 呵呵呵呵</p>
+      <p>我是内容1</p>
+      <p>我是内容2</p>
     </div>`
   })
   // 2.注册组件
@@ -1937,62 +1938,122 @@ json文件
 
 
 
-**组件注册类型**
+## 注册组件
 
-- **全局注册**
+**局部组件**
 
-  调用`Vue.component()`注册的组件。该组件可以在任意Vue实例下使用
+通过Vue实例中的 `components`局部注册的组件，只能在**当前vue实例挂载的对象**中使用
 
-- **局部注册**
+`components: {组件标签,组件构造器}`
 
-  通过 `components`注册的组件，挂载在某个实例中。只能在当前vue实例挂载的对象中使用
-
-
-
-**注册组件语法糖**
-
-Vue为了简化，省去了调用`Vue.extend()`的步骤，可以直接**使用一个对象**来代替
-
-`component()`函数包含两个参数
-
-1. 组件名称
-2. 以对象的形式描述组件
-
-> Vue 将**模板**编译成虚拟 DOM 渲染函数
+> 调用`Vue.component()`注册的组件属于全局注册。该组件可以在**任意Vue实例**下使用
 >
-> Vue 能够计算出最少需要重新渲染多少组件，并把 DOM 操作次数减到最少
+> 一个组件就是一个Vue实例，所以Vue实例的属性组件也有（`el`除外）
+>
+> 开发中一般只有一个Vue实例，基本都使用局部组件
 
 ```html
 <body>
 <div id="app">
-   <!-- 调用组件：创建一个 ink 组件的实例 -->
-   <ink></ink>
+  <h2>全局组件</h2>
+  <my-cpn></my-cpn>
+  <h2>局部组件</h2>
+  <cpnc></cpnc>
 </div>
 <script src="vue.js"></script>
-<script src="js/ink.js"></script>
+<script>
+  // 1.创建组件构造器
+  const cpnC = Vue.extend({
+    template:`
+        <div>
+          <h2>标题</h2>
+          <p>内容1</p>
+          <p>内容2</p>
+        </div>`
+  })
+  // 2.注册组件（全局组件，可以在多个vue实例中使用）
+  Vue.component('my-cpn', cpnC)
+  
+  const app = new Vue({
+    el: "#app",
+    components: {
+      // 局部组件创建
+      // key：组件标签，
+      // value：组件构造器
+      cpnc: cpnC
+    }
+  })
+</script>
 </body>
 ```
 
-```javascript
-// 定义名为 ink 的新组件
-Vue.component("ink",{
-   template: '<li>ink</li>'
-});
 
-// 创建Vue实例才可以调用
-var vm = new Vue({
-    el: '#app'
-});
 
-//可以在一个通过new Vue创建的Vue根实例中，把组件作为自定义元素来使用
-new Vue({ 
-    el: '#ink' 
-});
-```
+**注册语法糖**
+
+Vue简化省去了调用`Vue.extend()`的步骤，直接使用**一个对象**来代替。
+
+全局注册：`component()`的第二个参数变成了**模板对象**
+
+局部注册：`key`对应的`value`变成了**模板对象**
+
+> 内部还是调用`Vue.extend()`
+>
+> Vue将**模板**编译成虚拟DOM渲染函数
+>
+> Vue能够计算出最少需要重新渲染多少组件，并把DOM操作次数减到最少
+
+
 
 ## 父子组件
 
-组件和组件之间存在层级关系，其中一种非常重要的关系就是**父子组件的关系**
+组件和组件之间存在层级关系，其中一种非常重要的关系就是**父子组件**的关系
+
+- **通过父组件构造器中的`component`注册子组件**
+- 当子组件注册到父组件的`components`时Vue会编译好父组件的模块（决定父组件将要渲染的HTML）。所以子组件只能在父组件中被识别而无法用于Vue实例范围中
+
+> **作用域**：子组件只能在父组件中使用
+>
+> 编译的时候将子组件替换成相应的HTML内容，后面浏览器不会再识别
+
+```html
+<body>
+<div id="app">
+  <cpn2></cpn2>
+</div>
+<script <script src="vue.js"></script></script>
+<script>
+  // 1.创建组件构造器对象
+  const cpn1 = Vue.extend({
+    template:`
+        <div>
+          <h2>标题1</h2>
+          <p>组件1</p>
+        </div>`
+  })
+  // 2.在组件2的构造器中注册使用组件1
+  const cpn2 = Vue.extend({
+    template:`
+        <div>
+          <h2>标题2</h2>
+          <p>组件2</p>
+          <cpn1></cpn1>
+        </div>`,
+    components: {
+      cpn1: cpn1
+    }
+  })
+  // 3.在Vue实例中注册组件2
+  const app = new Vue({
+    el: "#app",
+    components: {
+      // 局部组件
+      cpn2: cpn2
+    }
+  })
+</script>
+</body>
+```
 
 ## data
 

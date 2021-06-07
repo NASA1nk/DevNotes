@@ -1940,7 +1940,7 @@ json文件
 
 ## 注册组件
 
-**局部组件**
+### 局部组件
 
 通过Vue实例中的 `components`局部注册的组件，只能在**当前vue实例挂载的对象**中使用
 
@@ -1989,7 +1989,7 @@ json文件
 
 
 
-**注册语法糖**
+### 注册语法糖
 
 Vue简化省去了调用`Vue.extend()`的步骤，直接使用**一个对象**来代替。
 
@@ -2021,7 +2021,7 @@ Vue简化省去了调用`Vue.extend()`的步骤，直接使用**一个对象**�
 <div id="app">
   <cpn2></cpn2>
 </div>
-<script <script src="vue.js"></script></script>
+<script src="vue.js"></script>
 <script>
   // 1.创建组件构造器对象
   const cpn1 = Vue.extend({
@@ -2033,7 +2033,7 @@ Vue简化省去了调用`Vue.extend()`的步骤，直接使用**一个对象**�
   })
   // 2.在组件2的构造器中注册使用组件1
   const cpn2 = Vue.extend({
-    template:`
+    template: `
         <div>
           <h2>标题2</h2>
           <p>组件2</p>
@@ -2055,11 +2055,109 @@ Vue简化省去了调用`Vue.extend()`的步骤，直接使用**一个对象**�
 </body>
 ```
 
-## data
 
-组件的 `data` **必须是一个函数**，因此每个实例可以维护一份被返回对象的独立的拷贝
 
-> 否则可能会影响其他实例
+## 模板分离
+
+Vue提供了两种方案来定义HTML模块内容
+
+- 使用`<script type="text/x-template" id="cpn">`标签
+- 使用`<template>`标签
+
+```html
+<body>
+<div id="app">
+  <cpn></cpn>
+</div>
+<!-- script标签类型是text/x-template -->
+<!-- 使用id绑定组件 -->  
+<script type="text/x-template" id="cpn">
+  <div>
+    <h2>组件模板的分离写法</h2>
+    <p>标签类型是text/x-template</p>
+  </div>
+</script>
+<script src="vue.js"></script>
+<script>
+  Vue.component('cpn',{
+    template: '#cpn'
+  })
+  const app =new Vue({
+    el: '#app'
+  })
+</script>
+</body>
+```
+
+![模板分离1](Vue.js.assets/模板分离1.png)
+
+```html
+<body>
+<div id="app">
+  <cpn></cpn>
+</div>
+<!-- template标签 -->
+<template id="cpn">
+  <div>
+    <h2>组件模板的分离写法</h2>
+    <p>template标签</p>
+  </div>
+</template>
+<script src="vue.js"></script>
+<script>
+  Vue.component('cpn',{
+    template: '#cpn'
+  })
+  const app =new Vue({
+    el: '#app'
+  })
+</script>
+</body>
+```
+
+
+
+## 组件数据
+
+- 组件中**不能直接访问**Vue实例中的`data`
+- 组件对象中也有一个`data`属性
+- 组件的`data`属性**必须是一个函数**并且**返回一个对象**（对象内部保存着数据）
+- 每个**组件实例**维护一份被**返回对象的独立的拷贝**（数据就不会混淆）
+
+> 组件是一个单独功能模块的封装。它有属于自己的HTML模板，也应该有属于自己的数据
+>
+> 即使可以访问Vue实例中的`data`，如果将所有的数据都放在Vue实例中，Vue实例就会变的非常臃肿
+>
+> 组件的思想是复用，定义组件就是把公共的东西抽取出来复用。在复用组件的时候要求各组件用各自的对象，函数在每次调用就会创建一个新的对象
+
+```html
+<body>
+<div id="app">
+  <cpn></cpn>
+</div>
+<!-- template标签 -->
+<template id="cpn">
+  <div>
+    <h2>{{title}}</h2>
+    <p>组件的data函数</p>
+  </div>
+</template>
+<script src="vue.js"></script>
+<script>
+  Vue.component('cpn',{
+    template: '#cpn',
+    data(){
+      return {
+        title: 'title标题'
+      }
+    }
+  })
+  const app =new Vue({
+    el: '#app'
+  })
+</script>
+</body>
+```
 
 
 
@@ -2093,118 +2191,141 @@ Vue.component('ink',{
 
 
 
-## props
+## 组件通信
 
-prop是可以**在组件上**注册的一些自定义attribute
+**子组件不能引用父组件或者Vue实例的数据**，但在开发中一些数据需要从上层传递到下层。
 
-当一个值传递给一个prop attribute 的时候，它就变成了那个**组件实例的一个属性**
+比如在一个页面中，从服务器请求到很多数据。其中一部分数据并不是整个页面的父组件来展示，而是需要下面的子组件来展示。但是并不会让子组件再发送一次网络请求，而是**直接让父组件将数据传递给子组件**。
 
-一个组件默认可以拥有任意数量的prop，任何值都可以传递给任何 prop（在组件实例中访问这个值就像访问 `data` 中的值一样）
-
-> 默认规则下，`props`属性中的值不能大写
+> Vue实例可以看成是一个根组件
 >
-> Vue中的保留关键字不能作为`props`中的属性，如`key`
+> Vue实例和子组件的通信和父组件和子组件的通信过程是一样的
 
 
 
-**父作用域将数据传到子组件**
+**父子组件间的通信**
 
-组件中的`template`不能从Vue对象的`data`中直接获得数据
+- 父组件通过`props`向子组件传递数据
+- 子组件通过**自定义事件**向父组件发送消息
 
-1. `v-for`遍历Vue对象中的`data`数据
-2. `v-bind`绑定`data`数据到组件中`props`定义的`item`属性中
-3. `template`通过`props`中的属性获得数据
+![组件通信图](Vue.js.assets/组件通信图.png)
 
-> `props`类似于一个自定义attribute
+### props
+
+- **子组件用于接受父组件数据的属性**
+- 当一个值传递给一个`props`的时候，它就变成了**子组件实例的一个属性**
+
+- 一个组件可以拥有任意数量的`props`，任何值都可以传递给任何`props`
+- `props`中**值的形式**
+  - **字符串数组**：数组中的字符串（变量名）就是传递时的名称
+  - **对象**：对象可以设置传递时的类型，也可以设置默认值等
+
+> 默认`props`属性中的值不能大写
+>
+> Vue中的保留关键字不能作为`props`中的属性值，如`key`
+
+
+
+`props`**写法**
+
+```javascript
+// 数组
+props: ['cmovies', 'cmessage']
+
+// 对象
+props: {
+  // 限制为数组类型
+  cmovies: Array,
+  // 限制类型和设置默认值
+  cmessage: {
+    type: String,
+    default: '默认值',
+    // true要求在使用组件必须传值
+    required: true
+  },
+  // 类型是Object/Array时默认值必须返回一个函数
+  citems: {
+	type: Array,
+	default () {
+      return [1, 2, 3, 4]
+	}
+  }
+}
+```
+
+
+
+**父组件向子组件传递数据**
+
+通过`v-bind`绑定父组件的数据`items`到子组件中`props`定义的`citems`变量中
+
+> `v-bind`不支持驼峰命名，例如`cUser`要改成`c-User`
 
 ```html
 <body>
 <div id="app">
-    <!-- 创建一个 ink 组件的实例 -->
-    <!-- 等号左边的item是props定义的属性名，等号右边的item是v-for遍历的item项 -->
-   <ink v-for="item in items" 
-        v-bind:item="item"
-   ></ink>
+  <cpn1 :citems1="items1"
+  ></cpn1>
 
+  <cpn2 v-for="item in items2"
+        :name="item"
+  ></cpn2>
 </div>
+
+<template id="cpn1">
+  <div>
+    <li v-for="item in citems1">{{item.id + ' : ' + item.title}}
+    </li>
+  </div>
+</template>
+
+<template id="cpn2">
+  <button v-on:click="count++">{{name}} clicked me {{count}} times.</button>
+</template>
+
 <script src="vue.js"></script>
-<script src="js/ink.js"></script>
-</body>
-```
-
-```javascript
-Vue.component('ink',{
-    props: ['item'],
-    template: '<li>{{item}}</li>'
-});
-
-var vm = new Vue({
-    el: '#app',
-    data: {
-        items: ["neau","buaa","fushan"]
-    }
-});
-```
-
-![数据绑定](Vue.js.assets/数据绑定.png)
-
-```html
-<body>
-<div id="app">
-    <ink v-for="item in items"
-         v-bind:yinke="item.id"
-         v-bind:value="item.title"
-    ></ink>
-</div>
-<div id="components-demo">
-    <button-counter v-for="item in items"
-                    :title="item"
-    ></button-counter>
-</div>
-<script src="vue.js"></script>
-<script src="js/ink.js"></script>
-</body>
-```
-
-```javascript
-Vue.component('ink',{
-    props: ['yinke','value'],
-    template: '<div>' +
-        '<li> {{yinke}} </li>' +
-        '<li> {{value}} </li>' +
-        '</div>'
-});
-
-var vm = new Vue({
-    el: '#app',
-    data: {
-        items: [
-            { id: 1, title: 'My journey with Vue' },
-            { id: 2, title: 'Blogging with Vue' },
-            { id: 3, title: 'Why Vue is so fun' }
-        ]
-    }
-});
-
-Vue.component('button-counter', {
-    props: ['title'],
+<script>
+  const cpn1 = {
+    template: '#cpn1',
+    props: ['citems1']
+  }
+  const cpn2 = {
+    template: '#cpn2',
+    props: ['name'],
     data: function () {
-        return {
-            count: 0
-        }
-    },
-    template: '<button v-on:click="count++">{{title}} clicked me {{ count }} times.</button>'
-})
-
-var com = new Vue({
-    el: '#components-demo',
-    data: {
-        items: ['ink','yinke']
+      return {
+        count: 0
+      }
     }
-})
+  }
+  const app =new Vue({
+    el: '#app',
+    data: {
+      items1: [
+        { id: 1, title: 'My journey with Vue' },
+        { id: 2, title: 'Blogging with Vue' },
+        { id: 3, title: 'Why Vue is so fun' }
+      ],
+      items2: ['ink','yinke']
+    },
+    components: {
+      // 局部注册
+      // 相当于cpn1: cpn1 使用ES6 Key的增强写法
+      cpn1,
+      cpn2
+    }
+  })
+</script>
+</body>
 ```
 
 ![props样例](Vue.js.assets/props样例.png)
+
+**子组件向父组件传递数据或事件**
+
+
+
+
 
 ## 组件事件
 

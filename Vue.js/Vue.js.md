@@ -2410,22 +2410,240 @@ Vue提供**自定义事件**使得**组件能访问Vue实例（父组件）中�
 </body>
 ```
 
+### 父子组件数据双向绑定demo
 
-
-### v-model
-
-自定义事件也可以用于创建支持 `v-model` 的自定义输入组件
+- 使用`v-bind`绑定子组件的`props`和父组件数据
+- 使用`v-model`绑定`props`和表单数据实现双向绑定
 
 ```html
-<input v-model="searchText">
-<!--等价于-->
-<input
-  v-bind:value="searchText"
-  v-on:input="searchText = $event.target.value"
->
+<template id="cpn">
+  <div>
+    <h2>props: {{number1}}</h2>
+    <input type="text" v-model="number1">
+    <h2>props: {{number2}}</h2>
+    <input type="text" v-model="number2 ">
+  </div>
+</template>
 ```
 
+**问题**
 
+不要直接修改`props`中的值
+
+![props修改不安全](Vue.js.assets/props修改不安全.png)
+
+**改进**
+
+使用子组件中的`data()`来提供绑定的数据来修改
+
+```html
+<script>
+  const app =new Vue({
+    el: '#app',
+    data: {
+      num1: 1,
+      num2: 0
+    },
+    components: {
+      cpn: {
+        template: '#cpn',
+        props: {
+          number1: Number,
+          number2: Number
+        },
+        data() {
+          return {
+            dnumber1: this.number1,
+            dnumber2: this.number2
+          }
+        }
+      }
+    }
+  })
+</script>
+```
+
+**改进**
+
+要求将子组件修改的值再反向传递给父组件中一起修改
+
+拆分`v-model`：`v-bind:value="" v-on:input=""`
+
+- `v-bind`绑定`value`值
+- `v-on`绑定`input`事件
+
+```html
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+
+<body>
+<div id="app">
+  <cpn :number1="num1"
+       :number2="num2"
+       @num1change="num1change"
+       @num2change="num2change"
+  ></cpn>
+</div>
+
+<template id="cpn">
+  <div>
+    <h2>props: {{number1}}</h2>
+    <h2>data: {{dnumber1}}</h2>
+<!--    <input type="text" v-model="dnumber1">-->
+    <input type="text" :value="dnumber1" @input="num1input">
+    <h2>props: {{number2}}</h2>
+    <h2>data: {{dnumber2}}</h2>
+    <input type="text" :value="dnumber2" @input="num2input">
+  </div>
+</template>
+<script src="vue.js"></script>
+<script>
+  const app =new Vue({
+    el: '#app',
+    data: {
+      num1: 1,
+      num2: 2
+    },
+    methods: {
+      // 默认的value传入的是String,和props中要求的Number类型冲突
+      num1change(value) {
+        this.num1 = value
+      },
+      num2change(value) {
+        this.num2 = value
+      }
+    },
+    components: {
+      cpn: {
+        template: '#cpn',
+        props: {
+          number1: [Number,String],
+          number2: [Number,String]
+        },
+        data() {
+          return {
+            dnumber1: this.number1,
+            dnumber2: this.number2
+          }
+        },
+        methods: {
+          num1input(event) {
+            this.dnumber1 = event.target.value,
+            this.$emit('num1change',this.dnumber1)
+          },
+          num2input(event) {
+            this.dnumber2 = event.target.value,
+            this.$emit('num2change',this.dnumber2)
+          }
+        }
+      }
+    }
+  })
+</script>
+</body>
+</html>
+```
+
+![父子组件双向绑定](Vue.js.assets/父子组件双向绑定.png)
+
+**改进**
+
+要求修改num1的值同时修改num2的值（num2 = num1/100）
+
+```html
+num1input(event) {
+  this.dnumber1 = event.target.value
+  this.$emit('num1change',this.dnumber1)
+  this.dnumber2 = this.dnumber1 * 100
+  this.$emit('num2change',this.dnumber2)
+},
+num2input(event) {
+  this.dnumber2 = event.target.value
+  this.$emit('num2change',this.dnumber2)
+  this.dnumber1 = this.dnumber2 / 100
+  this.$emit('num1change',this.dnumber1)
+}
+```
+
+**watch实现**
+
+用于组件中监听数据的改变
+
+
+
+### 父子组件对象访问
+
+父组件直接访问子组件，子组件直接访问父组件
+
+- **父组件访问子组件**：
+  - `$children`
+  - ``$refs`
+- **子组件访问父组件**：
+  - `$parent`
+
+
+
+**获取当前Vue实例的直接子组件**
+
+`$children`获得的是一个对象数组
+
+```html
+<body>
+<div id="app">
+  <cpn></cpn>
+  <cpn></cpn>
+  <cpn></cpn>
+  <button @click="btnclick">打印按钮</button>
+</div>
+<template id="cpn">
+  <div>子组件</div>
+</template>
+<script src="vue.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    data: {
+    },
+    methods: {
+      btnclick() {
+        // 是数组对象
+        console.log(this.$children);
+        for (let c of this.$children) {
+          console.log(c.name);
+          c.showmessage()
+        }
+      }
+    },
+    components: {
+      cpn: {
+        template: '#cpn',
+        props: [],
+        data() {
+          return {
+            name: '子组件数据'
+          }
+        },
+        methods: {
+          showmessage() {
+            console.log('子组件的showmessage()方法');
+          }
+        }
+      }
+    }
+  });
+</script>
+</body>
+```
+
+![访问子组件对象信息](Vue.js.assets/访问子组件对象信息.png)
+
+ `$children` 并不保证顺序，也不是响应式的。
+
+如果要使用 `$children` 来进行**数据绑定**，需要使用一个数组配合 `v-for` 来生成子组件，并且使用`Array`作为真正的来源
 
 # 插槽slot
 

@@ -2581,15 +2581,18 @@ num2input(event) {
 
 - **父组件访问子组件**：
   - `$children`
-  - ``$refs`
+  - `$refs`
 - **子组件访问父组件**：
   - `$parent`
+  - `$root`：访问根组件
 
 
 
-**获取当前Vue实例的直接子组件**
+**父组件通过`$children`获取所有子组件**
 
-`$children`获得的是一个对象数组
+- `this.$children`返回一个数组，访问其中的子组件必须通过索引值
+-  `$children` 并不保证顺序，也不是响应式的
+- 如果要使用 `$children` 来进行**数据绑定**，需要使用一个数组配合 `v-for` 来生成子组件，并且使用`Array`作为真正的来源
 
 ```html
 <body>
@@ -2641,80 +2644,204 @@ num2input(event) {
 
 ![访问子组件对象信息](Vue.js.assets/访问子组件对象信息.png)
 
- `$children` 并不保证顺序，也不是响应式的。
 
-如果要使用 `$children` 来进行**数据绑定**，需要使用一个数组配合 `v-for` 来生成子组件，并且使用`Array`作为真正的来源
 
-# 插槽slot
+**父组件通过`$refs`获取特定子组件**
 
-Vue.js中使用`<slot>`元素作为承载**分发内容**的出口，可以应用在组合组件中
-
-- 插槽内可以包含任何模板代码，包括 HTML，甚至其它组件
-- 每一个slot都会加载全部的插件
-
-> Vue在2.6.0中为**具名插槽**和**作用域插槽**引入了一个新的统一的`v-slot` 指令
->
-> `v-slot` 指令取代了 `slot` 和 `slot-scope` 这两个目前已被废弃但未被移除且仍在文档中的attribute
+1. 通过`ref`属性给子组件绑定一个id
+2. 通过`this.$refs.id`就可以访问到该组件
 
 ```html
 <body>
 <div id="app">
-
-<todo>
-	<!-- 插槽内包含组件 -->
-    <todo-title  slot="todo-title"
-                 v-bind:title="todotitle"
-    ></todo-title>
-    <!-- item在前,index在后-->
-    <todo-item  slot="todo-item"
-                v-for="(item,index) in todoitems"
-                v-bind:item="item"
-                v-bind:index="index"
-    ></todo-item>
-</todo>
-
+  <cpn ref="a"></cpn>
+  <button @click="btnclick">打印按钮</button>
 </div>
-<!--1.导入Vue.js-->
+<template id="cpn">
+  <div>子组件</div>
+</template>
 <script src="vue.js"></script>
-<script src="js/ink.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    data: {
+    },
+    methods: {
+      btnclick() {
+        // $refs默认为空
+        console.log(this.$refs)
+        this.$refs.a.showmessage()
+      }
+    },
+    components: {
+      cpn: {
+        template: '#cpn',
+        props: [],
+        data() {
+          return {
+            name: '子组件数据'
+          }
+        },
+        methods: {
+          showmessage() {
+            console.log('子组件的showmessage()方法');
+          }
+        }
+      }
+    }
+  });
+</script>
 </body>
 ```
 
-```javascript
-// 定义插槽<slot></slot>
-Vue.component('todo',{
-    template:   '<div>' +
-                    '<slot name="todo-title"></slot>' +
-                        '<ul>' +
-                            '<slot name="todo-item"></slot>' +
-                        '</ul>' +
-                '</div>'
-});
+![refs获取特定子组件](Vue.js.assets/refs获取特定子组件.png)
 
-Vue.component('todo-title',{
-    props: ['title'],
-    template:'<div>{{title}}</div>'
-});
 
-Vue.component("todo-item",{
-    props: ['item','index'],
-    template:"<li>{{index}} : {{item}}</li>"
-});
 
-var vm = new Vue({
-    el:"#app",
-    data:{
-        todotitle: 'Vuedemo',
-        todoitems:['buaa','neau','fushan']
+**子组件通过`$parent`获取父组件**
+
+- 尽管在Vue开发中允许通过`$parent`来访问父组件，但是在真实开发中尽量不要这样做
+
+- 子组件应该尽量避免直接访问父组件的数据，因为这样耦合度太高了
+- 如果将子组件放在另外一个组件之内，很可能该父组件没有对应的属性，往往会引起问题
+  通过`$parent`直接修改父组件的状态，那么父组件中的状态将变得飘忽不定，很不利于调试和维护
+
+```html
+<body>
+<div id="app">
+  <cpn></cpn>
+  
+</div>
+<template id="cpn">
+  <div>
+    <div>子组件</div>
+    <button @click="btnclick">打印按钮</button>
+  </div>
+</template>
+<script src="vue.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    components: {
+      cpn: {
+        template: '#cpn',
+        props: [],
+        methods: {
+          btnclick() {
+            console.log(this.$parent);
+          }
+        }
+      }
     }
-});
+  });
+</script>
+</body>
 ```
 
-![内容分发](Vue.js.assets/内容分发.png)
+
+
+### 非父子组件通信
+
+非父子组件关系包括多个层级的组件，也包括**兄弟组件**的关系
+
+**使用Vuex的状态管理方案**
 
 
 
-## 作用域
+# 插槽
+
+**使用插槽的目的**
+
+组件的插槽是为了让封装的组件更加具有扩展性
+
+**封装插槽的方式**
+
+将共性抽取到组件中**，将不同暴露为插槽**
+
+**插槽的使用**
+
+- 插槽内可以包含任何**模板代码**，甚至其它组件
+- 插槽可以具有**默认值**，如果没有在该组件中插入内容，就显示默认值
+- 每一个`slot`都会加载**全部的模板**（整体替换）
+
+> Vue在2.6.0中为**具名插槽**和**作用域插槽**引入了一个新的统一的`v-slot` 指令
+>
+> `v-slot` 指令取代了 `slot` 和 `slot-scope` （目前已被废弃但未被移除且仍在文档中）
+>
+> `v-slot` 只能用在组件中或者`template`标签中
+
+```html
+<body>
+<div id="app">
+<!--  插槽的基本使用 <slot></slot>-->
+  <cpn></cpn>
+  <cpn><span>插槽1</span></cpn>
+  <cpn><i>插槽2</i></cpn>
+<!--  如果有多个值,同时放入到组件进行替换时, 一起作为替换元素-->
+  <cpn>
+    <i>插槽3</i>
+    <div>插槽3</div>
+    <p>插槽3</p>
+  </cpn>
+</div>
+<template id="cpn">
+  <div>
+    <h2>组件</h2>
+<!--    插槽的默认值 -->
+    <slot><button>按钮</button></slot>
+  </div>
+</template>
+
+<script src="vue.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    data: {
+    },
+    components: {
+      cpn: {
+        template: '#cpn'
+      }
+    }
+  })
+</script>
+</body>
+```
+
+
+
+## 具名插槽
+
+```html
+<body>
+<div id="app">
+<!--  具名插槽:slot属性-->
+  <cpn><span slot="center">标题</span></cpn>
+  <cpn><button slot="left">返回</button></cpn>
+</div>
+<template id="cpn">
+  <div>
+    <slot name="left"><span>左边</span></slot>
+    <slot name="center"><span>中间</span></slot>
+    <slot name="right"><span>右边</span></slot>
+  </div>
+</template>
+
+<script src="vue.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    components: {
+      cpn: {
+        template: '#cpn'
+      }
+    }
+  })
+</script>
+</body>
+```
+
+## 编译作用域
 
 - **父级模板里的所有内容都是在父级作用域中编译的**
 - **子模板里的所有内容都是在子作用域中编译的**
@@ -2738,6 +2865,12 @@ var vm = new Vue({
   -->
 </navigation-link>
 ```
+
+
+
+
+
+## 作用域插槽
 
 
 

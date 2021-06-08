@@ -1938,6 +1938,14 @@ json文件
 
 
 
+**组件的模板必须只具备一个根元素**
+
+如果在组件内包含多个元素，**需要有一个根元素将它们包起来**，否则会报错（都是根元素）
+
+![模板单根元素](Vue.js.assets/模板单根元素.png)
+
+
+
 ## 注册组件
 
 ### 局部组件
@@ -2157,36 +2165,6 @@ Vue提供了两种方案来定义HTML模块内容
   })
 </script>
 </body>
-```
-
-
-
-## template
-
-**单个根元素**：组件的模板必须只具备一个根元素
-
-如果在组件内包含多个元素，**需要有一个根元素将他们一起包起来**，否则会报错（都是根元素）
-
-![模板单根元素](Vue.js.assets/模板单根元素.png)
-
-> 实现同一个模板内有多个HTML标签的效果
-
-```javascript
-// 错误写法：每个组件必须只有一个根元素
-Vue.component('ink',{
-    props: ['yinke','value'],
-    template: '<li> {{yinke}} </li>' +
-        '<li> {{value}} </li>'
-});
-
-// 正确写法：用div标签包起来
-Vue.component('ink',{
-    props: ['yinke','value'],
-    template: '<div>' +
-        '<li> {{yinke}} </li>' +
-        '<li> {{value}} </li>' +
-        '</div>'
-});
 ```
 
 
@@ -2748,27 +2726,24 @@ num2input(event) {
 
 
 
-# 插槽
+## 插槽
 
-**使用插槽的目的**
+Vue在2.6.0中为**具名插槽**和**作用域插槽**引入了一个新的统一的`v-slot` 指令
 
-组件的插槽是为了让封装的组件更加具有扩展性
+`v-slot` 指令取代了 `slot` 和 `slot-scope` （目前已被废弃但未被移除且仍在文档中）
 
-**封装插槽的方式**
+`v-slot` 只能用在组件中或者`template`标签中
 
-将共性抽取到组件中**，将不同暴露为插槽**
 
-**插槽的使用**
 
-- 插槽内可以包含任何**模板代码**，甚至其它组件
-- 插槽可以具有**默认值**，如果没有在该组件中插入内容，就显示默认值
-- 每一个`slot`都会加载**全部的模板**（整体替换）
-
-> Vue在2.6.0中为**具名插槽**和**作用域插槽**引入了一个新的统一的`v-slot` 指令
->
-> `v-slot` 指令取代了 `slot` 和 `slot-scope` （目前已被废弃但未被移除且仍在文档中）
->
-> `v-slot` 只能用在组件中或者`template`标签中
+- **使用插槽的目的**
+  - 组件的插槽是为了让封装的组件更加具有扩展性
+- **封装插槽的方式**
+  - 将共性抽取到组件中**，将不同暴露为插槽**
+- **插槽的使用**
+  - 插槽内可以包含任何**模板代码**，甚至其它组件
+  - 插槽可以具有**默认值**，如果没有在该组件中插入内容，就显示默认值
+  - 每一个`slot`都会加载**全部的模板**（整体替换）
 
 ```html
 <body>
@@ -2810,23 +2785,28 @@ num2input(event) {
 
 
 
-## 具名插槽
+### 具名插槽
+
+有多个插槽时需要区分要插入的插槽，需要给插槽起一个名字
+
+给`slot`元素一个`name`属性即可：`<slot name='myslot'></slot>`
 
 ```html
 <body>
 <div id="app">
-<!--  具名插槽:slot属性-->
+<!--  具名插槽:slot属性 -->
+<!-- 替换中间和左边 -->
   <cpn><span slot="center">标题</span></cpn>
   <cpn><button slot="left">返回</button></cpn>
 </div>
 <template id="cpn">
   <div>
+<!--    插槽默认值-->
     <slot name="left"><span>左边</span></slot>
     <slot name="center"><span>中间</span></slot>
     <slot name="right"><span>右边</span></slot>
   </div>
 </template>
-
 <script src="vue.js"></script>
 <script>
   const app = new Vue({
@@ -2841,36 +2821,63 @@ num2input(event) {
 </body>
 ```
 
-## 编译作用域
+![具名插槽](Vue.js.assets/具名插槽.png)
 
-- **父级模板里的所有内容都是在父级作用域中编译的**
-- **子模板里的所有内容都是在子作用域中编译的**
 
-在插槽中使用数据跟模板的其它地方一样可以访问相同的实例属性 (也就是相同的**作用域**)
 
-```html
-<navigation-link url="/profile">
-  Logged in as {{ user.name }}
-</navigation-link>
-```
+### 编译作用域
 
-但**不能**访问 父级（`<navigation-link>`） 作用域
+- **父组件模板里的所有内容都会在父级作用域中编译**
+- **子组件模板里的所有内容都会在子作用域中编译**
+
+> 组件的使用过程是相当于在父组件中出现的，那么它的作用域就是父组件，使用的属性也是属于父组件的属性
 
 ```html
-<navigation-link url="/profile">
-  Clicking here will send you to: {{ url }}
-  <!-- 这里的url是undefined
-	   因为该插槽的内容是传递给<navigation-link>标签的
-	   而不是在<navigation-link>组件内部定义的
-  -->
-</navigation-link>
+<body>
+<div id="app">
+<!--  使用Vue实例中的属性:true -->
+  <cpn v-show="isShow"></cpn>
+  <cpn v-for="item in names"></cpn>
+</div>
+<template id="cpn">
+  <div>
+    <h2>子组件</h2>
+    <p>内容</p>
+<!--    使用组件中的属性:false -->
+    <button v-show="isShow">按钮</button>
+  </div>
+</template>
+<script src="vue.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    data: {
+      // Vue实例的属性
+      isShow: true
+    },
+    components: {
+      cpn: {
+        template: '#cpn',
+        data() {
+          return {
+            // 子组件的属性
+            isShow: false
+          }
+        }
+      }
+    }
+  })
+</script>
+</body>
 ```
 
 
 
+### 作用域插槽
 
+**父组件替换插槽的标签（展示），子组件提供插槽中的内容**
 
-## 作用域插槽
+在父组件中从子组件中拿到数据，但是正常使用插槽在父组件中使用的都是父组件的属性，所以要使用作用域插槽，**子组件要将数据传给父组件**
 
 
 
@@ -2878,7 +2885,7 @@ num2input(event) {
 
 `Axios`异步通信
 
-开源的用在浏览器端和Node.js的异步通信框架，主要作用是实现Ajax异步通信
+开源的用于浏览器端和Node.js的异步通信框架，主要作用是实现Ajax异步通信
 
 [Axios API 中文文档](http://axios-js.com/)
 
@@ -3132,44 +3139,31 @@ num2input(event) {
 
 ![import导入](Vue.js.assets/import导入.png)
 
+# 模块化开发 
+
+随着Ajax异步请求的出现，慢慢形成了前后端的分离。通常会将代码组织在多个JavaScript文件中进行维护。
+
+**JavaScript原始问题**
+
+- 全局变量同名问题
+- 对JavaScript文件的依赖顺序几乎是强制性的
+
+> 闭包能解决同名问题但缺少代码复用性
+
+## 模块化规范
+
+使用模块作为出口，模块化的两个核心：**导出和导入**
 
 
-# Webpack
 
-- Webpack是一个现代JavaScript应用程序的静态模块**打包工具**(module bundler) 
-- Wbpack处理应用程序时会递归地构建一个**依赖关系图**(dependency graph) ， 包含应用程序需要的每个模块， 然后将所有这些模块打包成一个或多个bundle
-- Webpack可以将松散耦合的模块按照依赖和规则打包成**符合生产环境部署的前端资源**。还可以将按需加载的模块进行代码分离，等到实际需要时再异步加载。通过loader转换， 任何形式的资源都可以当做模块， 比如Commons JS、ES6、CSS、JSON、CoffeeScript等
+### CommonsJS
 
-> 现在越来越多的网站已经从网页模式进化到了WebApp模式，运行在浏览器里。 WebApp通常是一个SPA(单页面应用) ， 每一个视图通过异步的方式加载，这导致页面初始化和使用过程中会加载越来越多的JavaScript代码
->
-> 前端开发和其他开发工作的主要区别：
->
-> - 前端基于多语言、多层次的编码和组织工作
-> - 前端产品的交付是基于浏览器的，这些资源是通过增量加载的方式运行到浏览器端
+- 模块通过`require`方法来同步**导入**所需依赖的其它模块
+- 通过`exports`或`module.exports`来**导出**需要暴露的接口
 
+![CommonsJS导出](Vue.js.assets/CommonsJS导出.png)
 
-
-[Vue.js新手入门指南 ](https://zhuanlan.zhihu.com/p/25659025)
-
-> - 前端代码为什么要打包呢？
->   因为单页应用程序中用到很多素材，如果每一个素材都通过在HTML中以src属性或者link来引入，那么请求一个页面的时候，可能浏览器就要发起十多次请求，往往请求的这些资源都是一些脚本代码或者很小的图片，这些资源本身才几k，下载连1秒都不需要，但是由于HTTP是应用层协议，它的下层是TCP这个运输层协议，TCP的握手和挥手过程消耗的时间可能比下载资源本身还要长，所以需要把这些小文件全部打包成一个文件，这样只要一次TCP握手和挥手的过程，就把多个资源给下载下来了，并且多个资源由于都是共享一个HTTP请求，所以head等部分也是共享的，相当于形成了规模效应，让网页展现更快，用户体验更好。
-> - Webpack还有构建的功能
->   现在国内外还有很多人用着老版本的浏览器，这些浏览器并不支持ECMAScript6这个新版本的JavaScript，那么前端项目如何在这种浏览器上运行呢？这就需要Webpack的Loader自动载入一个转换器来将ECMAScript6转换成浏览器能支持的老版本JavaScript语言，这个转换器的名字叫做babel。这就是Webpack的构建功能。
-
-## 规范
-
-### CommonsJS规范
-
-服务器端的Node.js遵循**CommonsJS规范**
-
-核心思想是允许模块通过`require`方法来**同步加载**所需依赖的其它模块，然后通过`exports`或`module.exports`来导出需要暴露的接口
-
-```javascript
-require("module");
-require("../module.js");
-exports.doStuff = function(){};
-module.exports = someValue;
-```
+![CommonsJS导入](Vue.js.assets/CommonsJS导入.png)
 
 **优点：**
 
@@ -3191,13 +3185,42 @@ module.exports = someValue;
 
 
 
-### AMD规范
+### ES6规范
 
-Asynchronous Module Definition规范主要是一个接口`define(id,dependencies,factory)`
+- ES6增加了JavaScript语言层面的模块体系定义（ES5没有）
+- **编译时就能确定模块的依赖关系， 以及输入和输出的变量**
 
-在声明模块的时候指定所有的依赖`dependencies`并当做形参传到`factory`中，对于依赖的模块**提前执行**
+> Commons JS和AMD模块都只能在**运行时**确定这些东西
+>
+> 严格检查模式`strict`
 
 ```javascript
+import "jquery"
+export function doStuff(){}
+module "localModule"{}
+```
+
+**优点**
+
+- 容易进行**静态分析**
+- 面向未来的EcmaScript标准
+
+**缺点**
+
+- 原生浏览器端还没有实现该标准
+- 全新的命令，新版的Node.js才支持
+
+
+
+### AMD规范
+
+- Asynchronous Module Definition规范主要是一个接口
+
+- 在声明模块的时候指定所有的依赖`dependencies`并当做形参传到`factory`中，对于依赖的模块**提前执行**
+
+
+```javascript
+// define(id,dependencies,factory)
 define("module",["dep1","dep2"],functian(d1,d2){
 	return someExportedValue;
 });
@@ -3223,7 +3246,8 @@ require（["module","../file.js"],function(module，file){});
 
 ### CMD规范
 
-Commons Module Definition规范和AMD相似，并与CommonsJS和NodeJS的Modules规范保持了很大的兼容性
+- Commons Module Definition规范和AMD相似
+- 与CommonsJS和NodeJS的Modules规范保持了很大的兼容性
 
 ```javascript
 define(function(require,exports,module){
@@ -3245,35 +3269,35 @@ define(function(require,exports,module){
 
 
 
-### ES6模块
+# Webpack
 
-EcmaScript6标准增加了JavaScript语言层面的模块体系定义
+- Webpack是一个现代JavaScript应用程序的静态模块**打包工具**(module bundler) 
+- Wbpack处理应用程序时会递归地构建一个**依赖关系图**(dependency graph) ， 包含应用程序需要的每个模块， 然后将所有这些模块打包成一个或多个bundle
+- Webpack可以将松散耦合的模块按照依赖和规则打包成**符合生产环境部署的前端资源**。还可以将按需加载的模块进行代码分离，等到实际需要时再异步加载。通过loader转换， 任何形式的资源都可以当做模块， 比如Commons JS、ES6、CSS、JSON、CoffeeScript等
 
-**ES6模块的设计思想使编译时就能确定模块的依赖关系， 以及输入和输出的变量**。
-
-> 严格检查模式`strict`
+> 现在越来越多的网站已经从网页模式进化到了WebApp模式，运行在浏览器里。 WebApp通常是一个SPA(单页面应用) ， 每一个视图通过异步的方式加载，这导致页面初始化和使用过程中会加载越来越多的JavaScript代码
 >
-> Commons JS和AMD模块都只能在**运行时**确定这些东西
+> 前端开发和其他开发工作的主要区别：
+>
+> - 前端基于多语言、多层次的编码和组织工作
+> - 前端产品的交付是基于浏览器的，这些资源是通过增量加载的方式运行到浏览器端
 
-```javascript
-import "jquery"
-export function doStuff(){}
-module "localModule"{}
-```
 
-**优点**
 
-- 容易进行静态分析
-- 面向未来的EcmaScript标准
+[Vue.js新手入门指南 ](https://zhuanlan.zhihu.com/p/25659025)
 
-**缺点**
+> - 前端代码为什么要打包呢？
+>   因为单页应用程序中用到很多素材，如果每一个素材都通过在HTML中以src属性或者link来引入，那么请求一个页面的时候，可能浏览器就要发起十多次请求，往往请求的这些资源都是一些脚本代码或者很小的图片，这些资源本身才几k，下载连1秒都不需要，但是由于HTTP是应用层协议，它的下层是TCP这个运输层协议，TCP的握手和挥手过程消耗的时间可能比下载资源本身还要长，所以需要把这些小文件全部打包成一个文件，这样只要一次TCP握手和挥手的过程，就把多个资源给下载下来了，并且多个资源由于都是共享一个HTTP请求，所以head等部分也是共享的，相当于形成了规模效应，让网页展现更快，用户体验更好。
+> - Webpack还有构建的功能
+>   现在国内外还有很多人用着老版本的浏览器，这些浏览器并不支持ECMAScript6这个新版本的JavaScript，那么前端项目如何在这种浏览器上运行呢？这就需要Webpack的Loader自动载入一个转换器来将ECMAScript6转换成浏览器能支持的老版本JavaScript语言，这个转换器的名字叫做babel。这就是Webpack的构建功能。
 
-- 原生浏览器端还没有实现该标准
-- 全新的命令，新版的Node.js才支持
+
 
 
 
 ## 安装
+
+webpack需要nodejs的支持
 
 ```bash
 # 打包工具
@@ -3365,7 +3389,7 @@ module.exports = {
 
 # Vue-router
 
-Vue Router是Vue.js官方的路**由管理器**。
+Vue Router是Vue的路**由管理器**
 
 **功能：**
 

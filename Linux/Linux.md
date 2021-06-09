@@ -835,7 +835,7 @@ Session Key 用于之后通讯时对消息进行加密解密。这个 Session Ke
 
    2. 点击刚创建的SSH密钥，复制其中的**公钥**，然后放在同一个文件夹中
 
-      > 公钥的名称和密钥一样，后缀为.pub，密钥没有文件名后缀
+      > 公钥的名称和密钥一样，后缀为`.pub`，密钥没有文件名后缀
 
 2. **绑定云主机**
 
@@ -860,7 +860,6 @@ yum update nmap
 # 先卸载
 yum remove nmap
 rpm -vhU https://nmap.org/dist/nmap-7.70-1.x86_64.rpm
-
 ```
 
 查看端口
@@ -969,12 +968,9 @@ WSL不是虚拟机而是子系统，是Windows的一部分，并不像虚拟机�
 
 ## 账号
 
-Ubuntu 18.04 LTS
+**Ubuntu 18.04 LTS**
 
 ```sh
-# 用户:ink
-# 密码:空格
-
 #给root设置密码
 su passwd root
 
@@ -1001,14 +997,18 @@ su root
 #确保系统和apt包列表完全更新
 sudo apt-get update -y
 sudo apt-get upgrade -y
+
 # 安装
 sudo apt-get install git
+
 # 验证
 git --version
+
 # 个人信息
 git config --global user.name "ink"
 git config --global user.email "541640794@qq.com"
-# 查看,q+enter退出
+
+# 查看(q+enter退出)
 git config --list
 ```
 
@@ -1105,13 +1105,6 @@ prompt_segment green black "%(!.%{%F{yellow}%}.)%n"
 
 
 # MobaXterm
-
-**账号**
-
-```b
-# My master password
-541640794
-```
 
 - 支持各种连接 SSH，X11，RDP，VNC，FTP，MOSH
 - 支持 Unix 命令(bash，ls，cat，sed，grep，awk，rsync，…)

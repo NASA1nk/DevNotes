@@ -3189,10 +3189,9 @@ Vue在2.6.0中为**具名插槽**和**作用域插槽**引入了一个新的统�
 
 - ES6增加了JavaScript语言层面的模块体系定义（ES5没有）
 - **编译时就能确定模块的依赖关系， 以及输入和输出的变量**
+- 使用模块化会开启严格检查模式`strict`
 
 > Commons JS和AMD模块都只能在**运行时**确定这些东西
->
-> 严格检查模式`strict`
 
 ```javascript
 import "jquery"
@@ -3266,6 +3265,131 @@ define(function(require,exports,module){
 **缺点：**
 
 - 依赖SPM打包，模块的加载逻辑偏重
+
+## ES6模块化实现
+
+- 导入变量：`import`
+- 导出变量：`export`
+
+> 单独的模块有单独的作用域，使用`var`也不会有命名冲突
+
+### export导出
+
+导出模块对外提供的接口
+
+- 定义时导出
+
+- 定义后统一导出
+
+- `export default`：让导入模块的人自己来命名这个模块
+
+  > 同一个模块中只能有一个`export default`
+
+### import导入
+
+加载export导出的对应模块
+
+- 需要在HTML代码中引入JavaScript文件并且设置类型为`module`
+
+- 可以使用`*`导入模块中所有的`export`变量
+
+- 通常情况需要给`*`起一个别名方便后续的使用（通过`.`获取变量）
+
+  > 可能导入的变量跟模块下变量有冲突，也通过`*`导入所有变量
+
+```html
+<body>
+<script src="vue.js"></script>
+<script src="./.idea/a.js" type="module"></script>
+<script src="./.idea/b.js" type="module"></script>
+</body>
+```
+
+a.js
+
+```javascript
+var name = 'ink'
+var age = 24
+var flag = true
+
+function sum(num1, num2) {
+    return num1 + num2
+}
+
+// 导出方式一
+// 统一导出
+export {
+    flag, sum
+}
+
+// 导出方式二
+// 导出变量
+export var num1 = 1000;
+export var height = 1.88
+
+
+// 导出函数
+export function mul(num1, num2) {
+    return num1 * num2
+}
+
+// ES5的类
+// function Person(){}
+// 导出ES6的类class
+export class Person {
+    // 构造器
+    run() {
+        console.log('在奔跑');
+    }
+}
+
+// 5.export default导出
+// 同一个模块中不允许同时存在多个export default
+// const address = '北京市'
+// export default address
+
+export default function (argument) {
+    console.log(argument);
+}
+```
+
+b.js
+
+```javascript
+// 导入的{}中定义的变量
+import {flag, sum} from "./a.js";
+
+if (flag) {
+    console.log('yinke');
+    console.log(sum(20, 30));
+}
+
+// 导入export定义的变量
+import {num1, height} from "./a.js";
+
+console.log(num1);
+console.log(height);
+
+// 导入export的function/class
+import {mul, Person} from "./a.js";
+
+console.log(mul(30, 50));
+
+const p = new Person();
+p.run()
+
+// 导入 export default中的内容
+import addr from "./a.js";
+addr('你好啊');
+
+// 统一全部导入
+// import {flag, num, num1, height, Person, mul, sum} from "./aaa.js";
+// 相当于
+import * as aa from './a.js'
+
+console.log(aa.flag);
+console.log(aa.height);
+```
 
 
 

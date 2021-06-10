@@ -3424,18 +3424,29 @@ Webpack是一个现代JavaScript应用程序的静态**模块打包**工具（mo
 
 ## 安装
 
-- webpack依赖node环境
-- node环境依赖众多包
-  - npm：（node packages manager）node包管理工具
+- **webpack模块化打包依赖node环境**
+- **node环境依赖很多包**
+  - npm：（node **packages** manager）node包自动 管理工具
   - nvm：自由切换node环境版本
 
 > Vue CLI2基于webpack3.6.0，使用`npm install webpack@3.6.0 -g`指定版本
+>
+> Vue CLI3中已经升级到webpack4，但是它将配置文件隐藏了起来，所以查看起来不是很方便
 
 **全局安装**
 
 在**终端**执行webpack命令是全局安装
 
 ```bash
+# 更换淘宝镜像源
+npm config set registry https://registry.npm.taobao.org
+
+# 查看
+npm config get registry
+
+# 查看node斑斑
+node -v
+
 # 全局安装
 npm install webpack -g
 
@@ -3452,7 +3463,9 @@ webpack-cli -v
 
 **局部安装**
 
-在`package.json`中定义的`scripts`中包括了webpack命令，使用的是局部安装webpack
+在项目的`package.json`中定义的脚本`scripts`中包括webpack命令，使用的是局部安装webpack
+
+一个项目往往依赖特定的webpack版本，全局的版本可能跟项目的webpack版本不一致，导致打包出现问题。所以通常一个项目都有自己局部的webpack
 
 ```bash
 npm install webpack --save-dev
@@ -3462,8 +3475,6 @@ npm install webpack --save-dev
 
 ## 配置
 
-创建 `webpack.config.js`配置文件
-
 - `entry`：入口文件， 指定webpack用哪个文件作为项目的入口
 - `output`：输出， 指定webpack把处理完成的文件放到的路径
 - `module`：模块， 用于处理各种类型的文件
@@ -3471,63 +3482,128 @@ npm install webpack --save-dev
 - `resolve`：设置路径指向
 - `watch`：监听， 用于设置文件改动后直接打包
 
-```javascript
-module.exports = {
-	entry:"",
-	output:{
-		path:"",
-		filename:""
-	},
-	module:{
-		loaders:[
-			{test:/\.js$/,;\loade:""}
-		]
-	},
-	plugins:{},
-	resolve:{},
-	watch:true
+**动态获取路径**
+
+`output`中的`path`需要使用绝对路径，如果想要**动态获取路径**，需要导入node的path包
+
+```bash
+# 首先要初始化
+npm init
+```
+
+就会生成一个`package.json`文件
+
+```json
+{
+  "name": "webpack",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
 }
 ```
 
-运行`webpack`命令打包
+![npm init](Vue.js.assets/npm init.png)
+
+`webpack.config.js`配置文件
+
+```javascript
+// 导入node的path包获取绝对路径
+const path = require('path')
+
+module.exports = {
+	entry: './src/main.js',
+	output: {
+        // 动态获取打包后的文件路径,path.resolve拼接路径
+		path: path.resolve(__dirname, 'dist'),
+        // 打包后的文件名
+        filename: 'bundle.js'
+	},
+	module: {
+		loaders: [
+		]
+	},
+	plugins: {},
+	resolve: {},
+	watch: true
+}
+```
 
 
 
-## 运行
+## 使用
 
-1. 创建webpack项目目录（空）
+**文件目录**
 
-2. 在idea中**open**项目目录
+- `dist`：distribution打包目录（存放之后打包的文件）
+  - `bundle.js`：webpack处理项目直接文件依赖后生成的一个JavaScript文件
+- `src`/`modules`：源码文件目录
+  - `main.js`（`index.js`）：项目的入口文件
+- `index.html`：浏览器打开展示的首页html
+- `package.json`：通过`npm init`生成的，npm包管理的文件
 
-3. 在**项目目录下**创建`modules`目录（Directory）
+**步骤**
 
-4. 在`modules`目录下创建模块文件hi.js，用于编写JavaScript模块相关代码
+1. 创建一个空的webpack项目目录
+
+2. 在idea中**open**空的webpack项目目录
+
+3. 在**项目目录下**创建`modules`目录用于开发
+
+4. 在`modules`目录下创建**模块文件**`hi.js`
 
    ```javascript
-   // 暴露一个方法
+   // 暴露方法
    exports.sayhi = function (){
        document.write("<h1>ink say hi!</h1>");
    }
    ```
 
-5. 在`modules`目录下创建入口文件main.js，用于打包时设置`entry`属性
+5. 在`modules`目录下创建入口文件`main.js`，用于打包时设置`entry`属性
 
    ```javascript
    // 接收方法
    // 模块不用写.js后缀
+   // CommonJs规范
    var hi = require("./hi");
    hi.sayhi();
    ```
 
-6. 在**项目目录下**创建webpack.config.js配置文件，在idea终端中使用`webpack`命令打包
+6. 在**项目目录下**创建`webpack.config.js`配置文件，设置入口文件和打包目录文件
+
+   ```javascript
+   const path = require('path')
+   
+   module.exports = {
+   	entry: './modules/main.js',
+   	output: {
+   		path: path.resolve(__dirname, 'dist'),
+           filename: 'bundle.js'
+       }
+   }
+   ```
+
+7. 在idea终端中进入项目目录下，使用`webpack`命令打包
+
+   > 没有有webpack.config.js配置文件
+   >
+   > ```bash
+   > webpack ./src/main.js ./dist/bundle.js
+   > ```
 
    ![webpack打包](Vue.js.assets/webpack打包.png)
 
-7. 在**项目目录下**创建index.html，导入webpack打包后的JavaScript文件
+8. 在**项目目录下**创建`index.html`，导入webpack打包后生成的`bundle.js`文件
+
+   > 打包之前不能直接在`index.html`中用`src`引入模块文件，因为这里使用的是CommonJs规范，HTML不能识别，所以必须打包成可识别的文件后再引入
 
    ```html
    <body>
-   <!--导入包-->
+   <!-- 导入 -->
    <script src="dist/js/bundle.js"></script>
    </body>
    ```

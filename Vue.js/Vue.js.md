@@ -73,6 +73,8 @@ const obj = {
 > Vue被设计为可以自底向上逐层应用
 >
 > `Soc`：Separation of concerns 关注点分离原则
+>
+> [Vue新手入门指南](https://zhuanlan.zhihu.com/p/25659025)
 
 **Vue生态**
 
@@ -3395,37 +3397,50 @@ console.log(aa.height);
 
 # Webpack
 
-- Webpack是一个现代JavaScript应用程序的静态模块**打包工具**(module bundler) 
-- Wbpack处理应用程序时会递归地构建一个**依赖关系图**(dependency graph) ， 包含应用程序需要的每个模块， 然后将所有这些模块打包成一个或多个bundle
-- Webpack可以将松散耦合的模块按照依赖和规则打包成**符合生产环境部署的前端资源**。还可以将按需加载的模块进行代码分离，等到实际需要时再异步加载。通过loader转换， 任何形式的资源都可以当做模块， 比如Commons JS、ES6、CSS、JSON、CoffeeScript等
+Webpack是一个现代JavaScript应用程序的静态**模块打包**工具（module bundler） 
 
-> 现在越来越多的网站已经从网页模式进化到了WebApp模式，运行在浏览器里。 WebApp通常是一个SPA(单页面应用) ， 每一个视图通过异步的方式加载，这导致页面初始化和使用过程中会加载越来越多的JavaScript代码
+- Wbpack处理应用程序时会递归地构建一个**依赖关系图** （包含应用程序需要的每个模块）， 然后将所有这些模块打包成一个或多个**bundle**
+- Webpack可以将松散耦合的模块按照依赖和规则打包成**符合生产环境部署的前端资源**。还可以将按需加载的模块进行代码分离，等到实际需要时再异步加载。通过**loader**自动载入转换器babel转换， **任何形式的资源都可以当做模块**（如Commons JS、ES6、CSS、JSON、CoffeeScript等）
+
+> 前端代码为什么要打包？
+>
+> - 现在越来越多的网站已经从网页模式进化到了WebApp模式，运行在浏览器里。WebApp通常是一个SPA（单页面应用） ， 每一个视图通过异步的方式加载，这导致页面初始化和使用过程中会加载越来越多的JavaScript代码。
+> - 单页应用程序中用到很多素材，如果每一个素材都通过在HTML中以`src`属性或者`link`来引入，那么请求一个页面的时候，可能浏览器就要发起十多次请求，往往请求的这些资源都是一些脚本代码或者很小的图片，这些资源本身才几k，下载连1秒都不需要，但是由于HTTP是应用层协议，它的下层是TCP这个运输层协议，**TCP的握手和挥手过程消耗的时间可能比下载资源本身还要长**，所以需要把这些小文件全部打包成一个文件，这样只要一次TCP握手和挥手的过程，就把多个资源给下载下来了，并且多个资源由于都是共享一个HTTP请求，所以head等部分也是共享的，相当于形成了规模效应，让网页展现更快，用户体验更好。
 >
 > 前端开发和其他开发工作的主要区别：
 >
 > - 前端基于多语言、多层次的编码和组织工作
 > - 前端产品的交付是基于浏览器的，这些资源是通过增量加载的方式运行到浏览器端
+>
+> 和grunt/glup的对比
+>
+> - grunt/glup的核心是Task。可以配置一系列的task并且定义task要处理的事务（例如ES6/TS转化，图片压缩，scss转css），之后就可以让grunt/glup来执行依次这些任务，让整个流程自动化。grunt/glup也被称为前端自动化任务管理工具
+> - grunt/glup更加强调的是前端自动化流程，模块化不是其核心
+> - webpack加强模块化开发管理，而文件压缩/合并/预处理等功能是附带功能
 
-
-
-[Vue.js新手入门指南 ](https://zhuanlan.zhihu.com/p/25659025)
-
-> - 前端代码为什么要打包呢？
->   因为单页应用程序中用到很多素材，如果每一个素材都通过在HTML中以src属性或者link来引入，那么请求一个页面的时候，可能浏览器就要发起十多次请求，往往请求的这些资源都是一些脚本代码或者很小的图片，这些资源本身才几k，下载连1秒都不需要，但是由于HTTP是应用层协议，它的下层是TCP这个运输层协议，TCP的握手和挥手过程消耗的时间可能比下载资源本身还要长，所以需要把这些小文件全部打包成一个文件，这样只要一次TCP握手和挥手的过程，就把多个资源给下载下来了，并且多个资源由于都是共享一个HTTP请求，所以head等部分也是共享的，相当于形成了规模效应，让网页展现更快，用户体验更好。
-> - Webpack还有构建的功能
->   现在国内外还有很多人用着老版本的浏览器，这些浏览器并不支持ECMAScript6这个新版本的JavaScript，那么前端项目如何在这种浏览器上运行呢？这就需要Webpack的Loader自动载入一个转换器来将ECMAScript6转换成浏览器能支持的老版本JavaScript语言，这个转换器的名字叫做babel。这就是Webpack的构建功能。
-
-
+![Webpack功能](Vue.js.assets/Webpack功能.png)
 
 
 
 ## 安装
 
-webpack需要nodejs的支持
+- webpack依赖node环境
+- node环境依赖众多包
+  - npm：（node packages manager）node包管理工具
+  - nvm：自由切换node环境版本
+
+> Vue CLI2基于webpack3.6.0，使用`npm install webpack@3.6.0 -g`指定版本
+
+**全局安装**
+
+在**终端**执行webpack命令是全局安装
 
 ```bash
-# 打包工具
+# 全局安装
 npm install webpack -g
+
+# 指定版本安装
+npm install webpack@3.6.0 -g
 
 # 客户端
 npm install webpack-cli -g
@@ -3433,6 +3448,14 @@ npm install webpack-cli -g
 # 验证
 webpack -v
 webpack-cli -v
+```
+
+**局部安装**
+
+在`package.json`中定义的`scripts`中包括了webpack命令，使用的是局部安装webpack
+
+```bash
+npm install webpack --save-dev
 ```
 
 

@@ -3435,7 +3435,7 @@ Webpack是一个现代JavaScript应用程序的静态**模块打包**工具（mo
 
 **全局安装**
 
-在**终端**执行webpack命令是全局安装
+在**终端执行**的`webpack`命令是全局的（idea终端也是）
 
 ```bash
 # 更换淘宝镜像源
@@ -3463,28 +3463,29 @@ webpack-cli -v
 
 **局部安装**
 
-在项目的`package.json`中定义的脚本`scripts`中包括webpack命令，使用的是局部安装webpack
+在项目的`package.json`中定义的脚本`scripts`中包括`webpack`命令，使用的是局部安装的`webpack`
 
 一个项目往往依赖特定的webpack版本，全局的版本可能跟项目的webpack版本不一致，导致打包出现问题。所以通常一个项目都有自己局部的webpack
 
 ```bash
-npm install webpack --save-dev
+npm install webpack@3.6.0 --save-dev
+```
+
+ `--save-dev`开发时依赖，会在`package.json`中生成
+
+```json
+  "devDependencies": {
+    "webpack": "^3.6.0"
+  }
 ```
 
 
 
 ## 配置
 
-- `entry`：入口文件， 指定webpack用哪个文件作为项目的入口
-- `output`：输出， 指定webpack把处理完成的文件放到的路径
-- `module`：模块， 用于处理各种类型的文件
-- `plugins`：插件， 如热更新、代码重用等
-- `resolve`：设置路径指向
-- `watch`：监听， 用于设置文件改动后直接打包
-
 **动态获取路径**
 
-`output`中的`path`需要使用绝对路径，如果想要**动态获取路径**，需要导入node的path包
+`output`中的`path`需要使用绝对路径，如果想要**动态获取路径**，需要导入node的path模块
 
 ```bash
 # 首先要初始化
@@ -3493,9 +3494,11 @@ npm init
 
 就会生成一个`package.json`文件
 
+> name不要和自带的包重名
+
 ```json
 {
-  "name": "webpack",
+  "name": "inkwebpack",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -3509,7 +3512,14 @@ npm init
 
 ![npm init](Vue.js.assets/npm init.png)
 
-`webpack.config.js`配置文件
+**`webpack.config.js`配置文件**
+
+- `entry`：入口文件， 指定webpack用哪个文件作为项目的入口
+- `output`：输出， 指定webpack把处理完成的文件放到的路径
+- `module`：模块， 用于处理各种类型的文件
+- `plugins`：插件， 如热更新、代码重用等
+- `resolve`：设置路径指向
+- `watch`：监听， 用于设置文件改动后直接打包
 
 ```javascript
 // 导入node的path包获取绝对路径
@@ -3518,14 +3528,19 @@ const path = require('path')
 module.exports = {
 	entry: './src/main.js',
 	output: {
-        // 动态获取打包后的文件路径,path.resolve拼接路径
+        // 动态获取打包后的文件路径
+        // path模块的resolve函数用于拼接路径
+        // __dirname全局变量(当前目录路径)
 		path: path.resolve(__dirname, 'dist'),
         // 打包后的文件名
         filename: 'bundle.js'
 	},
 	module: {
-		loaders: [
-		]
+		loaders: [],
+        options: {
+            limit: 8192,
+            name: 'img/[name].[hash:8].[ext]'
+        }
 	},
 	plugins: {},
 	resolve: {},
@@ -3541,7 +3556,7 @@ module.exports = {
 
 - `dist`：distribution打包目录（存放之后打包的文件）
   - `bundle.js`：webpack处理项目直接文件依赖后生成的一个JavaScript文件
-- `src`/`modules`：源码文件目录
+- `src`：源码文件目录
   - `main.js`（`index.js`）：项目的入口文件
 - `index.html`：浏览器打开展示的首页html
 - `package.json`：通过`npm init`生成的，npm包管理的文件
@@ -3565,15 +3580,20 @@ module.exports = {
 
 5. 在`modules`目录下创建入口文件`main.js`，用于打包时设置`entry`属性
 
+   在`main.js`中导入依赖
+
    ```javascript
-   // 接收方法
-   // 模块不用写.js后缀
-   // CommonJs规范
-   var hi = require("./hi");
-   hi.sayhi();
+   // 入口js文件
+   // CommonJs规范导入js文件
+   const {add,mul} = require("./js/a.js")
+   
+   console.log(add(10,20))
+   console.log(mul(10,10))
    ```
 
 6. 在**项目目录下**创建`webpack.config.js`配置文件，设置入口文件和打包目录文件
+
+   会根据入口文件`main.js`依次打包
 
    ```javascript
    const path = require('path')
@@ -3589,13 +3609,11 @@ module.exports = {
 
 7. 在idea终端中进入项目目录下，使用`webpack`命令打包
 
-   > 没有有webpack.config.js配置文件
+   > 没有有`webpack.config.js`配置文件就要写上出入口
    >
    > ```bash
    > webpack ./src/main.js ./dist/bundle.js
    > ```
-
-   ![webpack打包](Vue.js.assets/webpack打包.png)
 
 8. 在**项目目录下**创建`index.html`，导入webpack打包后生成的`bundle.js`文件
 
@@ -3607,6 +3625,245 @@ module.exports = {
    <script src="dist/js/bundle.js"></script>
    </body>
    ```
+
+
+
+## 脚本
+
+- 开发环境：`npm run dev`
+- 生产环境：`npm run build`
+
+**使用自定义脚本打包**
+
+`package.json`中的`scripts`的脚本在执行时会按照**一定的顺序寻找命令**对应的位置
+
+- 寻找**本地**的`node_modules/.bin`路径中对应的命令（局部安装）
+- 如果没找到会去**全局的环境变量**中寻找（全局安装）
+
+> idea终端中的命令也是全局的，除非指定目录执行：`./node_modules/.bin/webpack`
+
+在`package.json`的`scripts`中增加**映射**（执行脚本），此时优先执行本地的`webpack`
+
+```json
+  "scripts": {
+    "build": "webpack"
+  },
+```
+
+执行`npm run build`代替`webpack`打包
+
+![脚本打包](Vue.js.assets/脚本打包.png)
+
+
+
+## loader
+
+开发中不仅仅有基本的JavaScript代码处理，也需要加载css、图片，还包括一些高级的将ES6转成ES5代码，将TypeScript转成ES5代码，将scss、less转成css，将.jsx、.vue文件转成JavaScript文件等
+
+**webpack本身对于这些转化是不支持的**。需要给webpack扩展对应的**loader**
+
+[loaders | webpack 中文网)](https://www.webpackjs.com/loaders/)
+
+### 安装
+
+不同的文件处理需要安装不同的loader
+
+**CSS文件**
+
+- `css-loader`只负责css文件加载，不负责解析
+- 解析css文件需要使用`style-loader`（将样式添加到DOM中）
+
+> 使用webpack打包css时，出现错误导致css无法打包。原因是`css-loader`和`style-loader`版本过高
+
+**less文件**
+
+- `less-loader`负责less文件加载
+- `less`包负责对less代码解析
+
+**图片资源**
+
+- 引用了图片的url时需要使用`url-loader`
+
+- 图片小于limit时，会将图片转成**base64字符串**，大于limit时需要使用`file-loader`加载图片
+- 小图片转换为base64字符串是不需要单独的文件存储的
+- 大图片使用`file-loader`时会**重命名（32位哈希值）并存储**到打包文件夹`dist`中。这时候**对外展示资源是存储在`dist`中**，相对于导入的index.html就会发现路径错误（404找不到资源了）
+- 通过在`webpack.config`中使用`publicPath`来**配置url路径**，项目中**所有url**都会拼接上这个路径
+- 使用`options`中的`name`参数对打包后的**文件名**格式进行配置（统一，防止重复）
+  - `img`：文件要打包**到**的文件夹
+  - `[name]`：获取图片原来的名字
+  - `[hash:8]`：**防止图片名称冲突依然要使用hash**（但是只保留8位）
+  - `[ext]`：使用图片原来的**扩展名**
+
+> `url-loader` 功能类似于 `file-loader`，但是在文件大小（单位 byte）低于指定的限制时可以返回一个 DataURL
+>
+> 当最后将index.html也打包进dist目录下时，就不需要`publicPath`配置url了
+
+```bash
+npm install --save-dev css-loader@2.0.2
+npm install --save-dev style-loader@0.23.1
+npm install --save-dev less-loader@4.1.0 less@3.9.0
+npm install --save-dev url-loader@1.1.2
+npm install --save-dev file-loader@3.0.1
+```
+
+**导入依赖**
+
+在入口文件`main.js`中将css文件也当作模块依赖导入
+
+```javaScript
+// 依赖css文件
+require('./css/normal.css')
+// 依赖less文件
+require('./css/special.less')
+document.writeln('<h2>less渲染</h2>')
+```
+
+### 配置
+
+在`webpack.config.js`中进行配置指定loader
+
+`test`的正则表达式用于匹配文件
+
+- `\.`用于转义匹配`.`
+- `$`匹配结尾
+- `^`匹配开始
+- `|`或者
+
+`webpack.config.js`读取多个`loader`是**从右往左解析**的，所以需要将`css-loader`放在`style-loader`右边才能实现**先加载后解析**
+
+```javascript
+const path = require('path')
+
+module.exports = {
+    entry: './src/main.js',
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'bundle.js',
+        publicPath: 'dist/'
+    },
+    module: {
+        rules: [
+            {
+                test: /\.css$/,
+                use: ['style-loader','css-loader']
+            },
+            {
+                test: /\.less$/,
+                use: [{
+                    loader: 'style-loader'
+                }, {
+                    loader: 'css-loader'
+                }, {
+                    loader: 'less-loader'
+                }]
+            },
+            {
+                test: /\.(png|jpg|gif)$/,
+                use: [
+                    {
+                        loader: 'url-loader',
+                        options: {
+                            limit: 13000,
+                            name: 'img/[name].[hash:8].[ext]'
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}
+
+```
+
+### 打包
+
+```bash
+npm run build
+```
+
+
+
+## babel
+
+使用`babel`将ES6的语法转成ES5
+
+在webpack中使用babel对应的`babel-loader`
+
+**安装**
+
+babel-preset-es2015：配置相关（es2015就是ES6）
+
+```bash
+npm install --save-dev babel-loader@7 babel-core babel-preset-es2015
+```
+
+**配置**
+
+- `exclude`：排除不需要转换的文件
+- 如果要使用`@babel/preset-env`这里需要在**根目录新建一个babel的文件**，并使用`presets: ['@babel/preset-env']`
+
+```javascript
+const path = require('path')
+
+module.exports = {
+    entry: './src/main.js',
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'bundle.js',
+        publicPath: 'dist/'
+    },
+    module: {
+        rules: [
+            {
+                test: /\.css$/,
+                use: ['style-loader','css-loader']
+            },
+            {
+                test: /\.less$/,
+                use: [{
+                    loader: 'style-loader'
+                }, {
+                    loader: 'css-loader'
+                }, {
+                    loader: 'less-loader'
+                }]
+            },
+            {
+                test: /\.(png|jpg|gif)$/,
+                use: [
+                    {
+                        loader: 'url-loader',
+                        options: {
+                            limit: 13000,
+                            name: 'img/[name].[hash:8].[ext]'
+                        }
+                    }
+                ]
+            },
+            {
+                test: /\.js$/,
+                //排除node模块的js和bower的js
+                exclude: /(node_modules|bower_components)/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        // 这里直接使用指定
+                        presets: ['es2015']
+                    }
+                }
+            }
+        ]
+    }
+}
+```
+
+**打包**
+
+所有的`const`都被改外`var`定义
+
+```bash
+npm run build
+```
 
 
 

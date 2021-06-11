@@ -3325,7 +3325,9 @@ module.exports = {
             name: 'img/[name].[hash:8].[ext]'
         }
 	},
-	plugins: {},
+	plugins: {
+        
+    },
 	resolve: {
         // 别名  
         alias: {}
@@ -3441,6 +3443,8 @@ module.exports = {
 
 ## loader
 
+**转换器**
+
 开发中不仅仅有基本的JavaScript代码处理，也需要加载css、图片，还包括一些高级的将ES6转成ES5代码，将TypeScript转成ES5代码，将scss、less转成css，将.jsx、.vue文件转成JavaScript文件等
 
 **webpack本身对于这些转化是不支持的**。需要给webpack扩展对应的**loader**
@@ -3470,7 +3474,7 @@ module.exports = {
 - 图片小于limit时，会将图片转成**base64字符串**，大于limit时需要使用`file-loader`加载图片
 - 小图片转换为base64字符串是不需要单独的文件存储的
 - 大图片使用`file-loader`时会**重命名（32位哈希值）并存储**到打包文件夹`dist`中。这时候**对外展示资源是存储在`dist`中**，相对于导入的index.html就会发现路径错误（404找不到资源了）
-- 通过在`webpack.config`中使用`publicPath`来**配置url路径**，项目中**所有url**都会拼接上这个路径
+- 通过在`webpack.config.js`中使用`publicPath`来**配置url路径**，项目中**所有url**都会拼接上这个路径
 - 使用`options`中的`name`参数对打包后的**文件名**格式进行配置（统一，防止重复）
   - `img`：文件要打包**到**的文件夹
   - `[name]`：获取图片原来的名字
@@ -3649,6 +3653,357 @@ module.exports = {
 ```bash
 npm run build
 ```
+
+
+
+## plugin
+
+**插件**
+
+对webpack现有功能的各种**扩展**，比如打包优化，文件压缩等
+
+1. 使用npm安装需要使用的plugins（webpack已经内置的插件不需要安装）
+2. 在`webpack.config.js`文件中的`plugins`属性中进行配置
+
+### 添加版权信息
+
+**BannerPlugin**：给打包文件添加**版权声明**信息
+
+> 属于webpack自带的插件，无需安装，直接配置
+
+![开源协议](Vue.js.assets/开源协议.jpg)
+
+1. 导包， 获取webpack对象
+2. 配置BannerPlugin插件
+3. 重新打包，查看`bundle.js`文件
+
+`webpack.config.js`文件
+
+```javascript
+const webpack = require('webpack')
+
+module.exports = {
+    plugins:[
+        new webpack.BannerPlugin('最终解释权归ink所有')
+      ]
+}
+```
+
+
+
+### 打包html文件
+
+**HtmlWebpackPlugin**：自动生成`index.html`文件（可以指定模板生成）并将打包后的JavaScript文件通过`script`标签自动插入到`index.html`的`body`中
+
+> 之前的`index.html`文件都是存放在`src`目录下，但正式发布项目时是将`dist`文件夹打包部署。所以需要将`index.html`也打包到`dist`文件夹中
+
+1. 使用npm安装HtmlWebpackPlugin
+
+   ```bash
+   npm install html-webpack-plugin@3.2.0 --save-dev	
+   ```
+
+2. 获取htmlWebpackPlugin对象
+
+3. 配置HtmlWebpackPlugin插件
+
+4. 重新打包，查看`dist`文件夹
+
+`webpack.config.js`文件
+
+> `template`表示根据配置目录下的模板文件来生成`index.html`（`div`标签）
+>
+> 需要删除`output`中的`publicPath`属性，否则插入的`script`标签的`src`可能出错
+
+```javascript
+const HtmlWbepackPlugin = require('html-webpack-plugin')
+
+module.exports = {
+    plugins:[
+        new HtmlWbepackPlugin({
+          template: 'index.html'
+        })
+      ]
+}
+```
+
+![自动生成index.html](Vue.js.assets/自动生成index.html.jpg)
+
+
+
+### 压缩JavaScript文件
+
+**uglifyjs-webpack-plugin**：对打包的JavaScript文件进行压缩
+
+> webpack4打包时自动压缩
+>
+> 压缩文件会删除注释（版权信息）
+>
+> 开发阶段不要压缩JavaScript文件，不便于调试
+
+1. 使用npm安装uglifyjs-webpack-plugin
+
+    ```bash
+    # 版本号指定1.1.1，和VUE CLI2保持一致
+    npm install uglifyjs-webpack-plugin@1.1.1 --save-dev
+    ```
+
+2. 获取uglifyjs-webpack-plugin对象
+
+3. 配置uglifyjs-webpack-plugin插件
+
+4. 重新打包，查看`bundle.js`文件
+
+`webpack.config.js`文件
+
+```javascript
+const uglifyjsWebpackPlugin = require('uglifyjs-webpack-plugin')
+
+module.exports = {
+    plugins:[
+    	new uglifyjsWebpackPlugin()
+      ]
+}
+```
+
+
+
+## 本地服务器
+
+webpack提供了一个可选的**本地开发服务器**。本地服务器基于node.js搭建，内部使用express框架，可以让**浏览器自动刷新并显示修改后的结果**
+
+> express框架：服务于指定的文件夹（监听变化然后重新编译）
+
+**安装**
+
+```bash
+npm install --save-dev webpack-dev-server@2.9.3 
+```
+
+**配置**
+
+- `contentBase`：指定文件夹提供本地服务，**默认是根文件夹**（改为`./dist`）
+- `port`：端口号，默认8080
+- `inline`：页面实时刷新
+- `historyApiFallback`：在SPA页面中依赖HTML5的history模式
+
+`webpack.config.js`文件
+
+> 此配置只是开发阶段需要，打包运行时不再需要
+
+```javascript
+module.exports = {
+    devServer: {
+        contentBase: './dist',
+        port: 2000,
+        // 页面实时刷新
+        inline: true
+    }
+}
+```
+
+**使用**
+
+因为是局部安装（没加`-g`），所以不能直接执行`webpack-devserver`指令（终端中的指令会默认使用全局安装的包）
+
+- 通过`.\node_modules\.bin\webpack-dev-server`命令指定路径运行
+- 在`package.json`中配置脚本命令（优先本地）
+
+`package.json`
+
+- `--open`：表示**自动打开浏览器**
+
+```json
+{
+  "scripts": {
+    "dev": "webpack-dev-server --open"
+  }
+}
+```
+
+启动后就可以实现更新代码浏览器自动刷新显示
+
+```bash
+npm run dev
+```
+
+
+
+## 配置文件分离
+
+`webpack.config.js`文件中有些是开发时候需要的配置，有些是生产环境发布编译需要的配置
+
+将`webpack.config.js`文件分成三个部分：**公共部分**、**开发部分**和**构建发布部分**
+
+建立`build`文件夹存放配置文件
+
+- `base.config.js`：公共的配置
+- `dev.config.js`：开发时需要的配置
+- `prod.config.js`：构建发布时需要的配置
+
+`base.config.js`文件
+
+```javascript
+const path = require('path')
+const webpack = require('webpack')
+const htmlWbepackPlugin = require('html-webpack-plugin')
+module.exports = {
+    entry: './src/main.js',
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'bundle.js',
+        // 影响打包生成的index.html
+        // publicPath: 'dist/'
+    },
+    module: {
+        rules: [
+            {
+                test: /\.css$/,
+                use: ['style-loader','css-loader']
+            },
+            {
+                test: /\.less$/,
+                use: [{
+                    loader: 'style-loader'
+                }, {
+                    loader: 'css-loader'
+                }, {
+                    loader: 'less-loader'
+                }]
+            },
+            {
+                test: /\.(png|jpg|gif)$/,
+                use: [
+                    {
+                        loader: 'url-loader',
+                        options: {
+                            limit: 13000,
+                            name: 'img/[name].[hash:8].[ext]'
+                        }
+                    }
+                ]
+            },
+            {
+                test: /\.js$/,
+                //排除node模块的js和bower的js
+                exclude: /(node_modules|bower_components)/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        //如果要使用@babel/preset-env这里需要在根目录新建一个babel的文件
+                        // presets: ['@babel/preset-env']
+                        //这里直接使用指定
+                        presets: ['es2015']
+                    }
+                }
+            },
+            {
+                test: /\.vue$/,
+                use: ['vue-loader']
+            }
+        ]
+    },
+    resolve: {
+        // alias:别名
+        alias: {
+            // 指定vue使用vue.esm.js(包含complier)
+            'vue$':'vue/dist/vue.esm.js'
+        }
+    },
+    plugins:[
+        new webpack.BannerPlugin('最终解释权归ink所有'),
+        new htmlWbepackPlugin({
+            template: 'index.html'
+        })
+    ]
+}
+```
+
+`dev.config.js`文件
+
+```javascript
+module.exports = {
+    devServer: {
+        contentBase: './dist',
+        port: 2000,
+        inline: true
+    }
+}
+```
+
+`prod.config.js`文件
+
+```javascript
+const uglifyjsWebpackPlugin = require('uglifyjs-webpack-plugin')
+module.exports = {
+    plugins:[
+        new uglifyjsWebpackPlugin()
+    ]
+}
+```
+
+**使用`webpack-merge`插件合并配置文件**
+
+- dev环境：使用`base.config.js`和`dev.config.js`
+- 生产发布构建环境：使用`base.config.js`和`prod.config.js`
+
+**安装**
+
+```bash
+npm isntall webpack-merge@4.1.5 --save-dev
+```
+
+**合并**
+
+将`base.config.js`的内容合并到`dev.config.js`或`prod.config.js`的文件中
+
+- 修改`dev.config.js`文件
+
+  ```javascript
+  // 导入webpack-merge对象
+  const webpackMerge = require('webpack-merge')
+  // 导入base.config.js
+  const baseConfig = require('./base.config')
+  // 使用webpackMerge合并baseConfig和dev.config
+  module.exports = webpackMerge(baseConfig, {
+      devServer: {
+          contentBase: './dist',
+          port: 2000,
+          inline: true
+      }
+  })
+  ```
+
+- 修改`prod.config.js`文件
+
+  ```javascript
+  const uglifyjsWebpackPlugin = require('uglifyjs-webpack-plugin')
+  // 导入webpack-merge对象
+  const webpackMerge = require('webpack-merge')
+  // 导入base.config.js
+  const baseConfig = require('./base.config')
+  // 使用webpackMerge合并baseConfig和prod.config
+  module.exports = webpackMerge(baseConfig, {
+      plugins:[
+          new uglifyjsWebpackPlugin()
+      ]
+  })
+  ```
+
+**修改**
+
+分离后不再需要`webpack.config.js`文件，同时需要修改`package.json`中的配置
+
+```json
+{
+  "scripts": {
+    "build": "webpack --config ./build/prod.config.js",
+    "dev": "webpack-dev-server --config ./build/dev.config.js"
+  }
+}
+```
+
+因为配置文件在`build`文件夹中，还需要修改`base.config.js`文件中`output`属性中的路径`path`为`path.resolve(__dirname, '../dist')`
 
 
 
@@ -3857,7 +4212,9 @@ new Vue({
 })
 ```
 
-### Vue文件
+
+
+**Vue文件**
 
 以一种全新的方式来组织一个**vue组件**（分离模板、行为和样式）
 
@@ -3867,20 +4224,133 @@ new Vue({
 **安装**
 
 ```bash
-npm install vue-loader@13.0.0 
+npm install --save-dev vue-loader@13.0.0 vue-template-compiler
 ```
 
 **配置**
 
+`webpack.config`
 
+```javascript
+module: {
+    rules: [
+        {
+            test: /\.vue$/,
+            use: ['vue-loader']
+        }
+    ]
+}
+```
 
-使用
+**使用**
 
-新建`App.vue`文件
+`App.vue`文件
 
+> 重新打包
 
+```vue
+<!--组件模板-->
+<template>
+  <div>
+    <h2 class="title">{{message}}</h2>
+    <button @click='btnClick'>这是一个按钮</button>
+  </div>
+</template>
+<!--脚本行为-->
+<script>
+export default {
+  name: "App",
+  data() {
+    return {
+      message: "Webpack and Vue",
+    }
+  },
+  methods: {
+    btnClick(){
+      console.log("按钮被点击了")
+    }
+  }
+}
+</script>
+<!--样式-->
+<style scoped>
+.title {
+  color: green;
+}
+</style>
+```
 
+**子组件的使用**
 
+`Cpn.vue`文件
+
+```vue
+<template>
+  <div>
+    <h2>Cpn组件标题</h2>
+    <p>Cpn组件内容</p>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "Cpn",
+  data() {
+    return {
+      name: 'ink'
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+在父组件`App.vue`中引入
+
+> 重新打包 
+
+```vue
+<!--模板-->
+<template>
+  <div>
+    <h2 class="title">{{message}}</h2>
+    <button @click='btnClick'>这是一个按钮</button>
+    <Cpn/>
+  </div>
+</template>
+
+<!--脚本行为-->
+<script>
+// 引入子组件
+import Cpn from './Cpn.vue'
+export default {
+  name: "App",
+  // 注册
+  components: {
+    Cpn
+  },
+  data() {
+    return {
+      message: "Webpack and Vue",
+    }
+  },
+  methods: {
+    btnClick(){
+      console.log("按钮被点击了")
+    }
+  }
+}
+</script>
+<!--样式-->
+<style scoped>
+.title {
+  color: green;
+}
+</style>
+```
 
 
 
@@ -3890,9 +4360,9 @@ CLI：Command-Line Interface，命令行界面，也叫**脚手架**
 
 `vue-cli`是官方提供的一个脚手架，用于快速生成一个Vue项目模板（自动生成好项目目录，配置好Webpack以及各种依赖包的工具，用于快速开发）
 
+> 使用Vue.js开发大型应用时，需要考虑代码目录结构、项目结构和部署、热加载、代码单元测试等事情，就要使用脚手架工具来帮助完成
+>
 > 实际开发采用vue cli脚手架，vue router路由，vuex状态管理，使用ElementUI来快速搭建前端项目
-
-
 
 **主要功能**
 

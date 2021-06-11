@@ -4354,11 +4354,11 @@ export default {
 
 
 
-# Vue CLI
+# Vue CLI 3
 
 CLI：Command-Line Interface，命令行界面，也叫**脚手架**
 
-`vue-cli`是官方提供的一个脚手架，用于快速生成一个Vue项目模板（自动生成好项目目录，配置好Webpack以及各种依赖包的工具，用于快速开发）
+`vue-cli`是官方提供的一个脚手架，用于快速搭建Vue开发环境（自动生成项目目录，配置Webpack以及各种依赖包）
 
 > 使用Vue.js开发大型应用时，需要考虑代码目录结构、项目结构和部署、热加载、代码单元测试等事情，就要使用脚手架工具来帮助完成
 >
@@ -4372,22 +4372,26 @@ CLI：Command-Line Interface，命令行界面，也叫**脚手架**
 - 单元测试
 - 集成打包上线
 
-## 环境配置
+## 安装
 
-> 以管理员身份运行
+[Vue CLI](https://cli.vuejs.org/zh/guide/)
 
 1. 安装Node.js：[Node.js|Download](https://nodejs.org/en/download/)（自动配置环境变量）
 
+   > vue cli3.0要求node.js版本是8.9以上（官方推荐 8.11.0+）
+   
    ```bash
    # 验证
    node -v
    # 自带npm
-   npm -v
+npm -v
    ```
 
-   > npm类似CentOS下的yum和Ubuntu下的apt-get
-
 2. 安装Node.js淘宝**镜像加速器**（cnpm）
+
+   > 尽量使用npm，cnpm可能打包会失败
+   >
+   > C:\Users\54164\AppData\Roaming\npm
 
    ```bash
    # -g 全局安装
@@ -4397,33 +4401,29 @@ CLI：Command-Line Interface，命令行界面，也叫**脚手架**
    npm install --registry=https://registry.npm.taobao.org
    ```
 
-   > C:\Users\54164\AppData\Roaming\npm
-   >
-   > 尽量使用npm，cnpm可能打包会失败
+3. 安装Vue CLI 3
 
-3. 安装Vue-cli
-
-   > vue-cli3.0要nodeJs ≥ 8.9（官方推荐 8.11.0+）
+   > Vue CLI 3可以拉取Vue CLI  2的模板从而使用Vue CLI 2，但不可以按照Vue CLI 2的方式初始化项目
 
    ```bash
-   npm install vue-cli -g
+   # 均可
+   npm install @vue/cli -g
+   yarn global add @vue/cli
    
    # 验证
-   vue -V
-   
-   # 查看可以基于哪些模板创建vue应用程序(通常选择webpack)
-   vue list
+   vue --version
    ```
 
-   ![Vue-list](Vue.js.assets/Vue-list.png)
 
-## 创建程序
 
-创建一个基于`webpack`模板的Vue应用程序
+
+## 创建
+
+### Vue CLI 2
 
 1. **进入项目目录**
 
-2. **创建项目**
+2. **初始化**（vue cli 2版本初始化）
 
    ```bash
    vue init webpack 项目名
@@ -4558,7 +4558,7 @@ CLI：Command-Line Interface，命令行界面，也叫**脚手架**
    },
    ```
 
-
+### Vue CLI 3
 
 # Vue-router
 

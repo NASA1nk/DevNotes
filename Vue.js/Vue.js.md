@@ -4033,7 +4033,46 @@ new Vue({
 
 **第三次抽取**
 
-最后再将组件抽取出来单独放在一个JavaScript文件中，在`main.js`中导入即可
+再将组件抽取出来单独放在一个JavaScript文件中并导出
+
+```javascript
+export default {
+    template: `
+      <div>
+        <h2>{{message}}</h2>
+        <button @click='btnClick'>这是一个按钮</button>
+      </div>
+    `,
+        data() {
+    return {
+        message: "Webpack and Vue",
+    }
+},
+    methods: {
+        btnClick(){
+            console.log("按钮被点击了")
+        }
+    },
+}
+```
+
+在`main.js`中导入即可
+
+```javascript
+import Vue from 'vue'
+// default导出可以自定义组件名
+import App from './vue/app'
+
+new Vue({
+    el: '#app',
+    // 使用组件
+    template: '<App/>',
+    components: {
+        //注册局部组件
+        App
+    },
+})
+```
 
 
 

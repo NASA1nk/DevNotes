@@ -1,4 +1,4 @@
-# ES6规范
+
 
 **let**
 
@@ -2926,221 +2926,6 @@ Vue在2.6.0中为**具名插槽**和**作用域插槽**引入了一个新的统�
 
 
 
-# Vue CLI
-
-`vue-cli`是官方提供的一个脚手架，用于快速生成一个Vue项目模板（自动生成好项目目录，配置好Webpack以及各种依赖包的工具）
-
-> 实际开发采用Vue-cli脚手架，vue-router路由，vuex状态管理，Vue UI使用ElementUI来快速搭建前端项目
-
-
-
-**主要功能**
-
-- 统一的目录结构
-- 本地调试
-- 热部署
-- 单元测试
-- 集成打包上线
-
-## 环境配置
-
-> 以管理员身份运行
-
-1. 安装Node.js：[Node.js|Download](https://nodejs.org/en/download/)（自动配置环境变量）
-
-   ```bash
-   # 验证
-   node -v
-   # 自带npm
-   npm -v
-   ```
-
-   > npm类似CentOS下的yum和Ubuntu下的apt-get
-
-2. 安装Node.js淘宝**镜像加速器**（cnpm）
-
-   ```bash
-   # -g 全局安装
-   npm install cnpm -g
-   
-   # 或者每次安装包都加上参数--registry
-   npm install --registry=https://registry.npm.taobao.org
-   ```
-   
-   > C:\Users\54164\AppData\Roaming\npm
-   >
-   > 尽量使用npm，cnpm可能打包会失败
-   
-3. 安装Vue-cli
-
-   > vue-cli3.0要nodeJs ≥ 8.9（官方推荐 8.11.0+）
-   
-   ```bash
-   npm install vue-cli -g
-   
-   # 验证
-   vue -V
-   
-   # 查看可以基于哪些模板创建vue应用程序(通常选择webpack)
-   vue list
-   ```
-   
-   ![Vue-list](Vue.js.assets/Vue-list.png)
-
-## 创建程序
-
-创建一个基于`webpack`模板的Vue应用程序
-
-1. **进入项目目录**
-
-2. **创建项目**
-
-   ```bash
-   vue init webpack 项目名
-   ```
-
-3. **设置**
-
-   - Project name：项目名称，默认回车即可
-   - Project description：项目描述，默认回车即可
-   - Author：项目作者，默认回车即可
-   - Install vue-router：是否安装vue-router，选择n不安装（后期需要再手动添加）
-   - Use ESLint to lint your code:是否使用ESLint做代码检查，选择n不安装（后期需要再手动添加)
-   - Set up unit tests:单元测试相关，选择n不安装（后期需要再手动添加）
-   - Setupe2etests with Nightwatch：单元测试相关，选择n不安装（后期需要再手动添加）
-   - Should we run npm install for you after the,project has been created:创建完成后直接初始化，选择n，手动执行
-
-   ![创建Vue-cli项目](Vue.js.assets/创建Vue-cli项目.png)
-
-4. **初始化项目**
-
-   在项目目录下安装依赖(根据项目中的`package.json`文件)，生成`node_modules`文件夹
-
-   自动生成的package.json版本有问题
-
-   > webpack3.0及其以上或4.0以下版本自带webpack-cli，不需要额外安装。而4.0以上则需要
-
-   ```json
-   {
-     "name": "myvue",
-     "version": "1.0.0",
-     "description": "A Vue.js project",
-     "author": "lzh <luzehua@zhongbei.com>",
-     "private": true,
-     "scripts": {
-       "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
-       "start": "npm run dev",
-       "build": "node build/build.js"
-     },
-     "dependencies": {
-       "vue": "^2.5.2"
-     },
-     "devDependencies": {
-       "autoprefixer": "^7.1.2",
-       "babel-core": "^6.22.1",
-       "babel-helper-vue-jsx-merge-props": "^2.0.3",
-       "babel-loader": "^7.1.1",
-       "babel-plugin-syntax-jsx": "^6.18.0",
-       "babel-plugin-transform-runtime": "^6.22.0",
-       "babel-plugin-transform-vue-jsx": "^3.5.0",
-       "babel-preset-env": "^1.3.2",
-       "babel-preset-stage-2": "^6.22.0",
-       "chalk": "^2.0.1",
-       "copy-webpack-plugin": "^4.0.1",
-       "css-loader": "^0.28.0",
-       "extract-text-webpack-plugin": "^3.0.0",
-       "file-loader": "^1.1.4",
-       "friendly-errors-webpack-plugin": "^1.6.1",
-       "html-webpack-plugin": "^2.30.1",
-       "node-notifier": "^5.1.2",
-       "optimize-css-assets-webpack-plugin": "^3.2.0",
-       "ora": "^1.2.0",
-       "portfinder": "^1.0.13",
-       "postcss-import": "^11.0.0",
-       "postcss-loader": "^2.0.8",
-       "postcss-url": "^7.2.1",
-       "rimraf": "^2.6.0",
-       "semver": "^5.3.0",
-       "shelljs": "^0.7.6",
-       "uglifyjs-webpack-plugin": "^1.1.1",
-       "url-loader": "^0.5.8",
-       "vue-loader": "^13.3.0",
-       "vue-router": "^3.3.4",
-       "vue-style-loader": "^3.0.1",
-       "vue-template-compiler": "^2.5.2",
-       "webpack": "^3.6.0",
-       "webpack-bundle-analyzer": "^2.9.0",
-       "webpack-dev-server": "^2.9.1",
-       "webpack-merge": "^4.1.0"
-     },
-     "engines": {
-       "node": ">= 6.0.0",
-       "npm": ">= 3.0.0"
-     },
-     "browserslist": [
-       "> 1%",
-       "last 2 versions",
-       "not ie <= 8"
-     ]
-   }
-   ```
-
-   > npm版本过高可能会报错，需要降低版本
-   >
-   > warn不用管
-
-   ```bash
-   # 降低版本
-   npm install npm@6.14.10 -g
-   # 安装依赖
-   npm install
-
-5. **运行项目**
-
-   webpack打包并运行
-
-   ```bash
-   npm run dev
-   ```
-
-   > `ctrl+c`停止
-   >
-   > 端口号配置文件：`config`目录下的index.js中的port
-
-   ![启动vue-cli](Vue.js.assets/启动vue-cli.png)
-
-6. **package.json** 
-
-   可以看到**开发和生产 环境的入口**
-
-   - dev：开发环境的启动命令
-
-   - build：生产打包环境的命令
-
-     > 运行 `npm run build` 命令就可以进行打包工作。打包完成后会生成 `dist` 目录，项目上线时，把`dist` 目录下的文件放到服务器就可以了
-
-   ```json
-   "scripts": {
-       "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
-       "start": "npm run dev",
-       "build": "node build/build.js"
-   },
-   ```
-
-
-
-## idea
-
-- 以管理员身份运行idea
-- `File`->`Open`打开项目目录
-- 在idea中的终端执行命令运行项目
-
-> 项目入口：main.js绑定到index.html
-
-![export导出](Vue.js.assets/export导出.png)
-
-![import导入](Vue.js.assets/import导入.png)
-
 # 模块化开发 
 
 随着Ajax异步请求的出现，慢慢形成了前后端的分离。通常会将代码组织在多个JavaScript文件中进行维护。
@@ -3155,8 +2940,6 @@ Vue在2.6.0中为**具名插槽**和**作用域插槽**引入了一个新的统�
 ## 模块化规范
 
 使用模块作为出口，模块化的两个核心：**导出和导入**
-
-
 
 ### CommonsJS
 
@@ -3869,11 +3652,11 @@ npm run build
 
 
 
-## vue
+# Vue开发
 
 通过模块化管理vue，不再是通过`script`标签引入vue
 
-### 安装
+## 安装
 
 > 后续在实际项目中也会使用vue，所以不是开发时依赖
 
@@ -3881,7 +3664,7 @@ npm run build
 npm install vue --save 
 ```
 
-### 导入依赖
+## 导入依赖
 
 在入口文件`main.js`中当作模块依赖导入
 
@@ -3899,7 +3682,7 @@ new Vue({
 })
 ```
 
-### 使用
+## 使用
 
 在`index.html`中使用vue，重新打包运行
 
@@ -3909,7 +3692,7 @@ new Vue({
 </div>
 ```
 
-### 报错
+**报错**
 
 正在使用`runtime-only`构建，不能将`template`模板编译
 
@@ -3945,9 +3728,9 @@ resolve: {
 
 **问题**：
 
-现在如果希望将Vue实例的data数据显示在界面中就必须修改`index.html`，如果自定义了组件也必须修改`index.html`来使用。
+现在如果希望将Vue实例的data数据显示在界面中就必须修改`index.html`，如果自定义了组件也必须修改`index.html`来使用
 
-而使用vue会开发单页面应用(single page application)只有一个`index.html`，而且`index.html`都是简单结构。
+而使用vue会开发单页面应用(single page application)只有一个`index.html`，而且`index.html`都是简单结构
 
 ```html
 <div id="app">
@@ -3957,10 +3740,10 @@ resolve: {
 
 **第一次抽取**
 
-使用`template`属性替换
+使用`template`属性修改内容
 
-- `el`用于指定Vue要管理的DOM，帮助解析其中的指令、事件监听等
-- 如果Vue实例中同时指定了`el`和`template`，那么**`template`模板的内容会替换掉挂载的对应`el`的模板**
+- `el`用于指定Vue要管理的DOM，帮助解析指令、监听事件等
+- 如果Vue实例中同时指定了`el`和`template`，那么**`template`的内容会替换掉挂载的对应`el`的模板内容**
 - 在开发中多次操作`index.html`，只需要在`template`中**写入对应的内容即可**
 
 > 要重新打包
@@ -3993,7 +3776,7 @@ new Vue({
 
 **问题**：
 
-内容写在Vue实例中的`template`属性中会使得`main.js`的vue代码冗余
+内容写在Vue实例中的`template`属性中会使得`main.js`的vue**代码冗余**
 
 **第二次抽取**
 
@@ -4033,7 +3816,7 @@ new Vue({
 
 **第三次抽取**
 
-再将组件抽取出来单独放在一个JavaScript文件中并导出
+将**组件抽取**出来单独放在一个JavaScript文件中并导出
 
 ```javascript
 export default {
@@ -4056,7 +3839,7 @@ export default {
 }
 ```
 
-在`main.js`中导入即可
+在`main.js`中导入注册并使用组件即可
 
 ```javascript
 import Vue from 'vue'
@@ -4074,9 +3857,236 @@ new Vue({
 })
 ```
 
+### Vue文件
+
+以一种全新的方式来组织一个**vue组件**（分离模板、行为和样式）
+
+- `vue-loader`负责加载vue文件
+- `vue-template-compiler`负责解析vue文件
+
+**安装**
+
+```bash
+npm install vue-loader@13.0.0 
+```
+
+**配置**
 
 
-**第四次抽取**
+
+使用
+
+新建`App.vue`文件
+
+
+
+
+
+
+
+# Vue CLI
+
+CLI：Command-Line Interface，命令行界面，也叫**脚手架**
+
+`vue-cli`是官方提供的一个脚手架，用于快速生成一个Vue项目模板（自动生成好项目目录，配置好Webpack以及各种依赖包的工具，用于快速开发）
+
+> 实际开发采用vue cli脚手架，vue router路由，vuex状态管理，使用ElementUI来快速搭建前端项目
+
+
+
+**主要功能**
+
+- 统一的目录结构
+- 本地调试
+- 热部署
+- 单元测试
+- 集成打包上线
+
+## 环境配置
+
+> 以管理员身份运行
+
+1. 安装Node.js：[Node.js|Download](https://nodejs.org/en/download/)（自动配置环境变量）
+
+   ```bash
+   # 验证
+   node -v
+   # 自带npm
+   npm -v
+   ```
+
+   > npm类似CentOS下的yum和Ubuntu下的apt-get
+
+2. 安装Node.js淘宝**镜像加速器**（cnpm）
+
+   ```bash
+   # -g 全局安装
+   npm install cnpm -g
+   
+   # 或者每次安装包都加上参数--registry
+   npm install --registry=https://registry.npm.taobao.org
+   ```
+
+   > C:\Users\54164\AppData\Roaming\npm
+   >
+   > 尽量使用npm，cnpm可能打包会失败
+
+3. 安装Vue-cli
+
+   > vue-cli3.0要nodeJs ≥ 8.9（官方推荐 8.11.0+）
+
+   ```bash
+   npm install vue-cli -g
+   
+   # 验证
+   vue -V
+   
+   # 查看可以基于哪些模板创建vue应用程序(通常选择webpack)
+   vue list
+   ```
+
+   ![Vue-list](Vue.js.assets/Vue-list.png)
+
+## 创建程序
+
+创建一个基于`webpack`模板的Vue应用程序
+
+1. **进入项目目录**
+
+2. **创建项目**
+
+   ```bash
+   vue init webpack 项目名
+   ```
+
+3. **设置**
+
+   - Project name：项目名称，默认回车即可
+   - Project description：项目描述，默认回车即可
+   - Author：项目作者，默认回车即可
+   - Install vue-router：是否安装vue-router，选择n不安装（后期需要再手动添加）
+   - Use ESLint to lint your code:是否使用ESLint做代码检查，选择n不安装（后期需要再手动添加)
+   - Set up unit tests:单元测试相关，选择n不安装（后期需要再手动添加）
+   - Setupe2etests with Nightwatch：单元测试相关，选择n不安装（后期需要再手动添加）
+   - Should we run npm install for you after the,project has been created:创建完成后直接初始化，选择n，手动执行
+
+   ![创建Vue-cli项目](Vue.js.assets/创建Vue-cli项目.png)
+
+4. **初始化项目**
+
+   在项目目录下安装依赖(根据项目中的`package.json`文件)，生成`node_modules`文件夹
+
+   自动生成的package.json版本有问题
+
+   > webpack3.0及其以上或4.0以下版本自带webpack-cli，不需要额外安装。而4.0以上则需要
+
+   ```json
+   {
+     "name": "myvue",
+     "version": "1.0.0",
+     "description": "A Vue.js project",
+     "author": "lzh <luzehua@zhongbei.com>",
+     "private": true,
+     "scripts": {
+       "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
+       "start": "npm run dev",
+       "build": "node build/build.js"
+     },
+     "dependencies": {
+       "vue": "^2.5.2"
+     },
+     "devDependencies": {
+       "autoprefixer": "^7.1.2",
+       "babel-core": "^6.22.1",
+       "babel-helper-vue-jsx-merge-props": "^2.0.3",
+       "babel-loader": "^7.1.1",
+       "babel-plugin-syntax-jsx": "^6.18.0",
+       "babel-plugin-transform-runtime": "^6.22.0",
+       "babel-plugin-transform-vue-jsx": "^3.5.0",
+       "babel-preset-env": "^1.3.2",
+       "babel-preset-stage-2": "^6.22.0",
+       "chalk": "^2.0.1",
+       "copy-webpack-plugin": "^4.0.1",
+       "css-loader": "^0.28.0",
+       "extract-text-webpack-plugin": "^3.0.0",
+       "file-loader": "^1.1.4",
+       "friendly-errors-webpack-plugin": "^1.6.1",
+       "html-webpack-plugin": "^2.30.1",
+       "node-notifier": "^5.1.2",
+       "optimize-css-assets-webpack-plugin": "^3.2.0",
+       "ora": "^1.2.0",
+       "portfinder": "^1.0.13",
+       "postcss-import": "^11.0.0",
+       "postcss-loader": "^2.0.8",
+       "postcss-url": "^7.2.1",
+       "rimraf": "^2.6.0",
+       "semver": "^5.3.0",
+       "shelljs": "^0.7.6",
+       "uglifyjs-webpack-plugin": "^1.1.1",
+       "url-loader": "^0.5.8",
+       "vue-loader": "^13.3.0",
+       "vue-router": "^3.3.4",
+       "vue-style-loader": "^3.0.1",
+       "vue-template-compiler": "^2.5.2",
+       "webpack": "^3.6.0",
+       "webpack-bundle-analyzer": "^2.9.0",
+       "webpack-dev-server": "^2.9.1",
+       "webpack-merge": "^4.1.0"
+     },
+     "engines": {
+       "node": ">= 6.0.0",
+       "npm": ">= 3.0.0"
+     },
+     "browserslist": [
+       "> 1%",
+       "last 2 versions",
+       "not ie <= 8"
+     ]
+   }
+   ```
+
+   > npm版本过高可能会报错，需要降低版本
+   >
+   > warn不用管
+
+   ```bash
+   # 降低版本
+   npm install npm@6.14.10 -g
+   # 安装依赖
+   npm install
+   ```
+
+5. **运行项目**
+
+   webpack打包并运行
+
+   ```bash
+   npm run dev
+   ```
+
+   > `ctrl+c`停止
+   >
+   > 端口号配置文件：`config`目录下的index.js中的port
+
+   ![启动vue-cli](Vue.js.assets/启动vue-cli.png)
+
+6. **package.json** 
+
+   可以看到**开发和生产 环境的入口**
+
+   - dev：开发环境的启动命令
+
+   - build：生产打包环境的命令
+
+     > 运行 `npm run build` 命令就可以进行打包工作。打包完成后会生成 `dist` 目录，项目上线时，把`dist` 目录下的文件放到服务器就可以了
+
+   ```json
+   "scripts": {
+       "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
+       "start": "npm run dev",
+       "build": "node build/build.js"
+   },
+   ```
 
 
 

@@ -3543,7 +3543,10 @@ module.exports = {
         }
 	},
 	plugins: {},
-	resolve: {},
+	resolve: {
+        // 别名  
+        alias: {}
+    },
 	watch: true
 }
 ```
@@ -3630,9 +3633,6 @@ module.exports = {
 
 ## 脚本
 
-- 开发环境：`npm run dev`
-- 生产环境：`npm run build`
-
 **使用自定义脚本打包**
 
 `package.json`中的`scripts`的脚本在执行时会按照**一定的顺序寻找命令**对应的位置
@@ -3697,6 +3697,8 @@ module.exports = {
 > `url-loader` 功能类似于 `file-loader`，但是在文件大小（单位 byte）低于指定的限制时可以返回一个 DataURL
 >
 > 当最后将index.html也打包进dist目录下时，就不需要`publicPath`配置url了
+>
+> `--dev`：开发时依赖
 
 ```bash
 npm install --save-dev css-loader@2.0.2
@@ -3864,6 +3866,178 @@ module.exports = {
 ```bash
 npm run build
 ```
+
+
+
+## vue
+
+通过模块化管理vue，不再是通过`script`标签引入vue
+
+### 安装
+
+> 后续在实际项目中也会使用vue，所以不是开发时依赖
+
+```bash
+npm install vue --save 
+```
+
+### 导入依赖
+
+在入口文件`main.js`中当作模块依赖导入
+
+- 安装后的vue在`node_modules`中以`default`的形式被导出
+- `from`后**不加路径**就从`node_modules`导入
+
+```javascript
+import Vue from 'vue'
+
+new Vue({
+    el: '#app',
+    data: {
+        message: 'Webpack and Vue'
+    }
+})
+```
+
+### 使用
+
+在`index.html`中使用vue，重新打包运行
+
+```html
+<div id="app">
+  <h2>{{message}}</h2>
+</div>
+```
+
+### 报错
+
+正在使用`runtime-only`构建，不能将`template`模板编译
+
+![Vueruntime报错](Vue.js.assets/Vueruntime报错.jpg)
+
+**原因**
+
+Vue有2种模式
+
+- `runtime-only`模式：代码中不可以有template，因为无法解析
+- `runtime-complier`模式：代码中可以有template，complier可以用于编译template
+
+> `el`对应的`id="app"`的`div`就相当于一个`template`
+
+**解决方法**
+
+在`webpack.config.js`中配置指定使用`runtime-complier`模式
+
+重新打包运行即可显示
+
+```javascript
+resolve: {
+    alias: {
+        // 指定vue使用vue.esm.js(包含complier)
+        'vue$':'vue/dist/vue.esm.js'
+    }
+}
+```
+
+
+
+## Vue模块抽取
+
+**问题**：
+
+现在如果希望将Vue实例的data数据显示在界面中就必须修改`index.html`，如果自定义了组件也必须修改`index.html`来使用。
+
+而使用vue会开发单页面应用(single page application)只有一个`index.html`，而且`index.html`都是简单结构。
+
+```html
+<div id="app">
+  <h2>{{message}}</h2>
+</div>
+```
+
+**第一次抽取**
+
+使用`template`属性替换
+
+- `el`用于指定Vue要管理的DOM，帮助解析其中的指令、事件监听等
+- 如果Vue实例中同时指定了`el`和`template`，那么**`template`模板的内容会替换掉挂载的对应`el`的模板**
+- 在开发中多次操作`index.html`，只需要在`template`中**写入对应的内容即可**
+
+> 要重新打包
+
+```html
+<div id="app">
+</div>
+```
+
+```javascript
+new Vue({
+    el: '#app',
+    template: `
+      <div>
+      <h2>{{message}}</h2>
+      <button @click='btnClick'>这是一个按钮</button>
+      <h2>{{name}}</h2>
+      </div>
+    `,
+    data: {
+        message: 'Webpack and Vue'
+    },
+    methods: {
+        btnClick(){
+            console.log("按钮被点击了")
+        }
+    },
+})
+```
+
+**问题**：
+
+内容写在Vue实例中的`template`属性中会使得`main.js`的vue代码冗余
+
+**第二次抽取**
+
+将模板内容抽取出来放在组件中，在Vue实例中**注册组件并使用组件**（数据方法都需要抽取出来放在组件中）
+
+```javascript
+import Vue from 'vue'
+
+const App = {
+    template: `
+      <div>
+        <h2>{{message}}</h2>
+        <button @click='btnClick'>这是一个按钮</button>
+      </div>
+    `,
+    data() {
+        return {
+            message: "Webpack and Vue",
+        }
+    },
+    methods: {
+        btnClick(){
+            console.log("按钮被点击了")
+        }
+    },
+}
+new Vue({
+    el: '#app',
+    // 使用组件
+    template: '<App/>',
+    components: {
+        //注册局部组件
+        App
+    },
+})
+```
+
+**第三次抽取**
+
+最后再将组件抽取出来单独放在一个JavaScript文件中，在`main.js`中导入即可
+
+
+
+**第四次抽取**
 
 
 

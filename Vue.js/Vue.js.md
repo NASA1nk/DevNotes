@@ -3254,7 +3254,7 @@ webpack-cli -v
 npm install webpack@3.6.0 --save-dev
 ```
 
- `--save-dev`开发时依赖，会在`package.json`中生成
+ `--save-dev`：安装开发时依赖，在`package.json`中生成，安装到`node_modules`目录下
 
 ```json
   "devDependencies": {
@@ -3671,7 +3671,7 @@ npm run build
 
 > 属于webpack自带的插件，无需安装，直接配置
 
-![开源协议](Vue.js.assets/开源协议.jpg)
+![开源协议](Vue.js.assets/开源协议.png)
 
 1. 导包， 获取webpack对象
 2. 配置BannerPlugin插件
@@ -3727,7 +3727,7 @@ module.exports = {
 }
 ```
 
-![自动生成index.html](Vue.js.assets/自动生成index.html.jpg)
+![自动生成index.html](Vue.js.assets/自动生成index.html.png)
 
 
 
@@ -4051,7 +4051,7 @@ new Vue({
 
 正在使用`runtime-only`构建，不能将`template`模板编译
 
-![Vueruntime报错](Vue.js.assets/Vueruntime报错.jpg)
+![Vueruntime报错](Vue.js.assets/Vueruntime报错.png)
 
 **原因**
 
@@ -4597,7 +4597,7 @@ npm run build
 **Vue CLI 3与Vue CLI 2 的区别**
 
 - Vue CLI 3基于webpack4，Vue CLI 2基于webpack3
-- Vue CLI 3的设计原则是**0配置**，**移除了配置文件**（build和config等）
+- Vue CLI 3的设计原则是**0配置**，**移除了配置文件夹**（`build`和`config`）
 - Vue CLI 3提供`vue ui`命令，提供了**可视化配置**
 - 移除了`static`文件夹，新增了`public`文件夹，将`index.html`移入了`public`文件夹
 
@@ -4607,13 +4607,125 @@ npm run build
 vue create inkvue3
 ```
 
+**初始化设置**
+
+> 空格选中
+
+- ? Please pick a preset: (Use arrow keys)  # 选择配置 
+- ❯ default (babel, eslint)  # 默认配置  
+
+Manually select features：手动选择特性
+
+- Babel：es6转es5（必选） 
+- TypeScript：项目中使用TypeScript开发就选
+- Progressive Web App (PWA) Support  # 渐进式web app 支持 
+- Router  # 路由 
+- Vuex  # VueX是适用于在Vue项目开发时使用的状态管理工具 
+- CSS Pre-processors  # css预处理器 
+- Linter / Formatter  # 就是ESlint  对代码做一些检测的，规范性的检测 
+- Unit Testing  # 单元测试 
+- E2E Testing  # 端到端测试
+
+
+
 **目录结构**
 
+**打包运行**
 
 
 
+## Runtime+Compiler和Runtime-Only的区别
 
-### runtime+compiler和runtime-only的区别
+`main.js`文件区别
+
+- **Runtime-Compiler**
+
+  注册+`template`使用
+
+  ![Complier](Vue.js.assets/Complier.png)
+
+- **Runtime-only**
+
+  `render`渲染
+
+  ![Only](Vue.js.assets/Only.png)
+
+运行过程
+
+-  **Runtime-Compiler**
+
+   1. 将`template`解析成抽象语法树ast（abstract syntax tree）
+
+   2. 将ast编译成`render`函数
+   3. 用`render`函数创建出虚拟dom
+   4. 将虚拟dom渲染到UI（真实dom）上
+-  **Runtime-only**
+   1. 用`render`函数创建出虚拟dom
+   2. 将虚拟dom渲染到UI（真实dom）上
+
+
+![vue+compiler运行过程](Vue.js.assets/vue+compiler运行过程.png)
+
+**总结**
+
+- Runtime-Only**性能更高**，**代码量更少**（6kb）
+
+- 在之后的开发中使用`template`，选择Runtime+Compiler
+- 在之后的开发中使用`.vue`文件，选择Runtime-only
+
+![complier和only区别](Vue.js.assets/complier和only区别.png)
+
+
+
+## render函数
+
+`render: h => h(App)`
+
+> 导入的组件（`.vue`文件）中的`template`已经被`vue-template-compiler`（开发时依赖）转化为`render`函数了
+
+
+
+在Compiler模式下的Vue实例中也可以使用`render`函数（**效果相同**）
+
+`createElement('标签',{标签属性(可以省略)},['内容'])`
+
+> 原生JavaScript代码
+
+```javascript
+new Vue({
+  el: '#app',
+  render(createElement){
+    return createElement('h2',
+    {class:'box'},
+    ['hello vue', createElement('button',['按钮'])])
+  }
+})
+```
+
+也可以传入一个组件对象
+
+```javascript
+new Vue({
+  el: '#app',
+  render(createElement){
+    return createElement(App)
+  }
+})
+```
+
+
+
+## npm run
+
+**npm run dev**
+
+![npm run dev](Vue.js.assets/npm run dev.png)
+
+**npm run build**
+
+![npm run build](Vue.js.assets/npm run build.png)
+
+
 
 
 
@@ -4633,17 +4745,12 @@ Vue Router是Vue的路**由管理器**
 - 自定义的滚动行为
 
 > Vue-route管理请求入口和页面映射关系，可以实现对页面局部进行无刷新的替换，让用户感觉就像切换到了网页一样
->
-> 单页应用程序（SPA）：单页应用一般指的就是一个页面就是应用，当然也可以是一个子应用。单页应用程序中一般交互处理非常多，而且页面中的内容需要根据用户的操作动态变化。
 
 
 
 ## 安装
 
-在idea的终端中执行命令安装
-
 ```bash
-# --save-dev保存到node_modules目录下
 npm install vue-router --save-dev
 ```
 

@@ -4354,7 +4354,7 @@ export default {
 
 
 
-# Vue CLI 3
+# Vue CLI
 
 CLI：Command-Line Interface，命令行界面，也叫**脚手架**
 
@@ -4364,30 +4364,28 @@ CLI：Command-Line Interface，命令行界面，也叫**脚手架**
 >
 > 实际开发采用vue cli脚手架，vue router路由，vuex状态管理，使用ElementUI来快速搭建前端项目
 
-**主要功能**
 
-- 统一的目录结构
-- 本地调试
-- 热部署
-- 单元测试
-- 集成打包上线
 
 ## 安装
 
 [Vue CLI](https://cli.vuejs.org/zh/guide/)
 
-1. 安装Node.js：[Node.js|Download](https://nodejs.org/en/download/)（自动配置环境变量）
+> 以管理员身份打开cmd
 
-   > vue cli3.0要求node.js版本是8.9以上（官方推荐 8.11.0+）
-   
+1. 安装Node.js：[Node.js|Download](https://nodejs.org/en/download/)
+
+   > V ue CLI 3要求node.js版本是8.9以上
+   >
+   > node使用C++开发，V8引擎，直接将JavaScript文件编译为二进制代码
+
    ```bash
    # 验证
    node -v
    # 自带npm
-npm -v
+   npm -v
    ```
 
-2. 安装Node.js淘宝**镜像加速器**（cnpm）
+   安装Node.js淘宝**镜像加速器**（cnpm）
 
    > 尽量使用npm，cnpm可能打包会失败
    >
@@ -4401,6 +4399,12 @@ npm -v
    npm install --registry=https://registry.npm.taobao.org
    ```
 
+3. 安装Webpack
+
+   ```bash
+   npm install webpack -g
+   ```
+   
 3. 安装Vue CLI 3
 
    > Vue CLI 3可以拉取Vue CLI  2的模板从而使用Vue CLI 2，但不可以按照Vue CLI 2的方式初始化项目
@@ -4414,151 +4418,204 @@ npm -v
    vue --version
    ```
 
+4. 安装失败解决方法
+
+   - 执行命令清空npm-cache缓存
+   - 删除文件夹`C:\Users\54164\AppData\Roaming\npm-cache`
+
+   ```bash
+   npm clean cache -force
+   ```
+
+   
 
 
-
-## 创建
+## 使用
 
 ### Vue CLI 2
 
-1. **进入项目目录**
+**在项目目录下创建项目**
 
-2. **初始化**（vue cli 2版本初始化）
+> Vue CLI 3 和旧版使用了相同的 `vue` 命令，所以 Vue CLI 2 被覆盖了。如果需要使用旧版本的 `vue init` 功能，需要全局安装一个桥接工具
 
-   ```bash
-   vue init webpack 项目名
-   ```
+```bash
+npm install -g @vue/cli-init
+vue init webpack inkvue
+```
 
-3. **设置**
 
-   - Project name：项目名称，默认回车即可
-   - Project description：项目描述，默认回车即可
-   - Author：项目作者，默认回车即可
-   - Install vue-router：是否安装vue-router，选择n不安装（后期需要再手动添加）
-   - Use ESLint to lint your code:是否使用ESLint做代码检查，选择n不安装（后期需要再手动添加)
-   - Set up unit tests:单元测试相关，选择n不安装（后期需要再手动添加）
-   - Setupe2etests with Nightwatch：单元测试相关，选择n不安装（后期需要再手动添加）
-   - Should we run npm install for you after the,project has been created:创建完成后直接初始化，选择n，手动执行
 
-   ![创建Vue-cli项目](Vue.js.assets/创建Vue-cli项目.png)
+**初始化设置**
 
-4. **初始化项目**
+- Project name：项目名称（**不能包含大写**），默认回车即可
+- Project description：项目描述，默认回车即可
+- Author：项目作者，默认回车即可（**读取电脑中全局的git配置**`.gitconfig`）
+- Vue build：vue构建时候使用的模式
+  - **Runtime + Compiler**：可以编译template模板（推荐多数用户）
+  - **Runtime-Only**：比compiler模式要少6kb，效率更高，直接使用render函数
+- Install vue-router：是否安装vue router，选择n不安装（后期需要再手动添加）
+- Use ESLint to lint your code：是否使用ESLint代码检查，选择n不安装（后期需要再手动添加)
+- Set up unit tests：单元测试相关，选择n不安装（后期需要再手动添加）
+- Setup e2e tests with Nightwatch：单元测试相关，选择n不安装（后期需要再手动添加）
+- Should we run npm install for you after the,project has been created：使用npm还是yarn管理工具。
+- 创建完成后直接初始化，选择n手动执行
 
-   在项目目录下安装依赖(根据项目中的`package.json`文件)，生成`node_modules`文件夹
+> 如果创建工程时候选择了使用ESLint规范，后面不想使用了，可以在`config`文件夹下的`index.js`文件中找到`useEslint`改成`false`
 
-   自动生成的package.json版本有问题
+![创建Vue-cli项目](Vue.js.assets/创建Vue-cli项目.png)
 
-   > webpack3.0及其以上或4.0以下版本自带webpack-cli，不需要额外安装。而4.0以上则需要
 
-   ```json
-   {
-     "name": "myvue",
-     "version": "1.0.0",
-     "description": "A Vue.js project",
-     "author": "lzh <luzehua@zhongbei.com>",
-     "private": true,
-     "scripts": {
-       "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
-       "start": "npm run dev",
-       "build": "node build/build.js"
-     },
-     "dependencies": {
-       "vue": "^2.5.2"
-     },
-     "devDependencies": {
-       "autoprefixer": "^7.1.2",
-       "babel-core": "^6.22.1",
-       "babel-helper-vue-jsx-merge-props": "^2.0.3",
-       "babel-loader": "^7.1.1",
-       "babel-plugin-syntax-jsx": "^6.18.0",
-       "babel-plugin-transform-runtime": "^6.22.0",
-       "babel-plugin-transform-vue-jsx": "^3.5.0",
-       "babel-preset-env": "^1.3.2",
-       "babel-preset-stage-2": "^6.22.0",
-       "chalk": "^2.0.1",
-       "copy-webpack-plugin": "^4.0.1",
-       "css-loader": "^0.28.0",
-       "extract-text-webpack-plugin": "^3.0.0",
-       "file-loader": "^1.1.4",
-       "friendly-errors-webpack-plugin": "^1.6.1",
-       "html-webpack-plugin": "^2.30.1",
-       "node-notifier": "^5.1.2",
-       "optimize-css-assets-webpack-plugin": "^3.2.0",
-       "ora": "^1.2.0",
-       "portfinder": "^1.0.13",
-       "postcss-import": "^11.0.0",
-       "postcss-loader": "^2.0.8",
-       "postcss-url": "^7.2.1",
-       "rimraf": "^2.6.0",
-       "semver": "^5.3.0",
-       "shelljs": "^0.7.6",
-       "uglifyjs-webpack-plugin": "^1.1.1",
-       "url-loader": "^0.5.8",
-       "vue-loader": "^13.3.0",
-       "vue-router": "^3.3.4",
-       "vue-style-loader": "^3.0.1",
-       "vue-template-compiler": "^2.5.2",
-       "webpack": "^3.6.0",
-       "webpack-bundle-analyzer": "^2.9.0",
-       "webpack-dev-server": "^2.9.1",
-       "webpack-merge": "^4.1.0"
-     },
-     "engines": {
-       "node": ">= 6.0.0",
-       "npm": ">= 3.0.0"
-     },
-     "browserslist": [
-       "> 1%",
-       "last 2 versions",
-       "not ie <= 8"
-     ]
-   }
-   ```
 
-   > npm版本过高可能会报错，需要降低版本
-   >
-   > warn不用管
+**目录结构**
 
-   ```bash
-   # 降低版本
-   npm install npm@6.14.10 -g
-   # 安装依赖
-   npm install
-   ```
+- `config`文件夹中是`build`的配置文件中所需的一些**变量和对象**，在`webpack.base.conf.js`中引入了`index.js`
 
-5. **运行项目**
+- `static`文件夹中存放**静态资源**，静态资源会原封不动的打包复制到`dist`文件夹下（代码文件夹中的资源会根据大小转化）
 
-   webpack打包并运行
+- `.babelrc`：ES代码相关转化配置文件
 
-   ```bash
-   npm run dev
-   ```
+  - `browsers`：需要适配的浏览器（市场份额大于1%的最后两个版本），不需要适配ie8及以下版本
+  - plugins：babel转化需要的插件
 
-   > `ctrl+c`停止
-   >
-   > 端口号配置文件：`config`目录下的index.js中的port
+- `.editorconfig`：代码文本配置文件（编码，缩进，换行）
 
-   ![启动vue-cli](Vue.js.assets/启动vue-cli.png)
+- `.gitignore`：Git忽略文件（提交上传时忽略的文件，如`.idea`）
 
-6. **package.json** 
+- `index.html`：使用`html-webpack-plugin`插件打包的`index.html`模板
 
-   可以看到**开发和生产 环境的入口**
+- `package.json`：包管理，记录**大概会安装的版本**
 
-   - dev：开发环境的启动命令
+- `package-lock.json`：包管理，记录**真实安装的版本**
 
-   - build：生产打包环境的命令
+  > ^符号：表示安装版本可以大于等于指定的版本
 
-     > 运行 `npm run build` 命令就可以进行打包工作。打包完成后会生成 `dist` 目录，项目上线时，把`dist` 目录下的文件放到服务器就可以了
+![vuecli2目录结构](Vue.js.assets/vuecli2目录结构.png)
 
-   ```json
-   "scripts": {
-       "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
-       "start": "npm run dev",
-       "build": "node build/build.js"
-   },
-   ```
+**package.json**
+
+根据项目下的`package.json`文件生成`node_modules`文件夹
+
+> webpack3.0~4.0版本自带webpack-cli，不需要额外安装，4.0以上则需要
+
+```json
+{
+  "name": "inkvue",
+  "version": "1.0.0",
+  "description": "A Vue.js project",
+  "author": "ink <541640794@qq.com>",
+  "private": true,
+  "scripts": {
+    "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
+    "start": "npm run dev",
+    "build": "node build/build.js"
+  },
+  "dependencies": {
+    "vue": "^2.5.2"
+  },
+  "devDependencies": {
+    "autoprefixer": "^7.1.2",
+    "babel-core": "^6.22.1",
+    "babel-helper-vue-jsx-merge-props": "^2.0.3",
+    "babel-loader": "^7.1.1",
+    "babel-plugin-syntax-jsx": "^6.18.0",
+    "babel-plugin-transform-runtime": "^6.22.0",
+    "babel-plugin-transform-vue-jsx": "^3.5.0",
+    "babel-preset-env": "^1.3.2",
+    "babel-preset-stage-2": "^6.22.0",
+    "chalk": "^2.0.1",
+    "copy-webpack-plugin": "^4.0.1",
+    "css-loader": "^0.28.0",
+    "extract-text-webpack-plugin": "^3.0.0",
+    "file-loader": "^1.1.4",
+    "friendly-errors-webpack-plugin": "^1.6.1",
+    "html-webpack-plugin": "^2.30.1",
+    "node-notifier": "^5.1.2",
+    "optimize-css-assets-webpack-plugin": "^3.2.0",
+    "ora": "^1.2.0",
+    "portfinder": "^1.0.13",
+    "postcss-import": "^11.0.0",
+    "postcss-loader": "^2.0.8",
+    "postcss-url": "^7.2.1",
+    "rimraf": "^2.6.0",
+    "semver": "^5.3.0",
+    "shelljs": "^0.7.6",
+    "uglifyjs-webpack-plugin": "^1.1.1",
+    "url-loader": "^0.5.8",
+    "vue-loader": "^13.3.0",
+    "vue-style-loader": "^3.0.1",
+    "vue-template-compiler": "^2.5.2",
+    "webpack": "^3.6.0",
+    "webpack-bundle-analyzer": "^2.9.0",
+    "webpack-dev-server": "^2.9.1",
+    "webpack-merge": "^4.1.0"
+  },
+  "engines": {
+    "node": ">= 6.0.0",
+    "npm": ">= 3.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ]
+}
+```
+
+**npm版本**过高可能会报错，需要降低版本
+
+```bash
+npm install npm@6.14.10 -g
+# 重新安装依赖
+npm install
+```
+
+
+
+**运行项目**
+
+> 端口号配置文件：`config`目录下的`index.js`中的port
+
+```json
+  "scripts": {
+    "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
+    "start": "npm run dev",
+    "build": "node build/build.js"
+  }
+```
+
+```bash
+npm run dev
+npm run build
+```
+
+![启动vue-cli](Vue.js.assets/启动vue-cli.png)
+
+
 
 ### Vue CLI 3
+
+**Vue CLI 3与Vue CLI 2 的区别**
+
+- Vue CLI 3基于webpack4，Vue CLI 2基于webpack3
+- Vue CLI 3的设计原则是**0配置**，**移除了配置文件**（build和config等）
+- Vue CLI 3提供`vue ui`命令，提供了**可视化配置**
+- 移除了`static`文件夹，新增了`public`文件夹，将`index.html`移入了`public`文件夹
+
+**在项目目录下初始化**
+
+```bash
+vue create inkvue3
+```
+
+**目录结构**
+
+
+
+
+
+### runtime+compiler和runtime-only的区别
+
+
 
 # Vue-router
 

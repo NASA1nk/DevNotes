@@ -1,6 +1,6 @@
+# ES6
 
-
-**let**
+## let
 
 - ES6前`var`，`if`和`for`中都没有块级作用域的概念，使用`var`声明的变量就是全局变量
 - ES6后`let`拥有了块级作用域
@@ -9,7 +9,7 @@
 
 
 
-**const**
+## const
 
 - const定义的常量必须赋值
 - 不能改变`const`常量指向的对象，但可以改变对象的属性
@@ -18,7 +18,9 @@
 
  
 
-**对象字面值的增强写法**
+## 对象字面值
+
+**增强写法**
 
 - 属性的增强写法
 - 函数的增强写法
@@ -56,13 +58,134 @@ const obj = {
 
 
 
-**箭头函数**
-
-
-
-**字符串**
+## 字符串
 
 使用``包裹的字符串可以换行
+
+
+
+## 箭头函数
+
+**将函数作为参数使用**时一般使用箭头函数
+
+一种**定义函数**的方式
+
+```javascript
+// 传统定义函数 
+const f = function () {
+    
+}
+
+// 对象字面量中定义函数
+const obj = {
+    f: function(){
+        
+    },
+    // 简化
+    f () {
+        
+    }
+}
+
+// ES6中箭头函数
+const f = () => {
+    
+}
+```
+
+箭头函数**参数**
+
+- 只有一个参数时`()`可以省略
+
+```javascript
+// 两个参数,正常
+const sum = (num1,num2) => {
+    return num1 + num2 
+}
+// 一个参数,省略()
+const power = num => {
+  return num * num
+}
+```
+
+箭头函数**代码块**
+
+- 只有一行代码时，可以省略`return`
+
+> 无论是否有返回值
+>
+> 类似lambda表达式
+
+```javascript
+// 多行代码,正常
+const print = () =>{
+  console.log("hello ink")
+  console.log("hello yinke")
+}
+// 一行代码,省略
+const mul = (num1,num2) => num1* num2
+const print = () => console.log("ink")
+```
+
+**this和作用域**
+
+- 箭头函数中的`this`：向外层作用域中，一层层的查找`this`
+
+```java
+setTimeout(() => {
+    // 找的是window的this
+	console.log(this)
+}, 1000);
+```
+
+这里`this`引用的是**最近作用域**（`f`函数）的`this`
+
+```javascript
+const obj = {
+    f(){
+        setTimeout(function () {
+            // window的this
+            console.log(this)
+        });
+        console.log(this)
+        setTimeout(() => {
+            // obj的this
+            console.log(this)
+        });
+    }
+}
+```
+
+**最近作用域**
+
+```javascript
+const obj = {
+    f() {
+        setTimeout(function () {
+            setTimeout(function () {
+                // window
+                console.log(this) 
+            })
+            setTimeout(() => {
+                // window
+                console.log(this) 
+            })
+        })
+        setTimeout(() => {
+            setTimeout(function () {
+                // window
+                console.log(this) 
+            })
+            setTimeout(() => {
+                // obj
+                console.log(this) 
+            })
+        })
+    }
+}
+```
+
+
 
 # Vue.js
 
@@ -4731,6 +4854,41 @@ vue版本和vue-template-compiler版本**必须一致**
 
 ![vueui配置](Vue.js.assets/vueui配置.png)
 
+**任务**
+
+![vueui任务](Vue.js.assets/vueui任务.png)
+
+
+
+### 配置文件
+
+**默认配置文件被隐藏**
+
+- `node_modules`目录
+  - `@vue`目录
+    - `cli-service`目录
+      - `lib/Service`目录
+    - `webpack.config.js`
+
+![配置文件](Vue.js.assets/配置文件.png)
+
+
+
+**自定义配置**
+
+在项目目录下建立`vue.config.js`配置文件
+
+如果项目的 **根目录**中存在这个文件，那么它会被 `@vue/cli-service` 自动加载（将默认配置和自定义配置合并）
+
+[vue.config.js](https://cli.vuejs.org/zh/config/#vue-config-js)
+
+```javascript
+// 在module.exports中修改配置
+module.exports = {
+  
+}
+```
+
 
 
 ## Runtime+Compiler和Runtime-Only的区别
@@ -4828,9 +4986,33 @@ new Vue({
 
 
 
-# Vue-router
+# Vue Router
 
-Vue Router是Vue的路**由管理器**
+Vue Router是Vue的**路由管理器**
+
+## 路由
+
+- 路由：通过互联的网络把信息从源地址传送到目的地址的活动
+
+- 路由提供了两种机制
+  - 路由：决定数据包从来源到目的地的**路径**
+  - 转送：将数据转移
+- 路由表：本质是一个映射表，决定了数据包的指向
+
+## 前后端路由
+
+- **后端（服务端）渲染**
+  - jsp技术
+  - 后端路由，后端处理URL和页面映射关系，例如springmvc中的@requestMapping注解配置的URL地址，映射前端页面
+- **前后端分离**（Ajax请求数据）
+  - **后端只负责提供数据**，静态资源服务器（html+css+js）
+  - Ajax发送网络请求后端服务器，服务器回传数据
+  - JavaScript代码渲染Dom
+- **单页面富应用**（SPA页面）
+  - 前后端分离加上前端路由，前端路由的url映射表不会向服务器请求，是单独url的的页面自己的ajax请求后端，后端只提供api负责响应数据请求。改变url，页面不进行整体的刷新。
+  - 整个网站只有一个html页面。
+
+
 
 **功能：**
 
@@ -5853,20 +6035,7 @@ export default {
 
 
 
-# Vue CLI
-
-vue cli3版本和vue cli2 相比文件目录少了很多配置，没有了build和config目录，那么像vue cli2 之前的关于端口号的配置，打包之后路径的配置，图片的配置 等等
-
-vue cli3 可以在项目根目录新建一个vue.config.js文件，像之前的很多繁琐配置，都可以在这个文件里配置啦
-
-
-vue.config.js
-
-一个可选的配置文件，如果项目的 (和 `package.json` 同级的) **根目录**中存在这个文件，那么它会被 `@vue/cli-service` 自动加载。
-
-[Vue CLI (vuejs.org)](https://cli.vuejs.org/zh/config/#vue-config-js)
-
-
+# 
 
 process（进程）其实就是存在nodejs中的一个全局变量。
 

@@ -4429,10 +4429,7 @@ CLI：Command-Line Interface，命令行界面，也叫**脚手架**
 
    
 
-
-## 使用
-
-### Vue CLI 2
+## Vue CLI 2
 
 **在项目目录下创建项目**
 
@@ -4592,7 +4589,7 @@ npm run build
 
 
 
-### Vue CLI 3
+## Vue CLI 3
 
 **Vue CLI 3与Vue CLI 2 的区别**
 
@@ -4601,7 +4598,7 @@ npm run build
 - Vue CLI 3提供`vue ui`命令，提供了**可视化配置**
 - 移除了`static`文件夹，新增了`public`文件夹，将`index.html`移入了`public`文件夹
 
-**在项目目录下初始化**
+### 初始化
 
 ```bash
 vue create inkvue3
@@ -4610,27 +4607,129 @@ vue create inkvue3
 **初始化设置**
 
 > 空格选中
+>
+> 最新版创建可以选Vue的版本：2或者3
+>
+> 预选设置最后可以保存用于下次初始化项目时选中的`Default`，保存于目录
 
-- ? Please pick a preset: (Use arrow keys)  # 选择配置 
-- ❯ default (babel, eslint)  # 默认配置  
+? Please pick a **preset**: (Use arrow keys)：预选设置
 
-Manually select features：手动选择特性
+- Default ([Vue 2] babel, eslint)
+- Default (Vue 3) ([Vue 3] babel, eslint)
+- **Manually select features：回车选中，手动选择特性**
+  - **Babel：ES6转化为ES5（必选）** 
+  - TypeScript：项目中使用TypeScript开发时选中
+  - Progressive Web App（PWA）Support：渐进式网页应用
+  - Router：Vue路由 
+  - Vuex：Vue项目开发时使用的状态管理工具 
+  - CSS Pre-processors ：CSS预处理器 
+  - Linter / Formatter：ESlint对代码做规范性检测 
+  - Unit Testing：单元测试 
+  - E2E Testing：端到端测试
+- ? Where do you prefer placing config for Babel, ESLint, etc.? (Use arrow keys)：对设置文件处理
+  - **In dedicated config files：存放到独立文件中**
+  - In package.json：存放到`package.json`中
+- **? Save this as a preset for future projects?：预选设置保存用于下次初始化项目时选中的`Default`**
 
-- Babel：es6转es5（必选） 
-- TypeScript：项目中使用TypeScript开发就选
-- Progressive Web App (PWA) Support  # 渐进式web app 支持 
-- Router  # 路由 
-- Vuex  # VueX是适用于在Vue项目开发时使用的状态管理工具 
-- CSS Pre-processors  # css预处理器 
-- Linter / Formatter  # 就是ESlint  对代码做一些检测的，规范性的检测 
-- Unit Testing  # 单元测试 
-- E2E Testing  # 端到端测试
+
+
+### 设置文件
+
+- 路径
+
+  `C:\Users\54164\.vuerc`
+
+- 内容
+
+    ```rc
+    {
+      "useTaobaoRegistry": false,
+      "presets": {
+        "inkvuecli3": {
+          "useConfigFiles": true,
+          "plugins": {
+            "@vue/cli-plugin-babel": {}
+          }
+        }
+      }
+    }
+    ```
 
 
 
-**目录结构**
+### 目录结构
 
-**打包运行**
+默认会创建一个`.git`文件夹作为仓库
+
+![VUECLI3目录结构](Vue.js.assets/VUECLI3目录结构.png)
+
+
+
+### 打包运行
+
+```json
+"scripts": {
+  "serve": "vue-cli-service serve",
+  "build": "vue-cli-service build"
+},
+```
+
+```bash
+npm run serve
+```
+
+
+
+### main.js
+
+- Vue CLI 2：`el: '#app'`
+- Vue CLI 3：`.$mount('#app')`
+
+`el: '#app'`在Vue内部最终也是执行`$mount('#app')`，最后都会被`render`函数替换掉
+
+```javascript
+import Vue from 'vue'
+import App from './App.vue'
+// 构建时的提示信息
+Vue.config.productionTip = false
+
+new Vue({
+  render: h => h(App),
+}).$mount('#app')
+```
+
+
+
+###  配置管理
+
+使用`vue ui`命令进入**图形化界面**创建/导入管理项目（**可视化**方式）
+
+```bash
+# 启动一个本地服务器
+vue ui
+```
+
+**进入GUI界面**
+
+![vueui](Vue.js.assets/vueui.png)
+
+**导入项目**
+
+![vueui导入文件夹](Vue.js.assets/vueui导入文件夹.png)
+
+**查看插件**
+
+![vueui插件](Vue.js.assets/vueui插件.png)
+
+**查看依赖**
+
+vue版本和vue-template-compiler版本**必须一致**
+
+![vueui依赖](Vue.js.assets/vueui依赖.png)
+
+**项目配置**
+
+![vueui配置](Vue.js.assets/vueui配置.png)
 
 
 

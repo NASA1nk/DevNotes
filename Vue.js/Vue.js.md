@@ -5003,9 +5003,7 @@ new Vue({
 
 
 
-
-
-## URL修改
+## 路由模式
 
 **修改URL不刷新**的方式有两种
 
@@ -5270,11 +5268,11 @@ export default {
 
 
 
-## 默认路由
+## 路由重定向
 
-打开项目时让路径默认跳到到首页
+**默认路由**：打开项目时让路径默认跳到到首页
 
-修改路由主配置文件`index.js`，使用`redirect`重定向
+修改路由主配置文件`index.js`，使用`redirect`重定向（重定向作用在**路径不同但组件相同**的情况下）
 
 ```javascript
 import Vue from 'vue'
@@ -5327,13 +5325,133 @@ const router = new VueRouter({
 })
 ```
 
-##  router-link
 
 
+## router-link
+
+**属性**
+
+- `to`：用于指定跳转的路径（默认`<a>`标签）
+
+- `tag`：可以指定`<router-link>`渲染成什么组件（而不是`<a>`）
+
+- `replace`：不会留下history记录，所以指定replace的情况下**浏览器的后退键**是不能使用的
+
+  > 使用了`pushState()`
+
+- `active-class`：可以修改对应`class`默认的名称
+
+  > 当`<router-link>`对应的路由匹配成功时, 会自动给当前元素设置一个`router-link-active`的`class`，可以用来修改样式
+
+  - 在进行高亮显示的导航菜单或者底部tabbar时,会用到
+  - 通常不会修改类的属性，直接使用默认的`router-link-active`即可
+  - 如果要给每个`<router-link>`都要加上`active-class='active'`，可以在路由配置文件中统一更改：`linkActiveClass: 'active'`
+
+`App.vue`文件
+
+```vue
+<template>
+  <div id="app">
+    <h2>我是APP组件</h2>
+    <!-- replace -->
+    <router-link to="/home" tag="button" replace >首页</router-link>
+	<!-- active-class="active" -->
+    <router-link to="/about" active-class="active">关于</router-link>
+    <!-- tag -->
+    <router-link to="/home" tag="button">首页</router-link>
+    <router-link to="/about" tag="button">关于</router-link>
+    <router-view></router-view>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'App',
+}
+</script>
+
+<style>
+  /*.router-link-active {*/
+    /*color: #f00;*/
+  /*}*/
+  .active {
+    color: #f00;
+  }
+</style>
+```
+
+
+
+## 路由代码跳转
+
+正常情况下使用`router-link`中的`to`属性进行路由跳转（url改变）
+
+**第二种路由跳转实现方式**：
+
+`this.$router`
+
+- `push`：相当于`pushState()`
+- `replace`：相当于`replace()`，无法后退
+
+```vue
+<template>
+  <div id="app">
+    <h2>我是APP组件</h2>
+    <button @click="homeClick">首页</button>
+    <button @click="aboutClick">关于</button>
+    <router-view></router-view>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'App',
+  methods: {
+    homeClick() {
+      // 通过代码的方式修改路由
+      this.$router.push('/home')
+      this.$router.replace('/home')
+      console.log('homeClick');
+    },
+    aboutClick() {
+      this.$router.push('/about')
+      this.$router.replace('/about')
+      console.log('aboutClick');
+    }
+  }
+}
+</script>
+<style>
+</style>
+```
+
+
+
+## 动态路由
+
+**路由传递数据**的一种方式
+
+一个页面的path路径可能是不确定的，例如`/user/ink`或者`/user/yinke`，这种url路径除了`/user`之外，后面还跟上了用户信息
+
+这种**path和component的匹配关系**就叫动态路由
+
+`this.$route.params.userId`
+
+
+
+
+
+## 路由的懒加载
+
+## 嵌套路由
+
+## 参数传递
 
 # Vue-ElementUI
 
-## 创建项目
+项目实战
+
+## 创建
 
 - `npm install moduleName`：安装模块到项目目录下
 - `npm install -g moduleName`：`-g`表示将模块安装到全局（具体位置看npm config prefix)
@@ -6198,11 +6316,12 @@ export default {
 
 # process.env
 
-process（进程）其实就是存在nodejs中的一个全局变量。
-
-process.env属性返回一个包含用户环境信息的对象。
-
 [Node.js中环境变量process.env详解](https://www.jb51.net/article/126838.htm#)
+
+- `process`（进程）其实是nodejs中的一个全局变量
+- `process.env`属性返回一个包含用户环境信息的对象
+
+
 
 
 

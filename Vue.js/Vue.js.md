@@ -1901,8 +1901,6 @@ Vue 更新使用 `v-for` 渲染的元素列表时默认使用**就地更新**的
 
 
 
-## 钩子函数
-
 **钩子函数Hook以属性（函数）的方式声明在Vue对象中**（`options`）
 
 - `beforeCreate`：实例初始化之后，数据观测和事件配置之前被调用（页面创建之前）
@@ -5386,7 +5384,7 @@ export default {
 
 正常情况下使用`router-link`中的`to`属性进行路由跳转（url改变）
 
-**第二种路由跳转实现方式**：
+**$router**
 
 `this.$router`
 
@@ -5431,27 +5429,718 @@ export default {
 
 **路由传递数据**的一种方式
 
-一个页面的path路径可能是不确定的，例如`/user/ink`或者`/user/yinke`，这种url路径除了`/user`之外，后面还跟上了用户信息
+一个页面的path路径可能是不确定的，例如`/user/ink`或者`/user/yinke`，这种url路径除了`/user`之外，后面还跟上了用户信息。这种**path和component的匹配关系**就叫动态路由
 
-这种**path和component的匹配关系**就叫动态路由
+`params`
+
+- 配置路由格式：`path: '/user/:userId'`
+- 传递的方式：在`path`后面跟上**对应的值**
+- 传递后形成的路径: `/router/ink`，`/router/yinke`
+
+创建`User.vue`
+
+```vue
+<template>
+  <div>
+    <h2>这是用户页</h2>
+    <p>用户页内容user</p>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "User"
+}
+</script>
+<style scoped>
+</style>
+```
+
+修改`index.js`
+
+- 在`path`的路由中使用`:userId`指定动态路由参数`userId`
+
+```javascript
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import Home from '../components/Home'
+import About from '../components/About'
+import User from '../components/User'
+
+Vue.use(VueRouter)
+
+const routes = [
+  {
+    path: '',
+    // 缺省时候重定向到 /home
+    redirect: '/home',
+    component: Home
+  },
+  {
+    path: '/home',
+    component: Home
+  },
+  {
+    // 使用:userId指定动态路由参数userId
+    path: '/user/:userId',
+    component: User
+  }
+]
+
+const router = new VueRouter({
+  // 字面量增强写法
+  routes,
+  mode: 'history'
+})
+
+export default router
+```
+
+修改`App.vue`
+
+```vue
+<template>
+  <div id="app">
+    <h1>网站标题</h1>
+    <router-link to="/home" >首页</router-link>
+    <router-link to="/about">内容页</router-link>
+    <!-- 相同效果 -->
+    <router-link to="/user/yinke">用户信息1</router-link>
+    <!-- 属性绑定data数据 -->
+    <!-- ''表示字符串, userId是变量 -->
+    <router-link v-bind:to="'/user/' + userId">用户信息2</router-link>
+    <router-view></router-view>
+    <h1>APP底部版权信息</h1>
+  </div>
+</template>
+<script>
+export default {
+  name: 'App',
+  data() {
+    return {
+      userId: 'ink'
+    }
+  }
+}
+</script>
+<style>
+</style>
+```
+
+**$route**
 
 `this.$route.params.userId`
 
+[Vue Router| 路由对象](https://router.vuejs.org/zh/api/#路由对象属性)
 
+> `$route`：表示**当前使用的组件**对应的路由（router对象中有所有组件对应`routes`，其中当前被激活的路由就是`$route`）
+>
+> `userId`：对应`path`中指定的参数
+>
+> ```javascript
+> const routes = [
+>   {
+>     path: '',
+>     redirect: '/home',
+>     component: Home
+>   },
+>   {
+>     path: '/home',
+>     component: Home
+>   },
+>   {
+>     path: '/user/:userId',
+>     component: User
+>   }
+> ]
+> const router = new VueRouter({
+>   // 字面量增强写法
+>   routes,
+>   mode: 'history'
+> })
+> ```
+
+修改`User.vue`组件来获取用户信息
+
+```vue
+<template>
+  <div>
+    <h2>这是用户页</h2>
+    <p>用户页内容user</p>
+    <p>{{userId}}</p>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "User",
+  computed: {
+    userId() {
+      return this.$route.params.userId
+    }
+  }
+}
+</script>
+<style scoped>
+</style>
+```
+
+![动态路由$route.params](Vue.js.assets/动态路由$route.params.png)
 
 
 
 ## 路由的懒加载
 
+**查看打包文件夹**`dist`
+
+```bash
+npm run build
+```
+
+**目录结构**
+
+- `app.*.js`：当前应用程序开发的所有代码（业务代码）
+- `manifest.*.js`：为打包代码做底层支持的
+- `vendor.*.js`：第三方框架，如vue/vue-router/axios
+
+![打包后的目录结构](Vue.js.assets/打包后的目录结构.png)
+
+**问题**：
+
+当打包构建应用时，Javascript包会变得非常大，用户一次性从服务器请求就会很慢，影响页面加载
+
+**解决**：**懒加载**
+
+把不同路由对应的组件打包成一个个的JavaScript代码块，然后当路由被访问的时候才加载对应组件。
+
+修改`index.js`文件
+
+> 在ES6中, 以更加简单的写法来**组织Vue异步组件和Webpack的代码分割**
+
+```javascript
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+// 不用在一开始全部导入了
+// import Home from '../components/Home'
+// import About from '../components/About'
+// import User from '../components/User'
+
+// 懒加载
+const Home = ()=> import('../components/Home')
+const About = ()=> import('../components/About')
+const User = ()=> import('../components/User')
+
+Vue.use(VueRouter)
+
+
+const routes = [
+  {
+    path: '',
+    redirect: '/home',
+    component: Home
+  },
+  {
+    path: '/home',
+    component: Home
+  },
+  {
+    path: '/user/:userId',
+    component: User
+  }
+]
+
+const router = new VueRouter({
+  // 字面量增强写法
+  routes,
+  mode: 'history'
+})
+
+export default router
+```
+
+重新打包，**三个组件被分别打包成三个JavaScript文件**
+
+![懒加载打包目录结构](Vue.js.assets/懒加载打包目录结构.png)
+
+
+
 ## 嵌套路由
 
+嵌套路由又称**子路由**`children`
+
+URL中各段**动态路径也**按某种结构对应**嵌套的各层组件**
+
+实现嵌套路由的两个步骤
+
+- 创建对应的子组件,
+- 在路由映射中**配置对应的子路由**
+- 在**组件内部**使用`<router-link>`和`<router-view>`标签（决定内容位置）
+
+![嵌套路由](Vue.js.assets/嵌套路由.png)
+
+创建对应的子组件`HomeMessages.vue`和`HomeNews.vue`
+
+```vue
+<template>
+  <div>
+    <ul>
+      <li>Messages1</li>
+      <li>Messages2</li>
+      <li>Messages3</li>
+      <li>Messages4</li>
+      <li>Messages5</li>
+    </ul>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "HomeMessages"
+}
+</script>
+<style scoped>
+</style>
+```
+
+```vue
+<template>
+  <div>
+    <ul>
+      <li>News1</li>
+      <li>News2</li>
+      <li>News3</li>
+      <li>News4</li>
+      <li>News5</li>
+    </ul>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "HomeNews"
+}
+</script>
+<style scoped>
+</style>
+```
+
+配置对应的子路由，修改`index.js`文件
+
+```javascript
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+const Home = ()=> import('../components/Home')
+const HomeNews = ()=> import('../components/HomeNews')
+const HomeMessages = ()=> import('../components/HomeMessages')
+const About = ()=> import('../components/About')
+const User = ()=> import('../components/User')
+
+Vue.use(VueRouter)
+
+
+const routes = [
+  {
+    path: '',
+    redirect: '/home',
+    component: Home
+  },
+  {
+    path: '/home',
+    component: Home,
+    children: [
+      {
+        // 默认路由
+        path: '',
+        redirect: 'news',
+        component: HomeNews
+      },
+      {
+        path: 'news',
+        component: HomeNews
+      },
+      {
+        path: 'messages',
+        component: HomeMessages
+      }
+    ]
+  },
+  {
+    path: '/user/:userId',
+    component: User
+  }
+]
+
+const router = new VueRouter({
+  // 字面量增强写法
+  routes,
+  mode: 'history'
+})
+
+export default router
+
+```
+
+在组件内部使用子组件，修改`Home.vue`
+
+```vue
+<template>
+  <div>
+    <h2>这是首页</h2>
+    <p>首页内容home</p>
+    <router-link to="/home/news">新闻</router-link>
+    <router-link to="/home/messages">消息</router-link>
+    <router-view></router-view>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "Home"
+}
+</script>
+<style scoped>
+</style>
+```
+
+![嵌套路由页面](Vue.js.assets/嵌套路由页面.png)
+
 ## 参数传递
+
+在实现**路由跳转**的时候将一些参数信息也传递过去
+
+参数传递主要有两种类型
+
+- `params`：**动态路由**
+- `query`
+  - 配置路由格式：普通配置
+  - 传递的方式：对象中使用`query`的`key`作为传递方式
+  - 传递后形成的路径：`/profile?name=ink&age=24&height=182`
+
+新建`Profile.vue`文件
+
+- 使用`$route.query`接受数据
+
+```vue
+<template>
+  <div>
+    <h2>Profile内容</h2>
+    <h3>{{$route.query.name}}</h3>
+    <h3>{{$route.query.age}}</h3>
+    <h3>{{$route.query.height}}</h3>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "Profile"
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+修改`index.js`
+
+```javascript
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+const Home = ()=> import('../components/Home')
+const HomeNews = ()=> import('../components/HomeNews')
+const HomeMessages = ()=> import('../components/HomeMessages')
+const About = ()=> import('../components/About')
+const User = ()=> import('../components/User')
+const Profile = ()=> import('../components/Profile')
+Vue.use(VueRouter)
+
+const routes = [
+  {
+    path: '',
+    redirect: '/home',
+    component: Home
+  },
+  {
+    path: '/home',
+    component: Home,
+    children: [
+      {
+        path: '',
+        redirect: 'news',
+        component: HomeNews
+      },
+      {
+        path: 'news',
+        component: HomeNews
+      },
+      {
+        path: 'messages',
+        component: HomeMessages
+      }
+    ]
+  },
+  {
+    path: '/user/:userId',
+    component: User
+  },
+  {
+    path: '/profile',
+    component: Profile
+  }
+]
+
+const router = new VueRouter({
+  // 字面量增强写法
+  routes,
+  mode: 'history'
+})
+
+export default router
+```
+
+在`App.vue`中展示
+
+- 使用`v-bind`绑定
+
+```vue
+<template>
+  <div id="app">
+    <h1>网站标题</h1>
+    <router-link to="/home" >首页</router-link>
+    <router-link to="/about">内容页</router-link>
+    <router-link :to="{ path: '/profile', query: { name: 'ink', age: 24, height: '182'} }">档案页</router-link>
+    <router-link to="/user/yinke">用户信息1</router-link>
+    <router-link v-bind:to="'/user/' + userId">用户信息2</router-link>
+
+    <router-view></router-view>
+    <h1>APP底部版权信息</h1>
+  </div>
+</template>
+<script>
+export default {
+  name: 'App',
+  data() {
+    return {
+      userId: 'ink'
+    }
+  }
+}
+</script>
+<style>
+</style>
+```
+
+![query查询信息](Vue.js.assets/query查询信息.png)
+
+
+
+**使用代码传递数据**
+
+修改`App.vue`
+
+```vue
+<template>
+  <div id="app">
+    <h1>网站标题</h1>
+    <router-link to="/home" >首页</router-link>
+    <router-link to="/about">内容页</router-link>
+    <router-link :to="{ path: '/profile', query: { name: 'ink', age: 24, height: '182'} }">档案页</router-link>
+    <router-link to="/user/yinke">用户信息1</router-link>
+    <router-link v-bind:to="'/user/' + userId">用户信息2</router-link>
+    <button @click="userClick">用户</button>
+    <button @click="profileClick">档案</button>
+
+    <router-view></router-view>
+    <h1>APP底部版权信息</h1>
+  </div>
+</template>
+<script>
+export default {
+  name: 'App',
+  data() {
+    return {
+      userId: 'ink'
+    }
+  },
+  methods: {
+    userClick() {
+      this.$router.push('/user/' + this.userId)
+    },
+    profileClick() {
+      this.$router.push({
+        path: '/profile',
+        query: {
+          name: 'ink',
+          age: 24, 
+          height: '182'
+        }
+      })
+    }
+  }
+}
+</script>
+<style>
+</style>
+```
+
+
+
+## rouer和​route
+
+**router**
+
+`this.$router`对象与`main.js`导入的`router`对象是同一个对象（也就是`router/index.js`中导出的对象`router`）
+
+**route**
+
+`this.$route`对象是**当前处于活跃的路由**，有`params`和`query`属性可以用来传递参数
+
+在使用vue-router的应用中，路由对象会被注入每个组件中，赋值为`this.$route`
+
+当路由切换时，路由对象会被更新
+
+**区别**
+
+`$router`为VueRouter实例，想要导航到不同URL，使用`$route.push`方法
+
+`$route`为当前`router`跳转对象，里面可以获取`path`、`query`、`params`等参数 
+
+
+
+## 导航守卫
+
+**问题**：
+
+在路由跳转后（例如：从用户页面跳转到首页），页面内容虽然可以自定义，但是只有一个HTML文件，也只有一个`<title>`标签，所以切换不同的页面时, 标题并不会改变
+
+**解决**：
+
+使用vue的**生命周期钩子函数**在组件被创建的时候修改`<title>`标签内容
+
+```javascript
+created() {
+	// 创建的时候修改title
+    document.title = '首页'
+}
+mounted() {
+    // 数据被挂载到dom上的时候修改title
+}
+update() {
+    // 页面刷新的时候修改
+}
+```
+
+**缺点**：
+
+当页面比较多时, 这种方式不容易维护（不能每个组件都去写生命周期函数）
+
+**导航守卫**
+
+如果能监听路由的变化（了解路由跳转的目的地和源地址），就能在跳转中修改`<title>`标签
+
+- vue-router提供的**导航守卫**主要用来**监听路由的进入和离开**
+- vue-router提供了`beforeEach()`和`afterEach()`的钩子函数, 它们会在**路由即将改变前和改变后触发**
+
+
+
+修改`index.js`
+
+- 给每个组件**路由**添加`meta`数据
+- 添加**前置钩子函数**（跳转之前做处理）
+
+> `matched[0]`：如果是**嵌套路由**，且没有给子路由添加`meta`数据，就会显示`undefined`。使用`matched[0]`表示**取匹配的第一个**，就可以找到父路由的`meta`数据
+
+```javascript
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+const Home = ()=> import('../components/Home')
+const HomeNews = ()=> import('../components/HomeNews')
+const HomeMessages = ()=> import('../components/HomeMessages')
+const About = ()=> import('../components/About')
+const User = ()=> import('../components/User')
+const Profile = ()=> import('../components/Profile')
+Vue.use(VueRouter)
+
+const routes = [
+  {
+    path: '',
+    redirect: '/home',
+    component: Home
+  },
+  {
+    path: '/about',
+    component: About,
+    meta: {
+      title: '关于'
+    }
+  },
+  {
+    path: '/home',
+    component: Home,
+    meta: {
+      title: '首页'
+    },
+    children: [
+      {
+        path: '',
+        redirect: 'news',
+        component: HomeNews
+      },
+      {
+        path: 'news',
+        component: HomeNews
+      },
+      {
+        path: 'messages',
+        component: HomeMessages
+      }
+    ]
+  },
+  {
+    path: '/user/:userId',
+    component: User,
+    meta: {
+      title: '用户'
+    }
+  },
+  {
+    path: '/profile',
+    component: Profile,
+    meta: {
+      title: '档案'
+    }
+  }
+]
+
+const router = new VueRouter({
+  // 字面量增强写法
+  routes,
+  mode: 'history'
+})
+
+// 前置钩子：从from跳转到to
+// from 来的路由
+// to 要去的路由
+router.beforeEach((to, from, next) => {
+  // 给目标路由的页面的title赋值
+  document.title = to.matched[0].meta.title 
+  // 必须调用，不调用不会跳转
+  next()
+})
+export default router
+```
+
+![导航守卫](Vue.js.assets/导航守卫.png)
+
+## keep-alive
+
+## 别名配置
 
 # Vue-ElementUI
 
 项目实战
 
-## 创建
+**创建**
 
 - `npm install moduleName`：安装模块到项目目录下
 - `npm install -g moduleName`：`-g`表示将模块安装到全局（具体位置看npm config prefix)
@@ -5695,11 +6384,7 @@ new Vue({
 
 
 
-## 嵌套路由
-
-嵌套路由又称子路由。URL中各段**动态路径也**按某种结构对应**嵌套的各层组件**
-
-![嵌套路由](Vue.js.assets/嵌套路由.png)
+**嵌套路由**
 
 在`views`目录下创建`user`目录
 
@@ -5856,7 +6541,7 @@ export default {
 
 
 
-## 参数传递
+**参数传递**
 
 把某种模式**匹配到的所有路由全都映射到同个组件**，根据**不同的属性**用组件渲染就需要用参数传递
 
@@ -6146,7 +6831,7 @@ export default {
 
 ![显示name](Vue.js.assets/显示name.png)
 
-## 重定向
+**重定向**
 
 `redirect`
 
@@ -6195,7 +6880,7 @@ routes:[
 
 ![重定向](Vue.js.assets/重定向.png)
 
-## 路由模式
+**路由模式**
 
 路由模式有两种
 
@@ -6244,7 +6929,7 @@ export default new VueRouter({
 
 ![路由模式](Vue.js.assets/路由模式.png)
 
-## 404NotFound
+**404NotFound**
 
 在`views`目录下创建`NotFound.vue`
 

@@ -5003,7 +5003,14 @@ new Vue({
 
 
 
-## 修改URL不刷新
+
+
+## URL修改
+
+**修改URL不刷新**的方式有两种
+
+- URL的hash（默认）
+- HTML5的history
 
 ### URL的hash
 
@@ -5045,17 +5052,17 @@ history.back()
 
 vue-router是Vue.js官方的路由插件。它和vue.js深度集成，适合用于构建单页面应用
 
-在vue-router的单页面应用中, 页面的路径的改变就是**组件的切换**
+在vue-router的单页面应用中，页面的路径的改变就是**组件的切换**
 
-**功能：**
+**功能**
 
 - 嵌套的路由/视图表
 - 模块化的、基于组件的路由配置
 - 路由参数、查询、通配符
-- 基于Vue js过渡系统的视图过渡效果
+- 基于Vue.js过渡系统的视图过渡效果
 - 细粒度的导航控制
 - 带有自动激活的CSS class的链接
-- HTML5 历史模式或hash模式， 在IE 9中自动降级
+- HTML5历史模式或hash模式， 在IE9中自动降级
 - 自定义的滚动行为
 
 > 前端路由
@@ -5066,150 +5073,261 @@ vue-router是Vue.js官方的路由插件。它和vue.js深度集成，适合用�
 
 ## 安装
 
+**运行时依赖**
+
+> 也可以在vue ui可视化安装
+
 ```bash
-npm install vue-router --save
+npm install vue-router@3.0.1 --save
 ```
 
-模块化工程中使用，要通过`Vue.use()`声明
+
+
+## 配置
+
+模块化工程中使用vue-router要通过`Vue.use()`声明
+
+- 导入路由对象，并且调用`Vue.use(VueRouter)`
+- 创建路由实例，并且传入路由**映射配置**
+- 在vue实例中挂载创建的**路由实例对象**
 
 > 因为它是一个插件
+>
+> 在`src`下创建`router`文件夹用来存放vue-router的路由信息和导入路由对象
 
-```vue
-// 导入
+`src\router\index.js`
+
+```javascript
+// 1.导入vue实例和vue-router实例
+import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-// 显示声明使用VueRouter
-Vue.use(VueRouter);
+// 2. 通过Vue.use(插件)安装插件
+Vue.use(VueRouter)
+
+// 3.配置路由和组件之间的映射关系
+const routes = [
+    {
+        path: '',
+        component: null
+    }
+]
+
+// 4.创建vueRouter对象
+const router = new VueRouter({
+  // 字面量增强写法
+  routes
+})
+
+//4.导出router实例 传到Vue实例中
+export default router
 ```
 
-## 运行
+`src\main.js`
 
-> 前端命名规则：`index.js`一般是主配置文件，会默认加载
+> 前端命名规则：`index.js`一般是主配置文件，会默认加载，可以只写到目录
 
-1. 在`components` 目录下编写`Content.vue` 组件
+```javascript
+import Vue from 'vue'
+import App from './App'
+// 默认加载router下的index.js文件
+import router from './router'
 
-   ```vue
-   <template>
-     <h1>内容页: router跳转!</h1>
-   </template>
-   <script>
-   export default {
-     name: "Content"
-   }
-   </script>
-   <!-- scoped限制作用域 -->
-   <style scoped>
-   </style>
-   ```
+Vue.config.productionTip = false
 
-2. 在`components` 目录下编写`Main.vue` 组件
-
-   ```vue
-   <template>
-       <h1>首页！</h1>
-   </template>
-   <script>
-   export default {
-     name: "Main"
-   }
-   </script>
-   <style scoped>
-   </style>
-   ```
-
-3. 在`src`目录下新建路由文件夹`router`专门存放路由
-
-   在配`router`目录下新建路由主配置文件`index.js`
-
-   1. 导入路由（import组件）
-   2. 配置路由（跳转组件）
-
-   ```javascript
-   // index.js 主配置文件
-   import Vue from 'vue'
-   // 导入路由
-   import VueRouter from 'vue-router'
-   // 导入自定义组件
-   import Content from '../components/Content'
-   import Main from '../components/Main'
-   // 安装路由
-   Vue.use(VueRouter);
-   // 配置导出路由
-   export default new VueRouter({
-     routes: [
-       {
-         // 路由路径
-         path: '/content',
-         // 路由名(可省略)
-         name: 'content',
-         // 跳转组件
-         component: Content
-       },
-       {
-         path: '/main',
-         name: 'main',
-         component: Main
-       }
-     ]
-   })
-   ```
-
-4. 在`main.js`中配置路由
-
-   ```javascript
-   // 导入组件
-   import Vue from 'vue'
-   import App from './App'
-   
-   // 会自动扫描里面的路由配置index.js(不用写)
-   import router from './router'
-   
-   Vue.config.productionTip = false;
-   
-   new Vue({
-     el: '#app',
-     // 配置路由
-     router,
-     components: { App },
-     template: '<App/>'
-   })
-   ```
-
-5. 在`App.vue`中使用路由
-
-   - `router-link`：控制路由
-   - `router-view`：控制页面展示
-
-   ```vue
-   <template>
-     <div id="app">
-       <h1>Vue-router</h1>
-       <!-- router-link默认会被渲染成一个<a>标签，to属性为指定链接 -->
-       <router-link to="/main" >首页</router-link>
-       <router-link to="/content">内容页</router-link>
-       <!-- router-view：用于渲染路由匹配到的组件 -->
-       <router-view></router-view>
-     </div>
-   </template>
-   
-   <script>
-   export default {
-     name: 'App'
-   }
-   </script>
-   
-   <style></style>
-   ```
-
-![main](Vue.js.assets/main.png)
-
-![content](Vue.js.assets/content.png)
+new Vue({
+  el: '#app',
+  // 字面量增强写法
+  router,
+  // 渲染App.vue
+  render: h => h(App)
+})
+```
 
 
 
+## 使用
+
+1. 创建路由组件
+2. 配置路由映射：组件和路径url映射关系
+3. 使用路由: 通过`<router-link>`和`<router-view>`
+
+**创建组件**
+
+在`components` 目录下`new`一个`Home.vue` 组件
+
+```vue
+<template>
+  <div>
+    <h2>这是首页</h2>
+    <p>首页内容home</p>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "Home"
+}
+</script>
+<style scoped>
+</style>
+```
+
+在`components` 目录下`new`一个`About.vue` 组件
+
+```vue
+<template>
+  <div>
+    <h2>这是页面</h2>
+    <p>页面内容about</p>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "about"
+}
+</script>
+<style scoped>
+</style>
+```
+
+**配置路由**
+
+修改路由主配置文件`index.js`
+
+1. 导入路由（import组件）
+2. 配置路由（跳转组件）
+
+```javascript
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+// 导入自定义组件
+import Home from '../components/Home'
+import About from '../components/About'
+
+Vue.use(VueRouter);
+// 配置路由和组件之间的映射关系
+const routes = [
+  {
+    path: '/home',
+    component: Home
+  },
+  {
+    path: '/about',
+    component: About
+  }
+]
+
+const router = new VueRouter({
+  // 字面量增强写法
+  routes
+})
+
+export default router
+```
+
+**使用组件**
+
+vue-router注册的两个**全局组件**
+
+- `router-link`：会被渲染成一个`<a>`标签
+- `router-view`：根据当前的路径，动态渲染出不同的组件
+
+> 网页的其他内容，比如顶部的标题和导航或者底部的一些版权信息等和`<router-view>`处于同一个等级
+> 路由切换的是`<router-view>`挂载的组件，其他内容不会发生改变
+
+在`App.vue`中使用路由组件
+
+```vue
+<template>
+  <div id="app">
+    <h1>网站标题</h1>
+    <!-- router-link默认会被渲染成一个<a>标签，to属性为指定链接 -->
+    <router-link to="/home" >首页</router-link>
+    <router-link to="/about">内容页</router-link>
+    <!-- router-view：用于渲染路由匹配到的组件 -->
+    <router-view></router-view>
+    <h1>APP底部版权信息</h1>
+  </div>
+</template>
+<script>
+export default {
+  name: 'App',
+  components: {
+  }
+}
+</script>
+<style>
+</style>
+```
+> url中的`#`就是hash值
+
+<center class="half">
+    <img src="Vue.js.assets/home.png" width="300"/>
+    <img src="Vue.js.assets/about.png" width="300"/>
+</center>
 
 
 
+## 默认路由
+
+打开项目时让路径默认跳到到首页
+
+修改路由主配置文件`index.js`，使用`redirect`重定向
+
+```javascript
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import Home from '../components/Home'
+import About from '../components/About'
+
+Vue.use(VueRouter)
+
+const routes = [
+  {
+    path: '',
+    // 缺省时候重定向到 /home
+    redirect: '/home',
+    component: Home
+  },
+  {
+    path: '/home',
+    component: Home
+  },
+  {
+    path: '/about',
+    component: About
+  }
+]
+
+const router = new VueRouter({
+  // 字面量增强写法
+  routes
+})
+
+export default router
+```
+
+
+
+## history模式
+
+不想在url中使用hash（`#`），使用`mode`改为HTML5的history模式
+
+修改`index.js`
+
+> http://localhost:8080/home
+
+```javascript
+const router = new VueRouter({
+  // 字面量增强写法
+  routes,
+  mode: 'history'
+})
+```
+
+##  router-link
 
 
 

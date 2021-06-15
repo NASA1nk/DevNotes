@@ -215,31 +215,21 @@ prom/prometheus
 
 
 
-## 配置Exporter
+# Exporters
 
-Prometheus服务负责收集、存储、查看监控数据，真正**直接进行监控通过Exporter完成**
+Prometheus服务负责收集、存储、查看监控数据，真正**直接进行监控通过Exporters完成**
 
-Exporter相当于是Prometheus服务的客户端，**负责向其提供监控数据**，针对不同的被监控目标需要使用不同的Exporter
+Exporters相当于是Prometheus服务的客户端，**负责向其提供监控数据**，针对不同的被监控目标需要使用不同的Exporter
 
 Exporters的实例称为目标（Target），Prometheus通过轮询的方式定时从这些目标（Target）中获取监控数据样本，并且存储在数据库中
 
-使用Node Exporter用来采集监控的主机的运行状态(CPU、内存、磁盘等参数)，
-
 [Exporters | Prometheus](https://prometheus.io/docs/instrumenting/exporters/)
 
-> 简单理解： i386是32位的版本，amd64是64位的版本
+> i386是32位的版本，amd64是64位的版本
 >
 > - i386=Intel 80386，i386通常被用来作为对Intel（英特尔）32位微处理器的统称
 >
 > - AMD64又称x86-64或x64”，是一种64位元的电脑处理器架构。它是建基于现有32位元的x86架构，由AMD公司所开发
->
-
-**查看端口情况**
-
-- 查看**已知的端口**是否被占用：`netstat -anp |grep 8089`
-- 查看**服务器已使用的所有端口**：`netstat  -nultp`
-
-
 
 **直接部署**
 
@@ -251,9 +241,12 @@ Exporters的实例称为目标（Target），Prometheus通过轮询的方式定�
 >
 > node_exporter版本升到1.0.0之后，因为安全性考虑支持了TLS，所以要添加证书
 
+通过 http://49.232.207.245:9100/metrics 可以看到采集的监控数据
+
 ```bash
 # 下载 node exporter(64bit)
 wget https://github.com/prometheus/node_exporter/releases/download/v1.1.2/node_exporter-1.1.2.linux-amd64.tar.gz
+wget https://github.com/prometheus/node_exporter/releases/download/v0.16.0/node_exporter-0.16.0.linux-amd64.tar.gz
 
 # 解压
 tar xvfz node_exporter-1.1.2.linux-amd64.tar.gz
@@ -285,14 +278,42 @@ tls_server_config:
 ./node_exporter --web.config=config.yaml
 ```
 
-通过 http://49.232.207.245:9100/metrics 可以看到采集的监控数据
+
+
+**docker部署**
+
+[Monitoring Linux host metrics with the Node Exporter](https://prometheus.io/docs/guides/node-exporter/)
+
+[Prometheus Exporter for machine metrics ](https://github.com/prometheus/node_exporter#using-docker)
+
+官方不建议将node_exporter部署为Docker容器，因为它需要访问主机系统。
+
+如果要部署Docker以进行主机监控，必须使用一些额外的参数来允许node_exporter访问主机名称空间。
+
+`path.rootfs`参数，此参数必须与`host root`的`bind-mount`中的路径匹配。node_exporter将`path.rootfs`用作**访问主机文件系统的前缀**
+
+> 要监视的所有非root挂载点都需要绑定挂载到容器中
+
+```bash
+docker run -d \
+  --net="host" \
+  --pid="host" \
+  -v "/:/host:ro,rslave" \
+  quay.io/prometheus/node-exporter \
+  --path.rootfs /host
+  
+# 查看
+curl http://localhost:9100/metrics
+curl http://localhost:9100/metrics | grep "node_"
+```
+
+**配置**
 
 在Prometheus服务的配置文件`prometheus.yml`中添加相应的配置来收集Node Exporter的监控数据
 
 1. 在`scrape_configs`下添加一个新的job
-2. **重启prometheus服务**然后进入其Web管理页面http://49.232.207.245:9090
-3. 输入up，点击Execute按钮，可看到刚刚添加的job（1表示正常，0表示异常）
-4. 访问http://49.232.207.245:9090/targets查看页面
+2. **重启prometheus服务**然后进入Web管理页面 http://10.2.14.105:9090
+3. 输入`up`，点击Execute按钮，可看到刚刚添加的job（1表示正常，0表示异常）
 
 ```yaml
 ...
@@ -307,56 +328,21 @@ scrape_configs:
     - targets: ['localhost:9090']
 
   # 收集主机的监控数据  
-  - job_name: 'ink'
+  - job_name: 'exporter'
   	# 每隔5秒钟从http://IP:Port/actuator/prometheus拉取指标
   	scrape_interval: 5s
-  	scheme: https
-    tls_config:
-      ca_file: node_exporter.crt
-    metrics_path: '/actuator/prometheus'
+  	# scheme: https
+    # tls_config:
+    #   ca_file: node_exporter.crt
+    # metrics_path: '/actuator/prometheus'
     static_configs:
     # 多个node_exporter，在targets数组后面加即可
-    - targets: ['49.232.207.245:9090']
+    - targets: ['10.2.14.105:9100']
 ```
 
 
 
-**docker部署**
 
-[Prometheus Exporter for machine metrics ](https://github.com/prometheus/node_exporter#using-docker)
-
-node_exporter不建议将其部署为Docker容器，因为它需要访问主机系统。如果要部署Docker以进行主机监视，必须使用一些额外的标志来允许node_exporter访问主机名称空间。指定`path.rootfs`参数，此参数必须与`host root`的`bind-mount`中的路径匹配。node_exporter将`path.rootfs`用作**访问主机文件系统的前缀**
-
-> 要监视的所有非root挂载点都需要绑定挂载到容器中
-
-```bash
-docker run -d \
-  --net="host" \
-  --pid="host" \
-  -v "/:/host:ro,rslave" \
-  quay.io/prometheus/node-exporter:latest \
-  --path.rootfs=/host	
-  
-  
-# 脚本运行  
-cat > run_node_exporter.sh << 'EOF'
-docker stop node_exporter
-docker rm node_exporter
-docker run -d --name node_exporter \
-	--restart=always \
-	--net="host" \
-	--pid="host" \
-	-v "/proc:/host/proc:ro" \
-	-v "/sys:/host/sys:ro" \
-	-v "/:/rootfs:ro" \
-	prom/node-exporter \
-	--path.procfs=/host/proc \
-	--path.rootfs=/rootfs \
-	--path.sysfs=/host/sys \
-	--collector.filesystem.ignored-mount-points='^/(sys|proc|dev|host|etc)($$|/)'
-EOF
-sh run_node_exporter.sh
-```
 
 # 数据查询
 
@@ -474,6 +460,8 @@ grafana/grafana
 
 # MySQL监控
 
+[mysqld_exporter](https://github.com/prometheus/mysqld_exporter)是Prometheus官方提供的一个exporter
+
 访问http://49.232.207.245:9104/metrics可查看MySQLD Exporter采集的MySQL监控数据
 
 ```bash
@@ -535,7 +523,6 @@ scrape_configs:
 cAdvisor是Google一款开源的用于分析、展示容器运行状态的可视化工具，用于监控Dcoker整体的运行情况
 
 > cAdvisor原生支持Prometheus
->
 
 ```bash
 # 拉取镜像
@@ -612,10 +599,11 @@ Pormetheus的告警由独立的两部分组成
 
 建立警告和通知的主要步骤：
 
-- 创建和配置Alertmanager
-- 启动Prometheus服务时，通过-alertmanager.url标志配置Alermanager地址，以便Prometheus服务能和Alertmanager建立连接。
+1. 创建和配置Alertmanager
+2. 启动Prometheus服务时，通过-alertmanager.url标志配置Alermanager地址，以便Prometheus服务能和Alertmanager建立连接。
+3. 在Prometheus中配置告警规则
 
-
+## SMTP
 
 在报警邮箱中开通smtp功能，并获取授权码（smtp_auth_password中填写）
 
@@ -630,6 +618,64 @@ Pormetheus的告警由独立的两部分组成
 > msg="Notify for alerts failed" num_alerts=1 err="*notify.loginAuth failed: 530 Must issue a STARTTLS command first."
 >
 > 3.smtp_require_tls: false 必须加上，因为smtp_require_tls默认为true。
+
+## rule_files
+
+创建告警规则文件`alert.rules`
+
+这个规则文件里包含了两条告警规则：
+
+- `InstanceDown`：表示当实例宕机时（up == 0）触发告警
+-  `APIHighRequestLatency`：表示有一半的API请求延迟大于1s时（api_http_request_latencies_second{quantile="0.5"} > 1）触发告警
+
+```bash
+groups:
+- name: example
+  rules:
+ 
+  # Alert for any instance that is unreachable for >5 minutes.
+  - alert: InstanceDown
+    expr: up == 0
+    for: 5m
+    labels:
+      severity: page
+    annotations:
+      summary: "Instance {{ $labels.instance }} down"
+      description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 5 minutes."
+ 
+  # Alert for any instance that has a median request latency >1s.
+  - alert: APIHighRequestLatency
+    expr: api_http_request_latencies_second{quantile="0.5"} > 1
+    for: 10m
+    annotations:
+      summary: "High request latency on {{ $labels.instance }}"
+      description: "{{ $labels.instance }} has a median request latency above 1s (current value: {{ $value }}s)"
+```
+
+在`Prometheus.yml`的`rule_files`块中添加告警规则文件`alert.rules`
+
+```bash
+# my global config
+global:
+  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+ 
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      # - alertmanager:9093
+ 
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  - "alert.rules"
+```
+
+重启Prometheus Server服务
+
+访问 http://10.2.14.105:9090/rules 查看配置规则
 
 
 

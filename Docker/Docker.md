@@ -274,7 +274,7 @@ docker rm 容器id 			#删除指定容器
 docker stop 容器id 		#停止当前正在运行的容器(-d运行)
 docker kill 容器id 		#强制停止当前容器
 docker rename 容器id 		#重新命名容器
-docker cp 容器id:容器路径 目的路径 #复制容器
+docker cp 				 #容器和宿主机中的文件互传
 
 #列出所有容器命令
 docker container 
@@ -313,23 +313,29 @@ docker run [可选参数] image
 				#			 -P(大写) 随机指定端口
 						
 						
-#exit容器停止，从容器退回宿主机
-#ctrl +P +Q #容器不停止，从容器退回宿主机
+# exit容器停止，从容器退回宿主机
+# ctrl +P +Q #容器不停止，从容器退回宿主机
 ```
 
 ### docker exec
 
-进入容器并开启一个新的终端运行bash，bash进程和主容器进程拥有相同的命名空间，exit退出
-运行命令,命令运行完后就退出(运行不完就不退出)
+进入容器并开启一个新的终端运行bash，bash进程和主容器进程拥有相同的命名空间，
+
+`exit`退出运行命令，命令运行完后就退出（运行不完就不退出）
+
 `-it`是以交互的方式进入容器, `/bin/sh`或者`/bin/bash`
 
 - -i：确保输标准入流保持开放，需要在shell中输入命令
 - -t：分配一个伪终端TTY
 
 ```shell
+# 进入
 docker exec -it 容器id /bin/sh
+docker exec -it 容器id /bin/bash
+# 退出
+exit
 
-#进入容器正在执行的终端
+# 进入容器正在执行的终端
 docker attach 容器id
 ```
 
@@ -386,6 +392,23 @@ docker rm -f $(docker ps -aq)
 # 删除所有的容器（复合指令）
 docker ps -a -q|xargs docker rm 
 ```
+
+### docker cp
+
+- 从容器中拷贝文件到宿主机
+- 从宿主机拷贝文件到容器里面
+
+```bash
+# 从容器中拷贝文件到宿主机
+docker cp 容器id:文件在容器里面的路径 拷贝到宿主机的绝对路径
+
+# 从宿主机拷贝文件到容器里面
+docker cp 宿主机文件路径 容器id:拷贝到容器里面的绝对路径
+
+docker cp /home/dog/yinke/prometheus/config/alertrules.yml e87a0a440925:/etc/prometheus/
+```
+
+
 
 ## 其他命令
 
@@ -591,3 +614,4 @@ $ docker build -t ink/mytomcat:0.1 .
 # 2.使用docker tag 然后再次push 
 $ docker tag 容器id ink3/mytomcat:1.0 #然后再次push
 ```
+

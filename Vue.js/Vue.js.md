@@ -6041,7 +6041,7 @@ update() {
 - vue-router提供的**导航守卫**主要用来**监听路由的进入和离开**
 - vue-router提供了`beforeEach()`和`afterEach()`的钩子函数, 它们会在**路由即将改变前和改变后触发**
 
-
+**全局前置守卫**
 
 修改`index.js`
 
@@ -6132,9 +6132,222 @@ export default router
 
 ![导航守卫](Vue.js.assets/导航守卫.png)
 
+**完整的导航解析流程**
+
+1. 导航被触发。
+2. 在**失活的组件**里调用离开守卫。
+3. 调用**全局**的 `beforeEach` 守卫。
+4. 在**重用的组件**里调用 `beforeRouteUpdate` 守卫 (2.2+)。
+5. 在**路由配置**里调用 `beforeEnter`。
+6. 解析**异步路由组件**。
+7. 在**被激活的组件**里调用 `beforeRouteEnter`。
+8. 调用**全局**的 `beforeResolve` 守卫 (2.5+)。
+9. 导航被确认。
+10. 调用**全局**的 `afterEach` 钩子。
+11. 触发DOM更新。
+12. 用创建好的实例调用 `beforeRouteEnter` 守卫中传给 `next` 的回调函数。
+
+
+
 ## keep-alive
 
+在组件之间路由跳转的时候，**组件一直在重复创建和销毁的过程**，每次创建都是新的组件
+
+当需要在跳转过程中保持原来的组件不销毁，就要使用`keep-alive`来使组件保持状态，离开路由后，组件生命周期的`destroyed()`**不会被调用**
+
+- `keep-alive`是Vue内置的一个组件，**可以使被包含的组件保留状态，或者避免重新渲染**
+
+- `router-view`也是Vue内置的一个组件，如果用`<keep-alive>`将`<router-view>`包起来，那么所有路径匹配到的**视图组件都会被缓存**
+
+  ```html
+  <keep-alive>
+      <router-view>
+      </router-view>
+  </keep-alive>
+  ```
+
+
+
+修改`Home.vue`查看路由跳转时的组件状态
+
+```vue
+<template>
+  <div>
+    <h2>这是首页</h2>
+    <p>首页内容home</p>
+    <router-link to="/home/news">新闻</router-link>
+    <router-link to="/home/messages">消息</router-link>
+    <router-view></router-view>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "Home",
+  created() {
+    console.log('created');
+  },
+  destroyed() {
+    console.log('destroyed');
+  }
+}
+</script>
+<style scoped>
+</style>
+```
+
+![路由跳转组件创建销毁](Vue.js.assets/路由跳转组件创建销毁.png)
+
+
+
+**解决方案**
+
+修改`App.vue`
+
+```vue
+<template>
+  <div id="app">
+    <h1>网站标题</h1>
+    <router-link to="/home" >首页</router-link>
+    <router-link to="/about">内容页</router-link>
+    <router-link :to="{ path: '/profile', query: { name: 'ink', age: 24, height: '182'} }">档案页</router-link>
+    <router-link to="/user/yinke">用户信息1</router-link>
+    <router-link v-bind:to="'/user/' + userId">用户信息2</router-link>
+    <button @click="userClick">用户</button>
+    <button @click="profileClick">档案</button>
+    <!-- 包裹起来 -->
+    <keep-alive>
+      <router-view></router-view>
+    </keep-alive>
+    <h1>APP底部版权信息</h1>
+  </div>
+</template>
+<script>
+export default {
+  name: 'App',
+  data() {
+    return {
+      userId: 'ink'
+    }
+  },
+  methods: {
+    userClick() {
+      this.$router.push('/user/' + this.userId)
+    },
+    profileClick() {
+      this.$router.push({
+        path: '/profile',
+        query: {
+          name: 'ink',
+          age: 24,
+          height: '182'
+        }
+      })
+    }
+  }
+}
+</script>
+<style>
+</style>
+```
+
+
+
+**产生冲突**
+
+虽然组件不会被销毁了，但是返回Home页面时会被重定向到子组件对应页面，无法保留上次的浏览内容
+
+**解决方案**
+
+1. 注释掉`index.js`中的默认重定向
+2. 在Home组件的`data`中保存重定向路径
+3. 在Home组件中引入`activated()`生命周期函数（当组件进入活跃状态的时候调用）来**保存当前路由**
+4. 使用路由守卫`beforeRouteLeave()`保存最后离开前的路由用来下次返回时展示
+
+> `activated()`生命周期函数与`keep-alive`有关，不使用`keep-alive`时函数无效
+
+修改`Home.vue`
+
+```vue
+<template>
+  <div>
+    <h2>这是首页</h2>
+    <p>首页内容home</p>
+    <router-link to="/home/news">新闻</router-link>
+    <router-link to="/home/messages">消息</router-link>
+    <router-view></router-view>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "Home",
+  data() {
+    return {
+      // 用于跳转
+      path: '/home/news'
+    }
+  },
+  // 只有该组件被保持了状态使用了keep-alive时才是有效的
+  activated(){
+    // 在活跃的时候将保存的路由给当前路由
+    this.$router.push(this.path)
+  },
+  // 变成不活跃状态，将最后的路由保存起来
+  beforeRouteLeave(to, from, next) {
+    this.path = this.$route.path
+    next()
+  }
+}
+</script>
+<style scoped>
+</style>
+```
+
+
+
+**keep-alive属性**
+
+用`<keep-alive>`将`<router-view>`包起来，那么所有组件都只会创建一次。如果需要某一个组件每次都被创建和销毁，就需要使用`exclude`属性
+
+- `include`：字符串或正则表达，只有匹配的组件会被缓存
+- `exclude`：字符串或正则表达式，任何匹配的组件都不会被缓存
+
+> 要求组件要有`name`属性（创建时默认生成）
+>
+> 多个`name`时候，**逗号后不要加空格**
+>
+> 正则表达式也不要随便加空格
+
+```html
+<keep-alive exclude='Profile,User'>
+   <router-view/>
+</keep-alive>
+
+<keep-alive include='Profile,User'>
+   <router-view/>
+</keep-alive>
+```
+
+
+
 ## 别名配置
+
+
+
+# Tab Bar demo
+
+
+
+# Promise
+
+**Promise是异步编程的一种解决方案**
+
+> ES6新特性
+
+
+
+# Vuex
 
 # Vue-ElementUI
 

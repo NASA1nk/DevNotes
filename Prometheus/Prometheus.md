@@ -709,33 +709,58 @@ rule_files:
 
 ![rulealerts](Prometheus.assets/rulealerts.png)
 
-停掉一个实例node-exporter
+停掉两个实例node-exporter和cAdvisor
 
 ```bash
 docker stop 5ce59207a273
+docker stop 82a19860304a
 ```
 
-![stop一个实例](Prometheus.assets/stop一个实例.png)
+![stop两个实例](Prometheus.assets/stop两个实例.png)
 
-可以看到有一条alert的状态是 **PENDING**，表示已经触发了告警规则，但还没有达到告警条件。这是因为这里配置的 `for` 参数是 5m，所以5分钟后才会触发告警
+可以看到有2条alert的状态是 **PENDING**，表示已经触发了告警规则，但还没有达到告警条件。这是因为这里配置的 `for` 参数是 5m，所以5分钟后才会触发告警
 
 ![开始down提示](Prometheus.assets/开始down提示.png)
 
-5分钟后可以看到这条alert的状态变成了 `FIRING`
+5分钟后可以看到这2条alert的状态变成了 `FIRING`
 
 ![firing](Prometheus.assets/firing.png)
 
 
 
-## 告警通知
+## 部署AlterManager
+
+**直接部署**
+
+在`/home/dog/yinke/prometheus`下创建 `alertmanager`目录，进入
+
+```bash
+wget https://github.com/prometheus/alertmanager/releases/download/v0.15.2/alertmanager-0.15.2.linux-amd64.tar.gz
+
+tar xvfz alertmanager-0.15.2.linux-amd64.tar.gz
+
+cd alertmanager-0.15.2.linux-amd64
+
+./alertmanager
+```
 
 
+
+**docker部署**
 
 在`/home/dog/yinke/prometheus/alertmanager`目录下创建配置文件`alertmanager.yml`
 
-```bash
+```yaml
 global:
   resolve_timeout: 5m
+  # 发件服务器,可设置qq企业,163邮箱等
+  smtp_smarthost: 'smtp.139.com:465'   
+  smtp_from: '541640794@qq.com'
+  smtp_auth_username: '541640794@qq.com'
+  smtp_auth_password: 'XX自己的密码XXX'
+————————————————
+版权声明：本文为CSDN博主「ghostwritten」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/xixihahalelehehe/article/details/80391733
 route:
   group_by: ['cqh']
   group_wait: 10s #组报警等待时间
@@ -759,6 +784,16 @@ smtp_auth_username: 'xxxxxx@qq.com'
 smtp_auth_password: 'xxxxxxxxxx'
 smtp_require_tls: false
 ```
+
+
+
+
+
+## 告警通知
+
+
+
+
 
 
 

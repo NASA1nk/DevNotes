@@ -8,45 +8,42 @@ Prometheus生态圈由多个组件构成，其中许多组件是可选的
 
 - **Prometheus Server**
   
-  用于收集、存储和查询时间序列数据。
-  通过**静态配置文件**（prometheus.yml）管理监控目标，也可以配合使用**动态服务发现**的方式动态管理监控目标，并从这些监控目标中获取数据，然后将采集到的数据按照时间序列的方式存储在本地磁盘当中或者外部的时序数据库中，可通过PromQL语言对数据的查询以及分析。
+  - 用于收集、存储和查询时间序列数据
+  - 通过**静态配置文件**（`prometheus.yml`）管理监控目标，也可以配合使用**动态服务发现**的方式动态管理监控目标，并从这些监控目标中获取数据，然后将采集到的数据**按照时间序列的方式存储**在本地磁盘当中或者外部的时序数据库中，可通过**PromQL语言**对数据的查询以及分析
   
 - **Client Library**
   
-  为被监控的应用生成相应的**指标**(Metric)数据并暴露给Prometheus Server，当Prometheus Server来拉取时直接返回**实时状态**的指标数据。
+  为被监控的应用**生成相应的指标**（Metric）数据并暴露给Prometheus Server，当Prometheus Server来拉取时直接返回**实时状态**的指标数据
   
 - **Push Gateway**
   
-  相当于一个代理服务，独立部署。它没有数据拉取功能，只能被动的等待数据推送。
+  - 相当于一个代理服务，**独立部署**。它没有数据拉取功能，**只能被动的等待数据推送**
+  - 主要用于短期存在的Jobs，这类Jobs由于存在时间较短，可能在Prometheus Server来拉取数据之前就消失了。所以这些Jobs可以直**接向Push Gateway推送它们的指标数据**，等到这些jobs把数据推送到Push Gateway后，P**rometheus Server再从Push Gateway拉取**
+  - 当由于子网络或者防火墙的原因，Prometheus Server不能直接拉取各个目标（target）的指标数据，此时可以让各个目标（target）往Push Gateway上推送数据，然后Prometheus Server去PushGateway上定时拉取
+  - 在监控各个业务数据时，需要**将各个不同的业务数据进行统一汇总**，此时也可以采用Push Gateway来统一收集数据，然后Prometheus Server在来统一拉取
   
-  主要用于短期存在的Jobs，由于这类Jobs存在时间较短，可能在Prometheus Server来拉取数据之前就消失了。所以，这些Jobs可以直接向Push Gateway推送它们的指标数据，等到这些jobs把数据推送到Push Gateway后，Prometheus Server再从Push Gateway拉取。
+  > 即使jobs推送了所有的数据到Push Gateway，Prometheus Server也不是每次都拉取这个期间推上来的所有数据，而是**只拉取jobs最后一次推送的数据**。如果jobs一直没有推送新的指标（Metric）到Push Gateway，那么Prometheus Server将始终拉取最后推送上的数据，直到指标消失（默认5分钟）
   
-  当由于子网络或者防火墙的原因，Prometheus Server不能直接拉取各个Target的指标数据，此时可以让各个Target往Push Gateway上推送数据，然后Prometheus去PushGateway上定时拉取
+- **Exporters**
   
-  在监控各个业务数据时，需要将各个不同的业务数据进行统一汇总，此时也可以采用Push Gateway来统一收集数据，然后Prometheus Server在来统一拉取
+  输出被监控组件信息的HTTP接口被叫做`exporter`
   
-  即使jobs推送了所有的数据到Push Gateway，Prometheus Server也不是每次都拉取这个期间推上来的所有数据，而是只拉取jobs最后一次推送的数据。如果jobs一直没有推送新的指标（Metric）到Push Gateway，那么Prometheus Server将始终拉取最后推送上的数据，直到指标消失（默认5分钟）
+  - 用于暴露已有的第三方服务的指标（Metric）数据**通过HTTP服务的形式**暴露给Prometheus Server，比如HAProxy、StatsD、Graphite等
+    Prometheus Server周期性的从Exporter暴露的HTTP服务地址（通常是/metrics）拉取监控样本数据
   
-- Exporters
+- **Alertmanager**
   
-  用于暴露已有的第三方服务的指标数据通过HTTP服务的形式暴露给Prometheus Server，比如HAProxy、StatsD、Graphite等等。
-  Prometheus Server周期性的从Exporter暴露的HTTP服务地址（通常是/metrics）拉取监控样本数据
-  
-  输出被监控组件信息的HTTP接口被叫做exporter
-  
-- Alertmanager
-  
-  从Prometheus Server接收到告警后，Alertmanager会进行去除重复数据，分组，并路由到接收方，发出报警。
-  AlertManager支持自定义告警规则。告警方式也非常灵活，支持通过邮件、slack或钉钉等多种途径发出告警。
+  - 从Prometheus Server接收到告警后，Alertmanager会进行去除重复数据，分组，并路由到接收方，发出报警。
+  - AlertManager支持自定义告警规则。告警方式也非常灵活，支持通过邮件、slack或钉钉等多种途径发出告警。
 
 ![Prometheus架构图](Prometheus.assets/Prometheus架构图.jpg)
 
-工作流程是：
+## Prometheus工作流程
 
-1. Prometheus Server从HTTP接口或者从Push Gateway拉取指标（Metric）数据。
-2. Prometheus Server在本地存储所有采集的指标（Metric）数据，并在这些数据上运行规则，从现有数据中聚合和记录新的时间序列生成告警。
-3. Alertmanager根据配置文件，对接收到的告警进行处理，发出报警。
-4. 在Grafana或其他API客户端中，可视化收集的数据。
+1. Prometheus Server从HTTP接口或者从Push Gateway拉取指标（Metric）数据
+2. Prometheus Server在本地存储所有采集的指标（Metric）数据，并在这些数据上运行规则，从现有数据中聚合和记录新的时间序列生成告警
+3. Alertmanager根据配置文件，对接收到的告警进行处理，发出报警
+4. 在Grafana或其他API客户端中，可视化收集的数据
 
 > Prometheus其实并不需要每一个精确的数据，长期保存的是中等或者低精度的数据。它每次只抓取一个数据，在固定的频率下。也能形成某种数据的趋势。
 
@@ -54,38 +51,60 @@ Prometheus生态圈由多个组件构成，其中许多组件是可选的
 
 ## Prometheus数据模型
 
-Prometheus会将所有采集到的监控数据以**时间序列**的方式保存在内存数据库中，并定时保存到硬盘上。
+Prometheus会将所有采集到的监控数据以**时间序列**的方式保存在内存数据库中并定时保存到硬盘上
 
-每一条数据由三部分组成
+**数据组成**
 
-- **指标**（Metric）：由**指标名称**和描述当前数据特征的**标签**组成
+- **指标**（Metric）：由**指标名称**和描述当前**数据特征的标签**组成
 - **时间戳**（Timestamp）：一个精确到毫秒的时间戳
 - **数据值**（Value）：一个float64的浮点型数据表示当前数据的值
 
-### 指标(Metric)
+Prometheus是一个**时序数据库**，**相同指标相同标签的数据构成一条时间序列**
 
-**指标格式**
+如果以传统数据库的概念来理解时序数据库
 
-`指标名称{标签名称="标签值", ...}`
+- 指标名是表名
+- 标签是字段
+- Timestamp是主键
+- float64类型的字段表示值（
 
-标签（Label）反映了当前数据的特征维度，通过这些维度Prometheus可以对数据进行过滤，聚合等操作
+> Prometheus 里面所有值都是按 float64 存储
 
-**指标类型**
+**指标（Metric）**
 
-Prometheus定义了4种不同的指标类型(Metric Type)
+- **指标格式**
 
-- **Counter**（计数器）
-- **Gauge**（仪表盘）
-- **Histogram**（直方图）
-- **Summary**（摘要）
+  `指标名称{标签名称="标签值"}`
+
+  - 标签（Label）：反映了当前数据的特征维度，Prometheus通过这些维度可以对数据进行过滤，聚合等操作
 
 
+例
+
+`promhttp_metric_handler_requests_total{code="200",instance="192.168.0.107:9090",job="prometheus"} 106`
+
+- 指标名称：`promhttp_metric_handler_requests_total`
+- 标签：
+  - code
+  - instance
+  - job
+- 值：106
+
+- **指标类型**
+
+  Prometheus定义了4种不同的指标类型（Metric Type）
+
+  - **Counter**（计数器）
+  - **Gauge**（仪表盘）
+  - **Histogram**（直方图）
+  - **Summary**（摘要）
 
 **Counter**
 
-Counter类型和计数器一样，只增不减（除非系统发生重置）
+- Counter类型和计数器一样，只增不减（除非系统发生重置）
 
-一般在定义Counter类型指标的名称时推荐使用_total作为后缀。比如Prometheus Server中prometheus_http_requests_total表示Prometheus处理的HTTP请求总数
+- 一般在定义Counter类型指标的名称时推荐使用`_total`作为后缀。比如Prometheus Server中`prometheus_http_requests_total`表示Prometheus处理的HTTP请求总数
+
 
 ```text
 # HELP prometheus_http_requests_total Counter of HTTP requests.
@@ -99,9 +118,10 @@ prometheus_http_requests_total{code="200",handler="/metrics"} 23
 
 **Gauge**
 
-Gauge类型侧重于反应系统的某一个**瞬时的值**，可增可减
+- Gauge类型侧重于反应系统的某一个**瞬时的值**，可增可减
 
-比如Prometheus Server中go_threads表示Prometheus当前go线程的数量
+- 比如Prometheus Server中`go_threads`表示Prometheus当前go线程的数量
+
 
 ```text
 # HELP go_threads Number of OS threads created.
@@ -111,11 +131,10 @@ go_threads 13
 
 **Histogram**
 
-Histogram类型由`_bucket{le=""}`，`_bucket{le="+Inf"}`, `_sum`，`_count`组成。
+- 主要用于表示**一段时间范围内**对数据进行采样的结果，并能够对其指定区间以及总数进行统计（通常展示为直方图）
+- Histogram类型由`_bucket{le=""}`，`_bucket{le="+Inf"}`, `_sum`，`_count`组成
+- 比如Prometheus Server中`prometheus_http_response_size_bytes`
 
-主要用于表示**一段时间范围内**对数据进行采样的结果，并能够对其指定区间以及总数进行统计（通常展示为直方图）
-
-比如Prometheus Server中prometheus_http_response_size_bytes
 
 ```text
 # HELP prometheus_http_response_size_bytes Histogram of response size for HTTP requests.
@@ -130,11 +149,11 @@ prometheus_http_response_size_bytes_count{handler="/"} 1
 
 **Summary**
 
-Summary类型由 `{quantile="<φ>"}`，`_sum`，`_count` 组成。
+- 主要用于表示**一段时间内**数据采样结果，它直接存储了**分位数据**而不是根据统计区间计算出来
+- Summary类型由 `{quantile="<φ>"}`，`_sum`，`_count` 组成
 
-主要用于表示**一段时间内**数据采样结果，它直接存储了**分位数据**而不是根据统计区间计算出来。
+- 比如Prometheus Server中`prometheus_target_interval_length_seconds`
 
-比如Prometheus Server中prometheus_target_interval_length_seconds
 
 ```text
 # HELP prometheus_target_interval_length_seconds Actual intervals between scrapes.
@@ -150,33 +169,44 @@ prometheus_target_interval_length_seconds_count{interval="15s"} 21
 
 ## Prometheus数据获取
 
-Prometheus主要是通过拉取pull的方式获取数据
+Prometheus主要是通过**拉取**（pull）的方式获取数据
 
-Prometheus每隔一段时间会从配置的**目标target**（获取数据的url）以Http协议拉取**指标metrics**，这些目标可以是应用，也可以是代理，缓存中间件，数据库等等一些中间件（需要服务端提供http的接口来获取实时的数据）
+Prometheus每隔一段时间会从配置的**目标（target）**（获取数据的url）以Http协议拉取**指标（metrics）**，这些目标（target）可以是应用，也可以是代理，缓存中间件，数据库等等一些中间件
 
-Prometheus会将拉取出来的数据存到自己的TSDB时序数据库。Prometheus的WebUI控制台以及Grafana可以对数据进行时间范围内的不断查询，绘制成实时图表工展现
+> 需要服务端提供http的接口来获取实时的数据
 
-Prometheus支持例如zookeeper，consul之类的服务发现中间件，用以对目标target的自动发现。而不用一个个去配置
+Prometheus会将拉取出来的数据存到**自己的TSDB时序数据库**
+
+Prometheus的WebUI控制台以及Grafana可以对数据进行时间范围内的不断查询，绘制成实时图表工展现
+
+Prometheus支持例如zookeeper，consul之类的服务发现中间件，用以对目标（target）的自动发现。而不用一个个去配置
+
+## Prometheus配置文件
+
+Prometheus 默认的配置文件分为四部分
+
+- global：Prometheus 的全局配置
+  -  `scrape_interval` 表示多久抓取一次数据
+  - `evaluation_interval` 表示多久检测一次告警规则
+- alerting：关于Alertmanager的配置
+- rule_files：告警规则
+- scrape_config：定义了 Prometheus 要抓取的目标
+  - 默认已经配置了一个名称为 `prometheus` 的 job，这是Prometheus在启动的时候也会通过HTTP接口暴露自身的指标数据（相当于 Prometheus自己监控自己）可以访问 http://localhost:9090/metrics查看 Prometheus暴露的指标
 
 
 
-## 配置Prometheus
+## 部署Prometheus Server
 
-访问Web管理页面( http://49.232.207.245:9090 )可以看到Prometheus服务正确启动
+访问Web管理页面( http://10.2.14.105:9090 )可以看到Prometheus服务正确启动
 
 ```bash
 # 拉取镜像
 docker pull prom/prometheus
 
-# 下载prometheus的配置文件并将其存放在/root/aiops/prometheus/Config路径下 https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus.yml
+# 下载prometheus的配置文件并将其存放在/home/dog/yinke/prometheus/config路径下 https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus.yml
 
 # 启动容器
-# -v: 挂载到容器内/etc/prometheus/prometheus.yml
-docker run --name myPrometheus \
--d -p 9090:9090 \
--v /root/aiops/prometheus/Config/prometheus.yml:/etc/prometheus/prometheus.yml \
-prom/prometheus
-
+# -v: 挂载到容器内的/etc/prometheus/prometheus.yml
 docker run --name inkPrometheus \
 -d -p 9090:9090 \
 -v /home/dog/yinke/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml \
@@ -187,29 +217,39 @@ prom/prometheus
 
 ## 配置Exporter
 
-Prometheus服务负责收集、存储、查看监控数据。真正直接进行监控通过Exporter完成
+Prometheus服务负责收集、存储、查看监控数据，真正**直接进行监控通过Exporter完成**
 
-Exporter相当于是Prometheus服务的客户端，负责向其提供监控数据，针对不同的被监控目标需要使用不同的Exporter
+Exporter相当于是Prometheus服务的客户端，**负责向其提供监控数据**，针对不同的被监控目标需要使用不同的Exporter
 
-- 查看已知的端口是否被占用：`netstat -anp |grep 8089`
+Exporters的实例称为目标（Target），Prometheus通过轮询的方式定时从这些目标（Target）中获取监控数据样本，并且存储在数据库中
 
-- 查看服务器已使用的所有端口：`netstat  -nultp`
+使用Node Exporter用来采集监控的主机的运行状态(CPU、内存、磁盘等参数)，
 
-> Exporter的实例称为Target，Prometheus通过轮询的方式定时从这些Target中获取监控数据样本，并且存储在数据库当中
->
-> 使用一个Node Exporter用来采集监控的主机的运行状态(CPU、内存、磁盘等参数)，一般不推荐使用Docker来部署Node Exporter
->
-> i386=Intel 80386，i386通常被用来作为对Intel（英特尔）32位微处理器的统称
->
-> AMD64又称x86-64或x64”，是一种64位元的电脑处理器架构。它是建基于现有32位元的x86架构，由AMD公司所开发
->
+[Exporters | Prometheus](https://prometheus.io/docs/instrumenting/exporters/)
+
 > 简单理解： i386是32位的版本，amd64是64位的版本
 >
-> 报错：level=info ts=2020-07-18T04:38:46.494Z caller=tls_config.go:170 msg="TLS is disabled and it cannot be enabled on the fly." http2=false
+> - i386=Intel 80386，i386通常被用来作为对Intel（英特尔）32位微处理器的统称
 >
-> 原因：node_exporter版本升到1.0.0之后，因为安全性考虑支持了TLS，所以要添加证书
+> - AMD64又称x86-64或x64”，是一种64位元的电脑处理器架构。它是建基于现有32位元的x86架构，由AMD公司所开发
+>
+
+**查看端口情况**
+
+- 查看**已知的端口**是否被占用：`netstat -anp |grep 8089`
+- 查看**服务器已使用的所有端口**：`netstat  -nultp`
 
 
+
+**直接部署**
+
+> **配置报错**
+>
+> level=info ts=2020-07-18T04:38:46.494Z caller=tls_config.go:170 msg="TLS is disabled and it cannot be enabled on the fly." http2=false
+>
+> **原因**
+>
+> node_exporter版本升到1.0.0之后，因为安全性考虑支持了TLS，所以要添加证书
 
 ```bash
 # 下载 node exporter(64bit)
@@ -247,15 +287,12 @@ tls_server_config:
 
 通过 http://49.232.207.245:9100/metrics 可以看到采集的监控数据
 
-在Prometheus服务的配置文件prometheus.yml中添加相应的配置就可以收集Node Exporter的监控数据
+在Prometheus服务的配置文件`prometheus.yml`中添加相应的配置来收集Node Exporter的监控数据
 
-- 在scrape_configs下添加一个新的job
-- **重启prometheus服务**然后进入其Web管理页面http://49.232.207.245:9090
-
-- 输入up，点击Execute按钮，可看到刚刚添加的job（1表示正常，0表示异常）
-
-
-> 访问http://49.232.207.245:9090/targets查看页面
+1. 在`scrape_configs`下添加一个新的job
+2. **重启prometheus服务**然后进入其Web管理页面http://49.232.207.245:9090
+3. 输入up，点击Execute按钮，可看到刚刚添加的job（1表示正常，0表示异常）
+4. 访问http://49.232.207.245:9090/targets查看页面
 
 ```yaml
 ...
@@ -288,11 +325,9 @@ scrape_configs:
 
 [Prometheus Exporter for machine metrics ](https://github.com/prometheus/node_exporter#using-docker)
 
-node_exporter不建议将其部署为Docker容器，因为它需要访问主机系统。
+node_exporter不建议将其部署为Docker容器，因为它需要访问主机系统。如果要部署Docker以进行主机监视，必须使用一些额外的标志来允许node_exporter访问主机名称空间。指定`path.rootfs`参数，此参数必须与`host root`的`bind-mount`中的路径匹配。node_exporter将`path.rootfs`用作**访问主机文件系统的前缀**
 
-如果要部署Docker以进行主机监视，必须使用一些额外的标志来允许node_exporter访问主机名称空间。指定`path.rootfs`参数，此参数必须与host root的bind-mount中的路径匹配。node_exporter将`path.rootfs`用作访问主机文件系统的前缀
-
-> 注意：要监视的所有非root挂载点都需要绑定挂载到容器中
+> 要监视的所有非root挂载点都需要绑定挂载到容器中
 
 ```bash
 docker run -d \
@@ -323,13 +358,65 @@ EOF
 sh run_node_exporter.sh
 ```
 
+# 数据查询
+
+进入http://10.2.14.105:9090
+
+- Alerts：展示了定义的所有告警规则
+- Status：可以查看各种Prometheus的状态信息
+- Graph：可以使用PromQL查询数据，还可以通过 Prometheus 提供的 HTTP API 来查询数据
+  - 查询的监控数据有列表和曲线图两种展现形式（对应上图中 Console 和 Graph 这两个标签）
+
+![9090](Prometheus.assets/9090.png)
+
+
+
+**查询**
+
+`promhttp_metric_handler_requests_total`：表示 `/metrics` 页面的访问次数
+
+![查询结果](Prometheus.assets/查询结果.png)
+
+![查询图表](Prometheus.assets/查询图表.png)
+
+
+
+## PromQL 
+
+Prometheus Query Language
+
+
+
+## HTTP API
+
+Prometheus还提供了一种**HTTP API**的方式，可以更灵活的将 PromQL 整合到其他系统中使用，实际上Prometheus 的Graph页面查询也是使用了 HTTP API
+
+[HTTP API | Prometheus](https://prometheus.io/docs/prometheus/latest/querying/api/)
+
+> Grafana就是通过 Prometheus 的 HTTP API 来查询指标数据的
+
+- GET /api/v1/query
+- GET /api/v1/query_range
+- GET /api/v1/series
+- GET /api/v1/label/<label_name>/values
+- GET /api/v1/targets
+- GET /api/v1/rules
+- GET /api/v1/alerts
+- GET /api/v1/targets/metadata
+- GET /api/v1/alertmanagers
+- GET /api/v1/status/config
+- GET /api/v1/status/flags
+- POST /api/v1/admin/tsdb/snapshot
+- POST /api/v1/admin/tsdb/delete_series
+- POST /api/v1/admin/tsdb/clean_tombstones
+
 # Grafana
 
 Grafana是一个开源的跨平台的度量分析、可视化工具
 
-## 配置Grafana
+## Grafana配置
 
-访问http://49.232.207.245:3000进入Grafana的Web页面
+访问http://10.2.14.105/:3000进入Grafana的Web页面
 
 默认账号密码均为admin，进入后修改密码（123456）
 
@@ -347,15 +434,17 @@ grafana/grafana
 
 ## 添加数据源
 
-- 设置`Configuration`
-- 选择`Data Sources`
-- 点击`Add data source`，
-- 选择`Time series databases`时序数据库中的`Prometheus`
-- 填写数据源名称和URL地址http://49.232.207.245:9090并保存
+1. 设置`Configuration`
+2. 选择`Data Sources`
+3. 点击`Add data source`，
+4. 选择`Time series databases`时序数据库中的`Prometheus`
+5. 填写数据源名称和URL地址http://49.232.207.245:9090并保存
 
 ![Grafana连接Prometheus](Prometheus.assets/Grafana连接Prometheus.png)
 
-## 配置仪表盘
+
+
+## 仪表盘配置
 
 在Grafana中可以自定义各种监控所需的仪表盘
 
@@ -383,7 +472,7 @@ grafana/grafana
 
 
 
-# 监控MySQL
+# MySQL监控
 
 访问http://49.232.207.245:9104/metrics可查看MySQLD Exporter采集的MySQL监控数据
 
@@ -400,7 +489,7 @@ prom/mysqld-exporter
 
 ![监控MySQLD](Prometheus.assets/监控MySQLD.png)
 
-在Prometheus服务的配置文件prometheus.yml中添加相应的配置，收集MySQLD Exporter的监控数据
+在Prometheus服务的配置文件`prometheus.yml`中添加job
 
 重启Prometheus服务
 
@@ -441,11 +530,12 @@ scrape_configs:
 
 
 
-# 配置cAdvisor
+# CAdvisor配置
 
 cAdvisor是Google一款开源的用于分析、展示容器运行状态的可视化工具，用于监控Dcoker整体的运行情况
 
-cAdvisor原生支持Prometheus
+> cAdvisor原生支持Prometheus
+>
 
 ```bash
 # 拉取镜像
@@ -464,7 +554,9 @@ docker run --name=mycAdvisor \
   google/cadvisor
 ```
 
-在prometheus.yml配置文件添加job并重启Prometheus服务
+在`prometheus.yml`配置文件中添加job
+
+重启Prometheus服务
 
 ```yaml
 ...
@@ -481,10 +573,10 @@ scrape_configs:
   # 收集Docker容器的监控数据
   - job_name: 'cAdvisor'
     static_configs:
-    - targets: ['49.232.207.245:8080']
+    - targets: ['10.2.14.105:8081']
 ```
 
-访问 http://49.232.207.245:8080 查看监控页面（Docker中整体及各容器的监控指标）
+访问 http://10.2.14.105:8081 查看监控页面（Docker中整体及各容器的监控指标）
 
 ![cAdvisor](Prometheus.assets/cAdvisor.png)
 
@@ -492,7 +584,7 @@ scrape_configs:
 
 ![Throughput](Prometheus.assets/Throughput.png)
 
-访问http://49.232.207.245:8080/metrics 查看到采集的监控数据
+访问http://10.2.14.105:8081/metrics 查看到采集的监控数据
 
 ![cAdvisormetrics](Prometheus.assets/cAdvisormetrics.png)
 
@@ -508,6 +600,8 @@ scrape_configs:
 导入
 
 ![cAdvisior](Prometheus.assets/cAdvisior.png)
+
+
 
 # AlterManager
 
@@ -619,3 +713,10 @@ GF_<SectionName>_<KeyName>
 
 ![SectionName](Prometheus.assets/SectionName.png)
 
+
+
+
+
+
+
+- 

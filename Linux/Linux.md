@@ -340,6 +340,8 @@ tail -f /etc/man.config
 rm -rf ./*
 ```
 
+
+
 ### mv
 
 - 为文件或目录改名
@@ -373,6 +375,36 @@ mv 文件名/*  另一个目录
 # 移动当前文件夹下的所有文件到上一级目录
 mv * ../
 ```
+
+
+
+### netstat
+
+用于显示系统的网络状态
+
+- `-a/--all`：显示所有socket套接字，包括正在监听的（LISTEN）
+- `-n/--numeric`：直接显示IP地址，而不通过域名服务器（可以加速操作）
+- `-p/--programs`：显示正在使用Socket的进程标识符和程序名称
+- `-l/--listening`：仅显示监听的服务器的socket
+- `-t/--tcp`：显示TCP端口
+- `-u/--udp`：显示UDP端口
+
+> 关闭端口对应进程：`kill -9 pid`
+>
+> **windows**
+>
+> - 查看系统当前使用所有端口：`netstat -ano`
+> - 查看已知的端口是否被占用：`netstat -ano |findstr 1081`
+
+```bash
+# -anp常用来筛选
+# 查看已知的端口是否被占用
+netstat -anp |grep 9100
+
+# 查看服务器已使用的所有端口
+netstat -nultp
+
+
 
 ### shutdown
 

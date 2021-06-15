@@ -6345,6 +6345,99 @@ export default {
 
 > ES6新特性
 
+## 异步操作
+
+网络请求中，对端服务器处理**需要时间**，信息传递过程需要时间，不像本地调用JavaScript函数一样可以立即直接获得结果。
+
+所以处理网络请求时一般会传入一个**回调函数**，在数据请求成功时将数据通过传入的回调函数回调出去
+
+**问题**
+
+回调地狱（嵌套回调）
+
+![回调地狱](Vue.js.assets/回调地狱.png)
+
+
+
+## 使用
+
+一般是**有异步操作时，使用Promise对这个异步操作进行封装**
+
+**Promise对象**
+
+`new Promise((resolve, reject) => {})`
+
+- 参数是一个函数`(resolve, reject) => {}`
+- 参数对应的函数有2个参数分别是`resolve`和`reject`
+- `resolve`和`reject`这2个参数也是函数
+
+> `new`-> 构造函数(1.保存了一些状态信息 2.执行传入的函数(resolve, reject))
+>
+> 链式编程
+
+
+
+**使用定时器模拟网络请求**
+
+- 定时一秒为网络请求事件
+- 用`console.log()`表示执行代码
+
+```javascript
+// 使用setTimeout模拟嵌套的三次网络请求
+// 第一次请求
+setTimeout(() => {
+    // 第一次处理代码
+    console.log("hello world")
+    // 第二次请求
+    setTimeout(() => {
+        // 第二次 处理代码
+        console.log("hello java")
+        // 第三次请求
+        setTimeout(() => {
+            // 第三次处理代码
+            console.log("hello vue")
+        }, 1000)
+    }, 1000)
+}, 1000)
+```
+
+**使用Promise来封装异步操作**
+
+- 将**网络请求代码**和**处理代码**分离
+- 在`then(()=>{})`中专门进行处理
+
+> 逻辑清晰
+>
+> - 调用`resolve()`就跳转到`then()`方法执行处理代码
+> - 有嵌套就一定是返回一个Promise对象
+
+```javascript
+// 参数:函数
+// resolve和reject:函数
+// then()的参数:函数
+new Promise((resolve, reject) => {
+    setTimeout(() => {//第一次网络请求
+        resolve()
+    }, 1000)
+}).then(() => {
+    console.log("hello world")//第一次处理代码
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {//第二次网络请求
+            resolve()
+        }, 1000).then(() => {
+            console.log("hello vuejs")//第二次处理代码
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {//第三次网络请求
+                    resolve()
+                }, 1000)
+            }).then(() => {
+                console.log("hello java")//第三次处理代码
+            })
+        })
+    })
+})
+```
+
 
 
 # Vuex

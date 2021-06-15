@@ -619,9 +619,11 @@ Pormetheus的告警由独立的两部分组成
 >
 > 3.smtp_require_tls: false 必须加上，因为smtp_require_tls默认为true。
 
+
+
 ## rule_files
 
-创建告警规则文件`alert.rules`
+在`/home/dog/yinke/prometheus/config`目录下创建告警规则文件`alertrules.yml`
 
 这个规则文件里包含了两条告警规则：
 
@@ -630,15 +632,18 @@ Pormetheus的告警由独立的两部分组成
 
 ```bash
 groups:
-- name: example
+- name: node_rules
   rules:
- 
-  # Alert for any instance that is unreachable for >5 minutes.
+  # Alert for any instance that is unreachable for > 5 minutes.
   - alert: InstanceDown
+    # 0不正常，1正常
     expr: up == 0
+    # 持续5分钟获取不到信息，触发报警
     for: 5m
     labels:
-      severity: page
+      # 告警紧急程度
+      severity: error
+    # 说明内容
     annotations:
       summary: "Instance {{ $labels.instance }} down"
       description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 5 minutes."
@@ -647,9 +652,30 @@ groups:
   - alert: APIHighRequestLatency
     expr: api_http_request_latencies_second{quantile="0.5"} > 1
     for: 10m
+    labels:
+      severity: warning
     annotations:
       summary: "High request latency on {{ $labels.instance }}"
       description: "{{ $labels.instance }} has a median request latency above 1s (current value: {{ $value }}s)"
+  - alert: HighMemoryUsage
+    expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes < 0.5
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: High memory usage
+```
+
+因为Prometheus是docker部署的，因此`alertrules.yml`位置必须是**容器内部的目录位置**，而不是宿主机上目录
+
+将`/home/dog/yinke/prometheus/config/alertrules.yml`拷贝到容器内`/etc/prometheus/`
+
+```bash
+# 拷贝
+docker cp /home/dog/yinke/prometheus/config/alertrules.yml e87a0a440925:/etc/prometheus/
+# 进入查看是否拷贝成功
+docker exec -it e87a0a440925 /bin/sh
+cd /etc/prometheus/
 ```
 
 在`Prometheus.yml`的`rule_files`块中添加告警规则文件`alert.rules`
@@ -676,6 +702,32 @@ rule_files:
 重启Prometheus Server服务
 
 访问 http://10.2.14.105:9090/rules 查看配置规则
+
+![rulefiles](Prometheus.assets/rulefiles.png)
+
+访问 http://10.2.14.105:9090/alerts 可以看到根据配置的规则生成的告警
+
+![rulealerts](Prometheus.assets/rulealerts.png)
+
+停掉一个实例node-exporter
+
+```bash
+docker stop 5ce59207a273
+```
+
+![stop一个实例](Prometheus.assets/stop一个实例.png)
+
+可以看到有一条alert的状态是 **PENDING**，表示已经触发了告警规则，但还没有达到告警条件。这是因为这里配置的 `for` 参数是 5m，所以5分钟后才会触发告警
+
+![开始down提示](Prometheus.assets/开始down提示.png)
+
+5分钟后可以看到这条alert的状态变成了 `FIRING`
+
+![firing](Prometheus.assets/firing.png)
+
+
+
+## 告警通知
 
 
 

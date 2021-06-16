@@ -592,32 +592,41 @@ scrape_configs:
 
 # AlterManager
 
-Pormetheus的告警由独立的两部分组成
+**Pormetheus的告警由独立的两部分组成**
 
-- Prometheus服务中的告警规则发送告警到Alertmanager。
-- Alertmanager管理这些告警，包括silencing, inhibition, aggregation，并通过邮件发送通知
+- **告警**：Prometheus服务中的告警规则发送告警到Alertmanager。
+- **通知**：Alertmanager管理这些告警，包括silencing, inhibition, aggregation，并通过邮件发送通知
 
-建立警告和通知的主要步骤：
+
+
+**建立告警和通知的主要步骤**
 
 1. 创建和配置Alertmanager
 2. 启动Prometheus服务时，通过-alertmanager.url标志配置Alermanager地址，以便Prometheus服务能和Alertmanager建立连接。
 3. 在Prometheus中配置告警规则
 
-## SMTP
 
-在报警邮箱中开通smtp功能，并获取授权码（smtp_auth_password中填写）
 
-> pttg hhoz jymp bcjf
+**Alert的三种状态**
 
-![报警邮箱设置](Prometheus.assets/报警邮箱设置.png)
+- **pending**
+  - 警报被激活，但是**低于配置的持续时间**，持续时间由`rule_file`中的`for`字段设置，该状态下不发送报警
+- **firing**
+  - 警报已被激活，而且**超出设置的持续时间**，该状态下发送报警
+- **inactive**：
+  - 既不是**pending**也不是**firing**的时候状态就是inactive
 
->  smtp.qq.com:465 ，端口使用465。其他资料说用587端口也可以（如果是云服务器，25端口通常是被服务商封闭的，所有也不能使用25端口）
->
->  报错信息：
->
-> msg="Notify for alerts failed" num_alerts=1 err="*notify.loginAuth failed: 530 Must issue a STARTTLS command first."
->
-> 3.smtp_require_tls: false 必须加上，因为smtp_require_tls默认为true。
+
+
+**Prometheus触发一条告警的过程**
+
+1. 触发阈值
+2. 超出持续时间
+3. alertmanager
+4. 分组|抑制|静默
+5. 媒体类型：邮件|钉钉|微信等
+
+![告警流程](Prometheus.assets/告警流程.png)
 
 
 
@@ -672,9 +681,9 @@ groups:
 
 ```bash
 # 拷贝
-docker cp /home/dog/yinke/prometheus/config/alertrules.yml e87a0a440925:/etc/prometheus/
+docker cp /home/dog/yinke/prometheus/config/alertrules.yml 8bd1ebf0daa8:/etc/prometheus/
 # 进入查看是否拷贝成功
-docker exec -it e87a0a440925 /bin/sh
+docker exec -it 8bd1ebf0daa8 /bin/sh
 cd /etc/prometheus/
 ```
 
@@ -748,44 +757,112 @@ cd alertmanager-0.15.2.linux-amd64
 
 **docker部署**
 
-在`/home/dog/yinke/prometheus/alertmanager`目录下创建配置文件`alertmanager.yml`
+在`/home/dog/yinke/prometheus/alertmanager`目录下创建告警规则文件`alertmanager.yml`
+
+- **分组**
+
+  - 将**类似性质的告警分类为单个通知**，适用于许多系统同时发生故障并且可能同时触发数百到数千个警报时。将Alertmanager配置为分组告警，以便它发送一个压缩的通知
+  - 告警的分组，告警分组通知的时间和这些通知的接收者通过配置文件来配置
+
+  > 用户只希望获得一个页面，同时仍然能够准确查看受影响的服务实例
+
+- **沉默**
+
+  - 一种简单的特定时间静音提醒的机制。通过匹配器来配置，就像路由树一样。传入的警报会匹配RE，如果匹配将不会为此警报发送通知
+  - 在Alertmanager的Web界面中配置沉默
+
+- **抑制**
+
+  - 当警报发出后停止重复发送由此警报引发其他错误的警报的机制
+  - 通过Alertmanager的配置文件来配置
+
+> `smtp.qq.com:465` ，端口使用465
 
 ```yaml
+# 全局配置,包括报警解决后的超时时间、SMTP相关配置、各种渠道通知的API地址等
 global:
+  # 设置处理超时时间，也是生命警报状态为解决的时间
   resolve_timeout: 5m
-  # 发件服务器,可设置qq企业,163邮箱等
-  smtp_smarthost: 'smtp.139.com:465'   
-  smtp_from: '541640794@qq.com'
-  smtp_auth_username: '541640794@qq.com'
-  smtp_auth_password: 'XX自己的密码XXX'
-————————————————
-版权声明：本文为CSDN博主「ghostwritten」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
-原文链接：https://blog.csdn.net/xixihahalelehehe/article/details/80391733
+  # smtp配置
+  smtp_from: "123456789@qq.com"
+  smtp_smarthost: 'smtp.qq.com:465'
+  smtp_auth_username: "123456789@qq.com"
+  smtp_auth_password: "auth_pass"
+  smtp_require_tls: true
+# email、企业微信的模板配置存放位置
+#templates:
+#  - '/home/dog/yinke/prometheus/alertmanager/templates/*.tmpl'
+# 用来设置报警的分发策略,是一个树状结构,按照深度优先从左向右的顺序进行匹配
 route:
-  group_by: ['cqh']
-  group_wait: 10s #组报警等待时间
-  group_interval: 10s #组报警间隔时间
-  repeat_interval: 1m #重复报警间隔时间
-  receiver: 'email'
+  # 默认邮件告警
+  receiver: 'test_email'
+  # 按alertname进行分组
+  group_by: ['alertname']
+  # 组内报警等待时间
+  group_wait: 10s 
+  # 组报警间隔时间，如果组内内容不变化，合并为一条警报信息，10s后发送
+  group_interval: 10s 
+  # 重复报警间隔时间
+  # 当group_interval时间到后，再等待repeat_interval时间后，才进行报警
+  repeat_interval: 1h 
+# 配置告警消息接受者信息，例如常用的email、wechat等消息通知方式
 receivers:
-  - name: 'email'
+  - name: 'test_email'
+    email_configs:
+    - to: '541640794@qq.com'
+      send_resolved: true
+      headers:
+        subject: "报警邮件"
+        from: "nlsde警报中心"
+        to: "ink"
+# 抑制规则配置，当存在与另一组匹配的警报（源）时，抑制规则将禁用匹配的警报目标
+# 抑制规则
 inhibit_rules:
+  # 源标签警报触发时抑制含有目标标签的警报
   - source_match:
       severity: 'critical'
     target_match:
       severity: 'warning'
-    equal: ['alertname', 'dev', 'instance']
-    
-global:
-resolve_timeout: 5m
-smtp_smarthost: 'smtp.qq.com:465'
-smtp_from: '541640794@qq.com'
-smtp_auth_username: 'xxxxxx@qq.com'
-smtp_auth_password: 'xxxxxxxxxx'
-smtp_require_tls: false
+    # 确保配置的标签内容相同才会抑制
+    equal: ['alertname']
+```
+
+运行docker容器
+
+将`alertmanager.yml`挂载到容器内，路径为`/etc/alertmanager/alertmanager.yml`
+
+```bash
+docker run -d -p 9093:9093 \
+-v /home/dog/yinke/prometheus/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml \
+-v /home/dog/yinke/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml \
+--name inkalertmanager \
+docker.io/prom/alertmanager:latest
 ```
 
 
+
+修改Prometheus的配置文件 `prometheus.yml`
+
+```yaml
+# 发生告警时，将告警信息发送到 Alertmanager           
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets: ["10.2.14.105:9093"]
+      # - alertmanager:9093
+```
+
+重新部署Prometheus Server
+
+```bash
+docker run --name inkPrometheus \
+-d -p 9090:9090 \
+-v /home/dog/yinke/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml \
+-v /home/dog/yinke/prometheus/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml \
+prom/prometheus
+```
+
+访问http://10.2.14.105:9093，可以看到Alertmanager已经接收到告警了
 
 
 
@@ -793,11 +870,27 @@ smtp_require_tls: false
 
 
 
+## SMTP
+
+在报警的邮箱中开通smtp功能，并获取授权码（smtp_auth_password中填写）
+
+`smtp.qq.com:465` ，端口使用**465**。其他资料说用587端口也可以（如果是云服务器，25端口通常是被服务商封闭的，所有也不能使用25端口）
+
+> 报错信息
+>
+> msg="Notify for alerts failed" num_alerts=1 err="*notify.loginAuth failed: 530 Must issue a STARTTLS command first."
+>
+> 解决方法
+>
+> smtp_require_tls: false 必须加上，因为smtp_require_tls默认为true
+
+![报警邮箱设置](Prometheus.assets/报警邮箱设置.png)
 
 
 
 
-## Grafana配置邮箱
+
+## 配置Grafana
 
 **安装邮件发送服务** 
 
@@ -834,7 +927,7 @@ ehlo_identity = example.com                   #无关紧要的一个标示
 sudo service grafana-server restart  
 ```
 
-##### 通过配置Grafana的环境变量修改
+### 通过配置Grafana的环境变量修改
 
 grafana的配置选项也可以使用环境变量指定覆盖配置文件中的**所有选项**
 
@@ -848,8 +941,27 @@ GF_<SectionName>_<KeyName>
 
 
 
+# 服务发现
 
+Prometheus 是通过 Pull 的方式主动获取监控数据，所以需要**手工指定监控节点的列表**，当监控的节点增多之后，每次增加节点都需要更改配置文件，非常麻烦，这个时候就需要通过**服务发现**（service discovery，SD）机制去解决
 
+Prometheus 支持多种服务发现机制，可以自动获取要收集的 targets
 
+[prometheus/discovery at main · prometheus/prometheus (github.com)](https://github.com/prometheus/prometheus/tree/main/discovery)
 
-- 
+[Advanced Service Discovery in Prometheus 0.14.0 | Prometheus](https://prometheus.io/blog/2015/06/01/advanced-service-discovery/)
+
+Prometheus 的配置还是 Alertmanager 的配置，都没有提供 API 供我们动态的修改。
+
+一个很常见的场景是，需要基于 Prometheus 做一套可自定义规则的告警系统，用户可根据自己的需要在页面上创建修改或删除告警规则，或者是修改告警通知方式和联系人，
+
+不过遗憾的是，[Simon Pasquier](https://github.com/simonpasquier) 在下面说到，目前并没有这样的 API，而且以后也没有这样的计划来开发这样的 API
+
+# 自监控
+
+其它系统都用 Prometheus 监控起来了，报警规则也设置好了，那 Prometheus 本身由谁来监控？
+
+- **上生产环境之前，一定要确保至少有两个独立的 Prometheus 实例互相做交叉监控。**交叉监控的配置也很简单，每台 Prometheus 都拉取其余所有 Prometheus 的指标即可。
+
+- 警报系统(Alertmanager)，我们再考虑一下警报系统挂掉的情况：这时候 Prometheus 可以监控到警报系统挂了，但是因为警报挂掉了，所以警报自然就发不出来，这也是应用 Prometheus 之前必须搞定的问题。这个问题可以通过给警报系统做 HA 来应对。除此之外还有一个经典的兜底措施叫做 ["Dead man's switch"](https://link.zhihu.com/?target=https%3A//en.wikipedia.org/wiki/Dead_man%27s_switch): 定义一条永远会触发的告警，不断通知，假如哪天这条通知停了，那么说明报警链路出问题了。
+

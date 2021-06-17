@@ -6333,9 +6333,53 @@ export default {
 
 ## 别名配置
 
+**问题**
+
+引入图片文件等资源的时候一般**使用相对路径**，如`../assets/ink.png`，如果文件资源过深，就要一直调用`../`获取上一层文件目录，不利于代码的维护
+
+**解决方法**
+
+需要一个能获取到指定目录的资源
+
+在`webpack.base.config`中`resolve`模块**配置使用别名**
+
+- `@`指定`src`主目录：`@/components`就表示`src/components`目录
+- `assets`表示`src/assets`前缀：`assets/img`就表示`src/assets/img`目录
+
+```js
+  resolve: {
+    extensions: ['.js', '.vue', '.json'],
+    alias: {
+      '@': resolve('src'),
+      'assets': resolve('src/assets'),
+      'components': resolve('src/components'),
+      'views': resolve('scr/views')
+    }
+  },
+```
+
+
+
 
 
 # Tab Bar demo
+
+**style引用**
+
+在`assest`目录下创建`css`目录，在`css`目录中创建`base.css`用于初始化css
+
+style中引用使用`@import url`
+
+```css
+<style>
+   @import url('./assets/css/base.css');
+</style>
+```
+
+**目录结构**
+
+- `component`：存放公共的组件
+- `views`：存放独立的组件
 
 
 

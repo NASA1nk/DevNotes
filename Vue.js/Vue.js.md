@@ -2,8 +2,8 @@
 
 ## let
 
-- ES6前`var`，`if`和`for`中都没有块级作用域的概念，使用`var`声明的变量就是全局变量
-- ES6后`let`拥有了块级作用域
+- ES6之前`var`，`if`和`for`中都没有块级作用域的概念，使用`var`声明的变量就是全局变量
+- ES6以后`let`拥有了块级作用域
 
 > ES6之前所以很多时候需要使用function的作用域，比如闭包
 
@@ -764,25 +764,28 @@ Mustache语法不能作用在HTML标签的属性`attribute`上
 
 ### 绑定style
 
-绑定CSS内联样式：`<h2 :style="{key(属性名):value(属性值)}">`
+绑定CSS内联样式：`<p :style="{key1:value1,key2:value2}"></p>`
 
 - 对象语法
+  - 对象的`key`是CSS的属性名称
+  - 对象的`value`是具体赋的值，可以来源于`data`中
 - 数组语法
 
 > 组件化开发中可复用组件的使用，动态绑定样式属性
 >
 > 驼峰命名法
 >
-> 数字和字符串连接成字符串
+> 当属性过于复杂时，可以放在一个methods中或计算属性中
 
 ```html
 <body>
 <div id="app">
+  <!-- 对象语法 -->
   <!-- 加单引号表示字符串 -->
   <h2 :style="{fontSize: '50px'}">{{message}}</h2>
   <!-- 不加单引号表示变量 -->
   <h2 :style="{fontSize: fontSize}">{{message}}</h2>
-  <!-- 连接 -->
+  <!-- 数字和字符串连接成字符串 -->
   <h2 :style="{fontSize: fontSizenopx + 'px'}">{{message}}</h2>
   <!-- 方法 -->
   <h2 :style="getStyle1()">{{message}}</h2>
@@ -2324,6 +2327,8 @@ Vue提供了两种方案来定义HTML模块内容
 > 默认`props`属性中的值不能大写
 >
 > Vue中的保留关键字不能作为`props`中的属性值，如`key`
+>
+> 也可以是想传给子组件内部数据时定义一个props，传递基本数据类型值（不是父组件变量值）时候可以直接写（不用`:`来绑定）
 
 
 
@@ -3407,8 +3412,15 @@ module.exports = {
         
     },
 	resolve: {
+        // 导入时省略拓展名
+        extensions: ['.js', '.vue', '.json'],
         // 别名  
-        alias: {}
+        alias: {
+    		'@': resolve('src'),
+    		'assets': resolve('src/assets'),
+    		'components': resolve('src/components'),
+    		'views': resolve('scr/views')
+  		}
     },
 	watch: true
 }
@@ -6335,27 +6347,30 @@ export default {
 
 **问题**
 
-引入图片文件等资源的时候一般**使用相对路径**，如`../assets/ink.png`，如果文件资源过深，就要一直调用`../`获取上一层文件目录，不利于代码的维护
+引入图片文件等资源的时候一般**使用相对路径**，如`../assets/ink.png`
+
+- 如果文件资源过深，就要一直调用`../`获取上一层文件目录，不利于代码的维护
+- 移动文件时，相对路径就会发生改变
 
 **解决方法**
 
-需要一个能获取到指定目录的资源
-
 在`webpack.base.config`中`resolve`模块**配置使用别名**
 
-- `@`指定`src`主目录：`@/components`就表示`src/components`目录
-- `assets`表示`src/assets`前缀：`assets/img`就表示`src/assets/img`目录
+- `@`表示`src`主目录：`@/components`就表示`src/components`目录
+- `assets`表示`src/assets`：`assets/img`就表示`src/assets/img`目录
+
+> 在其他地方使用路径别名（如标签中的`src`属性），需要在前面加上`~`：`src="~assets/ink.png"`
 
 ```js
-  resolve: {
-    extensions: ['.js', '.vue', '.json'],
-    alias: {
-      '@': resolve('src'),
-      'assets': resolve('src/assets'),
-      'components': resolve('src/components'),
-      'views': resolve('scr/views')
-    }
-  },
+resolve: {
+  alias: {
+    '@': resolve('src'),
+    // 不支持'@/assets'就写成'src/assets'
+    'assets': resolve('@/assets'),
+    'components': resolve('@/components'),
+    'views': resolve('/views')
+  }
+}
 ```
 
 

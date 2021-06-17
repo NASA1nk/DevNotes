@@ -757,6 +757,30 @@ cd alertmanager-0.15.2.linux-amd64
 
 **docker部署**
 
+在`/home/dog/yinke/prometheus/alertmanager`建立email模板文件`email.tmpl`
+
+`define`用来定义变量，分别是：`email.from`、`email.to`、`email.to.html`，可以在 `alertmanager.yml`文件中直接配置引用（`email.to.html`就是要发送的邮件内容，支持 Html 和 Text 格式）
+
+```tmpl
+{{ define "email.from" }}123456789@qq.com{{ end }}
+{{ define "email.to" }}541640794@qq.com{{ end }}
+{{ define "email.to.html" }}
+{{ range .Alerts }}
+=========start==========<br>
+告警程序: prometheus_alert <br>
+告警级别: {{ .Labels.severity }} 级 <br>
+告警类型: {{ .Labels.alertname }} <br>
+故障主机: {{ .Labels.instance }} <br>
+告警主题: {{ .Annotations.summary }} <br>
+告警详情: {{ .Annotations.description }} <br>
+触发时间: {{ .StartsAt.Format "2021-06-16 20:21:15" }} <br>
+=========end==========<br>
+{{ end }}
+{{ end }}
+```
+
+
+
 在`/home/dog/yinke/prometheus/alertmanager`目录下创建告警规则文件`alertmanager.yml`
 
 - **分组**
@@ -777,24 +801,26 @@ cd alertmanager-0.15.2.linux-amd64
   - 通过Alertmanager的配置文件来配置
 
 > `smtp.qq.com:465` ，端口使用465
+>
+> `smtp_require_tls: false`，默认是true，一定要改成`false`才能发送邮件
 
 ```yaml
 # 全局配置,包括报警解决后的超时时间、SMTP相关配置、各种渠道通知的API地址等
 global:
-  # 设置处理超时时间，也是生命警报状态为解决的时间
+  # 设置处理超时时间，也是状态为解决的时间
   resolve_timeout: 5m
   # smtp配置
   smtp_from: "123456789@qq.com"
   smtp_smarthost: 'smtp.qq.com:465'
   smtp_auth_username: "123456789@qq.com"
-  smtp_auth_password: "auth_pass"
-  smtp_require_tls: true
+  smtp_auth_password: '123456'
+  smtp_require_tls: false
 # email、企业微信的模板配置存放位置
-#templates:
-#  - '/home/dog/yinke/prometheus/alertmanager/templates/*.tmpl'
+templates:
+  - '/home/dog/yinke/prometheus/alertmanager/*.tmpl'
 # 用来设置报警的分发策略,是一个树状结构,按照深度优先从左向右的顺序进行匹配
 route:
-  # 默认邮件告警
+  # 默认告警消息接受者
   receiver: 'test_email'
   # 按alertname进行分组
   group_by: ['alertname']
@@ -809,7 +835,10 @@ route:
 receivers:
   - name: 'test_email'
     email_configs:
-    - to: '541640794@qq.com'
+    # 接收告警的email
+    - to: '{{ template "email.to" . }}'
+      # 模板
+      html: '{{ template "email.to.html" . }}' 
       send_resolved: true
       headers:
         subject: "报警邮件"
@@ -824,7 +853,7 @@ inhibit_rules:
     target_match:
       severity: 'warning'
     # 确保配置的标签内容相同才会抑制
-    equal: ['alertname']
+    equal: ['alertname', 'dev', 'instance']
 ```
 
 运行docker容器
@@ -839,12 +868,10 @@ docker run -d -p 9093:9093 \
 docker.io/prom/alertmanager:latest
 ```
 
-
-
 修改Prometheus的配置文件 `prometheus.yml`
 
 ```yaml
-# 发生告警时，将告警信息发送到 Alertmanager           
+# 发生告警时，将告警信息发送到Alertmanager           
 alerting:
   alertmanagers:
   - static_configs:
@@ -854,6 +881,12 @@ alerting:
 
 重新部署Prometheus Server
 
+> 这里需要重新把`alertrules.yml` 拷贝进容器内
+>
+> ```bash
+> docker cp /home/dog/yinke/prometheus/config/alertrules.yml 8bd1ebf0daa8:/etc/prometheus/
+> ```
+
 ```bash
 docker run --name inkPrometheus \
 -d -p 9090:9090 \
@@ -862,11 +895,19 @@ docker run --name inkPrometheus \
 prom/prometheus
 ```
 
-访问http://10.2.14.105:9093，可以看到Alertmanager已经接收到告警了
+停止cAdvisor实例，访问http://10.2.14.105:9093可以看到Alertmanager接收到告警
+
+![alertmanager接受告警](Prometheus.assets/alertmanager接受告警.png)
 
 
 
-## 告警通知
+查看alertmanager日志
+
+> 如果没有收到邮件，查看alertmanager日志是否有报错信息
+
+```bash
+docker logs -f alertmanager
+```
 
 
 

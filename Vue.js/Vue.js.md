@@ -6418,7 +6418,7 @@ style中引用使用`@import url`
 
 
 
-## 使用
+## Promise使用
 
 一般是**有异步操作时，使用Promise对这个异步操作进行封装**
 
@@ -6427,12 +6427,13 @@ style中引用使用`@import url`
 `new Promise((resolve, reject) => {})`
 
 - 参数是一个函数`(resolve, reject) => {}`
-- 参数对应的函数有2个参数分别是`resolve`和`reject`
+- 参数函数对应的函数有2个参数分别是`resolve`和`reject`
 - `resolve`和`reject`这2个参数也是函数
 
-> `new`-> 构造函数(1.保存了一些状态信息 2.执行传入的函数(resolve, reject))
+> `new`-> 构造函数()
 >
-> 链式编程
+> - 保存了一些状态信息
+> - 执行传入的函数`(resolve, reject) => {}`
 
 
 
@@ -6460,37 +6461,53 @@ setTimeout(() => {
 }, 1000)
 ```
 
+
+
 **使用Promise来封装异步操作**
 
-- 将**网络请求代码**和**处理代码**分离
+将**网络请求代码**和**处理代码**分离
+
+- Promise内只负责简单的异步请求代码
 - 在`then(()=>{})`中专门进行处理
 
+> `setTimeout()`模拟网络请求，`then()`执行的是网络请求后的代码，这就将网络请求和请求得到响应后的操作分离了。
+>
+> 如果在`resolve`中传参，那么在`then()`方法中就有这个参数
+>
 > 逻辑清晰
 >
 > - 调用`resolve()`就跳转到`then()`方法执行处理代码
 > - 有嵌套就一定是返回一个Promise对象
+> - 从嵌套调用变为链式调用
 
 ```javascript
 // 参数:函数
 // resolve和reject:函数
 // then()的参数:函数
+
+// 第一次网络请求
 new Promise((resolve, reject) => {
-    setTimeout(() => {//第一次网络请求
+    setTimeout(() => {
         resolve()
     }, 1000)
 }).then(() => {
-    console.log("hello world")//第一次处理代码
+    // 第一次处理代码
+    console.log("hello world")
+    // 第二次网络请求
     return new Promise((resolve, reject) => {
-        setTimeout(() => {//第二次网络请求
+        setTimeout(() => {
             resolve()
         }, 1000).then(() => {
-            console.log("hello vuejs")//第二次处理代码
+            // 第二次处理代码
+            console.log("hello ink")
+            // 第三次网络请求
             return new Promise((resolve, reject) => {
-                setTimeout(() => {//第三次网络请求
+                setTimeout(() => {
                     resolve()
                 }, 1000)
             }).then(() => {
-                console.log("hello java")//第三次处理代码
+                // 第三次处理代码
+                console.log("hello yinke")
             })
         })
     })
@@ -6499,11 +6516,332 @@ new Promise((resolve, reject) => {
 
 
 
+## Promise状态
+
+**异步操作之后**会有三种状态
+
+- Pending：等待状态，比如正在进行网络请求，或者定时器没有到时间
+- Fulfill：满足状态，调用`resolve`，并且回调`then()`
+- Reject：拒绝状态，调用`reject`，并且会回调`catch()`
+
+
+
+## resolve和reject
+
+请求有成功和失败两种状态
+
+- 成功：调用`resolve()`，转到`then()`执行
+  - 在`resolve()`中可以传递参数到`then()`中
+- 失败：调用`reject()`，转到`catch()`执行
+  - 在`reject()`中可以传递参数到`catch()`中
+
+> 可以合并到`then(fun1,fun2)`中
+
+```java
+new Promise((resolve, reject) => {
+    setTimeout(() => {
+    	resolve('Hello World')
+    }, 1000)
+}).then((data) => {
+    console.log(data)
+})
+
+new Promise((resolve, reject) => {
+    setTimeout(() => {
+    	reject('error message')
+    }, 1000)
+}).catch(error => {
+    console.log(error)
+})
+    
+// 合并
+new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve('Hello World')
+    	reject('error message')
+    }, 1000)
+}).then((data) => {
+    console.log(data)
+}, error => {
+    // 箭头函数只有一个参数时候，可以省略()
+    console.log(error)
+})
+   
+```
+
+
+
+## 链式调用
+
+在Promise中无论是`then()`还是`catch()`都返回一个Promise对象。所以可以直接通过Promise包装新的数据，然后将Promise对象返回
+
+> `return new Promise((resolve, reject) => {})`
+
+**链式调用**
+
+- `Promise.resovle()`：将数据包装成Promise对象，并且在内部回调`resolve()`函数
+- `Promise.reject()`：将数据包装成Promise对象，并且在内部回调`reject()`函数
+
+```javascript
+new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve('hello')
+    }, 1000)
+}).then(res => {
+    // 第一次处理
+    console.log(res)
+    return new Promise(resolve => {
+        // 对结果第二次处理
+        resolve(res + ' world')
+    }).then(res => {
+        // 第三次处理
+        console.log(res)
+        return new Promise(resolve => {
+            // 对结果第四次处理
+            resolve(res + ',vuejs')
+        }).then(res => {
+            // 第五次处理
+            console.log(res)
+        })
+    })
+})
+```
+
+**简写**
+
+```javascript
+return new Promise(resolve => {
+    resolve(res + ' world')
+})
+```
+
+等价于：
+
+`return Promise.resolve(res + ' world')`
+
+```javascript
+new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve('hello')
+    }, 1000)
+}).then(res => {
+    // 第一次处理
+    console.log(res)
+     // 第二次处理
+    return Promise.resolve(res + ' world')
+}).then(res => {
+    // 第三次处理
+    console.log(res)
+     // 第四次处理
+    return Promise.resolve(res + ',vuejs')
+}).then(res => {
+    // 第五次处理
+    console.log(res)
+})
+```
+
+**继续简写**
+
+直接省略掉`Promise.resolve()`
+
+```javascript
+new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve('hello')
+    }, 1000)
+}).then(res => {
+    // 第一次处理
+    console.log(res)
+     // 第二次处理
+    return res + ' world'
+}).then(res => {
+    // 第三次处理
+    console.log(res)
+     // 第四次处理
+    return res + ',vuejs'
+}).then(res => {
+    // 第五次处理
+    console.log(res)
+})
+```
+
+## 错误处理
+
+**catch**
+
+如果请求过程中间执行了`reject()`，那么后续`then()`不会执行，直接跳转到`catch()`
+
+```javascript
+new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve('hello')
+    }, 1000)
+}).then(res => {
+    // 第一次处理
+    console.log(res)
+     // 错误,后续then不会执行
+    return Promise.reject('error')
+}).then(res => {
+    // 第三次处理
+    console.log(res)
+     // 第四次处理
+    return Promise.resolve(res + ',vuejs')
+}).then(res => {
+    // 第五次处理
+    console.log(res)
+}).catch(err => {
+    console.log(err)
+})
+```
+
+**throw**
+
+也可以使用throw抛出异常
+
+```javascript
+new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve('hello')
+    }, 1000)
+}).then(res => {
+    // 第一次处理
+    console.log(res)
+     // 错误,后续then不会执行
+    throw 'error message'
+}).then(res => {
+    // 第三次处理
+    console.log(res)
+     // 第四次处理
+    return Promise.resolve(res + ',vuejs')
+}).then(res => {
+    // 第五次处理
+    console.log(res)
+}).catch(err => {
+    console.log(err)
+})
+```
+
+
+
+## Promise all
+
+**背景**
+
+需要多个请求来实现业务
+
+**问题**
+
+多个网络请求，不知道哪个会先返回结果
+
+**解决**
+
+**Promise可以直接包装多个异步请求，当多个异步请求都完成后，再统一处理**
+
+> 传统：定义一个函数，只有当多个请求都返回数据时才回调
+
+ 
+
+`Promise.all([]).then(results)`
+
+- 多个请求结果存放在`results`中
+
+```javascript
+Promise.all([
+    new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(name: 'results1', age: 20)
+        }, 1000)
+    }),
+    new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(name: 'results2', age: 22)
+        }, 1000)
+    })
+]).then(results => {
+    console.log(results[0])
+    console.log(results[1])
+})
+
+
+
 # Vuex
 
-# Vue-ElementUI
+Vuex是一个专为Vue.js应用程序开发的**状态管理模式**
 
-项目实战
+采用**集中式存储管理**应用的所有组件的**状态**，并以相应的规则保证状态以一种可预测的方式发生变化
+
+> Vuex也集成到Vue的官方调试工具devtools extension，提供了诸如零配置的time-travel调试、状态快照导入导出等高级调试功能
+
+
+
+## 状态管理
+
+状态可以简单的理解为一个变量
+
+状态管理可以简单的看成把多个组件需要**共享**的变量全部存储在一个对象内，然后将这个对象放在**顶层Vue实例**中，让其他组件都可以使用
+
+> Vuex就是为了提供这样一个在多个组件间共享状态的插件，它可以保证共享对象里面所有的属性都可以做到响应式（自己封装对象做不到响应式）
+
+**需要共享的数据**：**多界面共享的状态**
+
+- 用户登录状态
+- 用户名称、头像、
+- 地理位置信
+- 商品的收藏
+- 购物车中的物品
+
+
+
+## 单页面状态管理
+
+- State：状态，在View中显示
+- View：视图，可以针对State的变化显示不同的信息
+- Actions：动作，用户在View上会导致State改变各种操作
+
+![状态管理](Vue.js.assets/状态管理.png)
+
+**问题**
+
+遇到**多个组件共享状态**时，**单向数据流**的简洁性很容易被破坏
+
+- 多个视图依赖于同一状态
+- 来自不同视图的行为需要变更同一个状态
+
+
+
+## 多页面状态管理
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Vue-ElementUI
 
 **创建**
 

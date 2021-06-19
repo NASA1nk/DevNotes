@@ -6879,6 +6879,7 @@ const store = new Vuex.Store({
 })
 // 3.导出store对象
 export default store
+```
 
 在`main.js`中引入
 
@@ -7017,7 +7018,7 @@ Vuex提出使用**单一状态树**SSOT（Single Source of Truth 单一数据源
 
 
 
-### 基本使用
+### 使用
 
 修改`store/index.js`
 
@@ -7288,12 +7289,197 @@ Vuex的store状态的更新唯一方式：提交Mutation
 
 **Mutation主要包括两部分**
 
-- 字符串的事件类型（type）
-- 回调函数（handler），第一个参数是state
+- 字符串的**事件类型**（type）：
+- **回调函数**（handler），**第一个参数是state**
+
+**定义**
+
+```javascript
+mutations: {
+    // increase是事件类型,其余部分是回调函数，第一个参数是state
+    increase(state) {
+        state.counter++
+    },
+    decrease(state) {
+        state.counter--
+    }
+}
+```
+
+**使用**
+
+```vue
+this.$store.commit('decrease')
+```
+
+
+
+### 传递单个参数
+
+通过mutation更新数据时可以使用**额外的参数**，参数被称为是mutation的**载荷**（Payload）
+
+**定义**
+
+```javascript
+mutations: {
+    // 多个参数
+    increaseCount(state,count) {
+        state.counter += count
+    }
+}
+```
+
+**使用**
+
+```vue
+addCount (count) {
+    // 将count传入
+    this.$store.commit('increaseCount', count) 
+}
+```
+
+
+
+### 传递多个参数
+
+**多个参数时通常会以对象的形式传递**，即payload是一个对象，从对象中取出相关的信息
+
+> 或者本来就想传递一个对象数据
+
+**定义**
+
+```javascript
+mutations: {
+    // 对象参数
+    addStudent(state,stu) {
+        state.students.push(stu)
+    }
+}
+```
+
+**使用**
+
+```vue
+addStudent() {
+    // 统一包装成一个对象传递
+    const stu = {id: 4, name: 'e', age: '16'}
+    this.$store.commit('addStudent',stu)
+}
+```
+
+
+
+### 提交风格
+
+Vue提供了另外一种风格，它是一个包含`type`属性的对象
+
+```javascript
+// 普通风格
+this.$store.commit('increaseCount', count) 
+
+// 特殊风格(对象)
+this.$store.commit({
+	type: 'increaseCount',
+    // 增强写法
+	count
+})
+```
+
+特殊风格时，mutation中的**参数被转换为一个对象**（payload）
+
+> 将整个commit的对象作为payload使用
+
+```javascript
+mutations: {
+    // 对象参数
+    addStudent(state,payload) {
+        state.counter += payload.count
+    }
+}
+```
+
+
+
+## 响应规则
+
+Vuex的`store`中的`state`是响应式的，当`state`中的数据发生改变时，Vue组件会自动更新
+
+这就要求必须遵守一些Vuex对应的**规则**
+
+- 提前在`store`中**初始化**好属性
+- 当给`state`中的**对象添加新属性**时
+  - 使用`Vue.set(obj, 'newProp.key','newProp.value')`
+  - 用新对象给旧对象**重新赋值**
+- 删除属性时使用`Vue.delete`（`delete`是非响应式的）
+
+> 遵循规则定义的数据都会被加入响应式系统中，响应式系统会监听数据的变化，然后通知界面中引用数据的地方刷新改变
+>
+> 如果只是简单的直接赋值来增加新的属性（没按规则改变），因为它不属于一开始被监听的数据，所以引用数据的界面不会刷新改变
+>
+> [Vue基础 / 列表渲染 / 数组更新](#数组更新)
+
+**定义**
+
+修改`store/index.js`
+
+```javascript
+import Vue from 'vue'
+import Vuex from 'vuex'
+
+Vue.use(Vuex)
+
+const store = new Vuex.Store({
+  state: {
+    person: {
+      name: 'ink',
+      sex: '男',
+      age: 25
+    }
+  },
+  // 方法
+  mutations: {
+    updateInfo(state) {
+      // 非响应式
+      // state.person['address'] = 'beijing'
+      // 响应式
+      Vue.set(state.person, 'address', 'beijing')
+    }
+  }
+})
+
+export default store
+```
+
+**使用**
+
+```vue
+<template>
+  <div id="app">
+    <h2>{{$store.state.person}}</h2>
+    <button @click="updateInfo()">修改信息</button>
+  </div>
+</template>
+<script>
+export default {
+  name: 'App',
+  methods: {
+    updateInfo() {
+      this.$store.commit('updateInfo')
+    }
+  }
+}
+</script>
+<style>
+</style>
+```
 
 
 
 
+
+
+
+## 常量类型
 
 # Vue-ElementUI
 
@@ -8208,3 +8394,7 @@ export default {
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   ```
 
+
+
+[### 数组更新]: 
+[#Vue基础 ## 列表渲染 ### 数组更新]: 

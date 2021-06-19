@@ -6761,6 +6761,7 @@ Promise.all([
     console.log(results[0])
     console.log(results[1])
 })
+```
 
 
 
@@ -6798,7 +6799,7 @@ Vuex是一个专为Vue.js应用程序开发的**状态管理模式**
 - View：视图，可以针对State的变化显示不同的信息
 - Actions：动作，用户在View上会导致State改变各种操作
 
-![状态管理](Vue.js.assets/状态管理.png)
+![单界面状态管理](Vue.js.assets/单界面状态管理.png)
 
 **问题**
 
@@ -6811,31 +6812,484 @@ Vuex是一个专为Vue.js应用程序开发的**状态管理模式**
 
 ## 多页面状态管理
 
+- 多个试图都依赖同一个状态
+- 不同界面的Actions都想修改同一个状态
+
+官方不建议让VueComponent直接修改state，而是通过Mutation来修改
+
+> Actions是当有异步操作时才通过它修改state，修改state可以没有Actions这个步骤
+>
+> Devtools：Vue开发的一个浏览器插件，**通过Mutation修改每一次state都会被记录**
+
+![多界面状态管理](Vue.js.assets/多界面状态管理.png)
+
+### 安装
+
+运行时依赖
+
+> 安装插件
+
+```bash
+npm install vuex --save
+```
 
 
 
+### 配置
+
+在`src`下创建一个`store`目录，创建配置文件`index.js`
+
+> 使用插件：`Vue.use()`
+
+```javascript
+import Vue from 'vue'
+import Vuex from 'vuex'
+
+// 1.安装插件
+Vue.use(Vuex)
+
+// 2.创建对象(Store)
+const store = new Vuex.Store({
+  // 状态集合
+  state: {
+    // 具体的状态数据
+    count: 0
+  },
+  // 方法
+  mutations: {
+    // 默认自动传入参数state
+    increase(state) {
+      state.counter++
+    },
+    decrease(state) {
+      state.counter--
+    }
+  },
+  actions: {
+
+  },
+  getters: {
+    power(state) {
+      return state.counter * state.counter
+    }
+  },
+  modules: {
+    
+  }
+})
+// 3.导出store对象
+export default store
+
+在`main.js`中引入
+
+- 导入store对象并放在`new Vue`中，这样在所有的组件中都可以使用
+- 在其他组件中使用store对象中保存的状态即可
+
+```javascript
+import Vue from 'vue'
+import App from './App'
+import router from './router'
+import store from './store'
+
+Vue.config.productionTip = false
+
+new Vue({
+  el: '#app',
+  // 字面量增强写法
+  router,
+  store,
+  render: h => h(App)
+})
+```
 
 
 
+### 使用
+
+- 通过`this.$store.state.属性`的方式来访问状态
+- 通过`this.$store.commit('mutation方法')`来修改状态
+
+创建`HelloVuex.vue`并使用couter变量
+
+```vue
+<template>
+  <p>{{$store.state.counter}}</p>
+</template>
+
+<script>
+export default {
+  name: "HelloVuex"
+}
+</script>
+<style scoped>
+</style>
+```
+
+在`App.vue`中使用
+
+> 引入子组件需要先注册
+
+```vue
+<template>
+  <div id="app">
+    <h2>App组件</h2>
+    <p>{{$store.state.counter}}</p>
+    <!-- 仅做展示 -->
+    <!-- 应该通过mutation修改 -->
+    <button @click="$store.state.counter++">+</button>
+    <button @click="$store.state.counter--">-</button>
+    <h2>Vuex组件</h2>
+    <HelloVuex></HelloVuex>
+  </div>
+</template>
+<script>
+// 引入
+import HelloVuex from "./components/HelloVuex";
+export default {
+  name: 'App',
+  // 注册
+  components: {
+    HelloVuex
+  }
+}
+</script>
+<style>
+</style>
+```
+
+**使用mutation修改状态**
+
+> 在devtools中能跟踪state变化以及提交的mutation方法
+>
+> 所以不要直接改变`store.state.count`的值
+
+```vue
+<template>
+  <div id="app">
+    <h2>App组件</h2>
+    <p>{{$store.state.counter}}</p>
+    <button @click="add">+</button>
+    <button @click="subtract">-</button>
+    <h2>Vuex组件</h2>
+    <HelloVuex></HelloVuex>
+  </div>
+</template>
+<script>
+import HelloVuex from "./components/HelloVuex";
+export default {
+  name: 'App',
+  components: {
+    HelloVuex
+  },
+  methods: {
+    add() {
+      this.$store.commit('increase')
+    },
+    subtract() {
+      this.$store.commit('decrease')
+    }
+  }
+}
+</script>
+<style>
+</style>
+```
+
+![devtools](Vue.js.assets/devtools.png)
 
 
 
+## State
+
+Vuex提出使用**单一状态树**SSOT（Single Source of Truth 单一数据源）来管理**应用层级的全部状态**
+
+单一状态树能够以最直接的方式**找到某个状态的片段**，而且在之后的维护和调试过程中也可以非常方便的管理和维护
+
+> 就是把数据所相关的数据封装到一个对象中，这个对象就是store实例，它对应所有组件中的`$store`对象。无论是数据的状态（state），以及对数据的操作（mutation、actions）等都在store实例中，便于管理维护操作
 
 
 
+## Getters
+
+有时候需要从`store`中获取`state`**修改后的一些状态**
+
+> 类似Vue的计算属性，可以实现过滤查找等功能
 
 
 
+### 基本使用
+
+修改`store/index.js`
+
+```javascript
+import Vue from 'vue'
+import Vuex from 'vuex'
+
+Vue.use(Vuex)
+
+const store = new Vuex.Store({
+  state: {
+    counter: 10
+  },
+  mutations: {
+    increase(state) {
+      state.counter++
+    },
+    decrease(state) {
+      state.counter--
+    }
+  },
+  actions: {
+
+  },
+  getters: {
+    // 默认自动传入参数state
+    power(state) {
+      return state.counter * state.counter
+    }
+  },
+  modules: {
+
+  }
+})
+
+export default store
+```
+
+在`App.vue`中展示
+
+```vue
+<template>
+  <div id="app">
+    <h2>App组件</h2>
+    <p>{{$store.state.counter}}</p>
+    <button @click="add">+</button>
+    <button @click="subtract">-</button>
+    <p>{{$store.getters.power}}</p>
+    <h2>Vuex组件</h2>
+    <HelloVuex></HelloVuex>
+  </div>
+</template>
+<script>
+import HelloVuex from "./components/HelloVuex";
+export default {
+  name: 'App',
+  components: {
+    HelloVuex
+  },
+  methods: {
+    add() {
+      this.$store.commit('increase')
+    },
+    subtract() {
+      this.$store.commit('decrease')
+    }
+  }
+}
+</script>
+<style>
+</style>
+```
 
 
 
+**过滤查找**
+
+> 可以在计算属性中使用`filter`过滤器
+>
+> 但是如果多个组件都想实现过滤功能，就需要分别单独实现自己的计算属性
+>
+> ```javascript
+> computed: {
+>     stuCount() {
+>         // 箭头函数简写形式
+>         return this.$store.state.students.filter(student => student.age > 20).length
+>     }
+> }
+> ```
+
+修改`store.index.js`
+
+```javascript
+import Vue from 'vue'
+import Vuex from 'vuex'
+
+Vue.use(Vuex)
+
+const store = new Vuex.Store({
+  state: {
+    counter: 10,
+    // 添加学生数组
+    students: [
+      {id: 0, name: 'a', age: '11'},
+      {id: 1, name: 'b', age: '22'},
+      {id: 2, name: 'c', age: '33'},
+      {id: 3, name: 'd', age: '36'}
+    ]
+  },
+  // 方法
+  mutations: {
+    increase(state) {
+      state.counter++
+    },
+    decrease(state) {
+      state.counter--
+    }
+  },
+  actions: {
+
+  },
+  getters: {
+    power(state) {
+      return state.counter * state.counter
+    },
+    // 过滤
+    stuCount(state) {
+      return state.students.filter(s => s.age > 20)
+    }
+  },
+  modules: {
+
+  }
+})
+
+export default store
+```
+
+在`App.vue`中展示
+
+```vue
+<template>
+  <div id="app">
+    <h2>App组件</h2>
+    <p>{{$store.state.counter}}</p>
+    <button @click="add">+</button>
+    <button @click="subtract">-</button>
+    <p>{{$store.getters.power}}</p>
+    <p>{{$store.getters.stuCount}}</p>
+    <h2>Vuex组件</h2>
+    <HelloVuex></HelloVuex>
+  </div>
+</template>
+<script>
+import HelloVuex from "./components/HelloVuex";
+export default {
+  name: 'App',
+  components: {
+    HelloVuex
+  },
+  methods: {
+    add() {
+      this.$store.commit('increase')
+    },
+    subtract() {
+      this.$store.commit('decrease')
+    }
+  }
+}
+</script>
+<style>
+</style>
+```
+
+![getters过滤查找](Vue.js.assets/getters过滤查找.png)
+
+### 参数
+
+- **第二个参数**：`getters`
+- 除去state，getters，getters默认是**不能传递第三个参数的**，如果要传递参数，需要让getters本身返回另一个函数，在函数中返回真正的getters
+
+修改`src/index.js`
+
+```javascript
+import Vue from 'vue'
+import Vuex from 'vuex'
+
+Vue.use(Vuex)
+
+const store = new Vuex.Store({
+  state: {
+    counter: 10,
+    students: [
+      {id: 0, name: 'a', age: '11'},
+      {id: 1, name: 'b', age: '22'},
+      {id: 2, name: 'c', age: '33'},
+      {id: 3, name: 'd', age: '36'}
+    ]
+  },
+  // 方法
+  mutations: {
+    increase(state) {
+      state.counter++
+    },
+    decrease(state) {
+      state.counter--
+    }
+  },
+  actions: {
+
+  },
+  getters: {
+    power(state) {
+      return state.counter * state.counter
+    },
+    stuCount(state) {
+      return state.students.filter(s => s.age > 20)
+    },
+    // 传入getters作为第二个参数
+    stuCountlength(state,getters) {
+      // 直接获得length属性
+      return getters.stuCount.length
+    }
+  },
+  modules: {
+
+  }
+})
+
+export default store
+```
+
+> 箭头函数简写
+>
+> ```javascript
+> stuCount: state => {
+>     return state.students.filter(s => s.age > 20)
+> }
+> ```
 
 
 
+**第三个参数**
+
+需要返回一个函数，调用的时候就可以对函数进行传参
+
+```vue
+<p>{{$store.getters.stuCountage(20)}}</p>
+```
+
+```javascript
+stuCountage(state,getters) {
+    return function (age) {
+        return state.students.filter(s => s.age > age)
+    },
+    // 箭头函数
+    return age => {
+        return state.students.filter(s => s.age > age)
+    }
+}
+```
 
 
 
+## Mutation
 
+Vuex的store状态的更新唯一方式：提交Mutation
+
+**Mutation主要包括两部分**
+
+- 字符串的事件类型（type）
+- 回调函数（handler），第一个参数是state
 
 
 
@@ -6845,10 +7299,10 @@ Vuex是一个专为Vue.js应用程序开发的**状态管理模式**
 
 **创建**
 
-- `npm install moduleName`：安装模块到项目目录下
-- `npm install -g moduleName`：`-g`表示将模块安装到全局（具体位置看npm config prefix)
-- `npm install -save moduleName`：`–save`表示将模块安装到项目目录下， 并在`package.json`文件的`dependencies`节点写入依赖（缩写为-S)
-- `npm install -save-dev moduleName`：`–save-dev`表示将模块安装到项目目录下，并在`package.json`文件的`devDependencies`节点写入依赖（缩写为-D)
+- `npm install`：将模块安装到**项目目录下**
+- `npm install -g`：将模块安装到**全局**（`npm config prefix`)
+- `npm install --save`：将模块安装到**项目目录下**， 并在`package.json`文件的`dependencies`中写入依赖（缩写：`-S`)
+- `npm install --save-dev`：将模块安装到项目目录下，并在`package.json`文件的`devDependencies`中写入依赖（缩写：`-D`)
 
 ```bash
 # 新建项目
@@ -6875,12 +7329,12 @@ npm run dev
 
 **调整项目结构**
 
-在`src`目录中创建目录：
+`src`
 
-- assets：存放资源文件
-- components：存放Vue功能组件
-- views：存放Vue视图组件
-- router：存放vue-router路由配置
+- `assets`：存放资源文件
+- `components`：存放Vue功能组件
+- `views`：存放Vue视图组件
+- `router`：存放vue-router路由配置
 
 ![目录结构](Vue.js.assets/目录结构.png)
 
@@ -7026,7 +7480,7 @@ export default new VueRouter({
 });
 ```
 
-**APP.vue**
+**全局组件 APP.vue**
 
 ```vue
 <template>
@@ -7042,9 +7496,9 @@ export default {
 </script>
 ```
 
-**main.js**
+**入口文件 main.js**
 
-入口文件
+
 
 ```javascript
 import Vue from 'vue'

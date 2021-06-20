@@ -187,6 +187,23 @@ const obj = {
 
 
 
+## 对象解构赋值
+
+```javascript
+// 对象的解构
+const obj = {
+  name: 'why',
+  age: 18,
+  height: 1.88,
+  address: '洛杉矶'
+}
+
+// 不用按照顺序
+// 不用包含全部
+const {name, height, age} = obj;
+
+
+
 # Vue.js
 
 **渐进式**JavaScript框架：将Vue作为应用的一部分**嵌入其中**
@@ -7768,7 +7785,215 @@ Vue使用单一状态树。当应用变得非常复杂时`store`对象就有可�
 
 Vuex允许将`store`分割成模块（Module），每个模块拥有自己的`state`、`mutations`、`actions`、`getters`等
 
+![modules划分](Vue.js.assets/modules划分.png)
 
+
+
+**模块内局部状态**
+
+- 模块内的的`mutations`和`getters`接收的**第一个参数是局部状态对象**`state`
+- 模块内`getters`接收的**第三个参数是根节点状态**`rootState`
+- 模块内部的`action`接受
+  - 局部状态： `context.state` 
+  - 根节点状态： `context.rootState`
+
+修改`src/index.js`
+
+```javascript
+import Vue from 'vue'
+import Vuex from 'vuex'
+import { INCREASE } from './mutations-type'
+Vue.use(Vuex)
+const moduleA = {
+  state: {
+    name: 'ink'
+  },
+  mutations: {
+    updateName(state, payload) {
+      state.name = payload
+    }
+  },
+  getters: {
+    fullname1(state) {
+      return state.name + 'buaa'
+    },
+    // 模块内的getters
+    fullname2(state, getters) {
+      return getters.fullname1 + 'fushan'
+    },
+    // rootState是store中的state
+    fullname3(state, getters, rootState) {
+      return getters.fullname2 + rootState.counter
+    }
+  },
+  actions: {
+    // 默认参数context
+    aUpdateName(context) {
+      console.log(context);
+      setTimeout(() => {
+        context.commit('updateName', 'yinke')
+      }, 1000)
+    }
+  }
+}
+
+const store = new Vuex.Store({
+  state: {
+    counter: 726,
+    students: [
+      {id: 0, name: 'a', age: '11'},
+      {id: 1, name: 'b', age: '22'},
+      {id: 2, name: 'c', age: '33'},
+      {id: 3, name: 'd', age: '36'}
+    ],
+    person: {
+      name: 'ink',
+      sex: '男',
+      age: 25
+    }
+  },
+  mutations: {
+    [INCREASE] (state) {
+      state.counter++
+    },
+    updateInfo(state) {
+      Vue.set(state.person, 'address', 'beijing')
+    }
+  },
+  modules: {
+    // 使用模块
+    a: moduleA
+  }
+})
+export default store
+
+```
+
+在`App.vue`中展示
+
+```vue
+<template>
+  <div id="app">
+    <h2>----modules中的内容-----</h2>
+    <h2>{{$store.state.a.name}}</h2>
+    <button @click="updateName">修改名字</button>
+    <h2>{{$store.getters.fullname1}}</h2>
+    <h2>{{$store.getters.fullname2}}</h2>
+    <h2>{{$store.getters.fullname3}}</h2>
+    <button @click="asyncUpdateName">异步修改名字</button>
+  </div>
+</template>
+<script>
+export default {
+  name: 'App',
+  methods: {
+    updateName() {
+      this.$store.commit('updateName', 'yinkeee')
+    },
+    asyncUpdateName() {
+      this.$store.dispatch('aUpdateName')
+    }
+  }
+}
+</script>
+<style>
+</style>
+```
+
+![modules内容](Vue.js.assets/modules内容.png)
+
+**模块内Action写法**
+
+`context`对象的**解构**
+
+- `state`
+- `commit`
+- `rootState`
+
+```javascript
+actions: {
+    incrementIfOddOnRootSum ({ state, commit, rootState }) {
+        if ((context.state.count + context.rootState.count) % 2 === 1) {
+            context.commit('increase')
+        }
+    }
+}
+```
+
+
+
+## 项目结构
+
+Vuex 并不限制代码结构，但它规定了一些需要遵守的规则
+
+- 应用层级的状态应该集中到**单个store对象中**
+- 提交**mutations**是更改状态的唯一方法（同步）
+- 异步操作应该封装到**action**里面
+
+> 只要遵守以上规则就可以随意组织代码
+
+
+
+对于大型应用会把Vuex相关代码分割到模块中，将`action`，`mutations` 和`getters`分割到单独的文件
+
+```bash
+├── index.html
+├── main.js
+├── App.vue
+├── api
+│   └── ... # 抽取出API请求
+├── components
+│   ├── User.vue
+│   └── ...
+└── store
+    ├── index.js          # 组装模块并导出store
+    ├── actions.js        # 根级别的action
+    ├── mutations.js      # 根级别的mutation
+    └── modules			  # 模块存放目录
+        ├── car.js        # 车模块
+        └── products.js   # 产品模块
+```
+
+![组织目录结构](Vue.js.assets/组织目录结构.png)
+
+修改`src/index.js`
+
+```javascript
+import Vue from 'vue'
+import Vuex from 'vuex'
+
+import mutations from './mutations'
+import actions from './actions'
+import getters from './getters'
+import moduleA from './modules/moduleA'
+
+Vue.use(Vuex)
+
+const state = {
+  counter: 1000,
+  students: [
+    {id: 110, name: 'why', age: 18},
+    {id: 111, name: 'kobe', age: 24},
+    {id: 112, name: 'james', age: 30},
+    {id: 113, name: 'curry', age: 10}
+  ],
+  info: {
+    name: 'ink',
+    age: 40,
+    height: 1.82
+  }
+}
+const store = new Vuex.Store({
+  state,
+  mutations,
+  actions,
+  getters,
+  modules: {
+    a: moduleA
+  }
+})
+export default store
+```
 
 
 

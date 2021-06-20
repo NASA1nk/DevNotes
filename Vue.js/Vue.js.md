@@ -6815,11 +6815,11 @@ Vuex是一个专为Vue.js应用程序开发的**状态管理模式**
 - 多个试图都依赖同一个状态
 - 不同界面的Actions都想修改同一个状态
 
-官方不建议让VueComponent直接修改state，而是通过Mutation来修改
+官方不建议让VueComponent直接修改state，而是通过Mutations来修改
 
 > Actions是当有异步操作时才通过它修改state，修改state可以没有Actions这个步骤
 >
-> Devtools：Vue开发的一个浏览器插件，**通过Mutation修改每一次state都会被记录**
+> Devtools：Vue开发的一个浏览器插件，**通过Mutations修改每一次state都会被记录**
 
 ![多界面状态管理](Vue.js.assets/多界面状态管理.png)
 
@@ -6908,7 +6908,7 @@ new Vue({
 ### 使用
 
 - 通过`this.$store.state.属性`的方式来访问状态
-- 通过`this.$store.commit('mutation方法')`来修改状态
+- 通过`this.$store.commit('mutations方法')`来修改状态
 
 创建`HelloVuex.vue`并使用couter变量
 
@@ -6936,7 +6936,7 @@ export default {
     <h2>App组件</h2>
     <p>{{$store.state.counter}}</p>
     <!-- 仅做展示 -->
-    <!-- 应该通过mutation修改 -->
+    <!-- 应该通过mutations修改 -->
     <button @click="$store.state.counter++">+</button>
     <button @click="$store.state.counter--">-</button>
     <h2>Vuex组件</h2>
@@ -6958,9 +6958,9 @@ export default {
 </style>
 ```
 
-**使用mutation修改状态**
+**使用mutations修改状态**
 
-> 在devtools中能跟踪state变化以及提交的mutation方法
+> 在devtools中能跟踪state变化以及提交的mutations方法
 >
 > 所以不要直接改变`store.state.count`的值
 
@@ -7006,7 +7006,7 @@ Vuex提出使用**单一状态树**SSOT（Single Source of Truth 单一数据源
 
 单一状态树能够以最直接的方式**找到某个状态的片段**，而且在之后的维护和调试过程中也可以非常方便的管理和维护
 
-> 就是把数据所相关的数据封装到一个对象中，这个对象就是store实例，它对应所有组件中的`$store`对象。无论是数据的状态（state），以及对数据的操作（mutation、actions）等都在store实例中，便于管理维护操作
+> 就是把数据所相关的数据封装到一个对象中，这个对象就是store实例，它对应所有组件中的`$store`对象。无论是数据的状态（state），以及对数据的操作（mutations、actions）等都在store实例中，便于管理维护操作
 
 
 
@@ -7283,11 +7283,11 @@ stuCountage(state,getters) {
 
 
 
-## Mutation
+## Mutations
 
-Vuex的store状态的更新唯一方式：提交Mutation
+Vuex的store状态的更新唯一方式：提交Mutations
 
-**Mutation主要包括两部分**
+**Mutations主要包括两部分**
 
 - 字符串的**事件类型**（type）：
 - **回调函数**（handler），**第一个参数是state**
@@ -7316,7 +7316,7 @@ this.$store.commit('decrease')
 
 ### 传递单个参数
 
-通过mutation更新数据时可以使用**额外的参数**，参数被称为是mutation的**载荷**（Payload）
+通过mutations更新数据时可以使用**额外的参数**，参数被称为是mutations的**载荷**（Payload）
 
 **定义**
 
@@ -7385,7 +7385,7 @@ this.$store.commit({
 })
 ```
 
-特殊风格时，mutation中的**参数被转换为一个对象**（payload）
+特殊风格时，mutations中的**参数被转换为一个对象**（payload）
 
 > 将整个commit的对象作为payload使用
 
@@ -7475,11 +7475,302 @@ export default {
 
 
 
-
-
-
-
 ## 常量类型
+
+> 官方推荐
+
+**问题**
+
+在mutations中定义了很多**事件类型**（方法名称）。当项目增大时Vuex管理的状态越来越多，需要更新状态的情况越来越多，也就意味着mutations中的方法越来越多。方法过多，调用者需要花费大量的精力去记住这些方法，可能需要在多个文件间来回切换去查看方法名称，甚至可能还会出现写错的情况
+
+**解决方案**
+
+使用常量替代Mutations事件的类型，然后将常量存放在一个单独的文件`mutations-types.js`中，方便管理并且让整个App所有的事件类型一目了然
+
+
+
+**使用**
+
+在`mutations-types.js`抽取出一个常量
+
+> 非default导出，导入时要加`{}`
+
+```javascript
+export const INCREASE = 'increase'
+```
+
+在`App.vue`中使用常量
+
+```vue
+<template>
+  <div id="app">
+    <h2>App组件</h2>
+    <h2>{{$store.state.person}}</h2>
+    <p>{{$store.state.counter}}</p>
+    <button @click="add">+</button>
+  </div>
+</template>
+<script>
+import HelloVuex from "./components/HelloVuex";
+import { INCREASE } from './store/mutations-type'
+export default {
+  name: 'App',
+  components: {
+    HelloVuex
+  },
+  methods: {
+    add() {
+      this.$store.commit(INCREASE)
+    }
+  }
+}
+</script>
+<style>
+</style>
+```
+
+修改`store/index.js`，将mutations的方法名也改成常量使用方式
+
+```javascript
+import Vue from 'vue'
+import Vuex from 'vuex'
+// 导入
+import { INCREASE } from './mutations-type'
+Vue.use(Vuex)
+
+const store = new Vuex.Store({
+  state: {
+    counter: 10
+  },
+  // 方法
+  mutations: {
+    // 常量函数名
+    [INCREASE] (state) {
+      state.counter++
+    }
+  }
+})
+
+export default store
+```
+
+
+
+## Action
+
+### 同步函数
+
+通常情况下，**Vuex要求Mutations中的方法必须是同步方法**
+
+- 主要的原因是同步操作使用devtools时可以捕捉mutations的快照
+- 如果是异步操作devtools将不能很好的追踪这个操作（什么时候会被完成）
+
+> 无法追踪state变化
+
+![异步操作无法捕捉](Vue.js.assets/异步操作无法捕捉.png)
+
+
+
+### 使用
+
+- Action类似于Mutations，是**用来代替Mutations进行异步操作**的
+- **Action中对于state的修改仍然要通过调用mutations的方法**
+- `context`是和`store`对象**具有相同方法和属性**的对象。可以通过`context`去进行`commit`相关操作，也可以获取`context.state`等
+
+![action-context](Vue.js.assets/action-context.png)
+
+修改`src/index.js`
+
+```javascript
+import Vue from 'vue'
+import Vuex from 'vuex'
+Vue.use(Vuex)
+
+const store = new Vuex.Store({
+  state: {
+    counter: 10,
+    students: [
+      {id: 0, name: 'a', age: '11'},
+      {id: 1, name: 'b', age: '22'},
+      {id: 2, name: 'c', age: '33'},
+      {id: 3, name: 'd', age: '36'}
+    ],
+    person: {
+      name: 'ink',
+      sex: '男',
+      age: 25
+    }
+  },
+  // 方法
+  mutations: {
+    updateInfo(state) {
+      Vue.set(state.person, 'address', 'beijing')
+    }
+  },
+  actions: {
+    // 默认参数context:上下文
+    aUpdateInfo(context) {
+      // 异步操作
+      setTimeout(()=>{
+        // 调用mutations
+        context.commit('updateInfo')
+      },1000)
+    }
+  }
+})
+
+export default store
+```
+
+在`App.vue`中调用
+
+调用`action`中的方法需要使用`dispatch`
+
+```vue
+<template>
+  <div id="app">
+    <h2>App组件</h2>
+    <h2>{{$store.state.person}}</h2>
+    <button @click="updateInfo()">修改信息</button>
+  </div>
+</template>
+<script>
+export default {
+  name: 'App',
+  methods: {
+    updateInfo() {
+      // 调用action,使用dispatch
+      this.$store.dispatch('aUpdateInfo')
+    }
+  }
+}
+</script>
+<style>
+</style>
+```
+
+![action异步操作修改信息](Vue.js.assets/action异步操作修改信息.png)
+
+
+
+### 传递参数
+
+action也支持传递payload
+
+```vue
+    updateInfo() {
+      // 调用action
+      this.$store.dispatch('aUpdateInfo','传递payload')
+    }
+```
+
+```java
+  actions: {
+    // 默认参数context:上下文
+    aUpdateInfo(context,payload) {
+      // 异步操作
+      setTimeout(()=>{
+        // 调用mutations
+        context.commit('updateInfo')
+        console.log('payload')
+      },1000)
+    }
+  },
+```
+
+
+
+### 异步回调
+
+1. 在Action中将异步操作放在一个`Promise`中
+2. 在成功或者失败后调用对应的`resolve`或`reject`
+3. 返回调用Action处调用对应的`then`或`catch`
+
+在`src/index.js`中返回`Promise`对象
+
+```javascript
+import Vue from 'vue'
+import Vuex from 'vuex'
+import { INCREASE } from './mutation-type'
+Vue.use(Vuex)
+
+const store = new Vuex.Store({
+  state: {
+    counter: 10,
+    students: [
+      {id: 0, name: 'a', age: '11'},
+      {id: 1, name: 'b', age: '22'},
+      {id: 2, name: 'c', age: '33'},
+      {id: 3, name: 'd', age: '36'}
+    ],
+    person: {
+      name: 'ink',
+      sex: '男',
+      age: 25
+    }
+  },
+  // 方法
+  mutations: {
+    updateInfo(state) {
+      Vue.set(state.person, 'address', 'beijing')
+    }
+  },
+  actions: {
+    // 默认参数context:上下文
+    aUpdateInfo(context) {
+     // 返回Promise对象
+     return new Promise((resolve,reject) => {
+       setTimeout(()=>{
+         context.commit('updateInfo')
+         // 成功执行返回
+         resolve('返回Promise')
+       },1000)
+     })
+    }
+  }
+})
+
+export default store
+```
+
+在`App.vue`执行`then`
+
+```vue
+<template>
+  <div id="app">
+    <h2>App组件</h2>
+    <h2>{{$store.state.person}}</h2>
+    <button @click="updateInfo()">修改信息</button>
+  </div>
+</template>
+<script>
+export default {
+  name: 'App',
+  methods: {
+    updateInfo() {
+      // 调用action处接受返回对象,执行then
+      this.$store.dispatch('aUpdateInfo').then(res => {
+        console.log(res)
+      })
+    }
+  }
+}
+</script>
+<style>
+</style>
+```
+
+
+
+## Modules
+
+Vue使用单一状态树。当应用变得非常复杂时`store`对象就有可能变得非常臃肿
+
+Vuex允许将`store`分割成模块（Module），每个模块拥有自己的`state`、`mutations`、`actions`、`getters`等
+
+
+
+
 
 # Vue-ElementUI
 

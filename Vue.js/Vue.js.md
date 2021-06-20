@@ -201,6 +201,7 @@ const obj = {
 // 不用按照顺序
 // 不用包含全部
 const {name, height, age} = obj;
+```
 
 
 
@@ -293,7 +294,7 @@ const {name, height, age} = obj;
 - [开发版本](https://cn.vuejs.org/js/vue.js)：包含完整的警告和调试模式
 - [生产版本](https://cn.vuejs.org/js/vue.min.js)：删除了警告，33.30KB min+gzip
 
-```html
+​```html
 <body>
   <script src="vue.js"></script>
 </body>
@@ -348,7 +349,7 @@ npm install vue
 
 ## 代码规范
 
-eslint
+**eslint**
 
 缩进：2个空格
 
@@ -7997,7 +7998,54 @@ export default store
 
 
 
-# Vue-ElementUI
+# Axios网络通信
+
+`Axios`异步通信
+
+开源的用于浏览器端和Node.js的异步通信框架，主要作用是实现Ajax异步通信
+
+[Axios API 中文文档](http://axios-js.com/)
+
+> Vue.js是一个视图层框架，并不包含Ajax的通信功能。
+>
+> `jQuery.ajax()`可以实现网络通信，但jQuery操作DOM太频繁，不推荐使用
+
+## 功能特点
+
+- 从浏览器中创建`XMLHttpRequests`（XHR）
+- 从Node.js创建http请求
+- 支持Promise API（JavaScript中链式编程）
+- 拦截请求和响应
+- 转换请求和响应数据
+- 取消请求
+- 自动转换JSON数据
+- 客户端支持防御XSRF（跨站请求伪造）
+
+> 要求ES6
+>
+> ![ES6](Vue.js.assets/ES6.png)
+
+
+
+## 安装
+
+- **npm**
+
+  ```bash
+  npm install axios
+  ```
+
+- **cdn**
+
+  ```html
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  ```
+
+
+
+
+
+# Vue ElementUI
 
 **创建**
 
@@ -8866,51 +8914,3 @@ export default {
 - `process.env`属性返回一个包含用户环境信息的对象
 
 
-
-
-
-# Axios网络通信
-
-`Axios`异步通信
-
-开源的用于浏览器端和Node.js的异步通信框架，主要作用是实现Ajax异步通信
-
-[Axios API 中文文档](http://axios-js.com/)
-
-> Vue.js是一个视图层框架，并不包含Ajax的通信功能。
->
-> `jQuery.ajax()`可以实现网络通信，但jQuery操作DOM太频繁，不推荐使用
-
-## 功能特点
-
-- 从浏览器中创建`XMLHttpRequests`（XHR）
-- 从Node.js创建http请求
-- 支持Promise API（JavaScript中链式编程）
-- 拦截请求和响应
-- 转换请求和响应数据
-- 取消请求
-- 自动转换JSON数据
-- 客户端支持防御XSRF（跨站请求伪造）
-
-> 要求ES6
->
-> ![ES6](Vue.js.assets/ES6.png)
-
-## 安装Axios
-
-- **npm**
-
-  ```bash
-  npm install axios
-  ```
-
-- **cdn**
-
-  ```html
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  ```
-
-
-
-[### 数组更新]: 
-[#Vue基础 ## 列表渲染 ### 数组更新]: 

@@ -1939,69 +1939,6 @@ Vue 更新使用 `v-for` 渲染的元素列表时默认使用**就地更新**的
 
 ![Vue生命周期](Vue.js.assets/Vue生命周期.png)
 
-```html
-<body>
-<div id="app">
-  <div>{{info.name}}</div>
-  <div>{{info.links[0].name}}</div>
-  <!-- 错误:<a href="{{info.url}}">点击</a> -->
-  <!-- 要用v-bind绑定 -->
-  <a v-bind:href="info.url">点击跳转</a>
-</div>
-<script src="vue.js"></script>
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script>
-  const app = new Vue({
-    el: '#app',
-    data: {
-      // 设置info为{}，自动绑定response的各个属性
-      info: {}
-    },
-    // 钩子函数（链式编程）
-    // data.json路径
-    mounted(){
-      // GET请求得到返回数据绑定到data中
-      axios.get('data.json').then(response=>(this.info = response.data));
-    }
-  });
-</script>
-</body>
-```
-
-json文件
-
-```json
-{
-  "name": "ink",
-  "url": "https://www.baidu.com/",
-  "page": 1,
-  "isNonProfit": true,
-  "address": {
-    "street": "知春路",
-    "city": "北京",
-    "country": "中国"
-  },
-  "links": [
-    {
-      "name": "Vue",
-      "url": "https://cn.vuejs.org/"
-    },
-    {
-      "name": "leetcode",
-      "url": "https://leetcode-cn.com/"
-    },
-    {
-      "name": "知乎",
-      "url": "https://www.zhihu.com/"
-    }
-  ]
-}
-```
-
-![异步通信](Vue.js.assets/异步通信.png)
-
-![axios](Vue.js.assets/axios.png)
-
 
 
 # Vue组件
@@ -7998,11 +7935,11 @@ export default store
 
 
 
-# Axios网络通信
+# Axios网络模块封装
 
-`Axios`异步通信
+**Axios**
 
-开源的用于浏览器端和Node.js的异步通信框架，主要作用是实现Ajax异步通信
+开源的用于浏览器端和Node.js的**异步通信框架**，主要作用是实现**Ajax异步通信**
 
 [Axios API 中文文档](http://axios-js.com/)
 
@@ -8010,12 +7947,38 @@ export default store
 >
 > `jQuery.ajax()`可以实现网络通信，但jQuery操作DOM太频繁，不推荐使用
 
+
+
+## 网络请求模块
+
+**传统发送网络请求的方式**
+
+- 基于XMLHttpRequest(XHR)的传统Ajax
+  - 配置和调用方式等非常混乱
+- jQuery-Ajax
+  - 在Vue的整个开发中都不需要使用jQuery
+- Vue-resource
+  - Vue2.0去掉vue-resource并且以后也不会再更新
+
+**Jsonp**
+
+使用Jsonp最主要的原因是为了解决跨域访问的问题
+
+**核心**
+
+通过`<script>`标签的`src`来帮助请求数据
+
+- 项目部署在服务器上时，是不能直接访问服务器上的资料的。利用`<script>`标签的`src`去服务器请求到数据，**将数据当做一个JavaScript函数来执行**，并且执行的过程中传入需要的json
+- **封装jsonp的核心就在于监听window上的jsonp进行回调时的名称**
+
+
+
 ## 功能特点
 
-- 从浏览器中创建`XMLHttpRequests`（XHR）
-- 从Node.js创建http请求
+- 从浏览器中创建`XMLHttpRequests`（XHR）请求
+- 从Node.js中创建http请求
 - 支持Promise API（JavaScript中链式编程）
-- 拦截请求和响应
+- 支持拦截请求和响应
 - 转换请求和响应数据
 - 取消请求
 - 自动转换JSON数据
@@ -8029,17 +7992,205 @@ export default store
 
 ## 安装
 
-- **npm**
+**npm**
 
-  ```bash
-  npm install axios
-  ```
+> axios@0.18.0
 
-- **cdn**
+```bash
+npm install axios --save
+```
 
-  ```html
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  ```
+
+
+## 请求方式
+
+- `axios(config)`
+- `axios.request(config)`
+- `axios.get(url[, config])`
+- `axios.delete(url[, config])`
+- `axios.head(url[, config])`
+- `axios.post(url[, data[, config]])`
+- `axios.put(url[, data[, config]])`
+- `axios.patch(url[, data[, config]])`
+
+
+
+
+
+## 基本使用
+
+> [httpbin.org | 网络请求模拟](http://httpbin.org/)
+>
+> [123.207.32.32:8000/home/multidata](http://123.207.32.32:8000/home/multidata)
+
+**基本使用**
+
+在`main.js`中使用`axios(config)`
+
+> 默认情况下，只传url就是get请求
+
+```javascript
+import Vue from 'vue'
+import App from './App'
+import router from './router'
+// 导入
+import axios from 'axios'
+
+Vue.config.productionTip = false
+
+/* eslint-disable no-new */
+new Vue({
+  el: '#app',
+  router,
+  render: h => h(App)
+})
+
+// 请求数据
+// 支持promise,调用内部的resolve
+axios({
+  url: 'http://123.207.32.32:8000/home/multidata'
+}).then(res => {
+  console.log(res);
+})
+```
+
+![axios基本使用](Vue.js.assets/axios基本使用.png)
+
+
+
+**GET请求**
+
+```javascript
+import Vue from 'vue'
+import App from './App'
+import router from './router'
+import axios from 'axios'
+
+Vue.config.productionTip = false
+
+/* eslint-disable no-new */
+new Vue({
+  el: '#app',
+  router,
+  render: h => h(App)
+})
+
+// GET请求
+axios({
+  url: 'http://123.207.32.32:8000/home/data',
+  // 请求方法
+  method: 'get',
+  // 专门针对GET请求的参数拼接
+  // ?type=pop&page=1
+  params: {
+    type: pop,
+    page: 1
+  }
+}).then(res => {
+  console.log(res);
+})
+```
+
+
+
+## 并发请求
+
+有时候可能需要**同时发送多个请求**
+
+`axios.all([axios(config),axios(config)]).then(result => {})`
+
+- `axios.all([])`可以存放多个请求的**数组**
+- `axios.all([])`返回的请求结果是一个**数组**
+- `axios.spread`可以将数组展开（ [res1,res2] -> res1，res2）
+
+```javascript
+import Vue from 'vue'
+import App from './App'
+import router from './router'
+import axios from 'axios'
+
+Vue.config.productionTip = false
+
+/* eslint-disable no-new */
+new Vue({
+  el: '#app',
+  router,
+  render: h => h(App)
+})
+
+axios.all([axios({
+  url: 'http://123.207.32.32:8000/home/multidata'
+}),axios({
+  url: 'http://123.207.32.32:8000/home/data',
+  method: 'get',
+  params: {
+    type: sell,
+    page: 1
+  }
+})]).then(axios.spread((res1,res2) => {
+  console.log(res1);
+  console.log(res2);
+}))
+```
+
+
+
+## 全局配置
+
+在实际开发中很多**参数都是固定的**，可以进行一些抽取，也可以利用axios的全局配置
+
+> 全局配置要放在最前面
+
+
+
+`axios.defaults`
+
+```javascript
+import Vue from 'vue'
+import App from './App'
+import router from './router'
+import axios from 'axios'
+
+Vue.config.productionTip = false
+
+/* eslint-disable no-new */
+new Vue({
+  el: '#app',
+  router,
+  render: h => h(App)
+})
+
+// 全局配置
+axios.defaults.baseURL = 'http://123.207.32.32:8000'
+axios.defaults.timeout = 5000
+axios.defaults.headers.post[‘Content-Type’] = ‘application/x-www-form-urlencoded’
+
+axios.all([axios({
+  url: '/home/multidata'
+}),axios({
+  url: '/home/data',
+  method: 'get',
+  params: {
+    type: sell,
+    page: 1
+  }
+})]).then(axios.spread((res1,res2) => {
+  console.log(res1);
+  console.log(res2);
+}))
+```
+
+
+
+**常见的配置选项**
+
+- 请求地址：`url: '/user'`
+- 请求类型：`method: 'get'`
+- 请根路径：`baseURL: 'http://www.mt.com/api'`
+- 请求前的数据处理：`transformRequest:[function(data){}]`
+- 请求后的数据处理：`transformResponse: [function(data){}]`
+- 自定义的请求头：`headers:{'x-Requested-With':'XMLHttpRequest'}`
+- URL查询对象：`params:{ id: 12 }`
 
 
 

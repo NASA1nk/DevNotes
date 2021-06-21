@@ -294,7 +294,7 @@ const {name, height, age} = obj;
 - [开发版本](https://cn.vuejs.org/js/vue.js)：包含完整的警告和调试模式
 - [生产版本](https://cn.vuejs.org/js/vue.min.js)：删除了警告，33.30KB min+gzip
 
-​```html
+```html
 <body>
   <script src="vue.js"></script>
 </body>
@@ -312,7 +312,7 @@ const {name, height, age} = obj;
 
 NPM能很好地和诸如webpack模块打包器配合使用。同时Vue也提供配套工具来开发单文件组件
 
-```shell
+​```shell
 npm install vue
 ```
 
@@ -5974,6 +5974,25 @@ export default {
 
 
 
+## 路由钩子函数
+
+创建Vue对象前**先执行钩子函数**
+
+- `beforeRouteEnter`：进入路由前执
+- `beforeRouteLeave`：离开路由前执行
+
+**参数**
+
+- `to`：路由将要跳转的路径信息
+- `from`：路径跳转前的路径信息
+- `next`：路由的控制参数
+  - `next()`：跳入下一个页面
+  - `next('/path')`：改变路由的跳转方向，使其跳到另一个路由
+  - `next(false)`：返回原来的页面
+  - `next((vm)=>{})`：仅在`beforeRouteEnter`中可用，vm 是组件实例
+
+
+
 ## 导航守卫
 
 **问题**：
@@ -6102,17 +6121,17 @@ export default router
 **完整的导航解析流程**
 
 1. 导航被触发。
-2. 在**失活的组件**里调用离开守卫。
-3. 调用**全局**的 `beforeEach` 守卫。
-4. 在**重用的组件**里调用 `beforeRouteUpdate` 守卫 (2.2+)。
-5. 在**路由配置**里调用 `beforeEnter`。
-6. 解析**异步路由组件**。
-7. 在**被激活的组件**里调用 `beforeRouteEnter`。
-8. 调用**全局**的 `beforeResolve` 守卫 (2.5+)。
-9. 导航被确认。
-10. 调用**全局**的 `afterEach` 钩子。
-11. 触发DOM更新。
-12. 用创建好的实例调用 `beforeRouteEnter` 守卫中传给 `next` 的回调函数。
+2. 在**失活的组件**里调用离开守卫
+3. 调用**全局**的 `beforeEach` 守卫
+4. 在**重用的组件**里调用 `beforeRouteUpdate` 守卫 (2.2+)
+5. 在**路由配置**里调用 `beforeEnter`
+6. 解析**异步路由组件**
+7. 在**被激活的组件**里调用 `beforeRouteEnter`
+8. 调用**全局**的 `beforeResolve` 守卫 (2.5+)
+9. 导航被确认
+10. 调用**全局**的 `afterEach` 钩子
+11. 触发DOM更新
+12. 用创建好的实例调用 `beforeRouteEnter` 守卫中传给 `next` 的回调函数
 
 
 
@@ -7935,7 +7954,7 @@ export default store
 
 
 
-# Axios网络模块封装
+# Axios网络通信
 
 **Axios**
 
@@ -7958,7 +7977,7 @@ export default store
 - jQuery-Ajax
   - 在Vue的整个开发中都不需要使用jQuery
 - Vue-resource
-  - Vue2.0去掉vue-resource并且以后也不会再更新
+  - Vue2.0去掉`vue-resource`并且以后也不会再更新
 
 **Jsonp**
 
@@ -8015,8 +8034,6 @@ npm install axios --save
 
 
 
-
-
 ## 基本使用
 
 > [httpbin.org | 网络请求模拟](http://httpbin.org/)
@@ -8038,7 +8055,6 @@ import axios from 'axios'
 
 Vue.config.productionTip = false
 
-/* eslint-disable no-new */
 new Vue({
   el: '#app',
   router,
@@ -8068,7 +8084,6 @@ import axios from 'axios'
 
 Vue.config.productionTip = false
 
-/* eslint-disable no-new */
 new Vue({
   el: '#app',
   router,
@@ -8111,7 +8126,6 @@ import axios from 'axios'
 
 Vue.config.productionTip = false
 
-/* eslint-disable no-new */
 new Vue({
   el: '#app',
   router,
@@ -8153,13 +8167,11 @@ import axios from 'axios'
 
 Vue.config.productionTip = false
 
-/* eslint-disable no-new */
 new Vue({
   el: '#app',
   router,
   render: h => h(App)
 })
-
 // 全局配置
 axios.defaults.baseURL = 'http://123.207.32.32:8000'
 axios.defaults.timeout = 5000
@@ -8187,12 +8199,331 @@ axios.all([axios({
 - 请求地址：`url: '/user'`
 - 请求类型：`method: 'get'`
 - 请根路径：`baseURL: 'http://www.mt.com/api'`
-- 请求前的数据处理：`transformRequest:[function(data){}]`
+- 请求前的数据处理：`transformRequest: [function(data){}]`
 - 请求后的数据处理：`transformResponse: [function(data){}]`
-- 自定义的请求头：`headers:{'x-Requested-With':'XMLHttpRequest'}`
+- 自定义的请求头：`headers:{'x-Requested-With': 'XMLHttpRequest'}`
 - URL查询对象：`params:{ id: 12 }`
 
 
+
+## Axios实例
+
+> 分布式架构
+>
+> 反向代理
+
+从axios模块中导入对象时使用的实例是默认的实例。给该实例设置一些默认配置时, 这些配置就被固定下来了
+
+但是后续开发中, 某些配置可能会不太一样，比如某些请求需要使用特定的`baseURL`或者`timeout`或者`content-Type`等
+
+此时可以**创建新的实例，并且传入属于该实例的独立 配置信息**
+
+
+
+在`main.js`中创建新的axios实例
+
+```javascript
+import Vue from 'vue'
+import App from './App'
+import router from './router'
+import axios from 'axios'
+
+Vue.config.productionTip = false
+
+new Vue({
+  el: '#app',
+  router,
+  render: h => h(App)
+})
+
+// 创建axios实例
+const instance1 = axios.create({
+  baseURL: 'http://123.207.32.32:8000',
+  timeout: 5000
+})
+// 创建配置
+instance1({
+  url: '/home/multidata'
+}).then(res => {
+  console.log(res);
+})
+
+instance1({
+  url: '/home/data',
+  method: 'get',
+  params: {
+    type: sell,
+    page: 1
+  }
+}).then(res => {
+  console.log(res);
+})
+
+const instance2 =axios.create({
+  baseURL: '',
+  headers: {
+    
+  }
+})
+```
+
+
+
+## Axios封装
+
+不要在项目内直接使用第三方框架，不利于修改和维护
+
+在`src`目录下创建`network`目录，**对第三方框架进行封装**然后调用
+
+
+
+### 使用回调函数
+
+> 封装请求模块
+
+在`network`目录下创建`request.js`文件
+
+```javascript
+import axios from "axios";
+// 同时传入回调函数
+export function request(config, success, failure) {
+  // 创建实例
+  const instance = axios.create({
+    baseURL: 'http://123.207.32.32:8000',
+    timeout: 5000
+  })
+  // 传入配置
+  // 发送网络请求
+  instance(config)
+    .then(res => {
+      success(res)
+    }).catch(err => {
+      failure(err)
+  })
+}
+```
+
+在`main.js`中导入使用
+
+```javascript
+import Vue from 'vue'
+import App from './App'
+import router from './router'
+import axios from 'axios'
+
+Vue.config.productionTip = false
+
+new Vue({
+  el: '#app',
+  router,
+  render: h => h(App)
+})
+
+// 封装axios模块
+// 导入
+import {request} from "./network/request";
+
+// 传入配置,succcess和failure
+request({
+  url: '/home/multidata'
+}, res => {
+  console.log(res);
+}, err => {
+  console.log(err);
+})
+```
+
+
+
+**只传入一个参数**
+
+从`config`中得到成功和失败的情况
+
+```javascript
+import axios from "axios";
+// 只传入config参数
+export function request(config) {
+  const instance = axios.create({
+    baseURL: 'http://123.207.32.32:8000',
+    timeout: 5000
+  })
+
+  instance(config.baseConfig)
+    .then(res => {
+      config.success(res)
+    }).catch(err => {
+      config.failure(err)
+  })
+}
+```
+
+`main.js`
+
+```javascript
+import Vue from 'vue'
+import App from './App'
+import router from './router'
+import axios from 'axios'
+
+Vue.config.productionTip = false
+
+/* eslint-disable no-new */
+new Vue({
+  el: '#app',
+  router,
+  render: h => h(App)
+})
+
+import {request} from "./network/request";
+
+request({
+  baseConfig: {
+    url: '/home/multidata'
+  },
+  success: function (res) {
+
+  },
+  failure: function (err) {
+
+  }
+})
+```
+
+
+
+### 使用Promise
+
+只传入一个参数
+
+```javascript
+import axios from "axios";
+// 只传入config参数
+export function request(config) {
+  return new promise((resolve,reject) => {
+    const instance = axios.create({
+      baseURL: 'http://123.207.32.32:8000',
+      timeout: 5000
+    })
+
+    instance(config)
+      .then(res => {
+        resolve(res)
+      }).catch(err => {
+        reject(err)
+    })
+  })
+}
+```
+
+`main.js`
+
+```javascript
+import Vue from 'vue'
+import App from './App'
+import router from './router'
+import axios from 'axios'
+
+Vue.config.productionTip = false
+
+new Vue({
+  el: '#app',
+  router,
+  render: h => h(App)
+})
+
+import {request} from "./network/request";
+
+request({
+  url: '/home/multidata'
+}).then(res => {
+  console.log(res);
+}).catch(err => {
+  console.log(err);
+})
+```
+
+**真正实现**
+
+`axios.crease`**本来就是一个Promise对象，可以直接返回**
+
+> `main.js`不变
+
+```javascript
+import axios from "axios";
+// 只传入config参数
+export function request(config) {
+  const instance = axios.create({
+    baseURL: 'http://123.207.32.32:8000',
+    timeout: 5000
+  })
+  return instance(config)
+}
+
+```
+
+
+
+## 拦截器
+
+Axios提供了拦截器，用于**在每次发送请求或者得到响应后进行处理**
+
+**拦截器**：`axios.interceptors`
+
+- **请求拦截**：`axios.interceptors.request`
+  - 请求成功拦截
+  - 请求失败拦截
+- **响应拦截**：`axios.interceptors.response`
+  - 响应成功拦截
+  - 相应失败拦截
+
+拦截后还要`return`返回，否则接受不到
+
+
+
+**应用场景**
+
+- `config`中的某些信息不符合服务器的要求，需要拦截检查并修改再传递
+- 每次发送网络请求时，希望在界面有相应的展示
+- 某些网络请求必须携带特殊信息（token），需要拦截检查跳转到相应的界面
+
+
+
+`request.js`
+
+- `interceptors.request.use(config)`
+- `interceptors.response.use(config)`
+
+```javascript
+export function request(config) {
+  // 1.创建axios的实例
+  const instance = axios.create({
+    baseURL: 'http://123.207.32.32:8000',
+    timeout: 5000
+  })
+
+  // 2.axios的拦截器
+  // 2.1.请求拦截的作用
+  instance.interceptors.request.use(config => {
+    console.log(config)
+    // 返回
+    return config
+  }, err => {
+    console.log(err)
+  })
+
+  // 2.2.响应拦截
+  instance.interceptors.response.use(res => {
+    console.log(res)
+    // 返回
+    return res.data
+  }, err => {
+    console.log(err)
+  })
+
+  // 3.发送真正的网络请求
+  return instance(config)
+}
+```
 
 
 
@@ -8206,34 +8537,34 @@ axios.all([axios({
 - `npm install --save-dev`：将模块安装到项目目录下，并在`package.json`文件的`devDependencies`中写入依赖（缩写：`-D`)
 
 ```bash
-# 新建项目
+# 创建 vue cli 2项目
 vue init webpack hello-vue
 
-#进入项目目录
+# 进入项目目录
 cd hello-vue
 
-#安装Vue-router
+# 安装Vue-router
 npm install vue-router --save-dev
 
-#安装ElementUI
+# 安装ElementUI
 npm i element-ui -S
 
-#安装依赖
+# 安装依赖
 npm install
 
 # 安装SASS加载器(sass-loader和node-sass)
 cnpm install sass-loader node-sass --save-dev
 
-#启功
+# 启功
 npm run dev
 ```
 
-**调整项目结构**
+**项目结构**
 
 `src`
 
 - `assets`：存放资源文件
-- `components`：存放Vue功能组件
+- `components`：存放Vue公共组件
 - `views`：存放Vue视图组件
 - `router`：存放vue-router路由配置
 
@@ -8381,7 +8712,9 @@ export default new VueRouter({
 });
 ```
 
-**全局组件 APP.vue**
+**全局组件**
+
+`App.vue`
 
 ```vue
 <template>
@@ -8397,9 +8730,9 @@ export default {
 </script>
 ```
 
-**入口文件 main.js**
+**入口文件**
 
-
+`main.js`
 
 ```javascript
 import Vue from 'vue'
@@ -9018,23 +9351,13 @@ export default {
 
 ![404](Vue.js.assets/404.png)
 
-## 路由钩子函数
 
-创建Vue对象前先执行钩子函数
+
+**路由钩子函数**
 
 - `beforeRouteEnter`：进入路由前执
 
 - `beforeRouteLeave`：离开路由前执行
-
-  参数
-
-  - `to`：路由将要跳转的路径信息
-  - `from`：路径跳转前的路径信息
-  - `next`：路由的控制参数
-    - `next()`：跳入下一个页面
-    - `next(’/path’)`：改变路由的跳转方向，使其跳到另一个路由
-    - `next(false)`：返回原来的页面
-    - `next((vm)=>{})`：仅在`beforeRouteEnter`中可用，vm 是组件实例
 
 修改`Profile.vue`
 
@@ -9063,5 +9386,4 @@ export default {
 
 - `process`（进程）其实是nodejs中的一个全局变量
 - `process.env`属性返回一个包含用户环境信息的对象
-
 

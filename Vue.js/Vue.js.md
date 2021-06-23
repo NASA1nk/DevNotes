@@ -16,7 +16,6 @@
 
 > 开发中优先使用`const`，只有需要改变一个标识符的时候才使用`let`
 
- 
 
 ## 对象字面值
 
@@ -312,7 +311,7 @@ const {name, height, age} = obj;
 
 NPM能很好地和诸如webpack模块打包器配合使用。同时Vue也提供配套工具来开发单文件组件
 
-​```shell
+```shell
 npm install vue
 ```
 
@@ -642,7 +641,6 @@ Mustache语法不能作用在HTML标签的属性`attribute`上
 **JavaScript表达式**
 
 
-
 ## 动态绑定
 
 `v-bind`（简写 `:`）
@@ -660,7 +658,7 @@ Mustache语法不能作用在HTML标签的属性`attribute`上
 
 > 参数：`src`，`v-bind` 指令将该元素的 `src` 属性与 Vue对象的`url` 值绑定
 
-```html
+​```html
 <body>
 <div id="app">
   <image v-bind:src="url"></image>
@@ -4665,8 +4663,8 @@ vue create inkvue3
   - **Babel：ES6转化为ES5（必选）** 
   - TypeScript：项目中使用TypeScript开发时选中
   - Progressive Web App（PWA）Support：渐进式网页应用
-  - Router：Vue路由 
-  - Vuex：Vue项目开发时使用的状态管理工具 
+  - **Router：Vue路由** 
+  - **Vuex：Vue项目开发时使用的状态管理工具** 
   - CSS Pre-processors ：CSS预处理器 
   - Linter / Formatter：ESlint对代码做规范性检测 
   - Unit Testing：单元测试 

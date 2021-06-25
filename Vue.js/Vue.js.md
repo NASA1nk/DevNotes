@@ -658,7 +658,7 @@ Mustache语法不能作用在HTML标签的属性`attribute`上
 
 > 参数：`src`，`v-bind` 指令将该元素的 `src` 属性与 Vue对象的`url` 值绑定
 
-​```html
+```html
 <body>
 <div id="app">
   <image v-bind:src="url"></image>
@@ -698,7 +698,7 @@ Mustache语法不能作用在HTML标签的属性`attribute`上
 - 动态绑定的`class`属性可以与普通的`class`属性共存
 - 可以绑定计算属性（返回对象）
 
-```html
+​```html
 <!DOCTYPE html>
 <html lang="en" xmlns:v-bind="">
 <head>
@@ -8545,7 +8545,7 @@ cd hello-vue
 npm install vue-router --save-dev
 
 # 安装ElementUI
-npm i element-ui -S
+npm install element-ui -S
 
 # 安装依赖
 npm install

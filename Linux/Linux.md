@@ -1047,11 +1047,19 @@ git config --list
 
 配置ssh
 
-# **oh-my-zsh**
+# oh-my-zsh
 
-安装一些额外的字体来支持oh-my-zsh显示特殊的符号
+> Linux发行版的默认命令解释器是Bash
+>
+> Zsh就是另一个常用的命令解释器，相比于默认的 Bash，Zsh有更多的自定义选项，并支持扩展。因此Zsh可以实现更强大的命令补全，命令高亮等一系列酷炫功能
+>
+> 默认的Zsh配置比较麻烦。在GitHub 上有一个配置文件oh-my-zsh，是目前为止最流行的Zsh配置
 
-打开PowerShell，依次执行如下命令安装Powerline字体集合
+
+
+在PowerShell中**安装Powerline字体集合**
+
+> 安装额外的字体来支持oh-my-zsh显示特殊的符号
 
 ```bash
 git clone https://github.com/powerline/fonts.git
@@ -1059,7 +1067,7 @@ cd fonts
 .\install.ps1
 ```
 
-接着安装zsh：
+**安装**zsh
 
 ```bash
 sudo apt update
@@ -1069,13 +1077,13 @@ sudo apt install git zsh -y
 zsh --version
 ```
 
-再安装oh-my-zsh：
+**安装oh-my-zsh**
 
 ```bash
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 ```
 
-安装完oh-my-zsh 后，配置 zsh，将主题设置为 `agnoster`：
+配置zsh，将主题设置为 `agnoster`
 
 ```bash
 # 配置 zsh

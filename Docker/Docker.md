@@ -17,10 +17,10 @@
   - [卸载](#卸载)
 - [Docker常用命令](#docker常用命令)
   - [帮助命令](#帮助命令)
-  - [**镜像命令**](#镜像命令)
+  - [镜像命令](#镜像命令)
     - [docker images](#docker-images)
     - [docker pull](#docker-pull)
-    - [**docker rmi**](#docker-rmi)
+    - [docker rmi](#docker-rmi)
   - [容器命令](#容器命令)
     - [docker ps](#docker-ps)
     - [docker run](#docker-run)
@@ -211,7 +211,7 @@ docker info 		#显示docker的系统信息，包括镜像和容器的数量
 docker 命令 --help   #帮助命令 
 ```
 
-## **镜像命令**
+## 镜像命令
 
 ```sh
 docker images 		#查看所有本地主机上的镜像
@@ -253,7 +253,7 @@ docker pull 镜像名[:tag]
 #真实地址
 ```
 
-### **docker rmi** 
+### docker rmi 
 
 ```sh
 #删除指定的镜像 

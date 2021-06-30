@@ -381,8 +381,8 @@ Prometheus还提供了一种**HTTP API**的方式，可以更灵活的将 PromQL
 
 > Grafana就是通过 Prometheus 的 HTTP API 来查询指标数据的
 
-- GET /api/v1/query
-- GET /api/v1/query_range
+- `GET /api/v1/query`
+- `GET /api/v1/query_range`
 - GET /api/v1/series
 - GET /api/v1/label/<label_name>/values
 - GET /api/v1/targets
@@ -424,7 +424,7 @@ grafana/grafana
 2. 选择`Data Sources`
 3. 点击`Add data source`，
 4. 选择`Time series databases`时序数据库中的`Prometheus`
-5. 填写数据源名称和URL地址http://49.232.207.245:9090并保存
+5. 填写数据源名称和URL地址http://10.2.14.105.9100并保存
 
 ![Grafana连接Prometheus](Prometheus.assets/Grafana连接Prometheus.png)
 
@@ -482,6 +482,8 @@ grafana/grafana
 > `:set nu` 显示行数
 >
 > `/`+搜索的内容
+>
+> 查看：`grep allow_embedding defaults.ini`
 
 ```bash
 # 进入/usr/share/grafana
@@ -543,6 +545,15 @@ function receiveMessage(event) {
 	document.querySeletor('sidemenu').style.display = 'none';	
   }
 }
+
+<script>    
+    document.addEventListener("keydown",function(e){        
+        var event = e||window.event;        
+        if(event.keyCode == 27){            
+            event.returnValue = false;            
+            event.stopPropagetion();        
+        }    
+    },true)script>
 ```
 
 
@@ -557,7 +568,7 @@ function receiveMessage(event) {
 
 修改
 
-- 添加kiosk
+- 添加`kiosk`参数
 - 给`iframe`标签添加`@load`做后续操作
 
 > kiosk参数（隐藏工具条，按ESC可返回（必要时候可以禁用按键）)

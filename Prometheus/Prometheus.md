@@ -456,6 +456,128 @@ grafana/grafana
 
 
 
+## Grafana嵌入
+
+以`root`身份进入容器，修改Grafana配置文件
+
+**缺省配置文件**
+
+| 项目             | 设定值                  |
+| ---------------- | ----------------------- |
+| 默认配置文件目录 | /usr/share/grafana/conf |
+| 默认配置文件名称 | defaults.ini            |
+
+**配置文件设定方式**
+
+- 使用`--config`指定配置文件
+- 通过环境变量`GF_PATHS_CONFIG`指定配置文件
+
+| 项目         | 设定值       |
+| ------------ | ------------ |
+| 配置文件目录 | /etc/grafana |
+| 配置文件名称 | grafana.ini  |
+
+> 分号`;`是`.ini`配置文件的标准注释方式，要去掉
+>
+> `:set nu` 显示行数
+>
+> `/`+搜索的内容
+
+```bash
+# 进入/usr/share/grafana
+docker exec -u root -it 28f18fcc419f  /bin/sh
+# 修改配置文件
+vi defaults.ini
+
+# 187行:允许嵌入
+# set to true if you want to allow browsers to render Grafana in a <frame>, <iframe>, <embed> or <object>. default is false.
+allow_embedding = true
+
+# 313行:允许匿名登录
+[auth.anonymous]
+enabled = true
+
+# 319行:需要保留editor的功能
+org_role = Viewer Editor 
+```
+
+**修改loading图标**
+
+修改`/usr/share/grafana/public/views/index.html`文件
+
+> 删除loge标志
+>
+> 命令模式下（`ESC`）
+>
+> - dd：删除一行
+> - yy：复制一行
+> - p：粘贴
+
+```html
+.preloader__logo {
+        display: inline-block;
+        animation-name: preloader-squash;
+        animation-duration: 0.9s;
+        animation-iteration-count: infinite;
+        width: 60px;
+        height: 60px;
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-image: url("data:image/svg+xml,%3csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xl
+      }
+```
+
+修改loading文字
+
+```html
+<div class="preloader__text">Loading Grafana</div>
+```
+
+添加代码
+
+```html
+window.addEventList("message", receiveMessage, false);
+function receiveMessage(event) {
+  console.log(event);
+  if (event.data.showMenu === false){
+	document.querySeletor('sidemenu').style.display = 'none';	
+  }
+}
+```
+
+
+
+**重启Grafana服务**
+
+选择`Embed`得到`iframe`链接
+
+![grafana嵌入](Prometheus.assets/grafana嵌入.png)
+
+![iframe嵌入](Prometheus.assets/iframe嵌入.png)
+
+修改
+
+- 添加kiosk
+- 给`iframe`标签添加`@load`做后续操作
+
+> kiosk参数（隐藏工具条，按ESC可返回（必要时候可以禁用按键）)
+
+```html
+<iframe src="http://10.2.14.105:3000/d-solo/Bkl9bBYik/zhu-ji-ji-chu-jian-kong?orgId=1&from=1625057045862&to=1625057046410&var-job=exporter&var-node=10.2.14.105:9100&var-maxmount=%2F&var-nic=&panelId=167&kiosk" width="450" height="200" frameborder="0" @load="load" id="gra"></iframe>
+```
+
+```javascript
+    load() {
+      document.getElementById('gra').contentWindow.postMessage({ showMenu: false },'*');
+    },
+```
+
+
+
+
+
+
+
 
 
 # MySQL监控

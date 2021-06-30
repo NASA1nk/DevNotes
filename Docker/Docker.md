@@ -332,11 +332,21 @@ docker run [可选参数] image
 # 进入
 docker exec -it 容器id /bin/sh
 docker exec -it 容器id /bin/bash
+
 # 退出
 exit
 
 # 进入容器正在执行的终端
 docker attach 容器id
+```
+
+> 使用`exit`退出docker容器时提示**You have stopped jobs**
+
+```bash
+# 查看哪些进程没结束
+jobs -l
+# 关闭对应进程
+kill -9 pid
 ```
 
 ### docker commit

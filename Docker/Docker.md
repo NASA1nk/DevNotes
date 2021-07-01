@@ -140,7 +140,9 @@ C-S架构，分为2部分
 
 # Docker安装
 
-## 环境
+## CentOS
+
+### 环境
 
 ```shell
 uname -r 
@@ -149,7 +151,7 @@ uname -r
 cat /etc/os-release 
 ```
 
-## 安装
+### 安装
 
 ```shell
 #1.卸载旧版本(Docker的旧版本称为docker或docker-engine)
@@ -189,7 +191,7 @@ docker version
 docker run hello-world
 ```
 
-## 卸载
+### 卸载
 
 ```shell
 #1. 卸载依赖 
@@ -197,6 +199,110 @@ yum remove docker-ce docker-ce-cli containerd.io
 #2. 删除资源 
 rm -rf /var/lib/docker  #/var/lib/docker 是docker的默认工作路径！
 ```
+
+
+
+## Ubuntu
+
+### 设置仓库
+
+> 在新主机上首次安装 Docker Engine-Community 之前需要设置 Docker 仓库，之后可以从仓库安装和更新 Docker 
+
+更新 apt 包索引
+
+```bash
+sudo apt-get update
+```
+
+卸载旧版本
+
+> Docker 的旧版本被称为 docker，docker.io 或 docker-engine
+
+```bash
+sudo apt-get remove docker docker-engine docker.io containerd runc
+```
+
+让apt能通过HTTPS使用仓库
+
+```bash
+sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    software-properties-common
+```
+
+添加官方的GPG密钥
+
+```bash
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+```
+
+验证密钥
+
+> 9DC8 5822 9FC7 DD38 854A E2D8 8D81 803C 0EBF CD88 通过搜索指纹的后8个字符，验证现在是否拥有带有指纹的密钥
+
+```bash
+sudo apt-key fingerprint 0EBFCD88
+```
+
+设置Docker稳定版仓库
+
+```bash
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+```
+
+### 安装Docker Engine-Community
+
+```bash
+# 更新apt包索引
+sudo apt-get update
+
+# 安装
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+
+# 启动
+sudo service docker start
+
+# 停止
+sudo service docker stop
+
+# 重启
+sudo service docker restart
+```
+
+
+
+### 创建docker用户组
+
+Docker守候进程绑定的是一个unix  socket而不是TCP端口。这个套接字默认的属主是root，其他是用户可以使用sudo命令来访问这个套接字文件。所以docker服务进程都是以root帐号的身份运行的
+
+为了避免每次运行docker命令的时候都需要输入sudo，可以创建一个docker用户组，并把相应的用户添加到这个分组里面。当docker进程启动的时候，会设置该套接字可以被docker这个分组的用户读写。这样只要是在docker这个组里面的用户就可以直接执行docker命令了
+
+```bash
+# 查看用户组中有没有docker组
+sudo cat /etc/group | grep docker
+
+# 列出自己的用户组，确认在不在docker组中
+groups
+
+# 将登陆用户加入到docker用户组中
+sudo gpasswd -a ${USER} docker
+
+#更新用户组
+newgrp docker  
+
+# 列出自己的用户组，确认在不在docker组中
+groups
+
+# 重启docker服务
+sudo service docker restart
+```
+
+
 
 # Docker常用命令
 

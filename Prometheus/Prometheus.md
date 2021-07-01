@@ -483,7 +483,13 @@ Prometheus API 使用了 JSON 格式的响应内容。 输入时间戳可以由 
 
 ### query_range
 
+URL请求参数
 
+- `query=<string>` : PromQL 表达式
+- `start=<rfc3339 | unix_timestamp>` : 起始时间戳
+- `end=<rfc3339 | unix_timestamp>` : 结束时间戳
+- `step=<duration | float>` : 查询时间步长，时间区间内每 step 秒执行一次。
+- `timeout=<duration>` : 超时设置，可选参数，默认情况下使用全局设置的参数 `-query.timeout`
 
 
 

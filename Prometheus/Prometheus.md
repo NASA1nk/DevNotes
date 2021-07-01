@@ -369,13 +369,98 @@ scrape_configs:
 
 ## PromQL 
 
-Prometheus Query Language
+**Prometheus Query Language**
+
+`(1-(sum(increase(node_cpu_seconds_total{mode="idle"}[2m]))by(instance)) / (sum(increase(node_cpu_seconds_total[2m]))by(instance))) *100`
+
+![sum—increase](Prometheus.assets/sum—increase.png)
+
+### sum
+
+`sum()` 
+
+叠加函数，可以将多核CPU进行合并为一个整体
+
+### increase
+
+`increase({}[time])`
+
+针对 Counter这种持续增长的数值，截取其中一段时间的**增量**
+
+### by 
+
+`by()` 
+
+这个函数可以把`sum`合并到一起的数值，按照**指定的方式进行拆分**
+
+`by(instance)` 按照集群节点进行拆分
+
+### CPU利用率
+
+直接执行`node_cpu_seconds_total`查询后会出现很多监控指标，其中各种类型的比如系统态、用户态都会由mode标签来区分
+
+查出当前**空闲的CPU**百分比来计算利用率
+
+**cpu使用时间**
+
+> `mode`标签值为`idle`的为空闲
+
+- 空闲CPU使用时间：`node_cpu_seconds_total{mode="idle"}`
+- 全部CPU总共使用时间：`node_cpu_seconds_total)`
+
+**两分钟之内的cpu使用时间增量**
+
+- 全部CPU使用时间在2分钟内的增量：`increase(node_cpu_seconds_total[2m])` 
+- 空闲CPU使用时间在2分钟内的增量：`increase(node_cpu_seconds_total{mode="idle"}[2m])`
+
+**将多核CPU进行合并为一个整体**
+
+> sum()函数默认情况下全部内容都会进行合并，不光是CPU的核心数，同时把机器也进行合并
+
+- 集群所有主机空闲CPU使用时间在2分钟内的增量：`sum(increase(node_cpu_seconds_total{mode="idle"}[2m]))`
+- 集群所有主机CPU使用时间在2分钟内的增量：`sum(increase(node_cpu_seconds_total[2m]))`
+
+**按主机节点进行拆分**
+
+- 集群所有节点空闲CPU使用时间在2分钟内的增量：`sum(increase(node_cpu_seconds_total{mode="idle"}[2m]))by(instance)`
+- 集群所有节点CPU使用时间在2分钟内的增量：`sum(increase(node_cpu_seconds_total[2m]))by(instance)`
+
+### 内存利用率
+
+> 在用接口请求的时候，报错`parse error: unexpected identifier "node_memory_Cached_bytes`
+>
+> 分别请求的时候可以获取到值
+
+内存的监控项没有像CPU一样区分了很多标签，因此内存监控相较于CPU则需要结合很多个监控项
+
+- 总内存：node_memory_MemTotal_bytes 
+- 空闲内存：node_memory_MemFree_bytes
+- 缓存：node_memory_Cached_bytes
+- 缓冲区内存：node_memory_Buffers_bytes
+
+监控内存利用率：
+
+1.  空闲内存 + 缓存 + 缓冲区内存 = 空闲总内存
+
+   `(node_memory_MemFree_bytes + node_memory_Cached_bytes+node_memory_Buffers_bytes)`
+
+2.  空闲总内存 / 总内存 = 空闲率
+
+   `(node_memory_MemFree_bytes + node_memory_Cached_bytes+node_memory_Buffers_bytes) / node_memory_MemTotal_bytes * 100`
+
+3. 100 - 空闲率 = 使用率
+
+   `100 - ((node_memory_MemFree_bytes+node_memory_Cached_bytes+node_memory_Buffers_bytes) / node_memory_MemTotal_bytes * 100)`
 
 
 
 ## HTTP API
 
 Prometheus还提供了一种**HTTP API**的方式，可以更灵活的将 PromQL 整合到其他系统中使用，实际上Prometheus 的Graph页面查询也是使用了 HTTP API
+
+Prometheus API 使用了 JSON 格式的响应内容。 输入时间戳可以由 RFC3339 格式或 Unix 时间戳提供。输出时间戳以 Unix 时间戳的方式呈现
+
+所有的 API请求返回的格式均使用JSON 格式。主要有以下几种查询类型：瞬时查询、范围查询、元数据查询、配置查询。
 
 [HTTP API | Prometheus](https://prometheus.io/docs/prometheus/latest/querying/api/)
 
@@ -395,6 +480,12 @@ Prometheus还提供了一种**HTTP API**的方式，可以更灵活的将 PromQL
 - POST /api/v1/admin/tsdb/snapshot
 - POST /api/v1/admin/tsdb/delete_series
 - POST /api/v1/admin/tsdb/clean_tombstones
+
+### query_range
+
+
+
+
 
 # Grafana
 
@@ -501,6 +592,9 @@ enabled = true
 
 # 319行:需要保留editor的功能
 org_role = Viewer Editor 
+
+auto_assign_org_role llow_embedding/= Viewer
+
 ```
 
 **修改loading图标**

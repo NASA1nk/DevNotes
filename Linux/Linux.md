@@ -60,9 +60,9 @@ chmod 777 dirName
 
 
 
-# 常用命令
+## 常用命令
 
-### su
+**su**
 
 `switch user`：用于变更为其他使用者的身份
 
@@ -90,7 +90,7 @@ sudo 命令
 
 
 
-### uname
+**uname**
 
 `unix name`：显示系统信息
 
@@ -103,7 +103,7 @@ sudo 命令
 
 
 
-### cd
+**cd**
 
 `change directory`：切换当前工作目录
 
@@ -121,7 +121,7 @@ sudo 命令
 
 
 
-### ls
+**ls**
 
 `list files`：按英文字母顺序显示指定工作目录下之内容（文件和子目录)
 
@@ -138,7 +138,7 @@ sudo 命令
 
 
 
-### passwd
+**passwd**
 
 更改使用者的密码
 
@@ -152,19 +152,19 @@ passwd ink
 
 
 
-### pwd
+**pwd**
 
 `print work directory`：显示当前工作目录
 
 
 
-### mkdir
+**mkdir**
 
 `make directory`：创建目录
 
 
 
-### rmdir
+**rmdir**
 
 `remove directory`：删除空的目录
 
@@ -176,7 +176,7 @@ rmdir -p A/B
 
 
 
-### cat
+**cat**
 
 `concatenate`：查看文本文件的内容（从第一行开始）
 
@@ -206,7 +206,7 @@ cat /dev/null > /etc/test.txt
 
 
 
-### nl
+**nl**
 
 `number of lines`：将输出的文件内容自动的加上行号（默认空行不加行号）
 
@@ -224,7 +224,7 @@ cat /dev/null > /etc/test.txt
 
 
 
-### more
+**more**
 
 查看文件内容，一页一页翻动
 
@@ -256,7 +256,7 @@ cat /dev/null > /etc/test.txt
 
   
 
-### less
+**less**
 
 查看文件内容，一页一页翻动
 
@@ -287,7 +287,7 @@ cat /dev/null > /etc/test.txt
 
 
 
-### head
+**head**
 
 显示文件前几行
 
@@ -301,7 +301,7 @@ head -n 20 /etc/man.config
 
 
 
-### tail
+**tail**
 
 显示文件后几行
 
@@ -323,11 +323,11 @@ tail -n +20 /etc/man.config
 tail -f /etc/man.config
 ```
 
-### grep
+**grep**
 
-### find
+**find**
 
-### rm
+**rm**
 
 `remove`：删除目录或者文件
 
@@ -344,7 +344,7 @@ rm -rf ./*
 
 
 
-### mv
+**mv**
 
 - 为文件或目录改名
 - 将文件从一个目录移入另一个目录中（剪切）
@@ -380,7 +380,7 @@ mv * ../另一个目录
 
 
 
-### netstat
+**netstat**
 
 用于显示系统的网络状态
 
@@ -409,7 +409,7 @@ netstat -nultp
 
 
 
-### shutdown
+**shutdown**
 
 可以用来关机，也可以用来重启
 
@@ -432,6 +432,8 @@ shutdown -r now
 # 取消进行中的关机指令
 shutdown –c
 ```
+
+
 
 # 修改root密码
 
@@ -504,9 +506,86 @@ shutdown –c
 
    系统管理员可以为用户指定Shell。如果不指定Shell，**系统使用sh为默认的登录Shell**（字段值为`/bin/sh`）
 
+# Bash
 
+基于Unix或类Unix操作系统一般情况下都将bash作为默认的终端shell
+
+## 运行模式
+
+### 交互式和非交互式
+
+**交互式模式**
+
+shell与用户进行交互。shell等待用户的输入然后执行用户提交的命令
+
+> 登录、执行一些命令、签退（shell终止） 
+
+**非交互式模式**
+
+shell不与用户进行交互。shell读取存放在文件中的命令然后执行。当shell读到文件的结尾时终止
+
+### login和non-login
+
+login shell与non-login shell的主要区别在于它们**启动时会读取不同的配置文件**，从而导致环境不一样
+
+**login shell**
+
+login shell启动时首先读取`/etc/profile`全局配置，然后依次查找`~/.bash_profile`、`~/.bash_login`、`~/.profile`三个配置文件，并且**只读取第一个找到的并且可读的文件**。login shell退出时读取并执行`~/.bash_logout`中的命令
+
+> 登录终端输入账号和密码取得的bash就是login shell
+>
+> `/etc/profile`：系统的全局配置文件，为系统的每个用户设置环境信息，不建议修改
+>
+> 配置个人环境修改`~/.bash_profile`、`~/.bash_login`、`~/.profile`这三个配置文件即可
+
+**non-login shell**
+
+**进入了login shell后输入**`bash`**就会进入一个non login shell**
+
+- 交互式non-login shell启动时**只读取**`~/.bashrc`资源配置文件
+- 非交互式non-login shell不读取上述的所有配置文件，而是**查找环境变量**`BASH_ENV`，读取并执行`BASH_ENV`**指向的文件中的命令**
+
+> 在终端桌面直接启动的shell窗口和在shell窗口su切换用户的窗口都属于non-login shell 
+>
+> 所以su切换用户是不会读取`/etc/profile`配置文件的，也就不会改变环境变量等
+
+## .bashrc
+
+> The individual per-interactive-shell startup file.
+
+bashrc用于**交互式non-loginshell**
+
+- `/etc/bashrc`：为**每一个**运行bash shell的用户执行该文件
+- `~/.bashrc`：**专用于某个用户**的bash shell的个性化设置信息，当该用户登录时以及每次打开新的shell时读取该文件
+
+> 个性化设置如命令别名、路径、环境变量等
+
+一般会在`~/.bash_profile`文件中显式调用`~/.bashrc`。为了加载用户首选项，bash在每次启动时首先会去读取`~/.bash_profile`文件，这样`~/.bashrc`配置文件中的内容也得到执行，个性化设置也就生效了
+
+修改`~/.bashrc`后会在下次启动终端时应用，也可以让它立即生效
+
+```bash
+source ~/.bashrc
+```
+
+
+
+# 环境变量
+
+在linux中输入一条命令的时候，命令的查找是根据**环境变量**中的**搜索路径**`PATH`来查找的
+
+> 查找一个命令的源文件存放位置：`which`，`whereis`
 
 # Anaconda
+
+**提示环境存放路径**
+
+`environment location: /usr/local/anaconda3/envs/buaa_test`
+
+**添加到环境变量**
+
+- **export PATH=/root/anaconda3/bin:$PATH**
+- **source ~/.bashrc**
 
 ```bash
 # 下载
@@ -520,16 +599,6 @@ conda create --name env_name
 # 启用环境
 conda activate env_name
 ```
-
-> 提示环境存放路径
->
-> environment location: /usr/local/anaconda3/envs/buaa_test
->
-> 添加环境变量
->
-> export PATH=/root/anaconda3/bin:$PATH
->
-> source ~/.bashrc
 
 
 
@@ -767,7 +836,7 @@ Session Key用于连接之后通讯时**对消息进行加密和解密**
 
 **用户身份鉴权**
 
-在客户端生成的Public Key和Private Key就是用来进行身份鉴权的，客户端需要将Public Key上传到服务器上（改名为Authorized Key）
+在客户端生成的Public Key和Private Key就是用来进行身份鉴权的，客户端需要将Public Key上传到服务器上（改名为`authorized_Keys`）
 
 1. 客户端用Private Key生成签名向服务器发起登录请求
 2. 服务端验证签名（检查自己有没有和这个签名匹配的Public Key）
@@ -825,56 +894,66 @@ ps -e | grep ssh
 **连接远程机器**
 
 - `user`：远程机器上登录的用户名，如果不指定的话默认为当前用户
-- `remote`：远程机器的地址，可以是 IP，域名或者是**别名**
+- `remotehost`：远程机器的地址，可以是 IP，域名或者是**别名**
 - `port`：SSH Server 监听的端口，如果不指定的话就为默认值22
 
 > 执行了 `ssh` 命令之后远程机器会询问密码。输入密码时屏幕上不会显示明文密码，也不会显示 `******`（隐藏密码长度）
 
 ```bash
-ssh user@remote -p port
+ssh user@remotehost -p port
 ```
 
 
 
 ## SSH密钥
 
-在客户端生成SSH密钥
+使用**ssh-keygen**工具在客户端生成SSH密钥
 
 - `-t`表示类型选项，采用`rsa`加密算法
-- 要求设置保存位置，一般存放在默认路径，回车即可
 - 要求设置私钥口令`passphrase`，不设置则为空
+- 要求设置保存位置，一般存放在默认路径，回车即可
+
+> RSA密钥对也可以在服务端生成
 
 ```bash
 ssh-keygen -t rsa
 ```
 
+### L2L
+
 会在`/home/当前用户`目录下生成`.ssh`文件夹
 
 - **公钥**： `~/.ssh/id_rsa.pub`
-- 私钥： `~/.ssh/id_rsa`
+- **私钥**： `~/.ssh/id_rsa`
 
-> RSA密钥对也可以在服务器生成
+将**公钥**`id_rsa.pub`写入到远程服务器的用户目录的`.ssh/authorized_keys`文件中
+
+> 默认22端口，`-p`可以省略
 >
-> - 公钥在服务器端：`~/.ssh/authorized_keys`
-> - 私钥在客户端：`/home/当前用户/.ssh/id_rsa`
-
-
-
-将**公钥**`id_rsa.pub`上传到远程服务器的 `~/.ssh`目录，并改名为`authorized_keys`
+> Linux系统里缺省都包含一个名为ssh-copy-id的工具，其实就是一个shell脚本
 
 ```bash
-ssh-copy-id -i .ssh/id_rsa.pub user@remote -p port
-mv id_rsa.pub authorized_keys
+# 将本地的ssh公钥文件安装到远程主机对应的账户下
+# 输入yes和账户密码
+ssh-copy-id -i ~/.ssh/id_rsa.pub user@remotehost -p port
 ```
 
-没有 `ssh-copy-id` 的情况（比如在 Windows 上）
+
+
+### W2L
+
+>  ssh会把你每个你访问过计算机的公钥(public key)都记录在~/.ssh/known_hosts
+
+在**应用和功能**里的**管理可选功能**中**开启openss服务**
+
+搜索**服务**，在服务里将`openssh Authentication Agent`设置为**自动启动**并启动
 
 在远程服务器上新建 `.ssh` 目录，然后把**公钥**`id_rsa.pub` **追加**到远程主机的 `.ssh/authorized_keys` 中
 
 > `mkdir -p`：递归创建目录，当上级目录不存在时会按目录层级自动创建目录
 
 ```bash
-ssh user@remote -p port 'mkdir -p .ssh && cat >> .ssh/authorized_keys' < ~/.ssh/id_rsa.pub
+ssh user@remotehost -p port 'mkdir -p .ssh && cat >> .ssh/authorized_keys' < ~/.ssh/id_rsa.pub
 ```
 
 
@@ -884,11 +963,11 @@ ssh user@remote -p port 'mkdir -p .ssh && cat >> .ssh/authorized_keys' < ~/.ssh/
 登录不用每次输ip
 
 ```bash
-# 修改bashrc
+# 在.bashrc中添加别名
 sudo vim ~/.bashrc
 # 在最下面附加 
 alias nlsde="ssh user@remote" 
-# 更新
+# 立即更新
 source ~/.bashrc
 ```
 
@@ -903,7 +982,7 @@ Host nlsde
 
 
 
-## know_hosts
+### know_hosts
 
 ssh会把你每个你访问过计算机的公钥(public key)都记录在known_hosts。当下次访问相同计算机时，OpenSSH会核对公钥。如果公钥不同，OpenSSH会发出警告， 避免你受到DNS Hijack之类的攻击。
 
@@ -913,19 +992,7 @@ ssh会把你每个你访问过计算机的公钥(public key)都记录在known_ho
 CopyIp或域名  主机名 host-key
 ```
 
-## Windows连接服务器
 
->  ssh会把你每个你访问过计算机的公钥(public key)都记录在~/.ssh/known_hosts
-
-1. 在**应用和功能**里的**管理可选功能**中**开启openss服务**
-
-2. 搜索`服务`，在服务里将`openssh Authentication Agent`设置为**自动启动**并启动
-
-3. **创建无密密钥**
-
-   ```bash
-   ssh-keygen  -t  rsa
-   ```
 
 ## Xshell连接云服务器
 
@@ -945,7 +1012,9 @@ CopyIp或域名  主机名 host-key
    2. 账号密码登录，输入密码
    3. SSH登录，选择下载的密钥`ink.pem`(腾讯云生成的时候没有密码，不用输入)
 
-## 服务器端口
+
+
+# 服务器端口
 
 > CentOS 7.0默认使用firewall作为防火墙
 
@@ -1219,6 +1288,10 @@ prompt_segment green black "%(!.%{%F{yellow}%}.)%n"
 - 连接 SSH 终端后支持 SFTP 传输文件
 - 各种丰富的插件(git/dig/aria2…)
 - 可运行 Windows 或软件
+
+## 复制粘贴
+
+在菜单栏点击 「settings」 --> 「Configuration」，在弹出的对话框中选择 「terminal」，将 「paste using right-click」 勾上
 
 
 

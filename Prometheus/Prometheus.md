@@ -493,6 +493,22 @@ URL请求参数
 
 
 
+每个容器正在使用的CPU
+
+## Python API
+
+[prometheus-api-client-python](https://github.com/AICoE/prometheus-api-client-python)
+
+http://10.2.14.95:32099/api/v1/query_range?query=sum(rate(container_cpu_usage_seconds_total%20[5m]))%20by(container_name)&start=2021-07-01T13:11:53Z&end=2021-07-01T14:21:53Z&step=12s
+
+`sum(rate(container_cpu_usage_seconds_total [5m])) by(container_name)`
+
+
+
+
+
+
+
 # Grafana
 
 Grafana是一个开源的跨平台的度量分析、可视化工具

@@ -750,27 +750,39 @@ Host Key由SSH自行生成，分为两种：
 
 Session Key用于连接之后通讯时**对消息进行加密和解密**
 
-这个机制被称作**对称加密**（Symmetric Encryption），也就是两端使用的相同的Key来加密和解密信息
+使用Session Key加密的机制被称作**对称加密**（Symmetric Encryption），也就是两端使用的相同的Key来加密和解密信息
 
-> SSH信息的加密解密时并不是用生成的Public Key或Private Key，而是用Session Key
+> SSH传输信息的加密解密时并不是用生成的Public Key或Private Key，而是用Session Key
+
+
+
+**Session Key生成**
+
+1. 客户端和服务端使用沟通后确定的加密算法以及双方都知道的一个数字
+2. 客户端和服务端各自生成只有自己才知道的private密码，并用它对数字进行加密生成**新的密码**
+3. 客户端和服务端交换各自加密后的密码
+4. 客户端和服务端分别将对方发来的密码再加上自己的private密码，从而得到相同的Session Key
 
 
 
 **用户身份鉴权**
 
-身份鉴权这一步除了使用 Key 登录外，还能使用密码登录
+在客户端生成的Public Key和Private Key就是用来进行身份鉴权的，客户端需要将Public Key上传到服务器上（改名为Authorized Key）
 
-在客户端生成的 Public/Private Key 就是指用来身份鉴权的 Authorized Key
+1. 客户端用Private Key生成签名向服务器发起登录请求
+2. 服务端验证签名（检查自己有没有和这个签名匹配的Public Key）
+3. 服务端生成一串随机字符串，用Public Key加密后发送给客户端
+4. 客户端用对应的Private Key解密字符串，再使用MD5 hash 和Session Key加密该字符串，将加密后的字符串发送给服务端
+5. 服务端使用同样的MD5 hash 和Session Key计算这串字符的加密结果，并和客户端发来的结果做比对，结果一样则允许登录
+6. 然后双方将使用Session Key进行通讯
 
-**客户端拥有 Private 和 Public Key 并将 Public Key 放到服务端用于登录**
+使用Public Key和Private Key的加密机制被称作**不对称加密**（Asymmetry Encryption），即使用不同的Key来对信息进行加密解密。
 
-登录步骤：
+客户端使用Private Key可以解密服务端使用Public Key加密的信息，服务端使用Public Key 无法解密客户端使用Private Key发来的加密信息
 
-1. 客户端用 Private Key 生成签名向服务器发起登录请求
-2. 服务端验证签名，检查自己有没有和这个签名匹配的 Public Key
-3. 服务端生成一串随机字符串，用 Public Key 加密后发送给客户端
-4. 客户端用相应的 Private Key 解密这串字符串，再使用 MD5 hash 和 Session Key 加密该字符串，将结果发送给服务端
-5. 服务端使用同样的 MD5 hash 和 Session Key 计算这串字符的加密结果，并和客户端发来的结果做比对，如果结果一样，则允许客户端登录
+> 身份鉴权除了使用Host Key登录，也可以使用密码登录
+
+
 
 ## SSH Server
 

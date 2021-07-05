@@ -104,6 +104,14 @@ conda deactivate ink
 - conda下载的包，conda和pip都可以更新和卸载
 - pip下载的包，只能由pip更新和卸载，conda卸载不了
 
+
+
+# Pyenv
+
+Python环境管理工具，可以切换全局解释器版本
+
+
+
 # 基础语法
 
 - python是动态语言，**变量不用声明**

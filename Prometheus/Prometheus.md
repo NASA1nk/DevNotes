@@ -1162,7 +1162,9 @@ docker logs -f alertmanager
 
 ## SMTP
 
-在报警的邮箱中开通smtp功能，并获取授权码（smtp_auth_password中填写）
+打开**设置-用户-POP3/IMAP/SMTP/Exchange/CardDAV/CalDAV服务**
+
+在邮箱中开通smtp功能，并获取授权码（smtp_auth_password中填写）
 
 `smtp.qq.com:465` ，端口使用**465**。其他资料说用587端口也可以（如果是云服务器，25端口通常是被服务商封闭的，所有也不能使用25端口）
 

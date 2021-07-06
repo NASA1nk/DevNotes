@@ -109,6 +109,16 @@ SHA-1是一个哈希函数，使用文件的内容计算出一串数字作为文
 git init
 ```
 
+**推送现有文件夹到空仓库**
+
+```bash
+git init --initial-branch=main
+git remote add origin git@gitlab.buaanlsde.cn:ink/msops.git
+git add .
+git commit -m "Initial commit"
+git push -u origin main
+```
+
 ## 添加
 
 由本地添加到暂存区
@@ -131,21 +141,23 @@ git commit -m "注释"
 ## 撤销
 
 ```bash
-#1.提示命令，在想撤销的命令后一条输入（紧挨着）
+# 1.提示命令，在想撤销的命令后一条输入（紧挨着）
 gitjk
 
-#git add的撤销(git reset)
+# git add的撤销(git reset)
 git add .
 gitjk
+# 仅取消 git add 带来的效果。 即本地的修改还在，但是取消了add 的状态
+git reset --mixed 
 
-#git commit的撤销git reset --soft 'HEAD^'()
+# git commit的撤销git reset --soft 'HEAD^'()
 git commit file_name -m "注释"
 gitjk
 
-#2.版本回退
+# 2.版本回退
 git checkout SHA-1
 
-#3.版本回退并将之创建为新的分支
+# 3.版本回退并将之创建为新的分支
 git checkout -b SHA-1
 ```
 

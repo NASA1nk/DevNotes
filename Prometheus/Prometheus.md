@@ -454,6 +454,32 @@ scrape_configs:
 
 
 
+### Usage
+
+
+
+`container_cpu_usage_seconds_total`
+
+- 计数器（counter）类型
+- 每个cpu消耗的累积cpu时间（以秒为单位）
+- 如果有多个CPU，则总的CPU时间需要用`sum`把各个CPU使用时间相加
+
+`rate(container_cpu_usage_seconds_total[5m])`
+
+- 同一个节点上的同一个服务，不同cpu的占用时间都有计量和统计
+
+`sum(rate(container_cpu_usage_seconds_total[5m]))`
+
+- 得到容器服务的CPU使用时间的总的情况，需要对所有CPU求和
+
+
+
+### 配置指标
+
+(sum(rate(container_cpu_usage_seconds_total[1m])) by (pod_name) / sum(label_replace(kube_pod_container_resource_limits_cpu_cores, "pod_name", "$1", "pod", "(.*)")) by (pod_name))>75
+
+
+
 ## HTTP API
 
 Prometheus还提供了一种**HTTP API**的方式，可以更灵活的将 PromQL 整合到其他系统中使用，实际上Prometheus 的Graph页面查询也是使用了 HTTP API

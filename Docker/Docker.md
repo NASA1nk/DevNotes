@@ -351,12 +351,39 @@ docker images -aq #显示所有镜像的id
 
 ### docker pull
 
+`docker pull` 的内容默认存在`/var/lib/docker`目录下
+
+- `/var/lib/docker/image/overlay2/repositories.json`文件和docker images的内容一致
+- `/var/lib/docker/containers`目录中保存是已拉取的容器ID
+
 ```shell
 #分层下载镜像，如果不写tag，默认latest 
 docker pull 镜像名[:tag]
 
 #Digest 签名 防伪
 #真实地址
+```
+
+### docker tag
+
+用于将镜像推送到远程仓库之前给镜像打标签
+
+> 不是重命名标签，而是给同一个镜像创建一个额外的标签（同一个镜像id）
+>
+> 镜像名称格式：registry host ip:port/group name/project name:tag
+
+```bash
+# docker tag 旧image:tag 新image:tag
+docker tag grafana/grafana:latest gitlab.buaanlsde.cn:4567/buaapyj/registry/msops-grafana:1.0
+```
+
+### docker push
+
+推送到远程仓库中
+
+```bash
+# docker push image:tag
+docker push gitlab.buaanlsde.cn:4567/buaapyj/registry/msops-grafana
 ```
 
 ### docker rmi 
@@ -368,6 +395,8 @@ docker rmi -f 镜像id
 #删除全部的镜像
 docker rmi -f $(docker images -aq) 
 ```
+
+
 
 ## 容器命令
 
@@ -479,14 +508,6 @@ docker build -t 用户名/ImageName:TagName .
 
 #使用URL github.com/creack/docker-firefox的Dockerfile创建镜像
 docker build github.com/creack/docker-firefox
-```
-
-### docker tag
-
-不会重命名标签，而是给同一个镜像创建一个额外的标签（同一个镜像id）
-
-```bash
-docker tag 旧镜像标签 新镜像标签
 ```
 
 ### docker prune

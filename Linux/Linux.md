@@ -862,6 +862,8 @@ Session Key用于连接之后通讯时**对消息进行加密和解密**
 - sshd服务配置文件：`/etc/ssh/sshd_config`
 
 > 通常Linux系统会默认安装openssh的客户端软件**openssh-client**，需要自己安装服务端**openssh-server**
+>
+> 如果云服务器sshd服务配置并没有开启公钥登录（`ssh name@remotehost`显示的不是云服务器相关信息而是输入密码），就需要登录到云服务器开启sshd服务的公钥登录配置。在`/etc/ssh/sshd_config`配置文件中找到PublicAuthentication项，删除注释`#`并修改值为`yes`。最后`service sshd restart`重启sshd服务
 
 ```bash
 yum install openssh-server
@@ -872,6 +874,8 @@ chkconfig --list sshd
 # 手动启动sshd服务
 /etc/init.d/sshd start
 ```
+
+
 
 **Ubuntu**
 
@@ -926,7 +930,7 @@ ssh-keygen -t rsa
 - **公钥**： `~/.ssh/id_rsa.pub`
 - **私钥**： `~/.ssh/id_rsa`
 
-将**公钥**`id_rsa.pub`写入到远程服务器的用户目录的`.ssh/authorized_keys`文件中
+将**公钥**`id_rsa.pub`写入到远程服务器的`~/.ssh/authorized_keys`文件中
 
 > 默认22端口，`-p`可以省略
 >
@@ -960,10 +964,11 @@ ssh user@remotehost -p port 'mkdir -p .ssh && cat >> .ssh/authorized_keys' < ~/.
 
 **配置别名**
 
-登录不用每次输ip
+在`.bashrc`中添加信息
+
+> 保存后即可用 `nlsde` 登录
 
 ```bash
-# 在.bashrc中添加别名
 sudo vim ~/.bashrc
 # 在最下面附加 
 alias nlsde="ssh user@remote" 
@@ -971,12 +976,18 @@ alias nlsde="ssh user@remote"
 source ~/.bashrc
 ```
 
-或者在 `~/.ssh/config` 里面追加内容，保存后即可用 `ssh nlsde` 登入
+在 `~/.ssh/config`中添加信息
 
-```
+> 保存后即可用 `ssh nlsde` 登录
+
+```bash
+# 服务器名称
 Host nlsde
+	# 服务器IP
     HostName remote
+    # 登录用户
     User user
+    # 连接端口
     Port port
 ```
 

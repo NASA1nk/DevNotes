@@ -2332,8 +2332,8 @@ CPU和内存的速度远远高于外设的速度，所以在IO编程中存在**�
 
 所以读写文件就是
 
-1. **请求操作系统打开一个文件对象**（通常称为**文件描述符**）,`open()`
-2. 通过操作系统提供的接口从这个文件对象中读取数据或者把数据写入这个文件对象
+1. **请求操作系统打开一个文件对象**（通常称为**文件描述符**）`open()`
+2. 通过操作系统提供的接口从这个文件对象中读取数据或者把数据**写入这个文件对象**
 
 
 
@@ -2404,13 +2404,15 @@ file-like Object不要求从特定类继承，只要有`read()`方法就可以
 
 **写文件**
 
-1. 调用`open()`方法以写文件的模式打开一个文件对象并传入文件名和标示符w（write）
+1. 调用`open()`方法以写文件的模式打开一个文件对象并传入文件名和标示符`w`
 2. 调用`write()`方法写内容到文件中（可以反复调用`write()`来写入文件）
 3. 调用`close()`方法关闭文件
 
 > 以`'w'`模式写入文件时，如果文件已存在则会直接覆盖（相当于删掉后新写入一个文件）。如果希望追加到文件末尾可以传入`'a'`（append）以追加模式写入
 >
 > 操作系统往往不会立刻把数据写入磁盘，而是放到内存缓存起来，空闲的时候再慢慢写入。只有调用`close()`方法时操作系统才保证把没有写入的数据全部写入磁盘。忘记调用`close()`的后果是数据可能只写了一部分到磁盘，剩下的丢失
+>
+> `write()`里面必须是str类型，将列表、元组、字典转为字符串使用`str`，将字符串逆转化使用`eval()`函数
 
 ```python
 f = open('/path/test.txt', 'w')
@@ -2498,7 +2500,7 @@ f.read()
 
 
 
-## 操作文件和目录
+## 文件目录
 
 python内置的`os`模块可以直接调用操作系统提供的接口函数
 
@@ -2572,13 +2574,16 @@ os.rename('test.txt','test.py')
 
 ## 序列化
 
-`pickling`：变量从内存中变成**可存储**或传输的过程称之为**序列化**
+`pickle`
 
-`unpickling`：把变量从序列化的对象重新读到内存里称之为**反序列化**
+- **序列化**（pickling）：将对象从内存中变成可存储或传输的字节序列形式
+- **反序列化**（unpickling）：把变量从序列化的字节序列形式重新恢复成对象
 
 > 序列化之后就可以把内容写入磁盘，或者通过网络传输到别的机器上
-
-`pickle`
+>
+> `pickle`只在python之间使用
+>
+> `pickle`可以序列化所有的数据类型，包括类，函数
 
 **序列化**
 
@@ -2611,7 +2616,9 @@ d
 
 ## JSON
 
-在不同的编程语言之间传递对象必须把对象**序列化**为**标准格式**（比如XML，JSON)
+JSON（JavaScript Object Notation）：一种轻量级的**数据交换格式**
+
+在不同的编程语言之间传递对象必须把对象**序列化**为**标准格式**（XML，JSON)
 
 - JSON表示出来就是一个字符串，可以被所有语言读取，也可以方便地存储到磁盘或者通过网络传输
 - JSON比XML更快，而且可以直接在Web页面中读取
@@ -2625,7 +2632,7 @@ JSON和Python内置的数据类型对应如下：
 | {}         | dict       |
 | []         | list       |
 | "string"   | str        |
-| 1234.56    | int或float |
+| 12/1234.56 | int或float |
 | true/false | True/False |
 | null       | None       |
 
@@ -2637,13 +2644,13 @@ python内置的`json`模块提供了Python对象到JSON格式的转换
 
 **序列化**
 
-- `json.dumps()`：返回一个`str`，内容是标准JSON格式
-- `json.dump()`：把JSON写入一个`file-like Object`
+- `json.dumps()`：将数据类型转换成字符串`str`，内容是标准JSON格式
+- `json.dump()`：将数据类型转换成字符串`str`，并存储在文件中
 
 **反序列化**
 
-- `json.loads()`：把JSON字符串反序列化
-- `json.load()`：从`file-like Object`中读取JSON字符串并反序列化
+- `json.loads()`：把JSON字符串反序列化成数据类型
+- `json.load()`：从文件中读取JSON字符串并反序列化成数据类型
 
 ```python
 import json
@@ -2661,19 +2668,48 @@ json.loads(json_str)
 
 **进阶**
 
-用`class`表示对象，然后再序列化
+`json`只能序列化最基本的数据类型（列表、字典、列表、字符串、数字）。正常情况类的**实例对象**不是一个可序列化为JSON的对象
 
-正常情况类的实例对象不是一个可序列化为JSON的对象
+使用`class`表示对象，然后再序列化
 
-`dumps()`方法的可选参数`default`就是把任意一个对象变成一个可序列为JSON的对象
+`json.dumps()`方法的可选参数`default`可以把**任意一个对象变成一个可序列为JSON的对象**
 
-通常`class`的实例都有一个`__dict__`属性，它就是一个`dict`，用来存储实例变量
-
-先将实例转换为`dict`，再序列化
+`class`的实例都有一个`__dict__`属性，它就是一个`dict`，用来存储实例变量。先将实例对象转换为`dict`再序列化
 
 ```python
 print(json.dumps(s, default=lambda obj: obj.__dict__))
 ```
+
+## JSON2CSV
+
+数据文件通常是CSV格式（数据之间用逗号分隔）
+
+1. 提取json文件中所需要的数据对应的`key`和`value`
+2. 对数据进行类型转换，不做处理默认是`str`
+3. 使用`pandas`写入csv文件
+
+```python
+# dict数据处理
+time_str = json_data['values'].keys()
+time_list = [int(time) for time in time_str]
+
+val_str = json_data['values'].keys()
+val_list = [float(val) for val in val_str]
+
+# 构建 dataframe
+import pandas as pd
+# 
+time_series = pd.Series(time_list,name='timestamp')
+val_series = pd.Series(val_list,name='value')
+
+# axis=1是横向拼接,axis=0是竖向拼接
+ret_df = pd.concat([time_series,val_series],axis=1)
+
+# 调用to_csv()方法时不加上index = None，则会默认在csv文件里最左边加上一列索引
+ret_df.to_csv('./data/lstmdata.csv', index = None)
+```
+
+
 
 # 进程和线程
 

@@ -31,7 +31,7 @@
 
 # Anaconda
 
-- conda：包和环境管理器
+- conda：**包和环境管理器**
 - pip：包管理器
 - virtualenv：环境管理器
 
@@ -39,11 +39,20 @@
 >
 > **pip**：官方包管理器，推荐用于安装Python包索引（`PyPI`）上发布的包
 
-Anaconda是一种为科学计算而生的Python发行版，包括：
+**Anaconda**
+
+包括：
 
 - 标准的python环境
-- conda(包和环境的管理器)
+- conda（包和环境的管理器）
 - 科学包以及依赖项
+
+Anaconda是一种为**科学计算**而生的Python发行版
+
+- 一个基于Python的数据处理和科学计算平台，内置了许多非常有用的第三方库
+
+- **Anaconda会把系统Path中的python指向自己自带的Python**
+- Anaconda安装的第三方模块会安装在Anaconda自己的路径下，不影响系统已安装的Python目录
 
 [Anaconda | The World's Most Popular Data Science Platform](https://www.anaconda.com/)
 
@@ -1692,26 +1701,18 @@ python通过`_`**前缀**来实现变量和函数的作用域
 
 在python中安装第三方模块：通过包管理工具`pip`完成
 
-**Anaconda**
-
-- 一个基于Python的数据处理和科学计算平台，内置了许多非常有用的第三方库
-
-- **Anaconda会把系统Path中的python指向自己自带的Python**
-- Anaconda安装的第三方模块会安装在Anaconda自己的路径下，不影响系统已安装的Python目录
-
-
-
 
 ## 模块使用
 
-**标准文件模板**
+### 标准文件模板
 
 1. `#!/usr/bin/env python3`：让`.py`文件直接在Unix/Linux/Mac上运行
 2. `# -*- coding: utf-8 -*-`：表示`.py`文件本身使用标准UTF-8编码
 3. 模块代码的**第一个字符串**都被视为模块的文档注释
-4. `__author__`变量可以表明作者
 
-**导入模块**
+> `__author__`变量可以表明作者
+
+### 导入模块
 
 导入`sys`模块后就有了变量`sys`指向该模块，利用`sys`这个变量就可以访问`sys`模块的所有功能
 
@@ -1724,30 +1725,67 @@ import sys
 因此这种`if`测试可以让一个模块通过**命令行运行**时执行一些额外的代码，最常见的就是运行测试
 
 ```python
-if __name__=='__main__':
+if __name__=="__main__":
     test()
 ```
 
-**模块搜索路径**
+### 自定义模块
 
-当试图加载一个模块时，python会在**指定的路径**下搜索对应的`.py`文件，如果找不到就会报错
+当试图加载一个模块时，python会在**指定的路径**下搜索对应的`.py`文件，如果找不到就会报错。默认情况下python解释器会搜索**当前目录**、**所有已安装的内置模块**和**第三方模块**，搜索路径存放在`sys`模块的`path`变量中
 
-> 默认情况下python解释器会搜索**当前目录**、**所有已安装的内置模块**和**第三方模块**，搜索路径存放在`sys`模块的`path`变量中
+**同级的自定义模块**
 
-手动添加搜索路径（目录）有两种方法
+- 直接导入即可
 
-- 直接修改`sys.path`，添加要搜索的目录
+- 无需加后缀`.py`
+- 使用模块中函数要加上引入的**前缀**
+
+**下级目录下的自定义模块**
+
+- 要在下级建立一个空的`__init__.py`文件
+- 按照包package的格式引入
+  - `from dir import file`
+  - `import dir.file`（后面需要一直带着路径`dir`书写，可以起别名）
+
+> 相对导入时文件夹实质上充当的是package的角色（如果是普通文件夹就无法导入）
+>
+> 文件夹作为package需要满足两个条件：
+>
+> - 文件夹中必须存在有`__init__.py`文件，可以为空
+> - 不能作为顶层模块来执行该文件夹中的`.py`文件
+
+**上级目录下的自定义模块**
+
+需要手动添加搜索路径（目录）
+
+- 直接修改`sys.path`，添加搜索的目录
 
   > 在运行时修改，运行结束后失效
+  >
+  > `..`等同于linux里的`..`，表示当前工作目录的上级目录。`.`也和linux中一致，表示当前工作目录
 
   ```python
   import sys
-  sys.path.append('/Users/michael/my_py_scripts')
+  sys.path.append('..')
+  import file
   ```
 
 - 设置环境变量`PYTHONPATH`，该环境变量的内容会被自动添加到模块搜索路径中
 
   > 设置方式与设置Path环境变量类似，只需要添加自己的搜索路径，python本身的搜索路径不受影响
+
+**同级目录下的自定义模块**
+
+- 添加上级目录（`sys.path`）
+- 导入下级目录中的自定义模块（创建init）
+
+```python
+import sys
+sys.path.append('..')
+from dir import file
+```
+
+
 
 
 
@@ -2527,20 +2565,24 @@ os.environ.get('PATH')
 
 **操作文件和目录**
 
-操作文件和目录的函数一部分放在`os`模块中，一部分放在`os.path`模块中
+操作文件和目录的函数有两个模块
 
-- `os.mkdir()`：创建文件夹
-- `os.rmdir()`：删除文件夹
-- `os.rename`：文件重命名
-- `os.remove`：删除文件
-- `os.path.abspath('.')`：查看当前目录的绝对路径
-- os.`path.join()`：合并路径
-- `os.path.split()`：拆分路径
-- `os.path.splitext()`：获取文件扩展名
+- `os`模块
+  - `os.mkdir()`：创建文件夹
+  - `os.rmdir()`：删除文件夹
+  - `os.rename`：文件重命名
+  - `os.remove`：删除文件
+
+- `os.path`模块
+  - `os.path.abspath('.')`：查看当前目录的绝对路径
+  - `os.path.dirname(path)`：去掉文件名返回目录路径 
+  - os.`path.join()`：合并路径
+  - `os.path.split()`：拆分路径
+  - `os.path.splitext()`：获取文件扩展名
 
 > 合并路径时不要直接拼字符串而要通过`os.path.join()`函数，这样可以正确处理不同操作系统的路径分隔符
 >
-> 拆分路径时不要直接去拆字符串而要通过`os.path.split()`函数，这样可以把一个路径拆分为两部分，后一部分总是最后级别的目录或文件名
+> 拆分路径时不要直接去拆字符串而要通过`os.path.split()`函数，这样可以把一个路径拆分为两部分，后一部分总是**最后级别的目录或文件名**
 >
 > 这些合并、拆分路径的函数并不要求目录和文件要真实存在，它们只对字符串进行操作
 
@@ -2569,6 +2611,18 @@ os.rename('test.txt','test.py')
 >>> os.remove('test.py')
 ```
 
+
+
+**获取文件目录路径**
+
+`__file__`：表示当前文件的路径
+
+`os.path.dirname(__file__)`就是得到当前文件的绝对路径
+
+> 必须是实际存在的`.py`文件，如果在命令行执行会报异常
+
+
+
 ## 序列化
 
 `pickle`
@@ -2591,6 +2645,10 @@ os.rename('test.txt','test.py')
 
 - `pickle.loads()`：反序列化出对象
 - `pickle.load()`：从一个`file-like Object`中反序列化出对象
+
+`.pkl`文件
+
+python保存文件的一种文件格式，直接打开会显示一堆序列化的数据，需要使用`rb`类型来打开（读取2进制文件）
 
 ```python
 import pickle
@@ -2932,4 +2990,4 @@ t.join()
 print('thread %s ended.' % threading.current_thread().name)
 ```
 
-wo
+# wo

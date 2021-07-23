@@ -225,7 +225,7 @@ Nbextensions页面提供了多个Jupyter Notebook的插件
 
 
 
-# 加载网站源代码
+## 加载网站源代码
 
 在Jupyter Notebook的单元格中直接**加载指定网站的源代码**
 
@@ -236,7 +236,7 @@ Nbextensions页面提供了多个Jupyter Notebook的插件
 
 
 
-# 加载本地Python文件
+## 加载本地Python文件
 
 在Jupyter Notebook的单元格中**加载本地的Python文件并执行文件代码**
 
@@ -249,7 +249,7 @@ Nbextensions页面提供了多个Jupyter Notebook的插件
 
 
 
-# 直接运行本地Python文件
+## 直接运行本地Python文件
 
 不在Jupyter Notebook的单元格中加载本地Python文件，而是**直接运行本地Python文件**
 
@@ -269,7 +269,7 @@ Nbextensions页面提供了多个Jupyter Notebook的插件
 
 
 
-# 获取当前位置
+## 获取当前位置
 
 在Jupyter Notebook中获取当前Jupyter Notebook中创建的**笔记本所在位置**的**绝对路径**
 
@@ -280,7 +280,7 @@ Nbextensions页面提供了多个Jupyter Notebook的插件
 
 
 
-# 关闭笔记本和终端
+## 关闭笔记本和终端
 
 想要退出终端或笔记本时，**关闭页面**是无法结束程序运行的
 
@@ -302,7 +302,7 @@ Nbextensions页面提供了多个Jupyter Notebook的插件
 
 
 
-# 退出Jupyter Notebook
+## 退出Jupyter Notebook
 
 仅通过关闭网页是无法退出Jupyter Notebook的，因为打开Jupyter Notebook其实是启动了它的服务器
 
@@ -316,4 +316,19 @@ Nbextensions页面提供了多个Jupyter Notebook的插件
 > 终端上会提示："Shutdown this notebook server (y/[n])?" 
 >
 > 输入`y`即可关闭服务器，退出Jupyter Notebook
+
+
+
+# %matplotlib
+
+Magic Functions	
+
+> IPython的内置magic函数
+
+magic函数分两种
+
+- 一种是面向行的：用前缀`%`标注
+- 一种是面向单元型的：用前缀`%%`标注
+
+调用matplotlib.pyplot的绘图函数`plot()`进行绘图\或者生成一个figure画布的时候，可以直接在python console里面生成图像（内嵌绘图，省略掉`plt.show()`这一步）
 

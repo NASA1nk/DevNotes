@@ -2689,6 +2689,7 @@ print(json.dumps(s, default=lambda obj: obj.__dict__))
 3. 使用`pandas`写入csv文件
 
 ```python
+# 转换成json格式:loads()
 # dict数据处理
 time_str = json_data['values'].keys()
 time_list = [int(time) for time in time_str]
@@ -2698,6 +2699,8 @@ val_list = [float(val) for val in val_str]
 
 # 构建 dataframe
 import pandas as pd
+import json
+import csv
 # 
 time_series = pd.Series(time_list,name='timestamp')
 val_series = pd.Series(val_list,name='value')
@@ -2707,6 +2710,17 @@ ret_df = pd.concat([time_series,val_series],axis=1)
 
 # 调用to_csv()方法时不加上index = None，则会默认在csv文件里最左边加上一列索引
 ret_df.to_csv('./data/lstmdata.csv', index = None)
+```
+
+```python
+# 使用readjson()方法读入json数据，直接将json数据读取为DataFrame对象
+import pandas as pd
+# 乱码设置encoding参数
+json_data = pd.read_json('planets.json')
+json_data.head()
+# 使用to_csv()方法将数据保存为本地csv文件
+# to_excel()
+json_data.to_csv('planets_json_to_csv.csv',index=False)
 ```
 
 

@@ -1,19 +1,15 @@
-# 多线程
-
 # 常用类
 
 ## String类
 
-**不可变的字符序列**
-
-Java程序中所有的**字符串**的字面值都是`String`类的一个实例
+Java程序中所有的**字符串**的字面值都是`String`类的**一个实例**
 
 - `String`是一个`final`类，它无法被继承
 - `String`对象的字符内容存储在一个字符数组`value[]`中（`private final`类型的数组）
-- `String`实现了`Serializable`接口，表示字符串是可以序列化的（IO流）
-- `String`实现了`Comparable`接口，表示字符串是可以比较大小
-- 字符串是**常量**，创建后**不能更改**
-  - 当对字符串重新**赋值**时，需要重新指定内存区域
+- `String`实现了`Serializable`接口，表示字符串是**可以序列化的**（IO流）
+- `String`实现了`Comparable`接口，表示字符串是**可以比较大小**
+- **字符串是常量，创建后不能更改**（**不可变的字符序列**）
+  - 当对字符串**重新赋值**时，需要重新指定内存区域
   - 当对字符串进行**拼接**时，需要重新指定内存区域
   - 当对字符串进行**替换**时，需要重新指定内存区域
 
@@ -25,9 +21,9 @@ Java程序中所有的**字符串**的字面值都是`String`类的一个实例
 
 ### 字符串修改
 
-**值传递**：引用数据类型传递的是地址值
+**值传递**：引用数据类型**传递的是地址值**
 
-- `str`将自己指向的地址传递给了`change`方法。`str`有不可变性，所以`str`不会变
+- `str`将自己**指向的地址**传递给了`change`方法。`str`有不可变性，所以`str`不会变
 - `ch`指向堆中的一片区域，可以在方法中改变
 
 ```java
@@ -60,9 +56,9 @@ public class Test {
 
   - 字符串常量**存储在常量池**中共享
 
-- **`new`+构造器**
+- `new`+**构造器**
 
-  - 字符串**非常量对象存储在堆中**，保存堆空间地址，由**堆中的对象指向常量池**
+  - 字符串**非常量对象存储在堆中**，保存在堆空间的地址，由**堆中的对象指向常量池**
 
     > 相当于创建了两个对象，一个是堆中的`new`结构，一个是`char[]`对应的常量池中的数据
 
@@ -85,7 +81,6 @@ public class Astring {
     String s3 = new String(char[] s);
     
     String s4 = new String(char[] s, int startIndex, int count);
-
 }
 ```
 
@@ -93,8 +88,11 @@ public class Astring {
 
 ### 字符串比较
 
-- `==`：比较字符串的**地址值**
-- `equals`：比较字符串的**内容**，`String`类重写了`equals`方法
+- `==`：比较字符串引用的**地址值**
+
+- `equals`：比较字符串的**内容**
+
+  > `String`类重写了`equals`方法
 
 
 
@@ -166,57 +164,50 @@ System.out.println(s3 == s7);
 
 ### 类型转换
 
-String类和**其他结构**之间的转换
-
-> 只有子父类**继承关系**的类型才可以强制类型转换
-
-
-
-**String转换为基本数据类型（包装类）**
-
-调用包装类的**静态方法**：`Integer.parseInt(str)`
+- String类和**其他结构**之间的转换
+  - 只有子父类**继承关系**的类型才可以强制类型转换
 
 
 
-**基本数据类型（包装类）转换为String**
+- **String转换为基本数据类型（包装类）**
 
-调用String重载的`valueOf()`方法：`String.valueOf(num)`
+  - 调用包装类的**静态方法**：`Integer.parseInt(str)`
 
-也可以直接**拼接**：`num + ""`
+- **基本数据类型（包装类）转换为String**
 
-> 拼接的字符串在堆中（有变量），不在常量池中
+  - 调用String重载的`valueOf()`方法：`String.valueOf(num)`
 
+  - 也可以直接**拼接**：`num + ""`
 
-
-**String转换为字符数组（char[]）**
-
-> String的底层就是一个char[]
-
-调用String的`toCharArray()`方法
+    > 拼接的字符串在堆中（有变量），不在常量池中
 
 
 
-**字符数组（char[]）转换为String**
+- **String转换为字符数组（char[]）**
 
-调用String的**构造器**即可：`new String(char[])`
+  - 调用String的`toCharArray()`方法
 
+    > String的底层就是一个`char[]`
 
+- **字符数组（char[]）转换为String**
 
-**String转换为字节数组（byte[]）**
-
-调用String的`getBytes()`方法（默认的字符编码集）
-
-`getBytes(charsetName)`：指定字符编码集
-
-> UTF-8下，一个汉字三个字节
->
-> GBK下，一个汉字两个字节
+  - 调用String的**构造器**即可：`new String(char[])`
 
 
 
-**字节数组（byte[]）转换为String**
+- **String转换为字节数组（byte[]）**
 
-调用String的**构造器**即可：`new String(byte[])`
+  - 调用String的`getBytes()`方法（默认的字符编码集）
+
+  - `getBytes(charsetName)`：指定字符编码集
+
+    > UTF-8下，一个汉字三个字节
+    >
+    > GBK下，一个汉字两个字节
+
+- **字节数组（byte[]）转换为String**
+
+  - 调用String的**构造器**即可：`new String(byte[])`
 
 
 

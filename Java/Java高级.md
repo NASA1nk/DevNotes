@@ -1807,24 +1807,18 @@ list.add(123);
 **Abstract Methods**
 
 - `Object put(Object key,Object value)`：将指定`key:value`添加到（或修改）当前map对象中
-
 - `void putAll(Map m)`：将m中的所有`key:value`对存放到当前map中
 - `Object remove(Object key)`：移除指定`key`的`key:value`对并返回对应的`value`
 - `void clear()`：清空map中的所有数据（并不是将map赋值为`null`）
 - `Object get(Object key)`：获取指定`key`对应的`value`（没有返回`null`）
+- `Object getOrDefault(Object key, V defaultValue)`：获取指定`key`对应的`value`，没有返回设置的默认值`defaultValue`
 - `boolean containsKey(Object key)`：查询是否包含指定的`key`
 - `boolean containsValue(Object value)`：查询是否包含指定的`value`
-
 - `int size()`：返回map中`key:value`对的个数
-
 - `boolean isEmpty()`：判断当前map是否为空
-
 - `boolean equals(Object obj)`：判断当前map和参数对象obj是否相等
-
 - `Set keySet()`：返回所有`key`构成的Set集合
-
 - `Collection values()`：返回所有`value`构成的Collection集合
-
 - `Set entrySet()`：返回所有`key:value`对构成的Set集合
 
 > 迭代器是用来遍历collection集合的，遍历map集合一般是操作`key`或者`value`，再使用迭代器

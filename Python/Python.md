@@ -31,45 +31,6 @@
 
 # Anaconda
 
-- conda：**包和环境管理器**
-- pip：包管理器
-- virtualenv：环境管理器
-
-> **conda**： 开源包管理系统和环境管理系统，支持Python, Java, C/C++ 等多种语言，支持Windows, macOS 和 Linux 上运行
->
-> **pip**：官方包管理器，推荐用于安装Python包索引（`PyPI`）上发布的包
-
-**Anaconda**
-
-包括：
-
-- 标准的python环境
-- conda（包和环境的管理器）
-- 科学包以及依赖项
-
-Anaconda是一种为**科学计算**而生的Python发行版
-
-- 一个基于Python的数据处理和科学计算平台，内置了许多非常有用的第三方库
-
-- **Anaconda会把系统Path中的python指向自己自带的Python**
-- Anaconda安装的第三方模块会安装在Anaconda自己的路径下，不影响系统已安装的Python目录
-
-[Anaconda | The World's Most Popular Data Science Platform](https://www.anaconda.com/)
-
-[anaconda | 清华大学开源软件镜像站](https://mirror.tuna.tsinghua.edu.cn/help/anaconda/)
-
-> miniconda
->
-> 安装anaconda就不需要单独装python
->
-> 安装完成后重启生效
-
-添加环境变量
-
-使用python3.x版本
-
-![Anaconda安装](Python.assets/Anaconda安装.png)
-
 ## 运行
 
 - 输入`python`进入**交互式界面**

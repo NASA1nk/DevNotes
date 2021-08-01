@@ -2604,6 +2604,34 @@ public class GenericTest {
 - Java对于数据的输入输出操作以**流**stream的方式进行
 - `java.io`包提供了各种**流**类和接口用以获取**不同种类的数据**，并通过**标准输入输出**数据
 
+## 字符集
+
+- ASCII：美国标准信息交换码，**用一个字节的7位可以表示**
+- Unicode：国际标准码，包含了全球目前使用的所有字符，为每个字符分配唯一的字符码，用两个字节表示所有字符
+- GB2312：中文编码表，**最多用两个字节表示所有字符**
+- GBK：中文编码表的升级，融合了更多的中文文字符号，**最多用两个字节表示所有字符**
+- UTF-8：变长编码，可用1-4个字节来表示一个字符
+- ISO8859-1：拉丁码表（欧洲码表），用一个字节的8位表示
+
+> 在Unicode出现之前所有的字符集都是和具体编码方案绑定在一起的（即字符集≈编码方式），直接将字符和最终字节流绑定
+
+**Unicode的问题**
+
+Unicode存在三个问题
+
+1. 英文字母只用一个字节8位表示就够了
+2. 如何才能区别Unicode和ASCII？计算机如何知道两个字节表示一个符号，而不是分别表示两个符号？
+3. 如果和GBK等双字节编码方式一样用最高位是1或0表示两个字节和一个字节， 就不够表示所有字符
+
+**UTF（Universal Character Set Transfer Format）标准**
+
+是针对Unicode的一种可变长度字符编码
+
+- UTF-8
+- UTF-16
+
+> 这是为传输而设计的编码，可以显示全世界上所有文化的字符
+
 ## File类
 
 `java.io.File`
@@ -3020,7 +3048,7 @@ public class FileReaderWriterTest {
 
 **流的异常处理**
 
-关于流的异常处理，要使用`try catch finally`处理
+关于流的异常处理，要使用`try catch finally`处理`close()`之前的内容
 
 - 如果使用`throws`抛出异常的话，可能无法正确关闭流
 - 如果`fr = new FileReader(file)`实例化时候捕捉了异常，则`finally`中的关闭操作也无法执行，所以要添加判断
@@ -3398,7 +3426,7 @@ public class BufferedTest {
 }
 ```
 
-
+**Demo**
 
 **获取文本上字符出现的次数并把数据写入文件**
 
@@ -3496,17 +3524,320 @@ public class WordCount {
 
 使用转换流可以实现**字节流和字符流之间的转换**
 
-**字符流**
+**转换流属于字符流**
 
-- `InputStreamReader`：将字节的输入流`InputStream`转换为字符的输入流`Reader`
-- `OutputStreamWriter`：将字符的输出流`Writer`转换为字节的输出流`OutputStream`
+- `InputStreamReader`：将**字节**的输入流`InputStream`转换为**字符**的输入流`Reader`
+- `OutputStreamWriter`：将**字符**的输出流`Writer`转换为**字节**的输出流`OutputStream`
+
+**应用场景**
+
+使用转换流实现编码和解码的功能（处理文件乱码问题）
+
+- 编码：字符——字节
+- 解码：字节——字符
 
 > 字节流中的数据都是字符时，转成字符流操作更高效
->
-> 使用转换流实现编码和解码的功能（处理文件乱码问题）
->
-> - 编码：字符——字节
-> - 解码：字节——字符
 
 ![转换流](Java高级.assets/转换流.png)
+
+**构造器**
+
+`InputStreamReader(InputStresam in,String charsetName)`
+
+- `InputStresam in`：输入字节流，用来读取文件中保存的字节
+- `String charsetName`：指定读入时的编码名称，不指定则使用平台默认的字符编码
+
+OutputStreamWriter(OutputStream out, String charsetName)
+
+- `OutputStream out`：输出字节流，用来保存从文件中读取的字节
+- `String charsetName`：指定写入时的编码名称，不指定则使用平台默认的字符编码
+
+> 每次调用`write()`方法时都会在给定字符上调用编码转换器。**生成的字节**在写入底层输出流之前在缓冲区中累积（传递给`write()`方法的字符不会被缓冲）
+>
+> 为了获得最高效率，一般在BufferedWriter中包装OutputStreamWriter以避免频繁的调用编码转换器
+
+```java
+package com.ink.IO;
+
+import org.junit.Test;
+
+import java.io.*;
+
+public class InputStreamReaderTest {
+    @Test
+    public void test1(){
+        InputStreamReader isr = null;
+        try {
+            FileInputStream fis = new FileInputStream("copy.txt");
+//        参数2指明了字符集，具体使用哪个字符集取决于文件保存时使用的字符集
+//        使用系统默认的字符集
+//        InputStreamReader isr = new InputStreamReader(fis);
+//        使用UTF-8字符集
+            isr = new InputStreamReader(fis,"UTF-8");
+
+            char[] cbuf = new char[20];
+            int len;
+            while((len = isr.read(cbuf)) != -1){
+                String str = new String(cbuf,0,len);
+                System.out.print(str);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if(isr != null){
+                    isr.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+    @Test
+    public void test2() throws Exception {
+        InputStreamReader isr = null;
+        OutputStreamWriter osw = null;
+        try {
+            File file1 = new File("copy.txt");
+            File file2 = new File("copy_gbk.txt");
+
+            FileInputStream fis = new FileInputStream(file1);
+            FileOutputStream fos = new FileOutputStream(file2);
+
+            isr = new InputStreamReader(fis,"utf-8");
+            osw = new OutputStreamWriter(fos,"gbk");
+
+            char[] cbuf = new char[20];
+            int len;
+            while((len = isr.read(cbuf)) != -1){
+                osw.write(cbuf,0,len);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if(isr != null){
+                    isr.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                if(osw != null){
+                    osw.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+
+```
+
+
+
+### 标准输入/出流
+
+`System`
+
+- `err`
+- `in`：
+- `out`：系统标准的输出（显示器）
+
+**System.in**
+
+- 系统标准的输入设备（键盘）
+- `System.in`的类型是`InputStream`
+
+**System.out**
+
+- 系统标准的输出设备（显示器）
+- `System.out`的类型是`PrintStream`（OutputStream的子类）
+
+**重定向**
+
+通过System类的`setIn()`，`setOut()`方法对默认设备进行改变
+
+- `public static void setIn(InputStream in)`
+- `public static void setOut(PrintStream out)`
+
+```java
+package com.ink.IO;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class OtherStreamTest {
+//    从键盘输入字符串，要求将读取到的整行字符串转成大写输出，然后继续进行输入操作，直至当输入“e”或者“exit”时退出程序
+//    方法一：使用Scanner实现，调用next()返回一个字符串
+//    方法二：使用System.in实现。System.in-->转换流-->BufferedReader的readLine()方法
+
+    public static void main(String[] args) {
+//        单元测试方法不支持System.in
+        BufferedReader br = null;
+        try {
+//            System.in的类型是InputStream，所以需要转换流来转换
+            InputStreamReader isr = new InputStreamReader(System.in);
+            br = new BufferedReader(isr);
+
+            while (true) {
+                System.out.println("请输入字符串：");
+                String data = br.readLine();
+//                用字符串来比较（放前面）
+                if ("e".equalsIgnoreCase(data) || "exit".equalsIgnoreCase(data)) {
+                    System.out.println("程序结束");
+                    break;
+                }
+                String upperCase = data.toUpperCase();
+                System.out.println(upperCase);
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+```
+
+### 打印流
+
+- `PrintStream`
+  - `println`
+- `PrintWriter` 
+
+**将基本数据类型的数据格式转化为字符串输出**
+
+- `PrintStream`和`PrintWriter`提供了一系列重载的`print()`和`println()`方法用于多种数据类型的输出
+- `PrintStream`和`PrintWriter`的输出不会抛出`IOException`异常
+- `PrintStream`和`PrintWriter`有自动`flush`功能（刷新）
+- `PrintStream`打印的所有字符都使用平台的默认字符编码转换为字节。在需要写入字符的情况下应该使用`PrintWriter`
+- System.out返回的是PrintStream的实例
+
+```java
+package com.ink.IO;
+
+import org.junit.Test;
+
+import java.io.*;
+
+public class OtherStreamTest {
+    @Test
+    public void test1() {
+        PrintStream ps = null;
+        try {
+            FileOutputStream fos = new FileOutputStream(new File("C:\\Users\\54164\\Desktop\\File\\text.txt"));
+            // 创建打印输出流,设置为自动刷新模式(写入换行符或字节 '\n' 时都会刷新输出缓冲区)
+            ps = new PrintStream(fos, true);
+            if (ps != null) {
+                // 把标准输出流(控制台输出)改成输出到文件
+                System.setOut(ps);
+            }
+            for (int i = 0; i <= 255; i++) { // 输出ASCII字符
+                System.out.print((char) i);
+                if (i % 50 == 0) { // 每50个数据一行
+                    System.out.println(); // 换行
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            if (ps != null) {
+                ps.close();
+            }
+        }
+    }
+}
+```
+
+
+
+### 数据流
+
+操作基本数据类型和String的数据
+
+- `DataInputStream`
+- `DataOutputStream`
+
+**DataInputStream方法**
+
+- `boolean readBoolean()` 
+- `byte readByte()`
+- `char readChar()` 
+- `float readFloat()`
+- `double readDouble()` 
+- `short readShort()`
+- `long readLong()` 
+- `int readInt()`
+- `String readUTF()`                          
+- `void readFully(byte[] b)`
+
+> DataOutputStream中的方法就是将上述方法的read改为write即可
+>
+> 读出的顺序和写入的顺序要求一致，否则会报异常
+
+
+
+### 对象流
+
+存储和读取基本数据类型数据或**对象**的处理流。可以把Java中的对象写入到数据源中，也能把对象从数据源中还原出来
+
+- `ObjectInputStream`
+- `OjbectOutputSteam`
+
+**序列化和反序列化**
+
+- **序列化**：用`ObjectOutputStream`类将基本类型数据或对象**从内存中保存到磁盘中**
+- **反序列化**：用`ObjectInputStream`类将基本类型数据或对象**从磁盘中读取到内存中**
+
+> 不能序列化`static`和`transient`修饰的成员变量
+
+**持久化存储和传输**
+
+- **对象序列化机制**可以把内存中的Java对象转换成平台无关的二进制流，从而把二进制流持久地保存在磁盘上或通过网络将二进制流传输到另一个网络节点（其它程序获取了这种二进制流，就可以恢复成原来的Java对象）
+- 序列化是RMI（Remote Method Invoke远程方法调用）过程的参数和返回值都必须实现的机制，RMI是JavaEE的基础，因此序列化机制是JavaEE平台的基础
+- 如果要让某个对象支持序列化机制，则必须让对象所属的类及其属性是可序列化的，为了让某个类是可序列化的，该类必须实现如下两个接口之一，否则，会抛出`NotSerializableException`异常
+  - `Serializable`
+  - `Externalizable`
+- 如果某个类的属性不是基本数据类型或String 类型而是另一个引用类型，那么这个引用类型必须是可序列化的，否则拥有该类型的Field的类也不能序列化
+
+**java.io.Serializable接口**
+
+标识接口：空方法接口，用于序列化
+
+> 序列化机制能自动补偿操作系统间的差异，不必关心数据在不同机器上如何表示，也不必关心字节的顺序或者其他任何细节
+
+![Serializable接口](Java高级.assets/Serializable接口.png)
+
+![Serializable](Java高级.assets/Serializable.png)
+
+**序列化版本标识符**
+
+`private static final long serialVersionUID;`
+
+Java的序列化机制是通过在运行时判断类的serialVersionUID来验证版本一致性的
+
+在进行反序列化时JVM会把传来的字节流中的serialVersionUID与本地相应实体类的serialVersionUID进行比较，如果相同就认为是一致的，可以进行反序列化，否则就会出现序列化版本不一致的异常(InvalidCastException)
+
+> 源码注释：ANY-ACCESS-MODIFIER static final long serialVersionUID = 42L
+>
+> serialVersionUID用来表明类的不同版本间的兼容性。其目的是以序列化对象进行版本控制，有关各版本反序列化时是否兼容。如果类没有显示定义这个静态常量，它的值是Java运行时环境根据类的内部细节自动生成的。若类的实例变量做了修改serialVersionUID可能发生变化。建议显式声明
+
+
+
+
+
+
+
+> 注意写出一次，操作`flush()`一次
 

@@ -105,7 +105,8 @@
     - [再次抛出异常](#再次抛出异常)
     - [堆栈轨迹](#堆栈轨迹)
   - [自定义异常](#自定义异常)
-- [JUnit单元测试](#JUnit单元测试)
+- [JUnit单元测试](#junit单元测试)
+- [Jar包](#jar包)
 
 <!-- /TOC -->
 # Dos
@@ -3053,7 +3054,7 @@ public class Test {
 
 `JUnit`
 
-1. 选择当前工程-右键`Build Path`-`Add Libraries-JUnit`
+1. 选择当前工程，右键`Build Path`，然后`Add Libraries-JUnit`
 2. 创建单元测试类
    - 此类是`public`
    - 此类提供公共的无参构造器（默认不写即可）
@@ -3074,4 +3075,13 @@ public class Test {
 2. 在类中声明单元测试方法
 3. 在此单元测试方法上加上注解`@Test`
 4. `alt+enter`一键导入：`import org.junit.Test;`
+
+
+
+# Jar包
+
+导入jar包，使用API
+
+1. 创建`lib`目录，并将jar包复制进去
+2. 右键`Add as Library`
 

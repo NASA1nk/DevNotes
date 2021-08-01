@@ -3638,7 +3638,7 @@ public class InputStreamReaderTest {
 
 
 
-### 标准输入/出流
+### 标准输入/输出流
 
 `System`
 
@@ -3800,8 +3800,6 @@ public class OtherStreamTest {
 - **序列化**：用`ObjectOutputStream`类将基本类型数据或对象**从内存中保存到磁盘中**
 - **反序列化**：用`ObjectInputStream`类将基本类型数据或对象**从磁盘中读取到内存中**
 
-> 不能序列化`static`和`transient`修饰的成员变量
-
 **持久化存储和传输**
 
 - **对象序列化机制**可以把内存中的Java对象转换成平台无关的二进制流，从而把二进制流持久地保存在磁盘上或通过网络将二进制流传输到另一个网络节点（其它程序获取了这种二进制流，就可以恢复成原来的Java对象）
@@ -3823,21 +3821,417 @@ public class OtherStreamTest {
 
 **序列化版本标识符**
 
-`private static final long serialVersionUID;`
+- `private static final long serialVersionUID;`
 
-Java的序列化机制是通过在运行时判断类的serialVersionUID来验证版本一致性的
+- Java的序列化机制是通过在运行时判断类的serialVersionUID来验证版本一致性的
 
-在进行反序列化时JVM会把传来的字节流中的serialVersionUID与本地相应实体类的serialVersionUID进行比较，如果相同就认为是一致的，可以进行反序列化，否则就会出现序列化版本不一致的异常(InvalidCastException)
+- 在进行反序列化时JVM会把传来的字节流中的serialVersionUID与本地相应实体类的serialVersionUID进行比较，如果相同就认为是一致的，可以进行反序列化，否则就会出现序列化版本不一致的异常(InvalidCastException)
+
 
 > 源码注释：ANY-ACCESS-MODIFIER static final long serialVersionUID = 42L
 >
-> serialVersionUID用来表明类的不同版本间的兼容性。其目的是以序列化对象进行版本控制，有关各版本反序列化时是否兼容。如果类没有显示定义这个静态常量，它的值是Java运行时环境根据类的内部细节自动生成的。若类的实例变量做了修改serialVersionUID可能发生变化。建议显式声明
+> serialVersionUID用来表明类的不同版本间的兼容性。其目的是以序列化对象进行版本控制，有关各版本反序列化时是否兼容。如果类没有显示定义这个静态常量，它的值是Java运行时环境根据类的内部细节自动生成的。若类的实例变量做了修改，serialVersionUID可能发生变化。建议显式声明
 
 
 
+**可序列化要求**
+
+ * 实现`Serializable`接口
+ * 当前类提供一个全局常量`serialVersionUID`
+ * 除了当前类需要实现`Serializable`接口之外，还必须保证**其内部所有属性也必须是可序列化的**（默认情况下基本数据类型可序列化）
+ * `ObjectOutputStream`和`ObjectInputStream`不能序列化`static`和`transient`修饰的成员变量
+
+```java
+package com.ink.IO;
+
+import java.io.Serializable;
+
+public class Person implements Serializable{
+
+    public static final long serialVersionUID = 475463534532L;
+
+    private String name;
+    private int age;
+    private int id;
+    private Account acct;
+
+    public Person(String name, int age, int id) {
+        this.name = name;
+        this.age = age;
+        this.id = id;
+    }
+
+    public Person(String name, int age, int id, Account acct) {
+        this.name = name;
+        this.age = age;
+        this.id = id;
+        this.acct = acct;
+    }
+
+    @Override
+    public String toString() {
+        return "Person{" +
+                "name='" + name + '\'' +
+                ", age=" + age +
+                ", id=" + id +
+                ", acct=" + acct +
+                '}';
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public Person() {
+    }
+}
+//Account也要序列化
+class Account implements Serializable{
+    public static final long serialVersionUID = 4754534532L;
+    private double balance;
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "balance=" + balance +
+                '}';
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
+
+    public Account(double balance) {
+        this.balance = balance;
+    }
+}
+```
+
+> 注意写出一次就要`flush()`一次
+
+```java
+package com.ink.IO;
+
+import org.junit.Test;
+
+import java.io.*;
+
+public class ObjectInputOutputStreamTest {
+//    序列化:将内存中的java对象保存到磁盘中或通过网络传输出去
+    @Test
+    public void testObjectOutputStream(){
+        ObjectOutputStream oos = null;
+        try {
+            oos = new ObjectOutputStream(new FileOutputStream("object.dat"));
+            oos.writeObject(new String("我爱北京天安门"));
+//            刷新
+            oos.flush();
+            oos.writeObject(new Person("ink",24));
+            oos.flush();
+            oos.writeObject(new Person("yinke",23,1001,new Account(5000)));
+            oos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(oos != null){
+                try {
+                    oos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+//    反序列化：将磁盘文件中的对象还原为内存中的一个java对象
+    @Test
+    public void testObjectInputStream(){
+        ObjectInputStream ois = null;
+        try {
+            ois = new ObjectInputStream(new FileInputStream("object.dat"));
+
+            Object obj = ois.readObject();
+            String str = (String) obj;
+
+            Person p = (Person) ois.readObject();
+            Person p1 = (Person) ois.readObject();
+
+            System.out.println(str);
+            System.out.println(p);
+            System.out.println(p1);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            if(ois != null){
+                try {
+                    ois.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+```
 
 
 
+### 随机存取文件流
 
-> 注意写出一次，操作`flush()`一次
+`RandomAccessFile`
+
+- 声明在`java.io`包下，但直接继承于`java.lang.Object`类（和4个抽象基类无关）
+- 实现了`DataInput`和`DataOutput`2个接口，**既可以读也可以写**（一个对象只能做一件事）
+- 支持**随机访问**的方式，可以直接跳到文件的任意地方读、写文件
+  - 只访问文件的部分内容
+  - 向已存在的文件后追加内容
+
+**构造器**
+
+创建`RandomAccessFile`类实例需要指定`mode`参数来指定`RandomAccessFile`的访问模式
+
+- `public RandomAccessFile(File file, String mode)` 
+- `public RandomAccessFile(String name, String mode)`
+  - `r`：以只读方式打开
+  - `rw`：打开以便读取和写入
+  - `rwd`：打开以便读取和写入；同步文件内容的更新
+  - `rws`：打开以便读取和写入；同步文件内容和元数据的更新
+
+> 没有`w`模式，必须用`rw`
+>
+> 模式为只读r时不会创建文件，而只会去读取一个已经存在的文件。如果读取的文件不存在则会出现异常。
+>
+> 模式为rw读写，如果文件不存在则会去创建文件，如果存在则不会创建
+>
+> `RandomAccessFile`作为输出流时如果写出到的文件存在，则会对原有文件内容进行覆盖（默认情况下从头覆盖）
+
+**记录指针**
+
+可以实现**插入**效果
+
+- `RandomAccessFile`对象包含一个记录指针，用以标示**当前读写处的位置**
+- `RandomAccessFile`类对象可以自由移动记录指针
+  - `long getFilePointer()`：获取文件记录指针的当前位置
+  - `void seek(long pos)`：将文件记录指针定位到目标位置
+
+```java
+package com.ink.IO;
+
+import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
+/**
+ * @author ink
+ * @date 2021年08月01日21:46
+ */
+public class RandomAccessFileTest {
+        @Test
+        public void test1() {
+
+            RandomAccessFile raf1 = null;
+            RandomAccessFile raf2 = null;
+            try {
+                raf1 = new RandomAccessFile(new File("ink.png"),"r");
+                raf2 = new RandomAccessFile(new File("yinke.png"),"rw");
+
+                byte[] buffer = new byte[1024];
+                int len;
+                while((len = raf1.read(buffer)) != -1){
+                    raf2.write(buffer,0,len);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if(raf1 != null){
+                    try {
+                        raf1.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if(raf2 != null){
+                    try {
+                        raf2.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        }
+
+        @Test
+        public void test2(){
+            RandomAccessFile raf1 = null;
+            try {
+                raf1 = new RandomAccessFile("ink.txt","rw");
+//            将指针调到角标为3的位置
+                raf1.seek(3);
+                raf1.write("xyz".getBytes());//
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if(raf1 != null){
+                    try {
+                        raf1.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
+//        使用RandomAccessFile实现数据的插入效果
+        @Test
+        public void test3(){
+            RandomAccessFile raf1 = null;
+            try {
+                raf1 = new RandomAccessFile("ink.txt","rw");
+//            将指针调到角标为3的位置
+                raf1.seek(3);
+//            保存指针3后面的所有数据到StringBuilder中
+//            数组长度用file.length()获得
+                StringBuilder builder = new StringBuilder((int) new File("ink.txt").length());
+                byte[] buffer = new byte[20];
+                int len;
+                while((len = raf1.read(buffer)) != -1){
+                    builder.append(new String(buffer,0,len)) ;
+                }
+//            调回指针，写入“yinke”
+                raf1.seek(3);
+                raf1.write("yinke".getBytes());
+//            将StringBuilder中的数据写入到文件中
+                raf1.write(builder.toString().getBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if(raf1 != null){
+                    try {
+                        raf1.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+}
+```
+
+
+
+# NIO
+
+- Java NIO（New IO，Non-Blocking IO）是从Java 1.4版本引入的一套新的IO API，可以替代标准的Java IO API
+- NIO与原来的IO有同样的作用和目的，但是使用的方式完全不同，**NIO支持面向缓冲区的、基于**
+  **通道的IO操作**（IO是面向流的），NIO以更加高效的方式进行文件的读写操作
+- Java API中提供了两套NIO
+  - 针对标准输入输出NIO
+  - 网络编程NIO
+
+> 通道：Channel
+>
+> 随着JDK 7 的发布，Java对NIO进行了极大的扩展，增强了对文件处理和文件系统特性的支持，称为NIO.2
+> NIO已经成为文件处理中越来越重要的部分
+
+## Path
+
+早期的Java只提供了一个File类来访问文件系统，但File类的功能有限，所提供的方法性能也不高。而且大多数方法在出错时仅返回失败而并不会提供异常信息。
+
+NIO. 2为了弥补这种不足，引入了Path接口，代表一个平台无关的平台路径，描述了目录结构中文件的位置
+
+**java.nio.file**
+
+- `Path`
+- `Paths`
+- `Files`
+
+> Path可以看成是File类的升级版本，实际引用的资源也可以不存在
+
+```java
+// 以前IO操作
+import java.io.File;
+File file = new File("index.html");
+
+// Java7
+import java.nio.file.Path; 
+import java.nio.file.Paths; 
+Path path = Paths.get("index.html");
+```
+
+**方法**
+
+- `String toString()`：返回调用Path对象的字符串表示形式
+- `boolean startsWith(String path)`：判断是否以path路径开始
+- `boolean endsWith(String path)`：判断是否以path路径结束
+- `boolean isAbsolute()`：判断是否是绝对路径
+- `Path getParent()`：返回Path对象包含整个路径，不包含Path对象指定的文件路径
+- `Path getRoot()`：返回调用Path对象的根路径
+- `Path getFileName()`：返回与调用Path对象关联的文件名
+- `int getNameCount()`：返回Path根目录后面元素的数量
+- `Path getName(int index)`：返回指定索引位置index的路径名称
+- `Path toAbsolutePath()`：作为绝对路径返回调用Path对象
+- `Path resolve(Path p)`：合并两个路径，返回合并后的路径对应的Path对象
+- `File toFile()`：将Path转化为File类的对象
+
+## Paths
+
+`Paths`包含了两个返回Path的**静态工厂方法**`get()`
+
+**实例化**
+
+- `static Path get(String first, String ... more)`：用于将多个字符串连成路径
+- `static Path get(URI uri)`：返回指定uri对应的Path路径
+
+## Files
+
+`java.nio.file.Files`
+
+**方法**
+
+- `Path copy(Path src, Path dest, CopyOption ... how)`：文件的复制
+- `Path createDirectory(Path path, FileAttribute<?> ... attr)`：创建一个目录
+- `Path createFile(Path path, FileAttribute<?> ... arr)`：创建一个文件
+- `void delete(Path path)`：删除一个文件/目录，如果不存在，则报错
+- `void deleteIfExists(Path path)`：Path对应的文件/目录如果存在，则执行删除
+- `Path move(Path src, Path dest, CopyOption...how)`：将src 移动到dest 位置
+- `long size(Path path)`：返回path 指定文件的大小
+
+
+
+# 多线程
 

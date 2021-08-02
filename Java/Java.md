@@ -3085,3 +3085,9 @@ public class Test {
 1. 创建`lib`目录，并将jar包复制进去
 2. 右键`Add as Library`
 
+![添加jar包](Java.assets/添加jar包.png)
+
+查看
+
+![查看Libraries](Java.assets/查看Libraries.png)
+

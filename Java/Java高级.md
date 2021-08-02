@@ -4302,15 +4302,9 @@ Path path = Paths.get("index.html");
 
 **开启子线程**
 
-- `start()`方法
+- `start()`方法：多条执行路径，主线程和子线程并行交替执行（开辟一个新的线程去执行`run()`方法）
 
-  - 多条执行路径，主线程和子线程并行交替执行
-
-    > 开辟一个新的线程去执行run()方法
-
-- `run()`方法
-
-  - 只有主线程一条执行路线（按序执行）
+> `run()`方法：只有主线程一条执行路线（没有启动多线程模式）
 
 ```java
 package com.ink.Thread;
@@ -4336,6 +4330,12 @@ public class TestThread extends Thread{
 }
 ```
 
+**特性**
+
+- 每个线程都是通过某个特定Thread对象的`run()`方法来完成操作的，`run()`方法的主体称为**线程体** 
+- 通过该Thread对象的`start()`方法来启动这个线程，而非直接调用`run()`方法
+- 一个线程对象只能调用一次`start()`方法启动，如果重复调用则抛出`IllegalThreadStateException`异常
+
 **Demo**
 
 ```java
@@ -4347,10 +4347,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
-/**
- * @author ink
- * @date 2021年08月02日15:29
- */
 public class DownloadDemo extends Thread{
     private String url;
     private String name;
@@ -4451,6 +4447,40 @@ public class RunnableTest implements Runnable{
   - 实现接口Runnable具备多线程能力
   - 在Thread对象中传入目标对象然后调用`start()`方法启动线程
   - **推荐使用**
-    - 避免单继承局限性，**方便同一个对象被多个线程使用**
-      
+    - **避免单继承局限性**
+    - **方便同一个对象被多个线程共享使用**（适合多个相同线程来处理同一份资源）
 
+**买票demo**
+
+```java
+package com.ink.Thread;
+
+public class Ticket implements Runnable{
+    private int ticketNums = 10;
+
+    @Override
+    public void run() {
+        while(true){
+            if(ticketNums <= 0){
+                break;
+            }
+//            模拟延时
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println(Thread.currentThread().getName() + "-拿到了第" + ticketNums-- + "张票");
+        }
+    }
+
+    public static void main(String[] args) {
+        Ticket ticket = new Ticket();
+        new Thread(ticket,"ink").start();
+        new Thread(ticket,"yinke").start();
+        new Thread(ticket,"inke").start();
+    }
+}
+```
+
+![买票demo](Java高级.assets/买票demo.png)

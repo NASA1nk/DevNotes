@@ -1,4 +1,4 @@
-# 常用类
+常用类
 
 ## String类
 
@@ -4234,4 +4234,223 @@ Path path = Paths.get("index.html");
 
 
 # 多线程
+
+**程序program**
+
+- 一组指令的集合。一段静态的代码（静态对象）
+
+**进程process**
+
+- 程序的一次执行过程，或者是正在运行的一个程序
+- 是一个动态的过程，有它自身的产生、存在和消亡的过程（生命周期）
+- 进程是CPU进行资源分配的单位，系统在运行时会为每个进程分配不同的内存区域
+
+> 程序是静态的，进程是动态的
+
+## 线程thread
+
+- 是一个程序内部的**一条独立的执行路径**
+- 若一个进程同一时间**并行**执行多个线程，就是支持多线程的进程
+- 线程作为**CPU调度和执行的单位**，每个线程拥有独立的**运行栈和程序计数器**（pc），线程切换的开销小
+- 一个进程中的多个线程**共享相同的内存单元/内存地址空间**，它们**从同一堆中分配对象**，可以访问相同的变量和对象。这就使得**线程间通信更简便、高效**。但多个线程操作共享的系统资源可能就会带来安全的隐患
+
+> 栈空间操作起来最快但是栈很小，通常大量的对象都是放在堆空间
+>
+> 栈和堆的大小都可以通过 JVM的启动参数来进行调整
+>
+> 栈空间用光了会引发`StackOverflowError`，堆和常量池空间不足则会引发`OutOfMemoryError`
+
+**后台线程**
+
+一个Java应用程序java.exe至少有三个线程
+
+- `main()`主线程：系统的入口，用于执行整个程序
+- `gc()`垃圾回收线程
+- 异常处理线程
+
+> 如果发生异常，会影响主线程
+
+**并行与并发**
+
+- 并行：多个CPU在同一时刻互不干扰的处理多个任务
+- 并发：
+  - 一个CPU（采用时间片）同时执行多个任务
+  - 并发相对的是串行
+  - 并发的多个任务可以彼此穿插着进行，可以是并行的，
+
+> 并行和并发都可以是多个线程
+>
+> 单核单线程CPU的电脑也存在并行。只不过这个并行并不是CPU内部的、线程之间的并行，而是CPU执行程序的同时，DMA控制器也在执行着网络报文收发、磁盘读写、音视频播放/录制等任务
+
+
+
+## 线程创建
+
+1. 继承`Thread`类
+2. 实现`Runnable`接口
+3. 实现`Callable`接口
+
+> `Thread`类实现了`Runnable`接口
+
+### Thread类
+
+**创建子线程**
+
+1. 自定义线程类继承`Thread`类
+2. 重写`run()`方法（线程执行体）
+3. 创建线程对象，调用`start()`方法开启线程
+
+**开启子线程**
+
+- `start()`方法
+
+  - 多条执行路径，主线程和子线程并行交替执行
+
+    > 开辟一个新的线程去执行run()方法
+
+- `run()`方法
+
+  - 只有主线程一条执行路线（按序执行）
+
+```java
+package com.ink.Thread;
+
+public class TestThread extends Thread{
+    @Override
+    public void run() {
+        for (int i = 0; i < 20; i++) {
+            System.out.println("线程执行-" + i);
+        }
+    }
+
+    public static void main(String[] args) {
+        TestThread testThread1 = new TestThread();
+        testThread1.run();
+        System.out.println("start调用");
+        testThread1.start();
+
+        for (int i = 0; i < 200; i++) {
+            System.out.println("线程-" + i);
+        }
+    }
+}
+```
+
+**Demo**
+
+```java
+package com.ink.Thread;
+
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+
+/**
+ * @author ink
+ * @date 2021年08月02日15:29
+ */
+public class DownloadDemo extends Thread{
+    private String url;
+    private String name;
+
+    public DownloadDemo(String url, String name) {
+        this.url = url;
+        this.name = name;
+    }
+
+    @Override
+    public void run() {
+        WebDownload webDownload = new WebDownload();
+        webDownload.downloader(url,name);
+        System.out.println("下载了文件：" + name);
+    }
+
+    public static void main(String[] args) {
+        DownloadDemo Test1 = new DownloadDemo("https://www.baidu.com/img/PCfb_5bf082d29588c07f842ccde3f97243ea.png", "1.png");
+        DownloadDemo Test2 = new DownloadDemo("https://www.baidu.com/img/PCfb_5bf082d29588c07f842ccde3f97243ea.png", "2.png");
+        DownloadDemo Test3 = new DownloadDemo("https://www.baidu.com/img/PCfb_5bf082d29588c07f842ccde3f97243ea.png", "3.png");
+        Test1.start();
+        Test2.start();
+        Test3.start();
+    }
+}
+
+class WebDownload{
+    public void downloader(String url, String name){
+        try {
+            FileUtils.copyURLToFile(new URL(url),new File(name));
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("IO异常，downloader方法出现问题");
+        }
+    }
+}
+```
+
+![使用子线程下载图片](Java高级.assets/使用子线程下载图片.png)
+
+### Runnable接口
+
+**创建子线程**
+
+1. 实现`Runnable`接口
+2. 重写`run()`方法
+3. 创建实现类对象
+4. 使用实现类对象创建线程对象
+
+> 代理
+>
+> `Thread`类也实现了`Runnable`接口
+
+**开启子线程**
+
+- `start()`方法
+
+![Runnable接口](Java高级.assets/Runnable接口.png)
+
+![Thread实现Runnable接口](Java高级.assets/Thread实现Runnable接口.png)
+
+```java
+package com.ink.Thread;
+
+public class RunnableTest implements Runnable{
+    @Override
+    public void run() {
+        for (int i = 0; i < 20; i++) {
+            System.out.println("子线程执行" + i);
+        }
+    }
+
+    public static void main(String[] args) {
+        RunnableTest runnableTest = new RunnableTest();
+//        Thread thread = new Thread(runnableTest);
+//        thread.start();
+//        创建Tread对象，传入实现类
+        new Thread(runnableTest).start();
+        
+        for (int i = 0; i < 200; i++) {
+            System.out.println("主线程执行" + i);
+        }
+    }
+}
+```
+
+
+
+**比较**
+
+- 继承`Thread`类
+  - 子类继承Thread类具备多线程能力
+  - 子类对象调用`start()`方法启动线程
+  - **不建议使用**
+    - 避免OOP**单继承局限性**
+
+- 实现`Runnable`接口
+  - 实现接口Runnable具备多线程能力
+  - 在Thread对象中传入目标对象然后调用`start()`方法启动线程
+  - **推荐使用**
+    - 避免单继承局限性，**方便同一个对象被多个线程使用**
+      
 

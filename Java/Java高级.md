@@ -4247,7 +4247,9 @@ Path path = Paths.get("index.html");
 
 > 程序是静态的，进程是动态的
 
-## 线程thread
+## 线程
+
+**thread**
 
 - 是一个程序内部的**一条独立的执行路径**
 - 若一个进程同一时间**并行**执行多个线程，就是支持多线程的进程
@@ -4282,15 +4284,15 @@ Path path = Paths.get("index.html");
 >
 > 单核单线程CPU的电脑也存在并行。只不过这个并行并不是CPU内部的、线程之间的并行，而是CPU执行程序的同时，DMA控制器也在执行着网络报文收发、磁盘读写、音视频播放/录制等任务
 
-
-
-## 线程创建
+**线程创建**
 
 1. 继承`Thread`类
 2. 实现`Runnable`接口
 3. 实现`Callable`接口
 
 > `Thread`类实现了`Runnable`接口
+
+
 
 ### Thread类
 
@@ -4450,7 +4452,17 @@ public class RunnableTest implements Runnable{
     - **避免单继承局限性**
     - **方便同一个对象被多个线程共享使用**（适合多个相同线程来处理同一份资源）
 
-**买票demo**
+### Demo
+
+**买票**
+
+`static void sleep(long millis)`：
+
+- 指定时间为毫秒
+
+- 令当前活动线程在指定时间段内**放弃对CPU控制**
+- 使其他线程有机会被执行，时间到后**重新排队**
+- 抛出`InterruptedException`异常
 
 ```java
 package com.ink.Thread;
@@ -4484,3 +4496,140 @@ public class Ticket implements Runnable{
 ```
 
 ![买票demo](Java高级.assets/买票demo.png)
+
+**并发问题**
+
+会发现ink和yinke都拿到了第一张票
+
+**多个线程操作同一资源时，线程不安全**
+
+> 如果没有延时是不会存在买到重复票的
+
+
+
+**龟兔赛跑**
+
+```java
+package com.ink.Thread;
+
+public class Race implements Runnable{
+    public static String winner;
+    @Override
+    public void run() {
+        for (int i = 0; i <= 100; i++) {
+            if(Thread.currentThread().getName().equals("ink") && i%10 == 0){
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            boolean flag = gameOver(i);
+            if(flag) {
+                break;
+            }
+            System.out.println(Thread.currentThread().getName() + "跑了" + i + "步");
+        }
+    }
+    private boolean gameOver(int step) {
+        if(winner != null) {
+            return true;
+        }
+        if(step >= 100) {
+            winner = Thread.currentThread().getName();
+            System.out.println("winner is " + winner);
+            return true;
+        }
+        return false;
+    }
+
+    public static void main(String[] args) {
+        Race race = new Race();
+        new Thread(race,"ink").start();
+        new Thread(race,"yinke").start();
+    }
+}
+```
+
+![跑步](Java高级.assets/跑步.png)
+
+### Callable接口
+
+- 实现`Callable`接口需要**返回值类型**
+- 重写`call()`方法**需要抛出异常**
+
+**创建子线程**
+
+1. 创建目标对象
+2. 创建执行服务
+3. 提交执行
+4. 获取结果
+5. 关闭服务
+
+```java
+package com.ink.Thread;
+
+import java.util.concurrent.*;
+
+public class CallableTest implements Callable<Boolean> {
+    private String url;
+    private String name;
+
+    public CallableTest(String url, String name) {
+        this.url = url;
+        this.name = name;
+    }
+    @Override
+    public Boolean call() throws Exception {
+        WebDownload webDownload = new WebDownload();
+        webDownload.downloader(url,name);
+        System.out.println("下载了文件：" + name);
+        return true;
+    }
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+        DownloadDemo Test1 = new DownloadDemo("https://www.baidu.com/img/PCfb_5bf082d29588c07f842ccde3f97243ea.png", "11.png");
+        DownloadDemo Test2 = new DownloadDemo("https://www.baidu.com/img/PCfb_5bf082d29588c07f842ccde3f97243ea.png", "22.png");
+        DownloadDemo Test3 = new DownloadDemo("https://www.baidu.com/img/PCfb_5bf082d29588c07f842ccde3f97243ea.png", "33.png");
+//        创建执行服务（线程池）
+        ExecutorService ser = Executors.newFixedThreadPool(3);
+//        提交执行
+        Future<Boolean> result1 = (Future<Boolean>) ser.submit(Test1);
+        Future<Boolean> result2 = (Future<Boolean>) ser.submit(Test2);
+        Future<Boolean> result3 = (Future<Boolean>) ser.submit(Test3);
+//        获取结果
+        boolean r1 = result1.get();
+        boolean r2 = result2.get();
+        boolean r3 = result3.get();
+//        关闭服务
+        ser.shutdownNow();
+    }
+}
+```
+
+
+
+## Lambda表达式
+
+简洁的语法定义代码块
+
+- 避免**匿名内部类**定义过多
+
+- 属于**函数式编程**的概念
+
+**函数式接口（functional interface）**
+
+- 只包含一个抽象方法的接口就是函数式接口（如`Runnale`）
+- 函数式接口可以通过Lambda表达式来创建该接口的对象
+
+
+
+
+
+
+
+
+
+
+
+## 静态代理模式
+

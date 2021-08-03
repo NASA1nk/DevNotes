@@ -4336,6 +4336,8 @@ public class TestThread extends Thread{
 - 通过该Thread对象的`start()`方法来启动这个线程，而非直接调用`run()`方法
 - 一个线程对象只能调用一次`start()`方法启动，如果重复调用则抛出`IllegalThreadStateException`异常
 
+> 线程停止后就不能再运行了
+
 **Demo**
 
 ```java
@@ -4627,7 +4629,7 @@ public class CallableTest implements Callable<Boolean> {
 
 **functional interface**
 
-- 只包含一个抽象方法的接口就是函数式接口（如`Runnale`）
+- 只包含一个抽象方法的接口就是函数式接口（如`Runnable`）
 - 函数式接口可以通过Lambda表达式来创建该接口的对象
 
 > Object不是一个函数式接口，不能把lambda表达式赋给类型为Object的变量
@@ -4822,24 +4824,78 @@ class Company implements Marry{
 
 定义了线程的5种状态
 
-1. 创建
+1. **创建（NEW）**
    1. 当一个`Thread`类或其子类的对象被声明并创建时，新生的线程对象处于创建状态
-2. 就绪
+2. **就绪（RUNNABLE）**
    1. 处于创建状态的线程被`start()`后将进入线程队列等待CPU时间片
    2. 此时它已具备了运行的条件，只是没分配到CPU资源
-3. 运行
+3. **运行（BlOCKED）**
    1. 当就绪的线程被调度并获得CPU资源时就进入运行状态
    2. `run()`方法定义了线程的操作和功能
-4. 阻塞
+4. **阻塞（WAITING/TIMED_WAITING）**
    1. 在某种特殊情况下，被人为挂起或执行输入输出操作时，让出CPU并临时中止自己的执行，进入阻塞状态
-5. 死亡
+5. **死亡（TERMINATED）**
    1. 线程完成了它的全部工作或线程被提前强制性地中止或出现异常导致结束
+   2. 结束后的线程不能再次启动
 
+> 常量
+>
 > 生命周期：不会一直存在于内存中
 
 ![线程的生命周期](Java高级.assets/线程的生命周期.png)
 
+```java
+package com.ink.Thread;
+
+/**
+ * @author ink
+ * @date 2021年08月03日19:50
+ */
+public class StateTest {
+    public static void main(String[] args) throws InterruptedException {
+//        Thread类实现了Runnable接口
+        Thread thread = new Thread( () -> {
+//            线程体
+            for (int i = 0; i < 5; i++) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            System.out.println("结束");
+        });
+//        查看线程状态
+        Thread.State state = thread.getState();
+//        NEW
+        System.out.println(state);
+
+//        启动线程
+        thread.start();
+        state = thread.getState();
+//        RUNNABLE
+        System.out.println(state);
+
+        while (state != Thread.State.TERMINATED){
+            Thread.sleep(100);
+            state = thread.getState();
+            System.out.println(state);
+        }
+    }
+}
+```
+
+
+
 ## 线程方法
+
+- `void start()`：启动线程，并执行对象的`run()`方法 
+- `run()`：线程在被调度时执行的操作 
+- `String getName()`：返回线程的名称 
+- `void setName(String name)`：设置线程名称 
+- `static Thread currentThread()`：返回当前线程，在`Thread`子类中就 是`this`，通常用于主线程和`Runnable`接口实现类
+
+> `Thread.currentThread().getName();`获取当前线程的名字
 
 ### 线程休眠
 
@@ -4849,8 +4905,115 @@ class Company implements Marry{
 - 时间达到后线程进入**就绪状态**
 - 需要抛出`InterruptedException`异常
 - 每一个对象都有一个锁，`sleep()`**不会释放锁**
+- 可以模拟网络延时，倒计时等（[sleep](#Demo)）
 
-> 可以模拟网络延时，倒计时等
+> 模拟网络延时可以放大问题的发生性
+
+```java
+package com.ink.Thread;
+
+public class SleepTest implements Runnable{
+    private int ticketNums = 10;
+
+    @Override
+    public void run() {
+        while(true){
+            if(ticketNums <= 0){
+                break;
+            }
+//            模拟网络延时
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println(Thread.currentThread().getName() + "-拿到了第" + ticketNums-- + "张票");
+        }
+    }
+
+    public static void main(String[] args) {
+        SleepTest sleepTest = new SleepTest();
+        new Thread(sleepTest,"ink").start();
+        new Thread(sleepTest,"yinke").start();
+        new Thread(sleepTest,"inke").start();
+    }
+}
+```
+
+
+
+### 线程让步
+
+`yield()`
+
+- 暂停当前正在执行的线程，把执行机会让给优先级相同或更高的线程
+- 将当前线程从运行状态转为就绪状态（不阻塞）
+- 线程让步不一定成功
+
+> 线程让步后，CPU在就绪队列中选择线程执行，有可能还是选择原线程执行，所以线程让步不一定成功
+
+```java
+package com.ink.Thread;
+
+public class YieldTest {
+    public static void main(String[] args) {
+        YieldT yieldT = new YieldT();
+        new Thread(yieldT,"yinke").start();
+        new Thread(yieldT,"ink").start();
+    }
+}
+
+class YieldT implements Runnable{
+
+    @Override
+    public void run() {
+        System.out.println(Thread.currentThread().getName() + "线程开始执行");
+        Thread.yield();
+        System.out.println(Thread.currentThread().getName() + "线程停止执行");
+
+    }
+}
+```
+
+
+
+### 线程合并
+
+`join()`
+
+- 当某个程序执行流中调用其他线程的`join()`方法时，调用线程将被阻塞，直到`join()`方法加入的线程执行完为止
+- 低优先级的线程也可以获得执行
+
+> 相当于插队，其他线程被阻塞
+
+```java
+package com.ink.Thread;
+
+public class JoinTest implements Runnable{
+    @Override
+    public void run() {
+        for (int i = 0; i < 200; i++) {
+            System.out.println("join VIP线程" + i);
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        JoinTest joinTest = new JoinTest();
+//        代理
+        Thread thread = new Thread(joinTest);
+        thread.start();
+
+//        主线程
+        for (int i = 0; i < 500; i++) {
+            if(i == 100){
+//                插队，阻塞主线程
+                thread.join();
+            }
+            System.out.println("main方法主线程" + i);
+        }
+    }
+}
+```
 
 
 
@@ -4862,10 +5025,6 @@ class Company implements Marry{
 ```java
 package com.ink.Thread;
 
-/**
- * @author ink
- * @date 2021年08月03日15:54
- */
 public class StopTest implements Runnable{
 //    设置标志位
     private boolean flag = true;
@@ -4897,4 +5056,166 @@ public class StopTest implements Runnable{
     }
 }
 ```
+
+
+
+## 线程优先级
+
+Java提供一个**线程调度器**来监控程序中启动后进入**就绪状态**的所有线程，线程调度器按照**优先级**决定应该调度哪个线程来执行
+
+**低优先级只是获得调度的概率低，并非一定是在高优先级线程之后才被调用**
+
+线程的优先级用数字表示（范围1~10）
+
+- `Thread.MIN_PRIORITY=1;`
+- `Thread.MAX_PRIORITY=10;`
+- `Thread.NORM_PRIORITY=5;`
+
+**方法**
+
+- 获取线程优先级
+  - `getPriority()`
+- 改变线程优先级
+  - `setPriority(int newPriority)`
+  - 超过范围（1~10）会抛出`IllegalArgumentException`异常
+
+> 子线程被创建时继承父线程的优先级
+>
+> 先设置优先级，再`start()`启动
+
+```java
+package com.ink.Thread;
+
+public class PriorityTest implements Runnable{
+    @Override
+    public void run() {
+        System.out.println("当前线程"+Thread.currentThread().getName() +"优先级为"+ Thread.currentThread().getPriority());
+    }
+
+    public static void main(String[] args) {
+//        主线程默认优先级
+        System.out.println("主线程"+Thread.currentThread().getName() +"优先级为"+ Thread.currentThread().getPriority());
+
+        PriorityTest priorityTest = new PriorityTest();
+
+        Thread thread01 = new Thread(priorityTest,"01");
+        Thread thread02 = new Thread(priorityTest,"02");
+        Thread thread03 = new Thread(priorityTest,"03");
+        Thread thread04 = new Thread(priorityTest,"04");
+        Thread thread05 = new Thread(priorityTest,"05");
+        Thread thread06 = new Thread(priorityTest,"06");
+
+        thread01.start();
+//        10
+        thread02.setPriority(Thread.MAX_PRIORITY);
+        thread02.start();
+
+        thread03.setPriority(6);
+        thread03.start();
+
+        thread04.setPriority(5);
+        thread04.start();
+//        IllegalArgumentException
+        thread05.setPriority(-1);
+        thread05.start();
+
+        thread05.setPriority(11);
+        thread05.start();
+    }
+}
+```
+
+
+
+## 线程分类
+
+Java中的线程分为两类
+
+- **用户线程**
+  - `main()`主线程
+- 守护线程
+  - 守护线程是用来服务用户线程的
+  - 在`start()`方法前调用`thread.setDaemon(true)`可以把一个用户线程变成一个守护线程
+
+> Java垃圾回收`gc()`线程就是一个典型的守护线程
+>
+> 正常的线程都是用户线程，`thread.setDaemon()`默认是`false`
+
+**区别**
+
+判断JVM何时退出
+
+- JVM必须确保**用户线程**执行完毕
+- JVM不用等待**守护线程**执行完毕
+
+> 若JVM中都是守护线程，当前JVM将退出
+
+```java
+package com.ink.Thread;
+
+public class DaemonTest {
+    public static void main(String[] args) {
+        God god = new God();
+        You you = new You();
+//        正常的线程都是用户线程
+        Thread thread = new Thread(god);
+//        设置为守护线程
+        thread.setDaemon(true);
+
+        thread.start();
+        new Thread(you).start();
+    }
+}
+class God implements Runnable{
+    @Override
+    public void run() {
+        while (true){
+            System.out.println("守护线程存在...");
+        }
+    }
+}
+
+class You implements Runnable{
+    @Override
+    public void run() {
+        for (int i = 0; i < 365; i++) {
+            System.out.println("用户线程存在...");
+        }
+        System.out.println("用户线程结束");
+    }
+}
+```
+
+
+
+## 线程同步
+
+**线程同步其实就是一种等待机制**
+
+处理多线程问题时，多个线程访问同一个对象，如果某些线程想修改这个对象，就需要线程同步
+
+需要同时访问此对象的线程进入这个对象的**等待池**形成队列，等待前面线程使用完毕，下一个线程再使用
+
+
+
+**线程安全**
+
+条件：**队列和锁**
+
+> 每个对象都有一把锁
+
+
+
+**锁机制**
+
+`synchronized`
+
+- 由于同一进程的多个线程共享同一块存储空间，在带来方便的同时也带来了**访问冲突**问题，为了保证数据在方法中被访问时的正确性，在访问时加入锁机制`synchronized`
+- 当一个线程获得**对象的排它锁**，独占资源，其他线程必须等待，使用后释放锁即可
+
+**存在问题**
+
+- 一个线程持有锁会导致其他所有需要此锁的线程挂起
+- 在多线程竞争下，加锁，释放锁会导致比较多的上下文切换和调度延时，引起性能问题
+- 如果一个优先级高的线程等待一个优先级低的线程释放锁会导致优先级倒置，引起性能问题
 

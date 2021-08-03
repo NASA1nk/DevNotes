@@ -4247,8 +4247,6 @@ Path path = Paths.get("index.html");
 
 > 程序是静态的，进程是动态的
 
-## 线程
-
 **thread**
 
 - 是一个程序内部的**一条独立的执行路径**
@@ -4284,7 +4282,7 @@ Path path = Paths.get("index.html");
 >
 > 单核单线程CPU的电脑也存在并行。只不过这个并行并不是CPU内部的、线程之间的并行，而是CPU执行程序的同时，DMA控制器也在执行着网络报文收发、磁盘读写、音视频播放/录制等任务
 
-**线程创建**
+## 线程创建
 
 1. 继承`Thread`类
 2. 实现`Runnable`接口
@@ -4388,6 +4386,10 @@ class WebDownload{
 ```
 
 ![使用子线程下载图片](Java高级.assets/使用子线程下载图片.png)
+
+
+
+
 
 ### Runnable接口
 
@@ -4610,22 +4612,20 @@ public class CallableTest implements Callable<Boolean> {
 
 ## Lambda表达式
 
-**lamda表达式（λ）**是一个可传递的代码块，可以在**将来**执行一次或多次。
-
-> 带参数变量的表达式被称为lambda表达式
-
-
-
-简洁的语法定义代码块
+一个可传递的简洁的语法定义代码块，可以在将来执行一次或多次
 
 - 避免**匿名内部类**定义过多
 - 属于**函数式编程**的概念
 
 > JDK8新特性
+>
+> 带参数变量的表达式被称为lambda表达式
 
 
 
-**函数式接口（functional interface）**
+### 函数式接口
+
+**functional interface**
 
 - 只包含一个抽象方法的接口就是函数式接口（如`Runnale`）
 - 函数式接口可以通过Lambda表达式来创建该接口的对象
@@ -4633,44 +4633,268 @@ public class CallableTest implements Callable<Boolean> {
 > Object不是一个函数式接口，不能把lambda表达式赋给类型为Object的变量
 >
 
-**语法**
 
 
+### 语法
 
 1. **参数**：
    1. 没有参数就用`()`
-   2. 可以推导出一个lambda表达式的参数类型时，可以忽略其类型
-   3. 如果方法只有一个参数且参数类型可以推导出，还可以省略`()`
-2. **->**：箭头
+   2. 可以推导出一个lambda表达式的**参数类型**时，可以忽略其类型（多个参数也可以）
+   3. 如果方法**只有一个参数**且参数类型可以推导出，还可以省略`()`
+2. `->`：
 3. **表达式**
-4. **{}**：如果代码实现无法放在一个表达式中，可以放在`{}`中
+   1. 只有一行的lambda表达式可以省略`{}`
+4. `{}`：
+   1. 如果代码实现无法放在一个lambda表达式中，可以放在`{}`中
 
 > 不需要指出表达式的返回类型，会由上下文推出
 >
 
+`(String f,String s) -> f - s;`       
+
 ```java
-// 表达式
-(String f,String s)
-	->f - s
-        
-//
-(String f,String s)->
-	{
-        if(f < s)return -1;
-        else if(f > s)return 1;
-        else return 0;
+package com.ink.Lambda;
+
+public class TestLambda {
+//    2.静态内部类
+//    成员内部类+static
+    static class yinke2 implements Ink{
+        @Override
+        public void lambda(int a) {
+            System.out.println("lambda表达式->" + a);
+        }
     }
+    public static void main(String[] args) {
+//        3.局部内部类
+//        方法中声明
+        class yinke3 implements Ink{
+            @Override
+            public void lambda(int a) {
+                System.out.println("lambda表达式->" + a);
+            }
+        }
+        Ink ink1 = new yinke1();
+        ink1.lambda(1);
+        Ink ink2 = new yinke2();
+        ink2.lambda(2);
+        Ink ink3 = new yinke3();
+        ink3.lambda(3);
+
+//        4.匿名内部类
+//        没有构造器，必须借助接口或者父类的构造器
+        new Ink(){
+            @Override
+            public void lambda(int a) {
+                System.out.println("lambda表达式->" + a);
+            }
+        }.lambda(4);
+
+//        5.lambda简化-1
+//        简化构造器和方法名
+        Ink ink5 = (int a) -> {
+            System.out.println("lambda表达式->" + a);
+        };
+        ink5.lambda(5);
+//        lambda简化-2
+//        简化参数类型
+        Ink ink6 = (a) -> {
+            System.out.println("lambda表达式->" + a);
+        };
+        ink6.lambda(6);
+
+//        lambda简化-3
+//        简化括号()
+        Ink ink7 = a -> {
+            System.out.println("lambda表达式->" + a);
+        };
+        ink7.lambda(7);
+
+//        lambda简化-4
+//        简化花括号{}
+        Ink ink8 = a -> System.out.println("lambda表达式->" + a);
+        ink8.lambda(7);
+
+    }
+}
+
+//函数式接口
+interface Ink{
+//    只有一个抽象方法
+    void lambda(int a);
+}
+
+//1.实现类
+class yinke1 implements Ink{
+    @Override
+    public void lambda(int a) {
+        System.out.println("lambda表达式->" + a);
+    }
+}
 ```
 
-**方法引用**
+
+
+### 方法引用
 
 传递方法当作参数
 
 
 
-**构造器引用**
+### 构造器引用
 
 
 
 ## 静态代理模式
+
+`StaticProxy`
+
+- 真实对象和代理对象都要实现同一个接口
+- 代理对象要代理真实对象 
+
+**优点**
+
+- 真实对象专注于自己的工作
+- 代理对象可以做真实对象做不了的工作
+
+
+
+`new Thread(runnableTest).start();`和静态代理的关系
+
+```java
+package com.ink.Thread;
+
+public class ProxyStaticTest {
+    public static void main(String[] args) {
+//        真实对象，被代理
+        You you = new You();
+//        代理对象
+        Company company = new Company(you);
+//        代理对象执行方法
+        company.HappyMarry();
+//        简写
+        new Company(new You()).HappyMarry();
+//        对比线程Thread
+        new Thread( ()-> System.out.println("代理实现Runnable接口的对象") ).start();
+    }
+}
+
+//函数式接口
+interface Marry{
+    void HappyMarry();
+}
+//真实对象
+class You implements Marry{
+    @Override
+    public void HappyMarry() {
+        System.out.println("真实对象，被代理人-----结婚");
+    }
+}
+class Company implements Marry{
+//    接口对象
+    private Marry target;
+
+    public Company(Marry target) {
+        this.target = target;
+    }
+
+    @Override
+    public void HappyMarry() {
+        before();
+        this.target.HappyMarry();
+        after();
+    }
+    
+    private void after() {
+        System.out.println("婚礼结束");
+    }
+
+    private void before() {
+        System.out.println("婚礼开始");
+    }
+}
+```
+
+
+
+## 线程状态
+
+`Thread.State`
+
+定义了线程的5种状态
+
+1. 创建
+   1. 当一个`Thread`类或其子类的对象被声明并创建时，新生的线程对象处于创建状态
+2. 就绪
+   1. 处于创建状态的线程被`start()`后将进入线程队列等待CPU时间片
+   2. 此时它已具备了运行的条件，只是没分配到CPU资源
+3. 运行
+   1. 当就绪的线程被调度并获得CPU资源时就进入运行状态
+   2. `run()`方法定义了线程的操作和功能
+4. 阻塞
+   1. 在某种特殊情况下，被人为挂起或执行输入输出操作时，让出CPU并临时中止自己的执行，进入阻塞状态
+5. 死亡
+   1. 线程完成了它的全部工作或线程被提前强制性地中止或出现异常导致结束
+
+> 生命周期：不会一直存在于内存中
+
+![线程的生命周期](Java高级.assets/线程的生命周期.png)
+
+## 线程方法
+
+### 线程休眠
+
+`sleep()`
+
+- 指定当前线程阻塞的**毫秒数**
+- 时间达到后线程进入**就绪状态**
+- 需要抛出`InterruptedException`异常
+- 每一个对象都有一个锁，`sleep()`**不会释放锁**
+
+> 可以模拟网络延时，倒计时等
+
+
+
+### 线程停止
+
+- 不推荐使用JDK提供的`stop()`和`destroy()`方法（已废弃）
+- 推荐使用标志位进行终止，**让线程自己停止下来**
+
+```java
+package com.ink.Thread;
+
+/**
+ * @author ink
+ * @date 2021年08月03日15:54
+ */
+public class StopTest implements Runnable{
+//    设置标志位
+    private boolean flag = true;
+
+    @Override
+    public void run() {
+        int i = 0;
+        while(flag) {
+            System.out.println("run Thread..." + i);
+            i++;
+        }
+    }
+//    设置方法转换标志位
+    public void stop(){
+        this.flag = false;
+    }
+
+    public static void main(String[] args) {
+        StopTest stopTest = new StopTest();
+        new Thread(stopTest).start();
+        for (int i = 0; i < 1000; i++) {
+            System.out.println("main线程" + i);
+            if(i == 900) {
+//                转换标志位，停止线程
+                stopTest.stop();
+                System.out.println("线程停止了");
+            }
+        }
+    }
+}
+```
 

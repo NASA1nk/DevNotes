@@ -5511,3 +5511,305 @@ class Bank extends Thread{
 
 `DeadLock`
 
+多个线程各自占有一些共享资源，并且互相等待其他线程占有的资源才能运行，而导致两个或者多个线程都在等待对方释放资源，都停止执行的情形
+
+某一个同步块**同时拥两个以上对象的锁**时，就可能会发生死锁问题
+
+> 出现死锁后，不会出现异常，不会出现提示，只是所有的线程都处于阻塞状态，无法继续
+
+产生死锁的四个**必要条件**：
+
+- **互斥条件**：一个资源每次只能被一个进程使用
+- **请求与保持条件**：一个进程因请求资源而阻塞时，对已获得的资源保持不放
+- **不剥夺条件**：进程已获得的资源，在未使用完之前，不能强行剥夺
+- **循环等待条件**：若干进程之间形成一种头尾相接的循环等待资源关系
+
+> 上述四个条件，只要破坏其任意一个就可避免死锁的发生
+
+```java
+package com.ink.Thread;
+
+public class DeadLock {
+    public static void main(String[] args) {
+        Makeup hu1 = new Makeup(0, "hu1");
+        Makeup hu2 = new Makeup(1, "hu2");
+        hu1.start();
+        hu2.start();
+    }
+}
+
+class Mirror1{
+
+}
+
+class Lipstick{
+
+}
+class Makeup extends Thread{
+//    保证需要的资源只有一份
+    static Lipstick lipstick = new Lipstick();
+    static Mirror1 mirror = new Mirror1();
+
+    int choice;
+    String girlName;
+
+    public Makeup(int choice, String girlName) {
+        this.choice = choice;
+        this.girlName = girlName;
+    }
+
+    @Override
+    public void run() {
+        try {
+            makeup();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void makeup() throws InterruptedException {
+        if(choice == 0){
+            synchronized (lipstick) {
+                System.out.println(this.girlName + "获得口红的锁");
+
+                Thread.sleep(1000);
+                synchronized (mirror) {
+                    System.out.println(this.girlName + "获得镜子的锁");
+                }
+            }
+        }
+        else {
+            synchronized (mirror) {
+                System.out.println(this.girlName + "获得镜子的锁");
+
+                Thread.sleep(1000);
+                synchronized (lipstick) {
+                    System.out.println(this.girlName + "获得口红的锁");
+                }
+            }
+        }
+    }
+}
+```
+
+**解决方法**
+
+避免锁的嵌套
+
+```java
+package com.ink.Thread;
+
+/**
+ * @author ink
+ * @date 2021年08月04日15:59
+ */
+public class DeadLock {
+    public static void main(String[] args) {
+        Makeup hu1 = new Makeup(0, "hu1");
+        Makeup hu2 = new Makeup(1, "hu2");
+        hu1.start();
+        hu2.start();
+    }
+}
+
+class Mirror1{
+
+}
+
+class Lipstick{
+
+}
+class Makeup extends Thread{
+//    保证需要的资源只有一份
+    static Lipstick lipstick = new Lipstick();
+    static Mirror1 mirror = new Mirror1();
+
+    int choice;
+    String girlName;
+
+    public Makeup(int choice, String girlName) {
+        this.choice = choice;
+        this.girlName = girlName;
+    }
+
+    @Override
+    public void run() {
+        try {
+            makeup();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void makeup() throws InterruptedException {
+        if(choice == 0){
+            synchronized (lipstick) {
+                System.out.println(this.girlName + "获得口红的锁");
+
+                Thread.sleep(1000);
+            }
+            synchronized (mirror) {
+                System.out.println(this.girlName + "获得镜子的锁");
+            }
+        }
+        else {
+            synchronized (mirror) {
+                System.out.println(this.girlName + "获得镜子的锁");
+                Thread.sleep(1000);
+            }
+            synchronized (lipstick) {
+                System.out.println(this.girlName + "获得口红的锁");
+            }
+        }
+    }
+}
+```
+
+
+
+## Lock锁
+
+从JDK5开始，Java 提供了更强大的线程同步机制
+
+- 通过**显示定义同步锁对象**来实现同步，同步锁使用**Lock对象**充当
+- `java.util.concurrent.locks.Lock`接口是控制多个线程对共享资源进行访问的工具
+- 锁提供了对共享资源的独占访问，每次只能有一个线程对**Lock对象**加锁，线程开始访问共享资源之前应**先获得 Lock对象**
+- `ReentrantLock`类实现了Lock，它拥有与`synchronized`**相同的并发性和内存语义**
+- 在实现线程安全的控制中，比较常用的是ReentrantLock，可以显示加锁、释放锁
+
+
+
+**Lock和synchronized对比**
+
+- **Lock是显示锁**（手动开启和关闭），synchronized是隐式锁（出了作用域自动释放）
+- **Lock只有代码加锁**，synchronized有代码块锁和方法锁
+- 使用Lock锁，**JVM将花费较少的时间来调度线程，性能更好，并具有更好的扩展性**（提供更多的子类）
+- **优先使用顺序**：Lock > 同步代码块（已经进入了方法体，分配了相应资源）> 同步方法（在方法体之外）
+
+
+
+**可重入锁**
+
+`ReentrantLock`
+
+> 如果同步代码有异常，要将`unlock()`写入`finally`语句块
+
+```java
+class A{
+//    定义Lock锁
+    private final ReentrantLock lock = new ReentrantLock();
+    public void n() {
+//        加锁
+        lock.lock();
+            try {
+                // 保证线程安全的代码
+            } finally {
+//                解锁
+                lock.unlock();
+            }
+        }
+    }
+}
+```
+
+```java
+package com.ink.Thread;
+
+import java.util.concurrent.locks.ReentrantLock;
+
+/**
+ * @author ink
+ * @date 2021年08月04日20:39
+ */
+public class TestLock {
+    public static void main(String[] args) {
+        LockTest lockTest = new LockTest();
+        new Thread(lockTest,"ink").start();
+        new Thread(lockTest,"yinke").start();
+        new Thread(lockTest,"inke").start();
+    }
+}
+
+class LockTest implements Runnable{
+
+    private int ticketNums = 10;
+
+//    定义Lock锁
+    private final ReentrantLock lock = new ReentrantLock();
+
+    @Override
+    public void run() {
+        while(true){
+            try {
+//            加锁
+                lock.lock();
+                if(ticketNums > 0){
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println(Thread.currentThread().getName() + "拿到" +ticketNums--);
+                }
+                else {
+                    break;
+                }
+            } finally {
+//                解锁
+                lock.unlock();
+            }
+        }
+    }
+}
+```
+
+
+
+## 线程通信
+
+### 生产者消费者
+
+一个线程同步问题
+
+- 生产者和消费者**共享同一个资源**
+- 生产者和消费者之间**相互依赖，互为条件**
+
+
+
+在生产者消费者问题中，仅有`synchronized`是不够的，`synchronized`实现了同步，但不能用来实现**不同线程之间的消息传递**（通信）
+
+- 生产者：
+  - 没生产产品之前要通知消费者等待
+  - 生产产品之后通知消费者消费
+- 消费者
+  - 消费后要通知生产者已经结束消费，需要生产新的产品以供消费
+
+
+
+### 通信方法
+
+都是`Object`类的方法
+
+- `wait()`
+  - 令当前线程挂起并放弃CPU、同步资源并等待，使别的线程可访问并修改共享资源，
+  - 当前线程排队等候其他线程调用`notify()`或`notifyAll()`方法唤醒，唤醒后等待重新获得对监视器的所有权后才能继续执行
+  - 和`sleep()`不同，会释放锁
+- `notify()`：唤醒正在排队等待同步资源的线程中优先级最高者
+- `notifyAll()`：唤醒正在排队等待资源的所有线程
+
+> 这三个方法只能在**同步方法**或者**同步方法块**中使用，否则会抛出`java.lang.IllegalMonitorStateException`异常
+>
+> 因为这三个方法必须有**锁对象**调用，而任意对象都可以作为`synchronized`的同步锁， 因此这三个方法只能在`Object`类中声明
+
+
+
+### 管程法
+
+**利用缓冲区**
+
+### 信号量法
+
+## 线程池
+
+# 网络编程
+

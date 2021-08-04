@@ -4633,7 +4633,6 @@ public class CallableTest implements Callable<Boolean> {
 - 函数式接口可以通过Lambda表达式来创建该接口的对象
 
 > Object不是一个函数式接口，不能把lambda表达式赋给类型为Object的变量
->
 
 
 
@@ -4650,7 +4649,6 @@ public class CallableTest implements Callable<Boolean> {
    1. 如果代码实现无法放在一个lambda表达式中，可以放在`{}`中
 
 > 不需要指出表达式的返回类型，会由上下文推出
->
 
 `(String f,String s) -> f - s;`       
 
@@ -5192,30 +5190,324 @@ class You implements Runnable{
 
 **线程同步其实就是一种等待机制**
 
-处理多线程问题时，多个线程访问同一个对象，如果某些线程想修改这个对象，就需要线程同步
+- 处理多线程问题时，多个线程访问同一个对象，如果某些线程想修改这个对象，就需要线程同步
 
-需要同时访问此对象的线程进入这个对象的**等待池**形成队列，等待前面线程使用完毕，下一个线程再使用
-
-
-
-**线程安全**
-
-条件：**队列和锁**
-
-> 每个对象都有一把锁
+- 需要同时访问此对象的线程进入这个**对象的等待池**形成队列，等待前面线程使用完毕，下一个线程再使用
 
 
 
-**锁机制**
 
-`synchronized`
+### 线程不安全
 
-- 由于同一进程的多个线程共享同一块存储空间，在带来方便的同时也带来了**访问冲突**问题，为了保证数据在方法中被访问时的正确性，在访问时加入锁机制`synchronized`
-- 当一个线程获得**对象的排它锁**，独占资源，其他线程必须等待，使用后释放锁即可
+**原因**
+
+多条语句在操作同一个线程共享数据时，**一个线程对多条语句只执行了一部分，还没有执行完**，另一个线程参与进来执行。导致共享数据出现错误
+
+> `ArrayList`是线程不安全的 [List接口](#List接口)
+
+**车站买票**
+
+```java
+package com.ink.Thread;
+
+public class SafeTicket {
+    public static void main(String[] args) {
+        BuyTicket buyTicket = new BuyTicket();
+        new Thread(buyTicket,"ink").start();
+        new Thread(buyTicket,"yinke").start();
+        new Thread(buyTicket,"inke").start();
+    }
+}
+
+class BuyTicket implements Runnable{
+    private int ticketNums = 10;
+    boolean flag = true;
+
+    @Override
+    public void run() {
+        while(flag){
+            try {
+                buy();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private void buy() throws InterruptedException {
+        if(ticketNums <= 0){
+            flag = false;
+            return ;
+        }
+//        模拟延时
+        Thread.sleep(1000);
+        System.out.println(Thread.currentThread().getName() + "拿到" + ticketNums + "张票");
+        ticketNums--;
+    }
+}
+```
+
+**银行取钱**
+
+```java
+package com.ink.Thread;
+
+public class BankTest {
+    public static void main(String[] args) {
+        Account ink = new Account("ink", 100);
+        Bank you = new Bank(ink, 50, "你");
+        Bank girl = new Bank(ink, 100, "对象");
+        you.start();
+        girl.start();
+    }
+}
+
+class Account extends Thread{
+    String name;
+    int money;
+
+    public Account(String name, int money) {
+        this.name = name;
+        this.money = money;
+    }
+}
+
+class Bank extends Thread{
+    Account account;
+    int drawingMoney;
+    int nowMoney;
+    public Bank(Account account,int drawingMoney, String name){
+//        子类通过super调用父类的构造器时，必须放在第一位
+//        调用Thread的构造器，传入name
+        super(name);
+        this.account = account;
+        this.drawingMoney = drawingMoney;
+
+    }
+
+    @Override
+    public void run() {
+        if(account.money - drawingMoney < 0){
+            System.out.println(Thread.currentThread().getName() + "存款不够，无法取钱");
+            return;
+        }
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        account.money -= drawingMoney;
+        nowMoney += drawingMoney;
+        System.out.println(account.name + "账户余额为：" + account.money);
+//        this.getName() = Thread.currentThread().getName();
+//        Bank继承了Thread，所以也可以使用this
+        System.out.println(Thread.currentThread().getName() + "手里的余额为：" + nowMoney);
+    }
+}
+```
+
+
+
+### 同步锁机制
+
+- 为了保证共享资源在方法中被访问时的正确性，在访问时加入锁机制
+- 必须确保使用同一个资源的多个线程**共用一把锁**，否则就无法保证共享资源的安全
+- 当一个线程获得**对象的排它锁**，独占资源，其他线程必须等待
+- **任意对象都可以作为同步锁**
+- 所有对象都自动含有**单一的锁**（监视器）
+
+> 对于并发工作，你需要某种方式来防止两个任务访问相同的资源（共享资源竞争）。 防止这种冲突的方法就是当资源被一个任务使用时，在其上加锁。第一个访问某项资源的任务必须锁定这项资源，使其他任务在其被解锁之前就无法访问它了，而在其被解锁之时，另一个任务就可以锁定并使用它了
 
 **存在问题**
 
 - 一个线程持有锁会导致其他所有需要此锁的线程挂起
 - 在多线程竞争下，加锁，释放锁会导致比较多的上下文切换和调度延时，引起性能问题
 - 如果一个优先级高的线程等待一个优先级低的线程释放锁会导致优先级倒置，引起性能问题
+
+
+
+### 同步方法
+
+`synchronized`
+
+数据对象可以通过`private`关键字来保证只能被方法访问。所以只要针对**方法**提出一套机制
+
+- 同步方法
+- 同步代码块
+
+
+
+**同步方法**
+
+`public synchronized void method(int args){}`
+
+- `synchronized`方法控制**对象**的访问，**每个对象对应一把锁**
+- 每个`synchronized`方法都必须获得调用该方法的**对象的锁**才能执行，否则线程会阻塞
+- 方法一旦执行就独占该锁，直到该方法返回才释放，后面被阻塞的线程才能获得这个锁，继续执行
+- **同步方法的锁**：一个线程类中
+  - 所有**静态方法**共用同一把锁（`类名.class`）
+  - 所有**非静态方法**共用同一把锁（`this`）
+
+**缺陷**
+
+若将一整个方法申明为`synchronized`会**影响效率**
+
+> 锁的太多
+
+```java
+package com.ink.Thread;
+
+public class SafeTicket {
+    public static void main(String[] args) {
+        BuyTicket buyTicket = new BuyTicket();
+        new Thread(buyTicket,"ink").start();
+        new Thread(buyTicket,"yinke").start();
+        new Thread(buyTicket,"inke").start();
+    }
+}
+
+class BuyTicket implements Runnable{
+    private int ticketNums = 10;
+    boolean flag = true;
+
+    @Override
+    public void run() {
+        while(flag){
+            try {
+                buy();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+//    同步方法
+//    锁的是this（默认）
+    private synchronized void buy() throws InterruptedException {
+        if(ticketNums <= 0){
+            flag = false;
+            return ;
+        }
+//        模拟延时
+        Thread.sleep(1000);
+        System.out.println(Thread.currentThread().getName() + "拿到" + ticketNums + "张票");
+        ticketNums--;
+
+    }
+}
+```
+
+
+
+
+
+**同步代码块**
+
+`synchronized (对象Obj){// 需要被同步的代码;}`
+
+同步代码块的`Obj`可以是任何对象，但是推荐使用共享资源作为**同步监视器**
+
+> `Obj`称为同步监视器
+>
+> 同步方法中无需指定同步监视器，因为同步方法的同步监视器就是`this` 对象本身，或者是`class`
+
+```java
+package com.ink.Thread;
+
+public class BankTest {
+    public static void main(String[] args) {
+        Account ink = new Account("ink", 100);
+        Bank you = new Bank(ink, 50, "你");
+        Bank girl = new Bank(ink, 100, "对象");
+        you.start();
+        girl.start();
+    }
+}
+
+class Account extends Thread{
+    String name;
+    int money;
+
+    public Account(String name, int money) {
+        this.name = name;
+        this.money = money;
+    }
+}
+
+class Bank extends Thread{
+    Account account;
+    int drawingMoney;
+    int nowMoney;
+    public Bank(Account account,int drawingMoney, String name){
+//        子类通过super调用父类的构造器时，必须放在第一位
+//        调用Thread的构造器，传入name
+        super(name);
+        this.account = account;
+        this.drawingMoney = drawingMoney;
+
+    }
+
+    @Override
+    public void run() {
+//        锁的对象就是变化的量（增删改）
+        synchronized (account) {
+            if(account.money - drawingMoney < 0){
+                System.out.println(Thread.currentThread().getName() + "存款不够，无法取钱");
+                return;
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            account.money -= drawingMoney;
+            nowMoney += drawingMoney;
+            System.out.println(account.name + "账户余额为：" + account.money);
+//        this.getName() = Thread.currentThread().getName();
+//        Bank继承了Thread，所以也可以使用this
+            System.out.println(Thread.currentThread().getName() + "手里的余额为：" + nowMoney);
+        }
+    }
+}
+```
+
+
+
+### 同步范围
+
+**代码是否存在线程安全问题**
+
+- 明确哪些代码是多线程运行的代码
+- 明确多个线程是否有共享数据
+- 明确多线程运行代码中是否有多条语句操作共享数据
+
+**解决**
+
+对多条操作共享数据的语句，只能让一个线程都执行完。在执行过程中其他线程不可以参与执行，即所有操作共享数据的这些语句都要放在同步范围中
+
+> 范围太小：没锁住所有有安全问题的代码
+>
+> 范围太大：没发挥多线程的功能
+
+
+
+### 锁的释放
+
+**释放锁的操作**
+
+- 当前线程的同步方法、同步代码块执行结束
+- 当前线程在同步代码块、同步方法中遇到`break`、`return`终止了该代码块、 该方法的继续执行
+- 当前线程在同步代码块、同步方法中出现了未处理的`Error`或`Exception`，导致异常结束
+- 当前线程在同步代码块、同步方法中执行了线程对象的`wait()`方法，当前线程暂停并释放锁
+
+**不会释放锁的操作**
+
+- 线程执行同步代码块或同步方法时，程序调用`Thread.sleep()`、 `Thread.yield()`方法暂停当前线程的执行
+- 线程执行同步代码块时，其他线程调用了该线程的`suspend()`方法将该线程挂起，该线程不会释放锁（同步监视器）
+
+> 尽量避免使用`suspend()`和`resume()`来控制线程
+
+
+
+## 死锁
+
+`DeadLock`
 

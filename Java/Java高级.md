@@ -1,4 +1,4 @@
-常用类
+# 常用类
 
 ## String类
 
@@ -4559,8 +4559,12 @@ public class Race implements Runnable{
 
 ### Callable接口
 
-- 实现`Callable`接口需要**返回值类型**
-- 重写`call()`方法**需要抛出异常**
+- 实现`Callable`接口**可以有返回值**
+- 重写`call()`方法**可以抛出异常**
+- 支持**泛型**的返回值
+- 需要借助`FutureTask`类（比如获取返回结果）
+
+> JDK5.0新增的线程创建方式
 
 **创建子线程**
 
@@ -4583,6 +4587,7 @@ public class CallableTest implements Callable<Boolean> {
         this.url = url;
         this.name = name;
     }
+    
     @Override
     public Boolean call() throws Exception {
         WebDownload webDownload = new WebDownload();
@@ -4590,10 +4595,12 @@ public class CallableTest implements Callable<Boolean> {
         System.out.println("下载了文件：" + name);
         return true;
     }
+    
     public static void main(String[] args) throws ExecutionException, InterruptedException {
         DownloadDemo Test1 = new DownloadDemo("https://www.baidu.com/img/PCfb_5bf082d29588c07f842ccde3f97243ea.png", "11.png");
         DownloadDemo Test2 = new DownloadDemo("https://www.baidu.com/img/PCfb_5bf082d29588c07f842ccde3f97243ea.png", "22.png");
         DownloadDemo Test3 = new DownloadDemo("https://www.baidu.com/img/PCfb_5bf082d29588c07f842ccde3f97243ea.png", "33.png");
+        
 //        创建执行服务（线程池）
         ExecutorService ser = Executors.newFixedThreadPool(3);
 //        提交执行
@@ -5784,6 +5791,11 @@ class LockTest implements Runnable{
 - 消费者
   - 消费后要通知生产者已经结束消费，需要生产新的产品以供消费
 
+**问题**
+
+- 生产者比消费者快时，消费者会漏掉一些数据没有取到
+- 消费者比生产者快时，消费者会取到相同的数据
+
 
 
 ### 通信方法
@@ -5791,13 +5803,18 @@ class LockTest implements Runnable{
 都是`Object`类的方法
 
 - `wait()`
-  - 令当前线程挂起并放弃CPU、同步资源并等待，使别的线程可访问并修改共享资源，
-  - 当前线程排队等候其他线程调用`notify()`或`notifyAll()`方法唤醒，唤醒后等待重新获得对监视器的所有权后才能继续执行
-  - 和`sleep()`不同，会释放锁
-- `notify()`：唤醒正在排队等待同步资源的线程中优先级最高者
-- `notifyAll()`：唤醒正在排队等待资源的所有线程
+  - **调用方法的必要条件**：当前线程必须具有对该对象的**监控权（加锁）**
+  - 在当前线程中调用，让当前线程挂起并放弃CPU、同步资源并等待，让别的线程可访问并修改共享资源
+  - 调用此方法后，当前线程将**释放对象监控权（锁）** ，然后进入等待
+  - 当前线程**排队等候**其他线程调用`notify()`或`notifyAll()`方法唤醒，唤醒后**等待重新获得对监视器的所有权**后才能**从断点处**继续执行
+- `notify()`
+  - **调用方法的必要条件**：当前线程必须具有对该对象的**监控权（加锁）**
+  - 唤醒正在排队等待同步资源的线程中**优先级最高者**
+- `notifyAll()`
+  - **调用方法的必要条件**：当前线程必须具有对该对象的**监控权（加锁）**
+  - 唤醒正在排队等待资源的所有线程
 
-> 这三个方法只能在**同步方法**或者**同步方法块**中使用，否则会抛出`java.lang.IllegalMonitorStateException`异常
+> 这三个方法只能在**同步方法**或者**同步方法块**中使用，否则会抛出`IllegalMonitorStateException`异常
 >
 > 因为这三个方法必须有**锁对象**调用，而任意对象都可以作为`synchronized`的同步锁， 因此这三个方法只能在`Object`类中声明
 
@@ -5807,9 +5824,279 @@ class LockTest implements Runnable{
 
 **利用缓冲区**
 
+**存在问题**
+
+`wait()`表示持有对象锁的线程准备释放对象锁权限和让出cpu资源进入等待状态。如果有多个消费者，比如X1，X2，X3，假如此时X1，X2，X3都处于等待状态，这时容量为0生产者拿到锁，生产者生产了一个产品让出锁，X1拿到锁消费完之后容量又为0，然后X1释放锁并`notifyAll()`通知JVM去唤醒所有竞争缓冲区对象锁的线程，如果这个锁被X2拿到，那么就会导致**数组下标越界的问题**
+
+**解决方案**
+
+把消费的`if`判断换成`while`，让消费者线程被唤醒的时候不立刻执行下面的代码，而是再去判断当前容量
+
+> `println`应该放在`pop()`和`push()`方法体里面，因为可能正要打印的时候线程切换了，要保证增改操作和打印是原子操作
+
+```java
+package com.ink.Thread;
+
+public class TestPC {
+    public static void main(String[] args) {
+        SynContainer synContainer = new SynContainer();
+//        只适用于一个生产者一个消费者的情况
+        new Productor(synContainer).start();
+        new Consumer(synContainer).start();
+    }
+}
+
+//生产者
+class Productor extends Thread{
+    SynContainer container;
+
+    public Productor(SynContainer container) {
+        this.container = container;
+    }
+//    生产
+    @Override
+    public void run() {
+        for (int i = 0; i < 100; i++) {
+            container.push(new Chicken(i));
+            System.out.println("生产了第" + i + "只鸡");
+        }
+    }
+}
+
+//消费者
+class Consumer extends Thread{
+    SynContainer container;
+
+    public Consumer(SynContainer container) {
+        this.container = container;
+    }
+
+    @Override
+    public void run() {
+        for (int i = 0; i < 100; i++) {
+            System.out.println("消费了第" + container.pop().id + "只鸡");
+        }
+    }
+}
+//产品
+class Chicken{
+    int id;
+    public Chicken(int id) {
+        this.id = id;
+    }
+}
+
+//缓冲区
+class SynContainer {
+//    容器大小
+    Chicken[] chickens = new Chicken[10];
+//    容器计数器
+    int count = 0;
+//    生产者生产产品
+    public synchronized void push(Chicken chicken){
+//        如果容器满了,就需要通知消费者,并等待消费者消费
+        if(count == chickens.length){
+            try {
+                this.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+//        如果容器没有满,就需要生产产品,并通知消费者消费
+        chickens[count++] = chicken;
+        this.notifyAll();
+    }
+
+
+//    消费者消费产品
+    public synchronized Chicken pop(){
+//        如果容器空了,就需要通知生产者,并等待生产者生产
+        if(count == 0){
+            try {
+//                释放对象锁权限,让出CPU,唯一的生产者重新拿到锁权限进行生产
+                this.wait();
+            } catch (InterruptedException e) {
+//                TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+//        如果容器非空,就需要消费产品,并通知生产者生产产品
+//        count需要先减少才能得到有产品的位置,因为生产者放完后count会++
+        count--;
+        Chicken chicken = chickens[count];
+        this.notifyAll();
+        return chicken;
+    }
+}
+```
+
+
+
 ### 信号量法
 
+**利用标志位**
+
+```java
+package com.ink.Thread;
+
+public class TestPC2 {
+    public static void main(String[] args) {
+        Tv tv = new Tv();
+        new Player(tv).start();
+        new Wathcher(tv).start();
+    }
+}
+
+class Player extends Thread{
+    Tv tv;
+
+    public Player(Tv tv) {
+        this.tv = tv;
+    }
+
+    @Override
+    public void run() {
+        for (int i = 0; i < 20; i++) {
+            if(i%2==0){
+                this.tv.play("buaa");
+            }else{
+                this.tv.play("neau");
+            }
+        }
+    }
+}
+
+class Wathcher extends Thread{
+    Tv tv;
+    public Wathcher(Tv tv){
+        this.tv = tv;
+    }
+
+    @Override
+    public void run() {
+        for (int i = 0; i < 20; i++) {
+            tv.watch();
+        }
+    }
+}
+
+class Tv{
+//    表演节目
+    String voice;
+//    标志位
+//    演员表演,观众等待  T
+//    观众观看,演员等待  F
+    boolean flag = true;
+
+//    表演
+    public synchronized void play(String voice){
+        if(!flag){
+//            观众观看,演员等待
+            try {
+                this.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("演员表演 : " + voice);
+//        通知唤醒
+        this.notifyAll();
+        this.voice = voice;
+//        修改标志位
+        this.flag = !flag;
+    }
+
+//    观看
+    public synchronized void watch(){
+        if (flag){
+//            演员表演,观众等待
+            try {
+                this.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("观众观看 : " + voice);
+//        通知唤醒
+        this.notifyAll();
+//        修改标志位
+        this.flag = !this.flag;
+    }
+}
+```
+
+
+
 ## 线程池
+
+**背景**
+
+经常创建和销毁、使用量特别大的资源，比如并发情况下的线程， 对性能影响很大
+
+**方法**
+
+**提前创建好多个线程放入线程池中**，使用时直接获取，使用完放回线程池中。可以避免频繁创建销毁、实现重复利用
+
+**优点**
+
+- 提高响应速度（减少了创建新线程的时间）
+- 降低资源消耗（重复利用线程池中线程，不需要每次都创建）
+- 便于线程管理
+  - `corePoolSize`：核心池的大小
+  - `maximumPoolSize`：最大线程数
+  - `keepAliveTime`：线程没有任务时最多保持多长时间后会终止
+
+> JDK5.0新增的线程创建方式
+
+### ExecutorService
+
+真正的**线程池接口**：`public interface ExecutorService extends Executor`
+
+常见子类：`ThreadPoolExecutor`
+
+- `void execute(Runnable command)`：执行任务/命令，没有返回值，一般用来执行`Runnable`
+- `<T>Future<T> submit(Callable<T> task)`：执行任务，有返回值，一般用来执行`Callable`
+- `void shutdown()`：关闭连接池
+
+### Executors
+
+工具类、线程池的工厂类，用于**创建并返回不同类型的线程池** 
+
+- `Executors.newCachedThreadPool()`：创建一个可根据需要创建新线程的线程池 
+- `Executors.newFixedThreadPool(n)`：创建一个可重用的固定线程数的线程池 
+- `Executors.newSingleThreadExecutor()`：创建一个只有一个线程的线程池 
+- `Executors.newScheduledThreadPool(n)`：创建一个线程池，可以在给定延迟后运行命令或者定期地执行
+
+```java
+package com.ink.Thread;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class PoolTest {
+    public static void main(String[] args) {
+//        1.创建服务,创建线程池
+        ExecutorService service = Executors.newFixedThreadPool(10);
+//        执行
+        service.execute(new MyThread());
+        service.execute(new MyThread());
+        service.execute(new MyThread());
+        service.execute(new MyThread());
+
+//        2.关闭连接
+        service.shutdown();
+    }
+}
+class MyThread implements Runnable{
+    @Override
+    public void run() {
+        System.out.println(Thread.currentThread().getName());
+    }
+}
+```
+
+
 
 # 网络编程
 

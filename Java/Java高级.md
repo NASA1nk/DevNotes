@@ -141,7 +141,7 @@ System.out.println(s3 == s7);
 
 
 
-### 常用方法
+### 方法
 
 - `int length()`：返回字符串长度
 - `char charAt(int index)`：返回索引处的字符
@@ -221,23 +221,25 @@ System.out.println(s3 == s7);
 
 
 
-### StringBuffer源码
+### 源码
 
 1. **无参构造**
 
-   无参的构造器会初始化**长度为16**的char数组
+   无参的构造器会初始化**长度为16**的`char`数组
 
    ![StringBuffer源码](Java高级.assets/StringBuffer源码.png)
 
 2. **有参构造**
 
-   有参的构造器会初始化**长度为参数长度+16**的char数组
+   有参的构造器会初始化**长度为参数长度+16**的`char`数组
 
    ![StringBuffer有参构造](Java高级.assets/StringBuffer有参构造.png)
 
 3. **字符串长度**
 
    `.length()`方法还是返回**实际长度**（`.append()`就+1），而不是`value.length`
+
+   > `synchronized`：线程安全的
 
    ![StringBuffer.length6](Java高级.assets/StringBuffer.length.png)
 
@@ -261,25 +263,20 @@ System.out.println(s3 == s7);
 
       默认情况是`(old.length << 1)+2`
 
-      > 会有**特殊情况**，比如扩容后还是不够，或者超过最大长度...
+      > 会有**特殊情况**，比如扩容后还是不够，或者**超过最大长度**...
 
       ![newCapacity](Java高级.assets/newCapacity.png)
 
-   
 
-   
 
-   
 
-### StringBuffer方法
+### 方法
 
-查看StringBuffer的所有方法
+查看`StringBuffer`的所有方法
 
-**快捷键**：ctrl+F12
+**快捷键**：`ctrl+F12`
 
 ![StringBuffer方法](Java高级.assets/StringBuffer方法.png)
-
-
 
 - `StringBuidler append(obj)`：字符串拼接
 - `StringBuffer delete(int start,int end)`：删除指定位置内容
@@ -287,7 +284,7 @@ System.out.println(s3 == s7);
 - `StringBuffer insert(int offset,obj)`：字符插入
 - `StringBuffer reverse()`：反转字符串
 
-调用`append()`和`insert()`时，如果原来的数组长度不够，可以扩容
+调用`append()`和`insert()`时，如果原来的数组长度不够，**可以扩容**
 
 > `append(null)`会将null转换为**"null"字符串**添加进去
 >
@@ -299,7 +296,7 @@ System.out.println(s3 == s7);
 
 **方法链**
 
-可以...一直调用（**返回this**）
+可以`...`一直调用（**返回this**）
 
 ![方法链](Java高级.assets/方法链.png)
 
@@ -316,9 +313,9 @@ System.out.println(s3 == s7);
 
 `StringBuidler`对象的字符内容存储在一个字符数组`value[]`中（没有`final`修饰，可变）
 
+**效率**
 
-
-**效率**：**StringBuidler > StringBuidler > String**
+`StringBuidler` > `StringBuidler` > `String`
 
 
 
@@ -346,7 +343,7 @@ System.out.println(s3 == s7);
 
 
 
-### Date构造器
+### 构造器
 
 - `Date()`：无参构造器创建一个对应**当前时间**的Date对象
 
@@ -374,7 +371,7 @@ public class DateTest {
 
 
 
-### Date方法
+### 方法
 
 - `getTime()`：返回**当前时间**和1970年1月1日0时0分0秒之间的时间差（以**毫秒**为单位）
 
@@ -601,7 +598,7 @@ public class Time {
 
 时间线上的一个**瞬间时间点**，可能被用来记录程序中的事件事件戳（面向机器）
 
-返回**当前时间**和1970年1月1日0时0分0秒之间的时间差（以**毫秒**为单位）
+返回**当前时间**和**1970年1月1日0时0分0秒**之间的时间差（以**毫秒**为单位）
 
 > 精度可以达到纳秒
 
@@ -612,14 +609,11 @@ public class Time {
 `java.time.format.DateTimeFormatter`类，提供三种格式化方法
 
 - **预定义的标准格式**
-
-  > ISO_LOCAL_DATE，ISO_LOCAL_TIME等
-
+  - `ISO_LOCAL_DATE`
+  - ``ISO_LOCAL_TIME`
 - **本地化相关格式**
-
 - **自定义格式**
-
-  `ofPattern()`方法
+- `ofPattern()`方法
 
 
 
@@ -629,14 +623,15 @@ public class Time {
 
 **对象排序**的两种方式（**接口**）
 
-- 自然排序：`java.lang.Comparable`
-- 定制排序：`java.util.Comparator`
+- 自然排序
+  - `java.lang.Comparable`
+- 定制排序
+  - `java.util.Comparator`
 
-**对比**：
+**对比**
 
-`Comparable`方式是让对象所属的类去实现接口（作为实现类），对象在任何位置都可以比较大小
-
-`Comparator`方式是临时创建实现类去比较，
+- `Comparable`方式是**让对象所属的类去实现接口**（作为实现类），对象**在任何位置都可以比较大小**
+- `Comparator`方式是**临时创建实现类**去比较，
 
 
 
@@ -646,7 +641,7 @@ public class Time {
 
 **`String`，包装类排序**
 
-已经实现了`Comparable`接口，重写了`compareTo(obj)`方法（从小到大排序）
+已经实现了`Comparable`接口，重写了`compareTo(obj)`方法（**默认从小到大排序**）
 
 ![String比较](Java高级.assets/String比较.png)
 
@@ -654,15 +649,15 @@ public class Time {
 
 重写`compareTo(obj)`方法规则：
 
-- 当前对象this大于形参obj，返回正整数
-- 当前对象this小于形参obj，返回负整数
-- 当前对象this等于形参obj，返回0
+- 当前对象`this`大于形参`obj`，返回正整数
+- 当前对象`this`小于形参`obj`，返回负整数
+- 当前对象`this`等于形参`obj`，返回0
 
 
 
 **自定义类排序**
 
-让它实现`Comparable`接口，重写了`compareTo(obj)`方法，指明排序规则
+让它实现`Comparable`接口，重写了`compareTo(obj)`方法，**指明排序规则**
 
 ```java
 package com.ink.Compare;
@@ -787,6 +782,7 @@ import java.util.Comparator;
 public class Compare {
     public static void main(String[] args) {
         String[] arr = new String[]{"A","B","C","D","E"};
+        // 根据指定比较器产生的顺序对指定对象数组进行排序
         Arrays.sort(arr, new Comparator<String>() {
             @Override
             public int compare(String o1, String o2) {
@@ -989,7 +985,7 @@ enum Season implements Info{
 
 
 
-## Enum类常用方法
+## 方法
 
 - `values()`：返回枚举类型的**对象数组**
 
@@ -6099,4 +6095,198 @@ class MyThread implements Runnable{
 
 
 # 网络编程
+
+**目的**
+
+数据交换、通信
+
+**实现**
+
+需要准确定位到网络上的一台主机（IP、端口、资源），然后进行通信
+
+> 与Javaweb网页编程的B/S架构不同，**网络编程是C/S编程**（TCP/IP）
+
+
+
+**网络通信**
+
+- 通信双方的地址
+  - ip
+  - port
+- 通信的协议（规则）
+  - TCP/IP
+  - OSI
+
+> 传输层：TCP/UDP
+
+
+
+## IP地址
+
+- 127.0.0.1：`localhost` 本机
+
+- IPV4：32位，4个字节
+- IPV6：128位，8个无符号整数
+
+> 42亿多IPV4的地址，30亿都在北美，亚洲只有4亿
+
+![ipconfig](Java高级.assets/ipconfig.png)
+
+
+
+### 域名
+
+`C:\Windows\System32\drivers\etc\hosts`文件
+
+![hosts文件](Java高级.assets/hosts文件.png)
+
+
+
+### InetAdress类
+
+`java.net.InetAddress`
+
+- **没有构造器**（无法`new`实例）
+- **没有字段**
+
+只能通过`InetAddress`类中的静态方法返回该类的对象
+
+> Java类中**没有构造器的三种类型**
+>
+> - 成员均为静态（`math`，`Arrays`，`Collection`）
+> - 单例设计模式（`Runtime`）
+> - 类中有静态方法返回该类的对象（`InetAddrass`）
+
+```java
+package com.ink.Network;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+public class InetAddressTest {
+    public static void main(String[] args) {
+        try {
+//            获取本机地址
+            InetAddress inetAddress1 = InetAddress.getByName("127.0.0.1");
+            InetAddress inetAddress2 = InetAddress.getByName("localhost");
+            InetAddress inetAddress3 = InetAddress.getLocalHost();
+            System.out.println(inetAddress1);
+            System.out.println(inetAddress2);
+            System.out.println(inetAddress3);
+
+//            获取网站ip地址
+            InetAddress inetAddress4 = InetAddress.getByName("www.baidu.com");
+            System.out.println(inetAddress4);
+
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+![InetAddress类方法](Java高级.assets/InetAddress类方法.png)
+
+## 端口
+
+表示计算机上的一个程序的进程
+
+- 不同的进程有不同的端口号，用来区分软件
+- 端口号范围：0~65535
+
+**端口分类**
+
+- 公有端口：0~1023
+
+  - HTTP：80
+  - HTTPS：443
+  - FTP：21
+  - Telent：23
+
+- 程序注册端口：1024~49151
+  - Tomcat：8080
+  - MySQL：3306
+  - Oracle：1521
+
+- 动态端口：49152~65535
+
+> win查看端口
+>
+> ```bash
+> # 查看所有端口
+> netstat -ano
+> # 查找指定端口
+> netstat -ano | findstr "8080"
+> # 查找指定端口对应的进程
+> tasklist | findste "8696"
+> ```
+
+
+
+### InetSocketAddress类
+
+**构造器**
+
+- `public InetSocketAddress(InetAddress addr, int port)`
+
+```java
+package com.ink.Network;
+
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+
+public class InetSocketAddressTest {
+    public static void main(String[] args) {
+        InetSocketAddress inetSocketAddress1 = new InetSocketAddress("127.0.0.1", 12345);
+        InetSocketAddress inetSocketAddress2 = new InetSocketAddress("localhost", 12345);
+        System.out.println(inetSocketAddress1);
+        System.out.println(inetSocketAddress2);
+        System.out.println("方法");
+        InetAddress address = inetSocketAddress1.getAddress();
+        String hostName = inetSocketAddress1.getHostName();
+        int port = inetSocketAddress1.getPort();
+        System.out.println(address);
+        System.out.println(hostName);
+        System.out.println(port);
+    }
+}
+```
+
+
+
+## 通信协议
+
+**网络通信协议**
+
+- 速率
+- 传输码率
+- 代码结构
+- 传输控制
+
+**TCP / IP协议簇**
+
+- TCP：用户传输协议
+- UDP：用户数据报协议
+- IP：网络互连协议
+
+**TCP / UDP对比**
+
+- **TCP**
+  - 有连接、稳定
+  - **三次握手、四次挥手**
+  - 客户端与服务端
+  - 传输需要释放、效率低
+- **UDP**
+  - 无连接、不稳定
+  - 客户端服务端无明确界限
+  - 无需准备 
+  - DDOS洪泛攻击
+
+## TCP实现
+
+服务端
+
+客户端
+
+### Socket类
 

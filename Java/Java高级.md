@@ -4447,7 +4447,7 @@ public class RunnableTest implements Runnable{
 
 - 实现`Runnable`接口
   - 实现接口Runnable具备多线程能力
-  - 在Thread对象中传入目标对象然后调用`start()`方法启动线程
+  - 在Thread构造器中传入目标对象然后调用`start()`方法启动线程
   - **推荐使用**
     - **避免单继承局限性**
     - **方便同一个对象被多个线程共享使用**（适合多个相同线程来处理同一份资源）
@@ -4845,6 +4845,8 @@ class Company implements Marry{
 
 ![线程的生命周期](Java高级.assets/线程的生命周期.png)
 
+![线程状态转换](Java高级.assets/线程状态转换.png)
+
 ```java
 package com.ink.Thread;
 
@@ -5136,7 +5138,7 @@ Java中的线程分为两类
   - `main()`主线程
 - 守护线程
   - 守护线程是用来服务用户线程的
-  - 在`start()`方法前调用`thread.setDaemon(true)`可以把一个用户线程变成一个守护线程
+  - 在`start()`方法前调用`thread.setDaemon(true)`可以**把一个用户线程变成一个守护线程**
 
 > Java垃圾回收`gc()`线程就是一个典型的守护线程
 >
@@ -5322,9 +5324,9 @@ class Bank extends Thread{
 
 **存在问题**
 
-- 一个线程持有锁会导致其他所有需要此锁的线程挂起
-- 在多线程竞争下，加锁，释放锁会导致比较多的上下文切换和调度延时，引起性能问题
-- 如果一个优先级高的线程等待一个优先级低的线程释放锁会导致优先级倒置，引起性能问题
+- 一个线程持有锁会导致**其他所有需要此锁的线程挂起**
+- 在多线程竞争下，加锁，释放锁会导致比较多的**上下文切换和调度延时**，引起性能问题
+- 如果一个优先级高的线程等待一个优先级低的线程释放锁会导致**优先级倒置**，引起性能问题
 
 
 
@@ -5332,10 +5334,10 @@ class Bank extends Thread{
 
 `synchronized`
 
-数据对象可以通过`private`关键字来保证只能被方法访问。所以只要针对**方法**提出一套机制
-
-- 同步方法
-- 同步代码块
+- 数据对象可以通过`private`关键字来保证只能被方法访问
+- 所以只要针对**方法**提出一套机制
+  - 同步方法
+  - 同步代码块
 
 
 
@@ -5344,7 +5346,7 @@ class Bank extends Thread{
 `public synchronized void method(int args){}`
 
 - `synchronized`方法控制**对象**的访问，**每个对象对应一把锁**
-- 每个`synchronized`方法都必须获得调用该方法的**对象的锁**才能执行，否则线程会阻塞
+- 每个`synchronized`方法都必须获得**调用该方法的对象的锁**才能执行，否则线程会阻塞
 - 方法一旦执行就独占该锁，直到该方法返回才释放，后面被阻塞的线程才能获得这个锁，继续执行
 - **同步方法的锁**：一个线程类中
   - 所有**静态方法**共用同一把锁（`类名.class`）
@@ -5602,10 +5604,6 @@ class Makeup extends Thread{
 ```java
 package com.ink.Thread;
 
-/**
- * @author ink
- * @date 2021年08月04日15:59
- */
 public class DeadLock {
     public static void main(String[] args) {
         Makeup hu1 = new Makeup(0, "hu1");
@@ -5720,10 +5718,6 @@ package com.ink.Thread;
 
 import java.util.concurrent.locks.ReentrantLock;
 
-/**
- * @author ink
- * @date 2021年08月04日20:39
- */
 public class TestLock {
     public static void main(String[] args) {
         LockTest lockTest = new LockTest();
@@ -6284,9 +6278,17 @@ public class InetSocketAddressTest {
 
 ## TCP实现
 
-服务端
+**服务端**
 
-客户端
+1. 提供ip:port
+2. 监听客户端的socket连接
+3. 使用字节流读取客户端发送的消息
+
+**客户端**
+
+1. 获取服务端的ip:port
+2. 创建socket连接
+3. 使用字节流向服务端发送消息
 
 ### Socket类
 

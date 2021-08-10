@@ -1677,6 +1677,32 @@ list.add(123);
 
 
 
+#### Stack
+
+`java.util.Stack`
+
+`Stack`是`Vector`的一个子类，它实现了一个标准的后进先出的栈，`public class Stack<E> extends Vector<E>{}`
+
+> `LinkedList`具有能够直接实现栈所有功能的方法，因此可以直接将`LinkedList`作为栈使用，现在可以直接生成一个真正的栈。所以如果需要栈的行为，应该使用`LinkedList`，或者是用`LinkedList`创建的`Stack`类
+>
+> `Deque<Integer> stack = new ArrayDeque<>();`
+>
+> Stack 是一个类，Deque 是一个接口
+>
+>  Java只能单继承，但Java中的类可以实现任意数量的接口。
+>
+> 使用Deque接口消除了对具体Stack类及其祖先的依赖，并有了更大的灵活性
+
+用栈Stack创建对象：`Stack<Integer> stack = new Stack<>();`
+
+- `boolean empty()`：测试堆栈是否为空
+- `Object peek()`：查看堆栈顶部的对象，但不从堆栈中移除它
+- `Object pop()`：移除堆栈顶部的对象，并作为此函数的值返回该对象
+- `Object push(Object element)`：将元素压入堆栈顶部
+- `int search(Object element)`：返回对象在堆栈中的位置，以 1 为基数
+
+
+
 ### set接口
 
 - Collection的子接口
@@ -5340,7 +5366,6 @@ class Bank extends Thread{
 - 同步代码块
 
 > 数据对象可以通过`private`关键字来保证只能被方法访问
->
 
 **同步方法**
 

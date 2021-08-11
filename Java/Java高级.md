@@ -1227,9 +1227,9 @@ Java集合分为`Collection`和`Map`两种体系（接口）
 
 ## Collection接口
 
-- `Collection`接口是`List`、`Set` 和`Queue`接口的**父接口**，该接口里定义的方法既可用于操作`Set`集合，也可用于操作`List`和`Queue`集合
+- `Collection`接口是`List`、`Set` 和`Queue`接口的**父接口**，接口里定义的方法可用于操作`Set`、`List`和`Queue`
 - JDK不提供`Collection`接口的任何**直接实现**，而是提供更具体的子接口实现（`Set`和`List`）
-- JDK5之前Java集合会丢失容器中对象的**数据类型**，把所有对象都当成Object类型处理
+- JDK5之前Java集合会丢失容器中对象的**数据类型**，把所有对象都当成`Object`类型处理
 - JDK5增加了**泛型**以后Java集合可以记住容器中对象的数据类型
 
 **Abstract Methods**
@@ -1257,9 +1257,9 @@ Java集合分为`Collection`和`Map`两种体系（接口）
   - `Object[] toArray()`
 - **数组转换为集合**
   
-  - `Arrays.asList()`：调用`Arrays`类的静态方法（）
+  - `Arrays.asList()`：调用`Arrays`类的静态方法
   
-    > Arrays.asList方法返回的是一个固定长度的List集合（既不是ArrayList实例也不是Vector实例）
+    > `Arrays.asList()`方法返回的是一个固定长度的`List`集合（既不是ArrayList实例也不是Vector实例）
 - **获取集合对象的哈希值**
   - `hashCode()`
 - **遍历**
@@ -1392,11 +1392,13 @@ public class CollectionTest {
 }
 ```
 
+
+
 ### 迭代器Iterator
 
 使用迭代器`iterator`接口**遍历集合元素**
 
-- `iterator`对象称为**迭代器**（设计模式的一种），主要用于遍历`Collection`集合中的元素。
+- `iterator`对象称为**迭代器**（设计模式的一种），主要用于遍历`Collection`集合中的元素
 - **GOF**给**迭代器模式**的定义为：**提供一种方法访问一个容器(container)对象中各个元素，而又不需暴露该对象的内部细节**（迭代器模式就是为容器而生）
 - `Collection`接口继承了`java.lang.Iterable`接口，该接口有一个`iterator()`方法。所有实现了`Collection`接口的集合类都有一个`iterator()`方法，用以返回一个实现了`Iterator`接口的对象
 
@@ -1513,6 +1515,8 @@ public class IteratorTest {
 }
 ```
 
+
+
 ### 增强for循环
 
 > JDK5新特性
@@ -1548,15 +1552,15 @@ public class ForTest {
 }
 ```
 
+
+
 ### List接口
 
-Collection的子接口
+- List容器中的元素**有序、可重复**
 
-List容器中的元素有序、可重复
+- List容器中的元素都对应一个整数型的**索引**，可以根据索引存取容器中的元素
 
-List容器中的元素都对应一个整数型的索引，可以根据索引存取容器中的元素
-
-`List`集合除了从`Collection`集合继承的方法外，还添加了一些**根据索引来操作集合元素**的方法
+- `List`集合除了从`Collection`集合继承的方法外，还添加了一些**根据索引来操作集合元素**的方法
 
 > List有索引所以使用普通的for循环遍历（`list.size()`）
 
@@ -1581,8 +1585,14 @@ List接口的常用**实现类**
 - `Vector`：
 
   - List接口的古老实现类
+  
   - **线程安全的，效率低**
+  
   - 底层使用`Object[] elementData`存储（扩容是2倍）
+  
+    > `Vector`由于效率问题已经被弃用
+
+
 
 #### ArrayList 
 
@@ -1636,7 +1646,15 @@ list.add(123);
 
 ![JDK8懒汉式](Java高级.assets/JDK8懒汉式.png)
 
+
+
 #### LinkedList
+
+> LinkedList
+>
+> - 是`List`
+> - 是`Queue`
+> - 是`Deque`
 
 底层使用**双向链表**存储
 
@@ -1658,7 +1676,7 @@ list.add(123);
 
 
 
-**List常用方法**
+#### 常用方法
 
 - `void add(int index, Object ele)`：在index位置添加元素ele
 - `boolean addAll(int index, Collection e)`：从index位置开始将e中的**所有元素**添加进来
@@ -1669,43 +1687,16 @@ list.add(123);
 - `Object set(int index, Object ele)`：设置指定index位置的元素为ele
 - `List subList(int fromIndex, int toIndex)`：返回从fromIndex到toIndex位置的**子集合**
 
-> List中的`remove()`方法重载了Collection的方法，一个根据索引删除，一个根据元素删除。
+> List中的`remove()`方法重载了`Collection`的方法，一个根据索引删除，一个根据元素删除
 >
-> 因为Collection集合添加int类型的元素也会自动装箱为Integer，所以当参数是int类型时默认是索引。
+> 因为Collection集合添加int类型的元素也会自动装箱为Integer，所以当参数是int类型时默认是索引
 >
 > 如果想删除元素，则需调用`new Integer()`
 
 
 
-#### Stack
-
-`java.util.Stack`
-
-`Stack`是`Vector`的一个子类，它实现了一个标准的后进先出的栈，`public class Stack<E> extends Vector<E>{}`
-
-> `LinkedList`具有能够直接实现栈所有功能的方法，因此可以直接将`LinkedList`作为栈使用，现在可以直接生成一个真正的栈。所以如果需要栈的行为，应该使用`LinkedList`，或者是用`LinkedList`创建的`Stack`类
->
-> `Deque<Integer> stack = new ArrayDeque<>();`
->
-> Stack 是一个类，Deque 是一个接口
->
->  Java只能单继承，但Java中的类可以实现任意数量的接口。
->
-> 使用Deque接口消除了对具体Stack类及其祖先的依赖，并有了更大的灵活性
-
-用栈Stack创建对象：`Stack<Integer> stack = new Stack<>();`
-
-- `boolean empty()`：测试堆栈是否为空
-- `Object peek()`：查看堆栈顶部的对象，但不从堆栈中移除它
-- `Object pop()`：移除堆栈顶部的对象，并作为此函数的值返回该对象
-- `Object push(Object element)`：将元素压入堆栈顶部
-- `int search(Object element)`：返回对象在堆栈中的位置，以 1 为基数
-
-
-
 ### set接口
 
-- Collection的子接口
 - Set容器中的**无序**、**不可重复**
 - Set接口没有提供额外的方法
 - Set判断两个对象是否相同是根据`equals()`方法，而不是使用`==`运算符
@@ -1799,6 +1790,107 @@ list.add(123);
 
 - 通过`Comparator`接口来实现，需要重写`compare()`方法
 - 比较两个对象是否相同通过`Comparator`（返回0），不再是`equals()`方法
+
+
+
+### Queue接口
+
+底层是一个特殊的线性表
+
+因为队列要经常进行增删操作，因此使用`LinkedList`链表来实现`Queue`接口更合适效率更高，而不是`ArrayList`
+
+**methods**
+
+- `add()`：从队尾添加元素，返回添加的元素。超出容量时会抛出异常
+- `offer()`：从队尾添加元素，返回添加的元素，超出容量时返回`false`
+- `remove()`：删除并返回被删除的元素，容量为0时会抛出异常
+- `poll()`：删除并返回被删除的元素，容量为0时会返回`false`
+- `element()`：返回队首元素，容量为0时会抛出异常
+- `peek()`：返回队首元素，容量为0时会返回`false`
+
+> `Queue`实现通常不允许插入`null`元素，尽管某些实现（如`LinkedList`）并不禁止插入`null`。即使在允许`null`的实现中，也不应该将`null`插入到`Queue`中，因为`null`也用作`poll()`方法的一个特殊返回值，表明队列不包含元素
+
+
+
+### Deque接口
+
+**双端队列**（double ended queue）
+
+- `Deque`扩展了`Queue`接口：`public interface Deque<E> extends Queue<E> {}`
+- `LinkedList`是最常用的实现类，因为要经常进行增删操作
+
+**方法**
+
+插入元素
+
+- `addFirst()`：向队首插入元素，如果元素为空，则抛出异常
+- `addLast()`： 向队尾插入元素，如果为空，则抛出异常
+- `offerFirst()`：向队插入元素，如果插入成功返回true，否则返回false
+- `offerLast()`：向队尾插入元素，如果插入成功返回true，否则返回false
+
+移除元素
+
+- **removeFirst():** 返回并移除队头元素，如果该元素是*null*，则发生*NoSuchElementException*
+- **removeLast():** 返回并移除队尾元素，如果该元素是*null*，则发生*NoSuchElementException*
+- **pollFirst():** 返回并移除队头元素，如果队列无元素，则返回*null*
+- **pollLast():** 返回并移除队尾元素，如果队列无元素，则返回*null*
+
+获取元素
+
+- **getFirst():** 获取队头元素但不移除，如果队列无元素，则发生*NoSuchElementException*
+- **getLast():** 获取队尾元素但不移除，如果队列无元素，则发生*NoSuchElementException*
+- **peekFirst():** 获取队头元素但不移除，如果队列无元素，则返回*null*
+- **peekLast():** 获取队尾元素但不移除，如果队列无元素，则返回*null*
+
+栈操作
+
+**pop():** 弹出栈中元素，也就是返回并移除队头元素，等价于`removeFirst()`，如果队列无元素，则发生*NoSuchElementException*
+
+**push():** 向栈中压入元素，也就是向队头增加元素，等价于`addFirst()`，如果元素为*null*，则发生NPE，如果栈空间受到限制，则发生*IllegalStateException*
+
+
+
+在使用`LinkedList`的时候，总是用特定的接口来引用它，因为持有接口说明代码的抽象层次更高，而且接口本身定义的方法代表了特定的用途
+
+> 抽象编程的一个原则：尽量持有接口，而不是具体的实现类
+
+```java
+// 不推荐的写法
+LinkedList<String> d1 = new LinkedList<>();
+d1.offerLast("z");
+
+// 推荐的写法
+Deque<String> d2 = new LinkedList<>();
+d2.offerLast("z");
+```
+
+
+
+### Stack
+
+`java.util.Stack`
+
+`Stack`是`Vector`的一个子类，它实现了一个标准的后进先出的栈，`public class Stack<E> extends Vector<E>{}`
+
+> `LinkedList`具有能够直接实现栈所有功能的方法，因此可以直接将`LinkedList`作为栈使用
+
+Java堆栈Stack类已经过时，Java官方推荐使用Deque替代Stack使用
+
+- Stack 是一个类，Deque 是一个接口
+- Java只能单继承，但Java中的类可以实现任意数量的接口。
+- 使用Deque接口消除了对具体Stack类及其祖先的依赖，并有了更大的灵活性
+
+用栈Stack创建对象：`Stack<Integer> stack = new Stack<>();`
+
+- `boolean empty()`：测试堆栈是否为空
+- `Object peek()`：查看堆栈顶部的对象，但不从堆栈中移除它
+- `Object pop()`：移除堆栈顶部的对象，并作为此函数的值返回该对象
+- `Object push(Object element)`：将元素压入堆栈顶部
+- `int search(Object element)`：返回对象在堆栈中的位置，以 1 为基数
+
+
+
+
 
 ## Map接口
 

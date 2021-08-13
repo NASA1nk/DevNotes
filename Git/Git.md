@@ -1,38 +1,3 @@
-<!-- TOC -->
-
-- [Git原理](#git原理)
-  - [版本库](#版本库)
-  - [目录结构](#目录结构)
-  - [暂存区](#暂存区)
-  - [文件状态](#文件状态)
-  - [快照](#快照)
-  - [协同分支](#协同分支)
-- [Git命令](#git命令)
-  - [初始化](#初始化)
-  - [添加](#添加)
-  - [提交](#提交)
-  - [撤销](#撤销)
-  - [查看](#查看)
-    - [查看git仓库](#查看git仓库)
-    - [查看文件内容](#查看文件内容)
-    - [查看暂存区](#查看暂存区)
-    - [查看日志](#查看日志)
-  - [分支](#分支)
-    - [查看分支](#查看分支)
-    - [创建新分支](#创建新分支)
-    - [切换分支](#切换分支)
-    - [合并分支](#合并分支)
-    - [合并冲突](#合并冲突)
-  - [修改记录暂存](#修改记录暂存)
-- [安装](#安装)
-- [远程仓库](#远程仓库)
-  - [Github](#github)
-  - [配置其他仓库](#配置其他仓库)
-- [Git工具](#git工具)
-  - [VSCode](#vscode)
-
-<!-- /TOC -->
-
 # Git原理
 
 版本管理
@@ -104,28 +69,21 @@ SHA-1是一个哈希函数，使用文件的内容计算出一串数字作为文
 
 ## 初始化
 
-创建隐藏文件夹.git
+将文件夹变成仓库（创建隐藏文件夹`.git`）
 
 ```bash
 git init
 ```
 
-**推送现有文件夹到空仓库**
-
-```bash
-git init --initial-branch=main
-git remote add origin git@gitlab.buaanlsde.cn:ink/msops.git
-git add .
-git commit -m "Initial commit"
-git push -u origin main
-```
-
 ## 添加
 
-由本地添加到暂存区
+由本地文件添加到暂存区
 
 ```bash
-git add file_name
+#查看已修改的文件
+git status
+
+git add filename
 
 #全部加入
 git add .
@@ -133,7 +91,9 @@ git add .
 
 ## 提交
 
-add后提交到版本库，可以在head文件中看到
+`git add`后提交到版本库，可以在head文件中看到
+
+> 使用`git log`查看提交历史
 
 ```bash
 git commit -m "注释"
@@ -141,30 +101,48 @@ git commit -m "注释"
 
 ## 撤销
 
-```bash
-# 1.提示命令，在想撤销的命令后一条输入（紧挨着）
-gitjk
+gitjk工具
 
-# git add的撤销(git reset)
+提示命令，在想撤销的命令后一条输入gitjk（紧挨着）
+
+> 会输出用于撤销的命令
+
+```bash
 git add .
 gitjk
-# 仅取消 git add 带来的效果。 即本地的修改还在，但是取消了add 的状态
-git reset --mixed 
 
-# git commit的撤销git reset --soft 'HEAD^'()
 git commit file_name -m "注释"
 gitjk
+```
 
-# 2.版本回退
+命令
+
+```bash
+# 撤销git add
+git reset
+
+# 仅取消git add带来的效果，本地的修改还在，但是取消了add的状态
+git reset --mixed 
+
+# 撤销git commit
+git reset --soft 'HEAD^'()
+
+# 版本回退
 git checkout SHA-1
 
-# 3.版本回退并将之创建为新的分支
+# 版本回退并将之创建为新的分支
 git checkout -b SHA-1
 ```
+
+
 
 ## 查看
 
 ### 查看git仓库
+
+这里面objects下就是存放的文件目录分级
+
+61就是存在的文件的**SHA-1值的前两位**，打开后就是**剩下的SHA-1值**，拼接后才是完整的文件的SHA-1值，就可以定位到文件
 
 ```bash
 cd .git && ls -la
@@ -172,10 +150,6 @@ cd objects && ls -la
 ```
 
 ![查看库内容](Git.assets/查看库内容.png)
-
-这里面objects下就是存放的文件目录分级
-
-61就是存在的文件的SHA-1值的前两位，打开后就是剩下的SHA-1值，拼接后才是完整的文件的SHA-1值，就可以定位到文件
 
 ### 查看文件内容
 
@@ -197,18 +171,22 @@ git log
 
 ## 分支
 
+在新的分支上对文件的修改**不会影响**到原来分支上的文件
+
 ### 查看分支
 
 ```bash
-git status
+git branch
 ```
 
 ### 创建新分支
 
-创建后不会自动切换到新的分支
-
 ```bash
+# 创建后不会自动切换到新的分支
 git branch branch_name
+
+# 创建新分支并立即切换到该分支下
+git checkout -b branch_name
 ```
 
 ### 切换分支
@@ -217,18 +195,31 @@ git branch branch_name
 git checkout branch_name
 ```
 
-在新的分支上对文件的修改**不会影响**到原来分支上的文件
+### 修改默认分支
+
+> 修改默认分支为 `main` 分支
+
+```bash
+git config --global init.defaultBranch main
+```
+
+### 删除分支
+
+```bash
+git branch -d branch_name
+```
 
 ### 合并分支
 
 ```bash
 #先回到master主分支
 git checkout master
+
 #合并分支
 git merge branch_name
 ```
 
-### 合并冲突
+### 分支冲突
 
 假设a分出b和c
 
@@ -261,11 +252,9 @@ a分出的分支b对**原分支**a的合并会直接覆盖，不会冲突
 
 ![合并冲突](Git.assets/合并冲突.png)
 
-## 修改记录暂存
+## 暂存修改
 
-假如在你修改的时候需要去pull远程仓库的内容，此时可能报错
-
-所以我们需要把我们的修改暂存到一个地方
+假如在修改的时候需要去pull远程仓库的内容，此时可能报错。所以需要把修改暂存到一个地方
 
 ```bash
 #1.执行后文件回到修改之前,先pull
@@ -283,26 +272,31 @@ git stash clear
 
 
 
-# 安装
+# Git配置
 
 ![设置个人信息](Git.assets/设置个人信息.png)
+
+
 
 # 远程仓库
 
 ```bash
 git remote
+git remote -v
 ```
 
-## Github
+## 链接远程仓库
 
 本地一般使用master做主分支，git使用main做主分支，需要修改
+
+添加后，远程库的名字是`origin`（Git默认）
 
 ![github](Git.assets/github.png)
 
 ```bash
 #1.create a new repository
 git init
-git add README.md
+git add .
 git commit -m "first commit"
 git branch -M main
 git remote add origin git@github.com:NASA1nk/test.git
@@ -318,6 +312,18 @@ git pull
 
 #4.提交文件到远程仓库,默认origin(main)分支
 git push
+```
+
+## 删除远程仓库
+
+```bash
+git remote rm name
+```
+
+## 修改远程仓库名
+
+```bash
+git remote rename old_name new_name
 ```
 
 ## 配置其他仓库

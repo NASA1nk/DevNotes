@@ -1830,23 +1830,24 @@ list.add(123);
 
 移除元素
 
-- **removeFirst():** 返回并移除队头元素，如果该元素是*null*，则发生*NoSuchElementException*
-- **removeLast():** 返回并移除队尾元素，如果该元素是*null*，则发生*NoSuchElementException*
-- **pollFirst():** 返回并移除队头元素，如果队列无元素，则返回*null*
-- **pollLast():** 返回并移除队尾元素，如果队列无元素，则返回*null*
+- `removeFirst()`： 返回并移除队头元素，如果该元素是`null`，则抛出异常
+- `removeLast()`：返回并移除队尾元素，如果该元素是`null`，则抛出异常
+- `pollFirst()`：返回并移除队头元素，如果队列无元素，则返回`null`
+- `pollLast()`：返回并移除队尾元素，如果队列无元素，则返回`null`
 
 获取元素
 
-- **getFirst():** 获取队头元素但不移除，如果队列无元素，则发生*NoSuchElementException*
-- **getLast():** 获取队尾元素但不移除，如果队列无元素，则发生*NoSuchElementException*
-- **peekFirst():** 获取队头元素但不移除，如果队列无元素，则返回*null*
-- **peekLast():** 获取队尾元素但不移除，如果队列无元素，则返回*null*
+- `getFirst()`：获取队头元素但不移除，如果队列无元素，则抛出异常
+- `getLast()`：获取队尾元素但不移除，如果队列无元素，则抛出异常
+- `peekFirst()`：获取队头元素但不移除，如果队列无元素，则返回`null`
+- `peekLast()`：获取队尾元素但不移除，如果队列无元素，则返回`null`
 
 栈操作
 
-**pop():** 弹出栈中元素，也就是返回并移除队头元素，等价于`removeFirst()`，如果队列无元素，则发生*NoSuchElementException*
-
-**push():** 向栈中压入元素，也就是向队头增加元素，等价于`addFirst()`，如果元素为*null*，则发生NPE，如果栈空间受到限制，则发生*IllegalStateException*
+- `pop()`：弹出栈中元素，也就是返回并移除队头元素，等价于`removeFirst()`，如果队列无元素，则抛出异常
+- `push()`：向栈中压入元素，也就是向队头增加元素，等价于`addFirst()`
+  - 如果元素为*null*，则抛出异常
+  - 如果栈空间受到限制，则抛出异常
 
 
 

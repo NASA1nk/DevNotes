@@ -153,8 +153,8 @@ System.out.println(s3 == s7);
 - `boolean equalsIgnoreCase(Object obj)`：忽略大小写，比较字符串内容是否相同
 - `String concat(String str)`：将字符串连接到此字符串的尾部，**等价于"+"**
 - `int compareTo(String anotherString)`：比较两个字符串的大小（`Comparable`接口中的抽象方法）
-- `String substring(int beginIndex)`：从此字符串的beginIndex开始，返回一个新字符串
-- `String substring(int beginIndex,int endIndex)`：从此字符串的beginIndex开始，endIndex结束，返回一个新字符串
+- `String substring(int beginIndex)`：从此字符串的`beginIndex`开始，返回一个新字符串
+- `String substring(int beginIndex,int endIndex)`：从此字符串的`beginIndex`开始，`endIndex`结束，返回一个新字符串（不包括`endIndex`）
 - `boolean contains(CharSequence s)`：当且仅当此字符串包含指定的char值序列时，返回true
 - `String replace(char oldChar,char newChar)`：用新的字符替换字符串中**所有的旧字符**，返回新的字符串
 - `String replace(CharSequence target,CharSequence replacement)`：用指定的字面值替换字符串中所有匹配字面值的子字符串，返回新的字符串
@@ -1230,7 +1230,8 @@ Java集合分为`Collection`和`Map`两种体系（接口）
 - `Collection`接口是`List`、`Set` 和`Queue`接口的**父接口**，接口里定义的方法可用于操作`Set`、`List`和`Queue`
 - JDK不提供`Collection`接口的任何**直接实现**，而是提供更具体的子接口实现（`Set`和`List`）
 - JDK5之前Java集合会丢失容器中对象的**数据类型**，把所有对象都当成`Object`类型处理
-- JDK5增加了**泛型**以后Java集合可以记住容器中对象的数据类型
+
+> JDK5增加了**泛型**以后Java集合可以记住容器中对象的数据类型
 
 **Abstract Methods**
 
@@ -1676,7 +1677,7 @@ list.add(123);
 
 
 
-#### 常用方法
+#### 方法
 
 - `void add(int index, Object ele)`：在index位置添加元素ele
 - `boolean addAll(int index, Collection e)`：从index位置开始将e中的**所有元素**添加进来
@@ -1687,9 +1688,9 @@ list.add(123);
 - `Object set(int index, Object ele)`：设置指定index位置的元素为ele
 - `List subList(int fromIndex, int toIndex)`：返回从fromIndex到toIndex位置的**子集合**
 
-> List中的`remove()`方法重载了`Collection`的方法，一个根据索引删除，一个根据元素删除
+> `List`中的`remove()`方法重载了`Collection`的方法，一个根据索引删除，一个根据元素删除
 >
-> 因为Collection集合添加int类型的元素也会自动装箱为Integer，所以当参数是int类型时默认是索引
+> 因为`Collection`集合添加`int`类型的元素也会自动装箱为`Integer`，所以当参数是int类型时默认是索引
 >
 > 如果想删除元素，则需调用`new Integer()`
 
@@ -1700,7 +1701,7 @@ list.add(123);
 - Set容器中的**无序**、**不可重复**
 - Set接口没有提供额外的方法
 - Set判断两个对象是否相同是根据`equals()`方法，而不是使用`==`运算符
-- 存放在Set容器中的对象所在类一定要重写`equals()`和`hashCode()`方法，以实现对象相等规则
+- 存放在Set容器中的对象所在类一定要重写`equals()`和`hashCode()`方法，以实现**对象相等规则**
 
 > 无序性：不是随机性。只是存储的数据在底层并非按照数组索引顺序添加
 >
@@ -1897,12 +1898,14 @@ Java堆栈Stack类已经过时，Java官方推荐使用Deque替代Stack使用
 
 - `Map`用于存储**具有映射关系的双列数据**：`key:value`键值对
 - `Map`中的`key`和`value`可以是**任何引用类型的数据**
+- `key`和`value`之间存在**单向一对一**映射关系，通过指定的`key`总能找到**唯一确定**的`value`
 - `Map`中的`key`使用`Set`存储（无序，不可重复），所以`key`所在类必须重写`hashCode()`和`equals()`方法
 - `Map`中的的`value`使用`Collection`存储（无序、可重复），所以`value`所在类要重写`equals()`方法
-- `key`和`value`之间存在**单向一对一**映射关系，通过指定的`key`总能找到**唯一确定**的`value`
 - 一个`key:value`构成一个`Entry`对象，`Entry`使用`Set`存储（无序、不可重复）
 
 > `Entry`对象表示一个映射项，映射项有两个属性：`key`和`value`
+>
+> Map中一个`key`有且只有一个`value`，但是一个`value`可以对应多个`key`值
 
 
 
@@ -1919,14 +1922,14 @@ Java堆栈Stack类已经过时，Java官方推荐使用Deque替代Stack使用
 
 
 
-**Abstract Methods**
+**方法**
 
-- `Object put(Object key,Object value)`：将指定`key:value`添加到（或修改）当前map对象中
+- `Object put(Object key,Object value)`：将指定`key:value`添加（或修改）到当前map中
 - `void putAll(Map m)`：将m中的所有`key:value`对存放到当前map中
-- `Object remove(Object key)`：移除指定`key`的`key:value`对并返回对应的`value`
-- `void clear()`：清空map中的所有数据（并不是将map赋值为`null`）
 - `Object get(Object key)`：获取指定`key`对应的`value`（没有返回`null`）
 - `Object getOrDefault(Object key, V defaultValue)`：获取指定`key`对应的`value`，没有返回设置的默认值`defaultValue`
+- `Object remove(Object key)`：移除指定`key`的`key:value`对并返回对应的`value`
+- `void clear()`：清空map中的所有数据（并不是将map赋值为`null`）
 - `boolean containsKey(Object key)`：查询是否包含指定的`key`
 - `boolean containsValue(Object value)`：查询是否包含指定的`value`
 - `int size()`：返回map中`key:value`对的个数
@@ -2291,7 +2294,7 @@ System.out.println(user);
 
 **同步控制**
 
-**Collections**类中提供了多个`synchronizedXxx()`方法，可以**将指定集合包装成线程同步的集合**，从而可以解决多线程并发访问集合时的线程安全问题
+**Collections**类中提供了多个`synchronizedXxx()`方法，可以**将指定集合包装成线程同步的集合**，从而可以解决多线程并发访问集合时的**线程安全问题**
 
 
 
@@ -2396,10 +2399,6 @@ public class GenericTest {
 ```java
 package com.ink.Generic;
 
-/**
- * @author ink
- * @date 2021年05月25日16:13
- */
 public class Order<T>{
     String orderName;
     int orderId;

@@ -192,6 +192,16 @@ System.out.println(s3 == s7);
 - **字符数组（char[]）转换为String**
 
   - 调用String的**构造器**即可：`new String(char[])`
+  
+  
+
+- **StringBuffer/StringBuilder转换为String**
+  - 调用StringBuffer/StringBuilder的`toString()`方法
+
+
+
+- **String转换成StringBuffer/StringBuilder**
+  - 调用StringBuffer/StringBuilder的**构造器**即可：`new StringBuffer(str)`
 
 
 
@@ -208,6 +218,8 @@ System.out.println(s3 == s7);
 - **字节数组（byte[]）转换为String**
 
   - 调用String的**构造器**即可：`new String(byte[])`
+
+
 
 
 
@@ -276,8 +288,6 @@ System.out.println(s3 == s7);
 
 **快捷键**：`ctrl+F12`
 
-![StringBuffer方法](Java高级.assets/StringBuffer方法.png)
-
 - `StringBuidler append(obj)`：字符串拼接
 - `StringBuffer delete(int start,int end)`：删除指定位置内容
 - `StringBuffer replace(int start,int end,String str)`：把**[start,end)**位置的内容替换为str
@@ -288,9 +298,9 @@ System.out.println(s3 == s7);
 
 > `append(null)`会将null转换为**"null"字符串**添加进去
 >
-> 如果将null作为构造器参数，则会抛**空指针异常**
+> 如果将`null`作为构造器参数，则会抛**空指针异常**
 
-
+![StringBuffer方法](Java高级.assets/StringBuffer方法.png)
 
 **这些方法支持方法链操作**
 
@@ -316,6 +326,8 @@ System.out.println(s3 == s7);
 **效率**
 
 `StringBuidler` > `StringBuidler` > `String`
+
+**方法**
 
 
 
@@ -1495,10 +1507,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-/**
- * @author ink
- * @date 2021年05月18日23:29
- */
 public class IteratorTest {
     @Test
     public void test(){
@@ -2242,6 +2250,10 @@ final Node<K,V>[] resize() {
 
 ### TreeMap
 
+TreeMap实现的是 `NavigableMap`， 而不是直接实现 `Map`
+
+> 继承体系: `Map -> SortMap -> NavigbleMap`
+
 - `TreeSet`底层使用红黑树结构存储数据
 - `TreeMap`存储`key:value`对时，会根据key进行排序
 - `TreeMap`判断两个`key`相等的标准：两个`key`通过`compareTo()`方法或者`compare()`方法返回0
@@ -2270,6 +2282,8 @@ System.out.println(user);
 遇到乱码问题，需要勾上，再重新导入`properties`文件
 
 ![properties编码](Java高级.assets/properties编码.png)
+
+
 
 ## Collections工具类
 

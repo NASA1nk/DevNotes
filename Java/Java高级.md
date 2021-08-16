@@ -767,13 +767,13 @@ return -this.name.compareTo(goods.name);
 
 可以使用`Comparator`的对象来排序，重写接口中的`compare()`抽象方法
 
-![Comparator](Java高级.assets/Comparator.png)
-
 > `<T>`：泛型
 
+![Comparator](Java高级.assets/Comparator.png)
 
+### 规则
 
-重写`compare(Object o1,Object o2)`方法规则
+重写`compare(Object o1,Object o2)`方法
 
 - o1大于o2，返回正整数
 - o1小于o2，返回负整数
@@ -1935,7 +1935,7 @@ Java堆栈Stack类已经过时，Java官方推荐使用Deque替代Stack使用
 - `Object put(Object key,Object value)`：将指定`key:value`添加（或修改）到当前map中
 - `void putAll(Map m)`：将m中的所有`key:value`对存放到当前map中
 - `Object get(Object key)`：获取指定`key`对应的`value`（没有返回`null`）
-- `Object getOrDefault(Object key, V defaultValue)`：获取指定`key`对应的`value`，没有返回设置的默认值`defaultValue`
+- `Object getOrDefault(Object key, V defaultValue)`：获取指定`key`对应的`value`，没有就返回设置的默认值`defaultValue`
 - `Object remove(Object key)`：移除指定`key`的`key:value`对并返回对应的`value`
 - `void clear()`：清空map中的所有数据（并不是将map赋值为`null`）
 - `boolean containsKey(Object key)`：查询是否包含指定的`key`

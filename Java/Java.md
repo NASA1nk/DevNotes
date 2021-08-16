@@ -1,109 +1,5 @@
-<!-- TOC -->
 
-- [Dos](#dos)
-- [Java](#java)
-  - [Java开发环境](#java开发环境)
-  - [第一个程序](#第一个程序)
-- [集成开发环境](#集成开发环境)
-  - [idea使用](#idea使用)
-  - [idea开发](#idea开发)
-  - [idea设置](#idea设置)
-  - [idea刷题](#idea刷题)
-- [基础语法](#基础语法)
-  - [注释](#注释)
-    - [修改注释](#修改注释)
-  - [标识符](#标识符)
-  - [数据类型](#数据类型)
-    - [整型](#整型)
-    - [浮点类型](#浮点类型)
-    - [char类型](#char类型)
-    - [枚举类型](#枚举类型)
-    - [字符串](#字符串)
-    - [类型转换](#类型转换)
-  - [变量](#变量)
-    - [作用域](#作用域)
-    - [常量](#常量)
-    - [命名规范](#命名规范)
-- [基本运算符](#基本运算符)
-- [package包](#package包)
-- [JavaDoc](#javadoc)
-  - [编写文档注释](#编写文档注释)
-  - [命令行生成API文档](#命令行生成api文档)
-  - [IDEA生成JavaDoc文档](#idea生成javadoc文档)
-- [输入输出](#输入输出)
-  - [Scanner](#scanner)
-  - [Console](#console)
-  - [文件](#文件)
-- [流程控制](#流程控制)
-  - [选择结构](#选择结构)
-    - [if选择结构](#if选择结构)
-    - [switch选择结构](#switch选择结构)
-    - [查看反编译文件](#查看反编译文件)
-  - [循环结构](#循环结构)
-    - [while循环](#while循环)
-    - [do while循环](#do-while循环)
-    - [for循环](#for循环)
-    - [增强for循环](#增强for循环)
-- [方法](#方法)
-  - [方法定义](#方法定义)
-  - [方法调用](#方法调用)
-  - [方法重载](#方法重载)
-  - [命令行传参](#命令行传参)
-  - [编译问题](#编译问题)
-  - [可变参数](#可变参数)
-  - [递归](#递归)
-- [数组](#数组)
-  - [数组声明](#数组声明)
-  - [数组创建](#数组创建)
-  - [数组访问](#数组访问)
-  - [初始化](#初始化)
-  - [数组拷贝](#数组拷贝)
-  - [数组使用](#数组使用)
-  - [多维数组](#多维数组)
-  - [不规则数组](#不规则数组)
-  - [Arrays类](#arrays类)
-  - [稀疏数组](#稀疏数组)
-  - [内存分析](#内存分析)
-- [面向对象](#面向对象)
-  - [对象](#对象)
-  - [自定义类](#自定义类)
-  - [构造器](#构造器)
-  - [内存分析](#内存分析-1)
-  - [封装](#封装)
-  - [继承](#继承)
-    - [子类构造器](#子类构造器)
-    - [继承层次](#继承层次)
-    - [覆盖方法](#覆盖方法)
-    - [final类](#final类)
-    - [Object类](#object类)
-    - [方法重写](#方法重写)
-  - [多态](#多态)
-  - [类型转换](#类型转换-1)
-  - [对象包装器](#对象包装器)
-  - [枚举类](#枚举类)
-  - [static](#static)
-  - [抽象类](#抽象类)
-- [接口](#接口)
-  - [接口特点](#接口特点)
-  - [默认方法](#默认方法)
-  - [实现类](#实现类)
-- [内部类](#内部类)
-  - [成员内部类](#成员内部类)
-  - [静态内部类](#静态内部类)
-  - [局部内部类](#局部内部类)
-  - [匿名内部类](#匿名内部类)
-- [异常](#异常)
-  - [异常体系结构](#异常体系结构)
-  - [异常处理](#异常处理)
-    - [捕获异常](#捕获异常)
-    - [抛出异常](#抛出异常)
-    - [再次抛出异常](#再次抛出异常)
-    - [堆栈轨迹](#堆栈轨迹)
-  - [自定义异常](#自定义异常)
-- [JUnit单元测试](#junit单元测试)
-- [Jar包](#jar包)
 
-<!-- /TOC -->
 # Dos
 
 ```bash
@@ -1068,7 +964,7 @@ public static void main(String[] args) {
 
 
 
-### 查看反编译文件
+### 反编译文件
 
 Java程序执行是生成了`class`文件
 
@@ -1415,9 +1311,16 @@ public class Demo02 {
 
 # 数组
 
-相同类型数据的有序集合，数组中的每一个数据称为一个数组元素，可以用下标（索引）来访问它们。
+相同类型数据的有序集合
 
-数组的基本特点：
+- 数组中的每一个数据称为一个数组元素，可以用下标（索引）来访问
+- **数组变量是引用类型**，数组也可以看成是**对象**
+  - **数组对象本身是在堆中**
+  - 数组中的每个元素相当于该对象的**成员变量**
+
+
+
+**基本特点**
 
 - **长度确定**，一旦被创建大小就不可以改
 
@@ -1425,15 +1328,16 @@ public class Demo02 {
 
 - **数组元素**可以是任何数据类型（**基本数据类型**和**引用数据类型**）
 
-- **数组变量是引用类型**，数组也可以看成是**对象**，数组中的每个元素相当于该对象的成员变量
 
-  数组可以看成是对象，所以**数组对象本身是在堆中**
+
 
 
 
 ## 数组声明
 
 **先声明后使用**
+
+> `int[]` 其实就相当加了`[]`后，把整体看作**int数组**类型
 
 ```java
 //首选，类型后面加[]
@@ -1443,19 +1347,17 @@ dataType[] array;
 dataType array[];
 ```
 
-> `int[]` 其实就相当说加了`[]`后，把整体看作**int数组**类型
-
 
 
 ## 数组创建
 
-Java使用`new`操作符创建数组，数组元素会被**默认**初始化
-
-> Java中允许数组长度为0（与null不同）
+使用`new`操作符创建数组，**数组元素会被默认初始化**
 
 - 数字：初始化为0
 - boolean：初始化为false
 - 对象：初始化为null
+
+> Java中允许数组长度为0（与null不同）
 
 ```java
 // 1.声明 相当于dataType[] array = null;
@@ -1470,41 +1372,7 @@ dataType[] array = new dataType[arraysize];
 
 
 
-## 数组访问
-
-数组元素通过下标（索引）访问，下标从0开始
-
-获取数组长度（边界）：`arrays.length` 是[0，length-1]
-
-> 越界错误：`java.lang.ArrayIndexOutOfBoundsException`
-
-**遍历数组**
-
-- **for循环**
-
-  ```java
-  int[] arrays = {1,2,3,4,5};
-  for (int i = 0; i < arrays.length; i++) {
-      System.out.println(arrays[i]);
-  }
-  ```
-
-- **增强for循环**（无下标）
-
-  快捷键：数组名.for
-
-  ```java
-  int[] arrays = {1, 2, 3, 4, 5};
-  for (int array : arrays) {
-      System.out.println(array);
-  }
-  ```
-
-  > JDK1.5
-
-
-
-## 初始化
+## 数组初始化
 
 - **静态初始化**
 
@@ -1518,26 +1386,62 @@ dataType[] array = new dataType[arraysize];
 - **动态初始化**
 
   ```java
-  // 包含了默认初始化，分配空间后b[i]默认都是0
+  // 包含了默认初始化，分配空间后b[i]默认都是0 (int类型)
   int a = new int[10];
   b[0] = 10;
   ```
 
 - **默认初始化**
 
-  数组是**引用类型**，数组元素相当于类的**实例变量**，因此数组一经分配空间，每个数组元素就按照实例变量同样的方法被**默认（隐式）初始化**。
+  数组是**引用类型**，**数组元素相当于类的实例变量**，因此数组一经分配空间，每个数组元素就按照实例变量同样的方法被**默认（隐式）初始化**
+
+
+
+## 数组访问
+
+- 数组元素通过下标（索引）访问，下标从0开始
+
+- 数组长度`array.length` 
+
+> 越界错误：`java.lang.ArrayIndexOutOfBoundsException`
+
+**遍历数组**
+
+- **for循环**
+
+  ```java
+  int[] array = {1,2,3,4,5};
+  for (int i = 0; i < array.length; i++) {
+      System.out.println(array[i]);
+  }
+  ```
+
+- **增强for循环**（无下标）
+
+  > 快捷键：`array.for`
+  >
+  > JDK5引入
+  
+  ```java
+  int[] arrays = {1, 2, 3, 4, 5};
+  for (int array : arrays) {
+      System.out.println(array);
+  }
+  ```
+
+
 
 ## 数组拷贝
 
-允许将一个数组变量拷贝给另一个数组变量，两个变量引用同一个数组
+允许将一个数组变量拷贝给另一个数组变量，**两个变量引用同一个数组**
 
 ```java
 int[] a = b;
 ```
 
-` Arrays.copyOf`方法：
+` Arrays.copyOf()`
 
-但长度小于原始数组的长度，则只拷贝最前面的数据元素
+如果长度小于原始数组的长度，则只拷贝最前面的数据元素
 
 ```java
 int[] a = Arrays.copyOf(b,b.length)
@@ -1545,70 +1449,69 @@ int[] a = Arrays.copyOf(b,b.length)
 
 
 
-## 数组使用
+## 数组参数
 
-1. **数组参数**：将数组封装为参数
+将数组封装为参数
 
-   ```java
-   package com.ink.array;
-   
-   public class Demo01 {
-     public static void main(String[] args) {
-       int[] arrays = {1, 2, 3, 4, 5};
-       printArray(arrays);
-     }
-   
-     public static void printArray(int[] arrays) {
-       for (int i = 0; i < arrays.length; i++) {
-         System.out.println(arrays[i]);
-       }
-     }
-   }
-   ```
+```java
+package com.ink.array;
 
-2. **数组返回值**：
+public class Demo01 {
+  public static void main(String[] args) {
+    int[] arrays = {1, 2, 3, 4, 5};
+    printArray(arrays);
+  }
 
-   ```java
-   package com.ink.array;
-   
-   public class Demo02 {
-     public static void main(String[] args) {
-       int[] arrays = {1, 2, 3, 4, 5};
-       int[] reveseArray = reveseArray(arrays);
-       for (int i = 0; i < reveseArray.length; i++) {
-         System.out.println(reveseArray[i]);
-       }
-     }
-       
-     public static int[] reveseArray(int[] arrays) {
-       int[] result = new int[arrays.length];
-       for (int i = 0, j = result.length - 1; i < arrays.length; i++, j--) {
-         result[j] = arrays[i];
-       }
-       return result;
-     }
-   }
-   ```
+  public static void printArray(int[] arrays) {
+    for (int i = 0; i < arrays.length; i++) {
+      System.out.println(arrays[i]);
+    }
+  }
+}
+```
+
+## 数组返回值
+
+```java
+package com.ink.array;
+
+public class Demo02 {
+  public static void main(String[] args) {
+    int[] arrays = {1, 2, 3, 4, 5};
+    int[] reveseArray = reveseArray(arrays);
+    for (int i = 0; i < reveseArray.length; i++) {
+      System.out.println(reveseArray[i]);
+    }
+  }
+    
+  public static int[] reveseArray(int[] arrays) {
+    int[] result = new int[arrays.length];
+    for (int i = 0, j = result.length - 1; i < arrays.length; i++, j--) {
+      result[j] = arrays[i];
+    }
+    return result;
+  }
+}
+```
 
 
 
 ## 多维数组
 
-**数组的数组**（每一个数组元素都是一个**一维数组**）
+**数组的数组**：每一个数组元素都是一个**一维数组**
 
-二维数组：
+**二维数组**
+
+- 每一个`array[i]`都是一行数组的首地址
+- 使用`array.length`获得二维数组的元素个数（行数）
 
 ```java
 // 2行5列的二维数组
-int arrays[][] = new int[2][5];
-int[][] arrays = {{1,2},{2,3},{3,4}};
+int array[][] = new int[2][5];
+int[][] array = {{1,2},{2,3},{3,4}};
 ```
 
-> 每一个arrays[i]都是一行数组的首地址（arrays[i] [j]）
-
-
-
-可以单独把`arrays[i]`作为一个数组参数，也可以使用`arrays[i].length`（区分`arrays.length`）
+可以把`arrays[i]`作为一个数组参数，使用`arrays[i].length`（区分`arrays.length`）获得列的长度
 
 ```java
 package com.ink.array;
@@ -1627,9 +1530,10 @@ public class Demo03 {
 
 
 
-**二维数组的增强for循环**：
+**二维数组的增强for循环**
 
-一个`for each`不能遍历二维数组的每一个元素，它是按照行处理。要将`arrays[i]`作为遍历元素。
+- `for each`遍历二维数组的每一个元素获得的是数组
+- 再将获得的数组`arrays[i]`作为遍历元素
 
 ```java
 package com.ink.array;
@@ -1662,48 +1566,16 @@ for(int i=0; i<= NMAX; i++){
 
 
 
-## Arrays类
-
-数组的**工具类**：`Java.util.Arrays`
-
-Arrays类中的方法都是`static`修饰的**静态方法**，在使用时可以直接使用**类名调用**，而不用使用对象调用（不用，但是可以）。
-
-![Arrays](Java.assets/Arrays.png)
-
-> 除了`array.length`，数组本身没有什么方法供调用
->
-> `util`工具包中提供Arrays工具类
-
-
-
-**常用功能**：
-
-- `fill`：给数组元素赋值（**左闭右开**）
-- `sort`：给数组元素排序（升序）
-- `equals`：**比较数组元素是否相等**
-- `toString`：打印数组元素
-- `binarySearch`：对排序好的数组经行**二分查找**
-
-> **ctrl点击**`Arrays`查看源码，点击左下角**structure**可以查看Arrays中的方法
-
-![Arrays源码](Java.assets/Arrays源码.png)
-
-> **ctrl点击**`tostring`查看源码
-
-![tostring](Java.assets/tostring.png)
-
-
-
 ## 稀疏数组
 
-当一个数组中大部分元素都是0或同一个值，就可以用稀疏数组来保存
+当一个数组中**大部分元素都是0或同一个值**，就可以用稀疏数组来保存
 
-> 稀疏数组可以看做是普通数组的**压缩**。普通数组是指**无效**数据量**远大于**有效数据量的数组
->
-> - 数组中存在大量的无效数据，占据了大量的存储空间，真正有用的数据很少
-> - 压缩存储可以节省存储空间以避免资源浪费，在数据序列化到磁盘时，压缩存储还可以提高IO效率
+稀疏数组可以看做是普通数组的**压缩**
 
+- 数组中存在大量的无效数据，占据了大量的存储空间，真正有用的数据很少
+- 压缩存储可以节省存储空间以避免资源浪费，在数据序列化到磁盘时，压缩存储还可以提高IO效率
 
+> 普通数组是指**无效**数据量**远大于**有效数据量的数组
 
 **创建稀疏数组**
 
@@ -1733,16 +1605,52 @@ rarray[array[i][0]][array[l][1]] = array[i][2]
 
 
 
-## 内存分析
+## 数组内存分析
 
-Java内存：
+**内存**
 
-- **堆**：存放`new`出来的**对象**和**数组**，可以被所有的线程共享，不会存放别的对象引用
-- **栈**：存放**基本类型变量**（包括变量值），**引用对象的变量**（包括这个引用在堆里面的**地址**）
+- **堆**：存放`new`出来的**对象**和**数组**，可以被所有的**线程共享**，不会存放别的对象引用
+- **栈**：存放**基本类型变量**（包括变量值），**引用对象的变量**（包括这个**引用在堆里面的地址**）
 - **方法区**：包含了所有的`class`和`static`变量，可以被所有的线程共享
 
-> 1. 声明数组变量，在栈中存放
-> 2. 创建数组，在堆中开辟一片空间（分成数组长度的小空间），并将数组元素默认初始化，再将栈中的数组变量指向堆中的分配的空间首地址
+**数组**
+
+1. 声明数组变量，在栈中存放
+2. 创建数组，在堆中开辟一片空间（分成数组长度的小空间），并将数组元素默认初始化
+3. 再将**栈中的数组变量指向堆中的分配的空间首地址**
+
+
+
+# Arrays类
+
+`Java.util.Arrays`
+
+`util`工具包中提供数组工具类
+
+`Arrays`类中的方法都是`static`修饰的**静态方法**，在使用时可以直接使用`Arrays`**类名调用**（可以使用对象调用）
+
+
+
+**方法**
+
+- `Arrays.fill()`：给数组元素赋值（**左闭右开**）
+  - `Arrays.fill(Object[] a,Object val)`
+  - `Arrays.fill(Object[] a,int fromIndex,int toIndex,Object val)`
+- `Arrays.sort()`：给数组元素排序（升序）
+  - `Arrays.sort(int[] a)`
+  - `Arrays.sort(int[] a, int fromIndex, int toIndex)`：（**左闭右开**）
+  - `Arrays.sort(T[] a,int fromIndex,int toIndex, Comparator c)`
+- `equals`：**比较数组元素是否相等**
+- `toString`：打印数组元素
+- `binarySearch`：对排序好的数组进行**二分查找**
+
+> **ctrl点击**`Arrays`查看源码，点击左下角**structure**可以查看Arrays中的方法
+
+![Arrays源码](Java.assets/Arrays源码.png)
+
+> `tostring()`源码，底层使用`StringBuilder`
+
+![tostring](Java.assets/tostring.png)
 
 
 
@@ -1752,15 +1660,15 @@ OO（`Object Oriented`）：面向对象，一种软件开发方法，一种编�
 
 OOP（`Object Oriented Programming`）：面向对象编程，程序由对象组成
 
-**OOP的本质：以类的方式组织代码，以对象的方式封装数据**
+**OOP的本质**
+
+以类的方式组织代码，以对象的方式封装数据
 
 > 类是一种抽象的数据类型，对象是抽象概念的具体实例
->
-> 物以**类**聚（分类）
 
 
 
-Java中所有类都来自于一个"超类"`Object`
+Java中所有类都来自（继承）于一个**超类**`Object`
 
 - **核心思想：抽象**
 
@@ -1776,9 +1684,9 @@ Java中所有类都来自于一个"超类"`Object`
 
 
 
-**规范项目结构**
+## 项目结构
 
-1. 一个项目应该只存在一个main方法，在`Application`类中。其他类不要在写main方法，只是**单纯的类（包含属性和方法）**
+1. 一个项目应该只存在一个`main()`方法，在`Application`类中。其他类不要在写`main()`方法，只是**单纯的类（包含属性和方法）**
 
    ![Application](Java.assets/Application.png)
 
@@ -1790,20 +1698,24 @@ Java中所有类都来自于一个"超类"`Object`
 
 ## 对象
 
-**对象**：
-
 - 数据：实例域`instance field`
 - 方法
 
 > 实例域标记为`private`
 
-**对象的三大特性**：
+
+
+### 对象三大特性
 
 - 对象行为：可以对对象施加的方法
 - 对象状态：施加方法时，对象的响应
 - 对象标识：辨别相同行为和状态的不同对象
 
-**创建对象**：使用`new`关键字
+
+
+### 创建对象
+
+使用`new`关键字
 
 1. 分配内存空间
 2. 默认初始化对象
@@ -1813,22 +1725,25 @@ Java中所有类都来自于一个"超类"`Object`
 Student student = new Student();
 ```
 
-**对象和对象变量**：
 
-一个对象变量可以引用各种类型的对象。单纯的声明`student`这个变量时它并不是一个对象。可以用对象去初始化它，此时它引用了一个对象。
 
-**Java中任何一个对象变量的值都是对存储在另一个地方的一个对象的引用**
+### 对象和对象变量
 
-**`new`的返回值也是一个引用**
+- 一个对象变量可以**引用**各种类型的对象
+- 单纯的声明变量时它并不是一个对象，可以用对象去初始化它，此时它引用了一个对象
+- **Java中任何一个对象变量的值都是对存储在另一个地方的一个对象的引用**
+- `new`的返回值也是一个**引用**
 
 ```java
 Student student;
 student = new Student(); 
 ```
 
-`final`**实例域**：
+### final实例域
 
-构建对象时候必须初始化`final`实例域，并且在之后不能对它进行修改（没有对应的`set`方法）
+构建对象时候必须初始化`final`实例域，并且在之后不能对它进行修改
+
+> 没有对应的`set()`方法
 
 
 
@@ -1836,9 +1751,11 @@ student = new Student();
 
 通常自定义类没有`main`方法，但有自己的实例域和实例方法
 
-一个完整的程序是将若干类组合在一起，**其中只有一个类有`main`方法**
+- 一个完整的程序是将若干类组合在一起，**其中只有一个类有`main()`方法**
 
-> 一个源文件中只能有一个`public`类，文件名必须和`public`类名相同
+- 一个源文件中只能有一个`public`类，文件名必须和`public`类名相同
+
+  > 其余的就是`class ClassName{}`
 
 
 
@@ -1884,22 +1801,21 @@ public class Application {
 
 ## 构造器
 
-特殊的**方法**：构造并初始化对象
+**构造方法**：构造并初始化对象
 
-**构造器**：`constructor`
+`constructor`
 
 - 构造器总是伴随`new`操作一起调用，**不能对已经存在的对象调用构造器**
-- 每个类可以有一个以上的构造器
-- 必须和类有**相同的名字**
-- 可以有多个参数
+- 每个类可以有一个以上的构造器，都必须和类是**相同的名字**
+- 构造器可以有多个参数
 
-- 必须**没有返回值类型**，也不加`void`
+- 构造器必须**没有返回值类型**，也不加`void`
 
 > 不要在构造器中定义和实例域重名的局部变量
 
-`Person`类中不写内容也可以`new`一个`Person`对象，在`out`目录查看编译后的`Person.class`文件，发现加上了一个**构造器**（无参构造）。
-
 ```java
+// Person类中不写内容也可以new出Person对象
+// 查看在out目录中编译后的Person.class文件，发现加上了一个无参构造器
 public class Person {
     public Person() {
     }
@@ -1910,40 +1826,40 @@ public class Person {
 
 
 
-**构造器分类**：
+### 构造器分类
 
-- **无参构造**：可以隐式定义，构造器中所有实例域被设置为默认值
+- **无参构造**
 
-- **有参构造**：一旦定义了有参构造，**无参构造就必须显式定义**，否则无参构造`new Person()`就会失效，但可以使用有参构造
+  - 可以隐式定义，构造器中所有**实例域被设置为默认值**
 
-  无参构造：（报错）
+- **有参构造**
 
+  - 只要定义了有参构造，**无参构造就必须显式定义**，否则无参构造`new Person()`会失效，但可以使用有参构造
+
+  > 无参构造：（报错）
+  
   ![有参构造](Java.assets/无参构造.png)
-
-  有参构造：（正常运行）
-
+  
+  > 有参构造：（正常运行）
+  
   ![有参构造](Java.assets/有参构造.png)
 
 
 
-**this**
+## this
 
 - 参数变量可以用同样的名字屏蔽实例域，用`this`可以访问实例域
 - `this`还可以在构造器中第一行去调用重载的构造器
 
-
-
-**快捷键**：alt+insert，快速生成构造器
+> **快捷键**：`alt+insert`，快速生成构造器
+>
+> Java有自动的垃圾回收器，不支持析构器
 
 ![快捷生成](Java.assets/快捷生成.png)
 
 选中生成对应的**有参**构造器，`Select None`生成**无参**构造器
 
 ![altinsert](Java.assets/altinsert.png)
-
-
-
-**Java有自动的垃圾回收器，不支持析构器**
 
 
 
@@ -2076,23 +1992,18 @@ public class Application {
 
 
 
-### 覆盖方法
+### super
 
-想调用超类的方法而不是子类的方法时，`super`指示编译器调用超类`public`修饰的属性和方法
+想调用**超类的方法**而不是子类的方法时，`super`指示编译器调用超类`public`修饰的属性和方法
+
+- 只能在**继承**的前提下才可以使用
+- 子类通过`super`调用父类的构造器时，必须放在第一位
+- `super`只能出现在子类的方法中
+- `super`和`this`不能同时调用构造器（都必须在第一位）
 
 > `private`的属性和方法不会继承，所以`super`无法调用
 >
 > `super`不是一个对象的引用，不能将`super`赋给另一个对象变量
-
-
-
-**super**：
-
-- 只能在**继承**的前提下才可以使用
-
-- 子类通过`super`调用父类的构造器时，必须放在第一位
-- `super`只能出现在子类的方法中
-- `super`和`this`不能同时调用构造器（都必须在第一位）
 
 ```java
 package com.OOP.demo03;
@@ -2135,6 +2046,8 @@ public class Student extends Person {
 
 ![super](Java.assets/super.png)
 
+
+
 ### final类
 
 被`final`修饰的类无法被继承
@@ -2165,11 +2078,14 @@ public class Student extends Person {
 
 
 
-### 方法重写
+### 重写方法
 
-`@Override`：**注解**（有功能的注释）
+`@Override`
 
-方法的重写需要有**继承**关系，是子类重写父类的**（非静态）方法**
+**注解**（有功能的注释）
+
+- 重写需要有**继承**关系，是子类重写父类的**（非静态）方法**
+
 
 - 重写的**方法名**必须相同
 - 重写的方法**参数列表**必须相同
@@ -2177,10 +2093,8 @@ public class Student extends Person {
 - 抛出的**异常**范围可以缩小，但不能扩大
 - `private`修饰的方法无法重写
 
-
-
-快捷键：ctrl+o
-
+> 快捷键：`ctrl+o`
+>
 > 重写的方法对应的**侧边栏**会有符号箭头表示
 
 ![重写](Java.assets/重写.png)
@@ -2210,21 +2124,30 @@ public class A extends B {
 
 
 
-**重写只对非静态方法有用**
+#### 静态方法
+
+静态方法是**类的方法**，方法调用只和左边定义的**类**有关
+
+- 静态方法在**编译阶段**就被编译出来的类型进行**绑定**
+- 应该直接**使用类名来访问静态方法**，而不要使用对象引用来访问
 
 > 重写静态方法编译器不会报错（Java不会阻止这么做）但得不到预期的结果
 >
-> 静态方法在**编译阶段**就被编译出来的类型进行绑定。使用对象引用来访问静态方法只是Java设计者给程序员的自由。应该**直接使用类名来访问静态方法**，而不要使用对象引用来访问。
+> 使用对象引用来访问静态方法只是Java设计者给程序员的自由
 
-1. **静态方法**：静态方法是**类的方法**，方法调用只和左边定义的**类**有关
+![静态方法](Java.assets/静态方法.png)
 
-   ![静态方法](Java.assets/静态方法.png)
 
-   
 
-2. **非静态方法**：非静态方法是**对象的方法**，要看对象左边的**类**。b是A类`new`出来的对象，所以b调用的是**A类的方法**。
+#### 非静态方法
 
-   ![非静态方法](Java.assets/非静态方法.png)
+- **重写只对非静态方法有用**
+- 非静态方法是**对象的方法**，要看对象左边的**类**
+
+
+> b是A类`new`出来的对象，所以b调用的是**A类的方法**
+
+![非静态方法](Java.assets/非静态方法.png)
 
 
 

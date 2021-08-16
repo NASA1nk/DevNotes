@@ -1625,24 +1625,31 @@ rarray[array[i][0]][array[l][1]] = array[i][2]
 
 `Java.util.Arrays`
 
-`util`工具包中提供数组工具类
+- `util`工具包中提供的数组工具类
+- `Arrays`类中的方法都是`static`修饰的**静态方法**，可以直接使用`Arrays`**类名调用**
 
-`Arrays`类中的方法都是`static`修饰的**静态方法**，在使用时可以直接使用`Arrays`**类名调用**（可以使用对象调用）
+> 可以使用对象调用静态方法，但不推荐
 
-
-
-**方法**
+### 方法
 
 - `Arrays.fill()`：给数组元素赋值（**左闭右开**）
   - `Arrays.fill(Object[] a,Object val)`
   - `Arrays.fill(Object[] a,int fromIndex,int toIndex,Object val)`
-- `Arrays.sort()`：给数组元素排序（升序）
+- `Arrays.sort()`：给数组元素排序（升序，**左闭右开**）
   - `Arrays.sort(int[] a)`
-  - `Arrays.sort(int[] a, int fromIndex, int toIndex)`：（**左闭右开**）
+  - `Arrays.sort(int[] a, int fromIndex, int toIndex)`
   - `Arrays.sort(T[] a,int fromIndex,int toIndex, Comparator c)`
-- `equals`：**比较数组元素是否相等**
-- `toString`：打印数组元素
-- `binarySearch`：对排序好的数组进行**二分查找**
+  - 底层使用**双轴快排**
+- `Arrays.equals(int[] a, int[] b)`：**逐一比较数组元素是否相等**
+  - 若两个数组的长度相等，且每一个位置的**元素值**也相等，则认为这两个数组相等
+- `Arrays.toString(int[] a)`：将数组所有元素转换成一个字符串
+  - `a.toString()`只会打印数组地址
+- `Arrays.copyOf(Object[] a, int toIndex)`：把数组复制成一个长度为`toIndex`的新数组，返回类型与复制的数组一致（**左闭右开**）
+  - 返回的数组是新的数组对象，不会影响原来的数组
+  - 如果复制的长度大于被复制数组的长度，则向新数组中填充类型默认值（`String`的默认值是`null`，`int`的默认值是0）
+- `Arrays.binarySearch(int[] a)`：对排序好的数组进行**二分查找**
+  - 必须先调用`Arrays.sort()`方法进行排序，如果数组没有排序结果是不确定的
+  - 如果数组中包含多个指定元素，无法保证将找到哪个元素
 
 > **ctrl点击**`Arrays`查看源码，点击左下角**structure**可以查看Arrays中的方法
 

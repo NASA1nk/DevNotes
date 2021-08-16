@@ -651,7 +651,11 @@ public class Time {
 
 `java.lang.Comparable`
 
-**`String`，包装类排序**
+- `compareTo()`方法并没有在`Object`类中声明，它是`Comparable`接口的唯一方法
+- `compareTo()`是一个泛型
+- 类实现了`Comparable`接口，就表明它的实例具有内在的排序关系
+
+### String和包装类
 
 已经实现了`Comparable`接口，重写了`compareTo(obj)`方法（**默认从小到大排序**）
 
@@ -659,17 +663,31 @@ public class Time {
 
 ![compareTo](Java高级.assets/compareTo.png)
 
-重写`compareTo(obj)`方法规则：
+### 规则
+
+重写`this.compareTo(obj)`方法
+
+- 当返回值大于0时，将形参`obj`放在当前对象`this`之前
+- 当返回值小于0时，将当前对象`this`放在形参`obj`之前
+
+**升序排列**
 
 - 当前对象`this`大于形参`obj`，返回正整数
 - 当前对象`this`小于形参`obj`，返回负整数
 - 当前对象`this`等于形参`obj`，返回0
 
+**降序排列**
 
+- 当前对象`this`大于形参`obj`，返回正整数
+- 当前对象`this`小于形参`obj`，返回负整数
+- 当前对象`this`等于形参`obj`，返回0
 
-**自定义类排序**
+> `compareTo()`只有在`equals(Object)` 返回`true`时才返回 0
 
-让它实现`Comparable`接口，重写了`compareTo(obj)`方法，**指明排序规则**
+### 自定义排序
+
+- 自定义类需要实现`Comparable`接口，重写`compareTo()`方法指明**排序规则**
+- 使用`Arrays.sort()`即可排序
 
 ```java
 package com.ink.Compare;
@@ -720,6 +738,8 @@ public class Goods implements Comparable{
             }else{
                 // name是String,已经重写了compareTo()方法
                 return this.name.compareTo(goods.name);
+                // 如果想要利用String重写的compareTo()方法，但是要从高到低排序
+				// return -this.name.compareTo(goods.name);
             }
         }
         // return Double.compare(this.price,goods.price)
@@ -750,22 +770,16 @@ public class Compare {
 
 ![自定义排序结果](Java高级.assets/自定义排序.png)
 
-如果想要利用`String`重写的`compareTo()`方法，但是要从高到低排序
-
-```java
-return -this.name.compareTo(goods.name);
-```
-
 
 
 ## Comparator接口
 
 `java.util.Comparator`
 
+使用`Comparator`的对象来排序，重写`compare()`抽象方法
+
 - 元素的类型没有实现`java.lang.Comparable`接口且不方便修改代码
 - 元素的类型实现了`java.lang.Comparable`接口的排序规则，但是不适合当前操作
-
-可以使用`Comparator`的对象来排序，重写接口中的`compare()`抽象方法
 
 > `<T>`：泛型
 
@@ -775,15 +789,28 @@ return -this.name.compareTo(goods.name);
 
 重写`compare(Object o1,Object o2)`方法
 
-- o1大于o2，返回正整数
-- o1小于o2，返回负整数
-- o1等于o2，返回0
+- 当返回值大于0时，将第二个参数`o2`放在第一个参数`o1`之前
+- 当返回值小于0时，将第一个参数`o1`放在第二个参数`o2`之前
+
+**升序排列**
+
+- `o1`大于`o2`，返回正整数
+- `o1`小于`o2`，返回负整数
+- `o1`等于`o2`，返回0
+
+**降序排列**
+
+- `o1`小于`o2`，返回正整数
+- `o1`大于`o2`，返回负整数
+- `o1`等于`o2`，返回0
+
+> `Comparator`排序实际上就是二叉树排序：使用第一个元素作为根节点，如果之后的元素比第一个小，则放到左子树，否则放到右子树，之后按中序遍历
 
 ![sort](Java高级.assets/sort.png)
 
-使用**匿名内部类**直接在`Arrays.sort()`中重写
+### 自定义排序
 
-> 看上去`new`一个接口，实际上是匿名实现类
+使用**匿名内部类**在`Arrays.sort()`中重写`compare()`方法
 
 ```java
 package com.ink.Compare;
@@ -798,9 +825,29 @@ public class Compare {
         Arrays.sort(arr, new Comparator<String>() {
             @Override
             public int compare(String o1, String o2) {
+                // String重写的compareTo()方法
                 return -o1.compareTo(o2);
             }
         });
+        // 输出E,D,C,B,A
+        System.out.println(Arrays.toString(arr));
+    }
+}
+```
+
+使用**lambda表达式**在`Arrays.sort()`中重写`compare()`方法
+
+```java
+package com.ink.Compare;
+
+import java.util.Arrays;
+import java.util.Comparator;
+
+public class Compare {
+    public static void main(String[] args) {
+        String[] arr = new String[]{"A","B","C","D","E"};
+        // 根据指定比较器产生的顺序对指定对象数组进行排序
+        Arrays.sort(arr, (o1, o2)-> -o1.compareTo(o2));
         // 输出E,D,C,B,A
         System.out.println(Arrays.toString(arr));
     }

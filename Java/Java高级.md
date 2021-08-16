@@ -4811,20 +4811,24 @@ public class CallableTest implements Callable<Boolean> {
 
 **functional interface**
 
+- 注解
+  - `@FunctionalInterface`
+  - 放在一个接口前表示这个接口是一个函数式接口
+  - 非必须
+
 - 只包含一个抽象方法的接口就是函数式接口（如`Runnable`）
 - 函数式接口可以通过Lambda表达式来创建该接口的对象
 
 > Object不是一个函数式接口，不能把lambda表达式赋给类型为Object的变量
 
-
-
 ### 语法
 
-1. **参数**：
+1. **参数**
    1. 没有参数就用`()`
-   2. 可以推导出一个lambda表达式的**参数类型**时，可以忽略其类型（多个参数也可以）
+   2. 可以推导出lambda表达式的**参数类型**时，可以忽略其类型（多个参数也可以）
    3. 如果方法**只有一个参数**且参数类型可以推导出，还可以省略`()`
-2. `->`：
+2. `->`
+   1. 箭头操作符
 3. **表达式**
    1. 只有一行的lambda表达式可以省略`{}`
 4. `{}`：
@@ -4895,7 +4899,6 @@ public class TestLambda {
 //        简化花括号{}
         Ink ink8 = a -> System.out.println("lambda表达式->" + a);
         ink8.lambda(7);
-
     }
 }
 

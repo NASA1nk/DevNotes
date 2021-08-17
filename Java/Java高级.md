@@ -2292,6 +2292,7 @@ final Node<K,V>[] resize() {
 - `LinkedHashMap`是`HashMap`的子类 
 - 在`HashMap`存储结构的基础上，使用双向链表来**记录添加元素的顺序**（`before`，`after`）
 - `LinkedHashMap`可以维护Map的迭代顺序（迭代顺序与`key:value`键值对的插入顺序一致）
+- `LinkedHashMap.keySet()`拿到的Set也是按照顺序的
 
 
 
@@ -5846,11 +5847,11 @@ class Makeup extends Thread{
 
 ## Lock锁
 
-从JDK5开始，Java 提供了更强大的线程同步机制
+从JDK5开始，Java提供了更强大的线程同步机制
 
 - 通过**显示定义同步锁对象**来实现同步，同步锁使用**Lock对象**充当
 - `java.util.concurrent.locks.Lock`接口是控制多个线程对共享资源进行访问的工具
-- 锁提供了对共享资源的独占访问，每次只能有一个线程对**Lock对象**加锁，线程开始访问共享资源之前应**先获得 Lock对象**
+- 锁提供了对共享资源的独占访问，每次只能有一个线程对**Lock对象**加锁，线程开始访问共享资源之前应**先获得Lock对象**
 - `ReentrantLock`类实现了Lock，它拥有与`synchronized`**相同的并发性和内存语义**
 - 在实现线程安全的控制中，比较常用的是ReentrantLock，可以显示加锁、释放锁
 

@@ -1292,7 +1292,7 @@ Java集合分为`Collection`和`Map`两种体系（接口）
 
 > JDK5增加了**泛型**以后Java集合可以记住容器中对象的数据类型
 
-**Abstract Methods**
+### 方法
 
 - **向集合中添加元素**
   - `add(Object obj)`
@@ -1316,10 +1316,10 @@ Java集合分为`Collection`和`Map`两种体系（接口）
 - **集合转成对象（Object）数组**
   - `Object[] toArray()`
 - **数组转换为集合**
-  
   - `Arrays.asList()`：调用`Arrays`类的静态方法
-  
-    > `Arrays.asList()`方法返回的是一个固定长度的`List`集合（既不是ArrayList实例也不是Vector实例）
+    - `Arrays.asList()`方法返回的对象是Arrays的内部类，是一个固定长度的`List`集合（既不是ArrayList实例也不是Vector实例）
+    - 不支持`add()`,`remove()`操作
+    - 不能用于基本类型
 - **获取集合对象的哈希值**
   - `hashCode()`
 - **遍历**
@@ -1462,7 +1462,7 @@ public class CollectionTest {
 - **GOF**给**迭代器模式**的定义为：**提供一种方法访问一个容器(container)对象中各个元素，而又不需暴露该对象的内部细节**（迭代器模式就是为容器而生）
 - `Collection`接口继承了`java.lang.Iterable`接口，该接口有一个`iterator()`方法。所有实现了`Collection`接口的集合类都有一个`iterator()`方法，用以返回一个实现了`Iterator`接口的对象
 
-**methods**
+**方法**
 
 - `next()`：返回集合的下一个元素
 - `hasnext()`：判断集合是否存在元素
@@ -1575,14 +1575,12 @@ public class IteratorTest {
 
 ### 增强for循环
 
-> JDK5新特性
+`for each`循环用于遍历**集合和数组**
 
-`for each`循环用于遍历集合和数组
-
-- 遍历操作不需获取Collection或数组的长度，无需使用索引访问元素
+- 遍历操作不需获取`Collection`或数组的长度，无需使用索引访问元素
 - 遍历集合的**底层**还是调用**迭代器**`iterator`完成操作
 
-`for(集合元素类型 局部变量 : 集合对象)`
+> `for(集合元素类型 局部变量 : 集合对象)`
 
 ```java
 package com.ink.collection;
@@ -1594,10 +1592,9 @@ import java.util.Collection;
 
 public class ForTest {
     @Test
-    public void test1() {
+    public void test() {
         Collection coll = new ArrayList();
         coll.add("A");
-        coll.add("b");
         coll.add(123);
         coll.add(false);
         coll.add(new Person("ink", 20));
@@ -1661,12 +1658,13 @@ List接口的常用**实现类**
 
 **源码分析**
 
-- 搜索类快捷键：`ctrl+n`
-- 搜索类中方法快捷键：`ctrl+F12`
-
 JDK7：饿汉式
 
 **直接创建一个初始容量为10的数组**
+
+> 搜索类快捷键：`ctrl+n`
+>
+> 搜索类中方法快捷键：`ctrl+F12`
 
 ````java
 // 空参构造器的底层创建一个初始容量为10的Object数组elementData
@@ -1706,13 +1704,17 @@ list.add(123);
 
 #### LinkedList
 
-> LinkedList
->
-> - 是`List`
-> - 是`Queue`
-> - 是`Deque`
+LinkedList
+
+- 是`List`
+- 是`Queue`
+- 是`Deque`
 
 底层使用**双向链表**存储
+
+- 分配内存空间不是必须是连续的
+- 插入、删除操作，时间复杂度为O(1)
+- 访问遍历元素，时间复杂度为O(n)
 
 ```java
 // 内部声明了Node(双向链表)类型的first和last属性,默认为NULL
@@ -1732,22 +1734,41 @@ list.add(123);
 
 
 
-#### 方法
+##### 方法
 
-- `void add(int index, Object ele)`：在index位置添加元素ele
+添加元素
+
+- `boolean add(E e)`：在链表末尾添加一个元素，成功返回`true`，否则返回`false`
+
+- `void add(int index, E e)`：在链表的index位置添加元素e
+
+- `void addFirst(E e)`：在链表头部插入元素e
+
+- `void addLast(E e)`：在链表尾部添加元素e
+
 - `boolean addAll(int index, Collection e)`：从index位置开始将e中的**所有元素**添加进来
+
+获取元素  
+
 - `Object get(int index)`：获取指定index位置的元素
-- `int indexOf(Object obj)`：返回obj在集合中**第一次**出现的位置（没有则返回-1）
-- `int last IndexOf(Object obj)`：返回obj在当前集合中**最后一次**出现的位置（没有则返回-1）
-- `Object remove(int index)`：移除指定index位置的元素，**并返回此元素**（重载）
-- `Object set(int index, Object ele)`：设置指定index位置的元素为ele
+- `Object getFirst()`：获取链表头部元素
+- `Object getLast()`：获取链表尾部元素
+- `int indexOf(E e)`：返回e在集合中**第一次**出现的位置（没有则返回`-1`）
+- `int lastIndexOf(E e)`：返回e在当前集合中**最后一次**出现的位置（没有则返回`-1`）
 - `List subList(int fromIndex, int toIndex)`：返回从fromIndex到toIndex位置的**子集合**
 
-> `List`中的`remove()`方法重载了`Collection`的方法，一个根据索引删除，一个根据元素删除
->
-> 因为`Collection`集合添加`int`类型的元素也会自动装箱为`Integer`，所以当参数是int类型时默认是索引
->
-> 如果想删除元素，则需调用`new Integer()`
+删除元素
+
+- `Object remove(int index)`：删除链表index位置的元素并返回
+  - `List`中的`remove()`方法重载了`Collection`的方法，一个根据索引删除，一个根据元素删除
+  - 因为`Collection`集合添加`int`类型的元素也会自动装箱为`Integer`，所以当参数是`int`类型时默认是索引
+  - 如果想删除元素，则需调用`new Integer()`
+- `Object removeFirst()`:删除链表头部元素并返回
+- `Object removeLast()`:删除链表尾部元素并返回
+
+更新元素
+
+- `Object set(int index, E e)`：设置链表index位置的元素为e
 
 
 
@@ -1851,61 +1872,74 @@ list.add(123);
 
 ### Queue接口
 
-底层是一个特殊的线性表
+- 底层是一个特殊的线性表
 
-因为队列要经常进行增删操作，因此使用`LinkedList`链表来实现`Queue`接口更合适效率更高，而不是`ArrayList`
+- 因为队列要经常进行增删操作，因此使用`LinkedList`链表来实现`Queue`接口更合适效率更高（而不是`ArrayList`）
+- `Queue`实现通常不允许插入`null`元素，尽管某些实现（如`LinkedList`）并不禁止插入`null`。即使在允许`null`的实现中，也不应该将`null`插入到`Queue`中，因为`null`也用作`poll()`方法的一个特殊返回值，表明队列不包含元素
 
-**methods**
+**方法**
 
-- `add()`：从队尾添加元素，返回添加的元素。超出容量时会抛出异常
-- `offer()`：从队尾添加元素，返回添加的元素，超出容量时返回`false`
-- `remove()`：删除并返回被删除的元素，容量为0时会抛出异常
-- `poll()`：删除并返回被删除的元素，容量为0时会返回`false`
-- `element()`：返回队首元素，容量为0时会抛出异常
+- `offer()`：从队尾添加元素并返回，超出容量时返回`false`
+- `poll()`：删除队首元素并返回，容量为0时会返回`false`
 - `peek()`：返回队首元素，容量为0时会返回`false`
 
-> `Queue`实现通常不允许插入`null`元素，尽管某些实现（如`LinkedList`）并不禁止插入`null`。即使在允许`null`的实现中，也不应该将`null`插入到`Queue`中，因为`null`也用作`poll()`方法的一个特殊返回值，表明队列不包含元素
+
+
+> 推荐使用`offer()`,`poll()`,`peek()`
+>
+> - `element()`：返回队首元素，容量为0时会抛出异常
+> - `add()`：从队尾添加元素并返回，超出容量时会抛出异常
+> - `remove()`：删除并返回被删除的元素，容量为0时会抛出异常
 
 
 
 ### Deque接口
 
-**双端队列**（double ended queue）
+**双端队列**（Double Ended Queue）
 
-- `Deque`扩展了`Queue`接口：`public interface Deque<E> extends Queue<E> {}`
+- `Deque`扩展了`Queue`接口
+  - `public interface Deque<E> extends Queue<E> {}`
 - `LinkedList`是最常用的实现类，因为要经常进行增删操作
 
 **方法**
 
-插入元素
+插入元素offer
 
-- `addFirst()`：向队首插入元素，如果元素为空，则抛出异常
-- `addLast()`： 向队尾插入元素，如果为空，则抛出异常
-- `offerFirst()`：向队插入元素，如果插入成功返回true，否则返回false
-- `offerLast()`：向队尾插入元素，如果插入成功返回true，否则返回false
+- `offerFirst()`：向队首插入元素，如果插入成功返回`true`，否则返回`false`
 
-移除元素
+- `offerLast()`：向队尾插入元素，如果插入成功返回`true`，否则返回`false`
 
-- `removeFirst()`： 返回并移除队头元素，如果该元素是`null`，则抛出异常
-- `removeLast()`：返回并移除队尾元素，如果该元素是`null`，则抛出异常
-- `pollFirst()`：返回并移除队头元素，如果队列无元素，则返回`null`
+  > - `addFirst()`：向队首插入元素，如果元素为空，则抛出异常
+  > - `addLast()`： 向队尾插入元素，如果为空，则抛出异常
+
+移除元素poll
+
+- `pollFirst()`：返回并移除队首元素，如果队列无元素，则返回`null`
+
 - `pollLast()`：返回并移除队尾元素，如果队列无元素，则返回`null`
 
-获取元素
+  > - `removeFirst()`： 返回并移除队头元素，如果该元素是`null`，则抛出异常
+  > - `removeLast()`：返回并移除队尾元素，如果该元素是`null`，则抛出异常
 
-- `getFirst()`：获取队头元素但不移除，如果队列无元素，则抛出异常
-- `getLast()`：获取队尾元素但不移除，如果队列无元素，则抛出异常
+获取元素peek
+
 - `peekFirst()`：获取队头元素但不移除，如果队列无元素，则返回`null`
+
 - `peekLast()`：获取队尾元素但不移除，如果队列无元素，则返回`null`
 
-栈操作
+  > - `getFirst()`：获取队头元素但不移除，如果队列无元素，则抛出异常
+  > - `getLast()`：获取队尾元素但不移除，如果队列无元素，则抛出异常
 
-- `pop()`：弹出栈中元素，也就是返回并移除队头元素，等价于`removeFirst()`，如果队列无元素，则抛出异常
-- `push()`：向栈中压入元素，也就是向队头增加元素，等价于`addFirst()`
-  - 如果元素为*null*，则抛出异常
-  - 如果栈空间受到限制，则抛出异常
+> 栈操作
+>
+> - `pop()`：弹出栈中元素，也就是返回并移除队头元素，等价于`removeFirst()`，如果队列无元素，则抛出异常
+> - `push()`：向栈中压入元素，也就是向队头增加元素，等价于`addFirst()`
+>   - 如果元素为`null`，则抛出异常
+>   - 如果栈空间受到限制，则抛出异常
 
 
+
+#### LinkedList实现
 
 在使用`LinkedList`的时候，总是用特定的接口来引用它，因为持有接口说明代码的抽象层次更高，而且接口本身定义的方法代表了特定的用途
 
@@ -1921,7 +1955,9 @@ Deque<String> d2 = new LinkedList<>();
 d2.offerLast("z");
 ```
 
+#### ArrayDeque实现
 
+底层循环数组实现
 
 ### Stack
 
@@ -1937,15 +1973,15 @@ Java堆栈Stack类已经过时，Java官方推荐使用Deque替代Stack使用
 - Java只能单继承，但Java中的类可以实现任意数量的接口。
 - 使用Deque接口消除了对具体Stack类及其祖先的依赖，并有了更大的灵活性
 
-用栈Stack创建对象：`Stack<Integer> stack = new Stack<>();`
+**方法**
 
-- `boolean empty()`：测试堆栈是否为空
-- `Object peek()`：查看堆栈顶部的对象，但不从堆栈中移除它
-- `Object pop()`：移除堆栈顶部的对象，并作为此函数的值返回该对象
+- `boolean empty()`：判断堆栈是否为空
+- `Object peek()`：获取堆栈顶部的对象
+- `Object pop()`：移除堆栈顶部的对象并返回
 - `Object push(Object element)`：将元素压入堆栈顶部
-- `int search(Object element)`：返回对象在堆栈中的位置，以 1 为基数
+- `int search(Object element)`：返回元素在堆栈中的位置，以1为基数
 
-
+> 一般还是使用`isEmpty()`方法
 
 
 
@@ -1954,9 +1990,9 @@ Java堆栈Stack类已经过时，Java官方推荐使用Deque替代Stack使用
 - `Map`用于存储**具有映射关系的双列数据**：`key:value`键值对
 - `Map`中的`key`和`value`可以是**任何引用类型的数据**
 - `key`和`value`之间存在**单向一对一**映射关系，通过指定的`key`总能找到**唯一确定**的`value`
-- `Map`中的`key`使用`Set`存储（无序，不可重复），所以`key`所在类必须重写`hashCode()`和`equals()`方法
-- `Map`中的的`value`使用`Collection`存储（无序、可重复），所以`value`所在类要重写`equals()`方法
-- 一个`key:value`构成一个`Entry`对象，`Entry`使用`Set`存储（无序、不可重复）
+- `Map`中的`key`使用`Set`存储，所以`key`所在类必须重写`hashCode()`和`equals()`方法
+- `Map`中的的`value`使用`Collection`存储，所以`value`所在类要重写`equals()`方法
+- 一个`key:value`构成一个`Entry`对象，`Entry`使用`Set`存储
 
 > `Entry`对象表示一个映射项，映射项有两个属性：`key`和`value`
 >
@@ -1977,8 +2013,10 @@ Java堆栈Stack类已经过时，Java官方推荐使用Deque替代Stack使用
 
 
 
-**方法**
+### 方法
 
+- `int size()`：返回map中`key:value`对的个数
+- `boolean isEmpty()`：判断当前map是否为空
 - `Object put(Object key,Object value)`：将指定`key:value`添加（或修改）到当前map中
 - `void putAll(Map m)`：将m中的所有`key:value`对存放到当前map中
 - `Object get(Object key)`：获取指定`key`对应的`value`（没有返回`null`）
@@ -1987,8 +2025,6 @@ Java堆栈Stack类已经过时，Java官方推荐使用Deque替代Stack使用
 - `void clear()`：清空map中的所有数据（并不是将map赋值为`null`）
 - `boolean containsKey(Object key)`：查询是否包含指定的`key`
 - `boolean containsValue(Object value)`：查询是否包含指定的`value`
-- `int size()`：返回map中`key:value`对的个数
-- `boolean isEmpty()`：判断当前map是否为空
 - `boolean equals(Object obj)`：判断当前map和参数对象obj是否相等
 - `Set keySet()`：返回所有`key`构成的Set集合
 - `Collection values()`：返回所有`value`构成的Collection集合

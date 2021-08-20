@@ -578,6 +578,10 @@ source ~/.bashrc
 
 # Anaconda
 
+**查看已经有的环境**
+
+`conda-env list`
+
 **提示环境存放路径**
 
 `environment location: /usr/local/anaconda3/envs/buaa_test`

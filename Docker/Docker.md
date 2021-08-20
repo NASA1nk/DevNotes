@@ -316,8 +316,7 @@ sudo service docker restart
 
 ## 帮助命令
 
-> 帮助文档
-> https://docs.docker.com/engine/reference/commandline/build/
+帮助文档：https://docs.docker.com/engine/reference/commandline/build/
 
 ```sh
 docker version 		#显示docker的版本信息。 
@@ -622,15 +621,22 @@ docker volume rm
 
 ## 挂载
 
+三种挂载方式
+
+- 匿名挂载：`-v 容器内路径`
+- 具名挂载：`-v 卷名:容器内路径`
+- 指定路径挂载：`-v /宿主机路径:容器内路径`
+  - `docker volume ls`是查看不到的
+
+> `-v`可以多次使用，用来挂载多个目录
+>
+> 可以通过`docker inspect`命令查看元数据信息中的挂载地址
+
 ```shell
 # -v, --volume list 
 docker run -d -v 主机目录:容器内目录 images
 
-#可以通过docker inspect查看元数据信息中的挂载地址
-#三种挂载： 匿名挂载、具名挂载、指定路径挂载 
--v 容器内路径		   #匿名挂载 
--v 卷名:容器内路径		  #具名挂载 
--v /宿主机路径:容器内路径 #指定路径挂载docker volume ls 是查看不到的
+docker run --name inkGrafana -d -p 3000:3000 -v /home/dog/yinke/grafana/conf/defaults.ini:/usr/share/grafana/conf/defaults.ini -v /home/dog/yinke/grafana/public/index.html:/usr/share/grafana/public/views/index.html grafana/grafana
 ```
 
 # Dockerfile

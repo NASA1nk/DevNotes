@@ -189,34 +189,34 @@ Prometheus支持例如zookeeper，consul之类的服务发现中间件，用以�
 
 ## Prometheus配置文件
 
-Prometheus 默认的配置文件分为四部分
+Prometheus默认的配置文件`prometheus.yml`分为四部分
 
 - global：Prometheus 的全局配置
-  -  `scrape_interval` 表示多久抓取一次数据
-  - `evaluation_interval` 表示多久检测一次告警规则
+  -  scrape_interval 表示多久抓取一次数据
+  - evaluation_interval 表示多久检测一次告警规则
 - alerting：关于Alertmanager的配置
 - rule_files：告警规则
-- scrape_config：定义了 Prometheus 要抓取的目标
-  - 默认已经配置了一个名称为 `prometheus` 的 job，这是Prometheus在启动的时候也会通过HTTP接口暴露自身的指标数据（相当于 Prometheus自己监控自己）可以访问 http://localhost:9090/metrics查看 Prometheus暴露的指标
+- scrape_config：定义了Prometheus要抓取的目标
+  - 默认已经配置了一个名称为prometheus的job，这是Prometheus在启动的时候也会通过HTTP接口暴露自身的指标数据（相当于Prometheus自己监控自己）可以访问http://10.2.14.105:9090/metrics查看Prometheus暴露的指标
 
 
 
 ## 部署Prometheus Server
 
-访问Web管理页面( http://10.2.14.105:9090 )可以看到Prometheus服务正确启动
+- 下载prometheus的配置文件并将其存放在`/home/dog/yinke/prometheus/config`路径下
+  - 下载地址：https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus.yml
+- 挂载配置文件
+  - 容器内地址：`/etc/prometheus`
+- 访问Web管理页面http://10.2.14.105:9090，可以看到Prometheus服务正确启动
+
 
 ```bash
 # 拉取镜像
 docker pull prom/prometheus
 
-# 下载prometheus的配置文件并将其存放在/home/dog/yinke/prometheus/config路径下 https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus.yml
-
 # 启动容器
-# -v: 挂载到容器内的/etc/prometheus/prometheus.yml
-docker run --name inkPrometheus \
--d -p 9090:9090 \
--v /home/dog/yinke/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml \
-prom/prometheus
+# 将配置文件挂载到容器内的/etc/prometheus/prometheus.yml
+docker run --name inkPrometheus -d -p 9090:9090 -v /home/dog/yinke/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
 ```
 
 
@@ -547,21 +547,138 @@ Grafana是一个开源的跨平台的度量分析、可视化工具
 
 ## Grafana配置
 
-访问http://10.2.14.105/:3000进入Grafana的Web页面
+[Configure Grafana Docker image | Grafana Labs](https://grafana.com/docs/grafana/v7.5/administration/configure-docker/)
 
-默认账号密码均为admin，进入后修改密码（123456）
+- **默认配置文件**
+  - `/usr/share/grafana/conf/defaults.ini`
+- **个性化配置文件**
+  - `/etc/grafana/grafana.ini`
+
+
+
+**配置文件调用顺序**
+
+1. grafana启动时，首先会调用`/usr/share/grafana/conf/defaults.ini`（默认启动信息）
+2. 然后会调用使用`--config`指向的配置文件（默认为`etc/grafana/grafana.ini`），所以通过该文件可以覆盖`defaults.ini`的配置
+   1. 使用`--config`指定配置文件
+   2. 通过环境变量`GF_PATHS_CONFIG`指定配置文件
+
+
+
+**修改配置文件**
+
+分号`;`是`.ini`配置文件的标准注释方式，需要去掉
+
+> `:set nu` 显示行数
+>
+> 命令模式下（`ESC`）：`/`+搜索的内容
+>
+> 查看：`grep allow_embedding defaults.ini`
+
+```bash
+# 以root身份进入容器
+docker exec -u root -it 28f18fcc419f  /bin/sh
+
+# 进入目录
+cd /usr/share/grafana/conf
+
+# 修改配置文件
+vi defaults.ini
+
+# 允许嵌入
+# set to true if you want to allow browsers to render Grafana in a <frame>, <iframe>, <embed> or <object>. default is false.
+allow_embedding = true
+
+# 允许匿名登录
+[auth.anonymous]
+enabled = true
+
+# Default UI theme ("dark" or "light")                               
+default_theme = light 
+
+# 需要保留editor的功能
+org_role = Viewer Editor 
+
+# mask the Grafana version number for unauthenticated users
+auto_assign_org_role = Viewer
+
+hide_version = true
+```
+
+
+
+**修改loading图标**
+
+修改`/usr/share/grafana/public/views/index.html`文件
+
+> 命令模式下（`ESC`）
+>
+> - dd：删除一行
+> - yy：复制一行
+> - p：粘贴
+
+```index
+.preloader__logo {
+        display: inline-block;
+        animation-name: preloader-squash;
+        animation-duration: 0.9s;
+        animation-iteration-count: infinite;
+        width: 60px;
+        height: 60px;
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-image: url("data:image/svg+xml,%3csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xl
+      }
+```
+
+**修改loading文字**
+
+```html
+<div class="preloader__text">Loading Grafana</div>
+```
+
+
+
+## 部署Grafana
+
+**Grafana Docker中的环境变量及默认路径**
+
+| Setting               | Default value             |
+| --------------------- | ------------------------- |
+| GF_PATHS_CONFIG       | /etc/grafana/grafana.ini  |
+| GF_PATHS_HOME         | /usr/share/grafana        |
+| GF_PATHS_DATA         | /var/lib/grafana          |
+| GF_PATHS_LOGS         | /var/log/grafana          |
+| GF_PATHS_PLUGINS      | /var/lib/grafana/plugins  |
+| GF_PATHS_PROVISIONING | /etc/grafana/provisioning |
+
+先启动一个grafana容器
+
+> `–privileged=true`：蛇者container内的root拥有真正的root权限,否则container内的root只是外部的一个普通用户权限
 
 ```bash
 # 拉取镜像
 docker pull grafana/grafana
-
 # 启动容器
-docker run --name iGrafana \
--d -p 3000:3000 \
-grafana/grafana
+docker run --name Grafana -d -p 3000:3000 --privileged=true grafana/grafana
 ```
 
+再将需要修改的配置文件挂载出来
 
+```bash
+docker cp 877d50ad097d:/usr/share/grafana/conf/defaults.ini /home/dog/yinke/grafana/conf
+docker cp 877d50ad097d:/usr/share/grafana/public/views/index.html /home/dog/yinke/grafana/public
+```
+
+修改配置文件后，再部署
+
+访问http://10.2.14.105:3000进入Grafana的Web页面
+
+> 默认账号密码均为admin，进入后修改密码为buaanlsde
+
+```bash
+docker run --name inkGrafana -d -p 3000:3000 --privileged=true -v /home/dog/yinke/grafana/conf/defaults.ini:/usr/share/grafana/conf/defaults.ini -v /home/dog/yinke/grafana/public/index.html:/usr/share/grafana/public/views/index.html grafana/grafana
+```
 
 ## 添加数据源
 
@@ -575,7 +692,7 @@ grafana/grafana
 
 
 
-## 仪表盘配置
+## 配置仪表盘
 
 在Grafana中可以自定义各种监控所需的仪表盘
 
@@ -601,125 +718,19 @@ grafana/grafana
 
 
 
-## Grafana嵌入
-
-以`root`身份进入容器，修改Grafana配置文件
-
-**缺省配置文件**
-
-| 项目             | 设定值                  |
-| ---------------- | ----------------------- |
-| 默认配置文件目录 | /usr/share/grafana/conf |
-| 默认配置文件名称 | defaults.ini            |
-
-**配置文件设定方式**
-
-- 使用`--config`指定配置文件
-- 通过环境变量`GF_PATHS_CONFIG`指定配置文件
-
-| 项目         | 设定值       |
-| ------------ | ------------ |
-| 配置文件目录 | /etc/grafana |
-| 配置文件名称 | grafana.ini  |
-
-> 分号`;`是`.ini`配置文件的标准注释方式，要去掉
->
-> `:set nu` 显示行数
->
-> `/`+搜索的内容
->
-> 查看：`grep allow_embedding defaults.ini`
-
-```bash
-# 进入/usr/share/grafana
-docker exec -u root -it 28f18fcc419f  /bin/sh
-# 修改配置文件
-vi defaults.ini
-
-# 187行:允许嵌入
-# set to true if you want to allow browsers to render Grafana in a <frame>, <iframe>, <embed> or <object>. default is false.
-allow_embedding = true
-
-# 313行:允许匿名登录
-[auth.anonymous]
-enabled = true
-
-# 319行:需要保留editor的功能
-org_role = Viewer Editor 
-
-# mask the Grafana version number for unauthenticated users
-auto_assign_org_role = Viewer
-
-hide_version = true
-
-# Default UI theme ("dark" or "light")                               
-default_theme = light  
-```
-
-**修改loading图标**
-
-修改`/usr/share/grafana/public/views/index.html`文件
-
-> 删除loge标志
->
-> 命令模式下（`ESC`）
->
-> - dd：删除一行
-> - yy：复制一行
-> - p：粘贴
-
-```html
-.preloader__logo {
-        display: inline-block;
-        animation-name: preloader-squash;
-        animation-duration: 0.9s;
-        animation-iteration-count: infinite;
-        width: 60px;
-        height: 60px;
-        background-repeat: no-repeat;
-        background-size: contain;
-        background-image: url("data:image/svg+xml,%3csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xl
-      }
-```
-
-修改loading文字
-
-```html
-<div class="preloader__text">Loading Grafana</div>
-```
-
-添加代码
-
-```html
-window.addEventList("message", receiveMessage, false);
-function receiveMessage(event) {
-  console.log(event);
-  if (event.data.showMenu === false){
-	document.querySeletor('sidemenu').style.display = 'none';	
-  }
-}
-
-<script>    
-    document.addEventListener("keydown",function(e){        
-        var event = e||window.event;        
-        if(event.keyCode == 27){            
-            event.returnValue = false;            
-            event.stopPropagetion();        
-        }    
-    },true)script>
-```
 
 
+## 嵌入Grafana
 
-**重启Grafana服务**
-
-选择`Embed`得到`iframe`链接
+进入grafana监控界面，选择dashboard的share
 
 ![grafana嵌入](Prometheus.assets/grafana嵌入.png)
 
+选择`Embed`得到`iframe`链接
+
 ![iframe嵌入](Prometheus.assets/iframe嵌入.png)
 
-修改
+**修改界面**
 
 - 添加`kiosk`参数
 - 给`iframe`标签添加`@load`做后续操作
@@ -731,14 +742,10 @@ function receiveMessage(event) {
 ```
 
 ```javascript
-    load() {
-      document.getElementById('gra').contentWindow.postMessage({ showMenu: false },'*');
-    },
+load() {
+    document.getElementById('gra').contentWindow.postMessage({ showMenu: false },'*');
+},
 ```
-
-
-
-
 
 
 
@@ -755,10 +762,7 @@ function receiveMessage(event) {
 docker pull prom/mysqld-exporter
 
 # 启动容器
-docker run -d --name mysqldExporter \
--p 9104:9104 \
--e DATA_SOURCE_NAME="root:123456@(49.232.207.245:3306)/"  \
-prom/mysqld-exporter
+docker run -d --name mysqldExporter -p 9104:9104 -e DATA_SOURCE_NAME="user:password@(ip:3306)/" prom/mysqld-exporter
 ```
 
 ![监控MySQLD](Prometheus.assets/监控MySQLD.png)
@@ -789,22 +793,20 @@ scrape_configs:
 
 ![监控MySQLD-Target](Prometheus.assets/监控MySQLD-Target.png)
 
-进入Grafana官网( [https://grafana.com](https://link.zhihu.com/?target=https%3A//grafana.com) )，选择适用于监控MySQL的模板选择仪表盘
+进入Grafana官网[https://grafana.com](https://link.zhihu.com/?target=https%3A//grafana.com)，选择适用于监控MySQL的模板选择仪表盘
 
-过滤条件：
+过滤条件
 
 - Name/Description：mysql 
 - Data Source：Prometheus
 
-复制**模板ID—12826**
-
-导入
+复制**模板ID—12826**，导入
 
 ![MySQL仪表盘](Prometheus.assets/MySQL仪表盘.png)
 
 
 
-# CAdvisor配置
+# CAdvisor监控
 
 cAdvisor是Google一款开源的用于分析、展示容器运行状态的可视化工具，用于监控Dcoker整体的运行情况
 
@@ -863,14 +865,12 @@ scrape_configs:
 
 进入Grafana官网( [https://grafana.com](https://link.zhihu.com/?target=https%3A//grafana.com) )，选择适用于cAdvisor的模板
 
-过滤条件：
+过滤条件
 
 - Name/Description=cAdvisor
 - Data Source=Prometheus
 
-复制**模板ID—893**
-
-导入
+复制**模板ID—893**，导入
 
 ![cAdvisior](Prometheus.assets/cAdvisior.png)
 
@@ -1237,8 +1237,6 @@ sudo apt-get install sendmail-cf
 进入grafana容器中，默认的配置文件在`/etc/grafana/`目录下
 
 修改`grafana.ini`文件的smtp部分
-
-> `.ini`文件中分号`;`是表示注释该行，更改设置必须先删除设置前面的分号`;`才能起作用
 
 ```bash
 docker exec -it ContainerID /bin/bash

@@ -1,65 +1,18 @@
-<!-- TOC -->
-
-- [Docker](#docker)
-  - [沙箱](#沙箱)
-  - [why docker](#why-docker)
-  - [docker原理](#docker原理)
-    - [Namespaces](#namespaces)
-      - [进程树](#进程树)
-      - [网络接口](#网络接口)
-    - [CGroups](#cgroups)
-    - [Unionfs](#unionfs)
-  - [docker组成](#docker组成)
-  - [docker架构](#docker架构)
-- [Docker安装](#docker安装)
-  - [CentOS](#centos)
-    - [环境](#环境)
-    - [安装](#安装)
-    - [卸载](#卸载)
-  - [Ubuntu](#ubuntu)
-    - [设置仓库](#设置仓库)
-    - [安装Docker Engine-Community](#安装docker-engine-community)
-    - [创建docker用户组](#创建docker用户组)
-- [Docker常用命令](#docker常用命令)
-  - [帮助命令](#帮助命令)
-  - [镜像命令](#镜像命令)
-    - [docker images](#docker-images)
-    - [docker pull](#docker-pull)
-    - [docker tag](#docker-tag)
-    - [docker push](#docker-push)
-    - [docker rmi](#docker-rmi)
-  - [容器命令](#容器命令)
-    - [docker ps](#docker-ps)
-    - [docker run](#docker-run)
-    - [docker exec](#docker-exec)
-    - [docker commit](#docker-commit)
-    - [docker build](#docker-build)
-    - [docker prune](#docker-prune)
-    - [docker rm](#docker-rm)
-    - [docker cp](#docker-cp)
-  - [其他命令](#其他命令)
-- [Docker数据卷](#docker数据卷)
-  - [挂载](#挂载)
-- [Dockerfile](#dockerfile)
-  - [构建步骤](#构建步骤)
-  - [Dockerfile编写](#dockerfile编写)
-    - [说明](#说明)
-    - [命令](#命令)
-- [Docker Compose](#docker-compose)
-  - [docker-compose.yaml](#docker-composeyaml)
-- [DockerHub](#dockerhub)
-
-<!-- /TOC -->
-
 # Docker
+
+Docker是一个容器引擎，是应用程序与系统之间的隔离层
+
+通常应用程序对安装的系统环境会有要求，如果服务器很多，部署时系统环境的配置工作是非常繁琐的
+
+Docker让应用程序不必再关心主机环境，各个应用安装在Docker镜像里，Docker引擎负责运行包裹了应用程序的docker镜像
 
 ## 沙箱
 
 - 语言沙箱
 - 系统沙箱
   - 虚拟机方案
-    - 需要Hypervisor实现硬件资源虚拟化，每个app都有独立的Guest OS）
-  - 容器(docker)方案（linux kernel）
+    - 需要Hypervisor实现硬件资源虚拟化，每个app都有独立的Guest OS
+  - 容器方案（linux kernel）
     - 只有一个HostOS，容器上的app直接使用实际物理机的硬件资源
 
 > GuestOS： VM（虚拟机）里的的系统（OS）
@@ -69,31 +22,31 @@
 
 ## why docker
 
-> 轻量级虚拟化容器方案
->
-> https://docs.docker.com/engine/install/ 
+轻量级虚拟化容器方案
+
+https://docs.docker.com/engine/install/ 
 
 ## docker原理
 
-![docker原理](Docker.assets/docker原理.png)
-
-
+宿主机->docker引擎->容器
 
 - 通过namespaces隔离了进程树，网络接口和挂载点，实现进程之间的通信。
 - 通过CGroups隔离了CPU，内存，磁盘I/O和网络带宽
 - 通过联合文件系统构成docker文件，镜像等
 
-宿主机->docker引擎->容器
+![docker原理](Docker.assets/docker原理.png)
+
+
 
 ### Namespaces
 
-容器中的进程是运行在主机的操作系统上的，但是容器使用独立的PID Linux命名空间并有独立的系列号，完全独立于进程树。
+容器中的进程是运行在主机的操作系统上的，但是容器使用独立的PID Linux命名空间并有独立的系列号，完全独立于进程树
 
-#### 进程树
+**进程树**
 
 ![进程树](Docker.assets/进程树.png)
 
-#### 网络接口
+**网络接口**
 
 网络连接方式：**网桥模式**（默认）
 
@@ -109,16 +62,17 @@
 
 ### Unionfs
 
-> (linux)联合文件系统——分层
+容器也拥有独立的文件系统
+
+1. 宿主机上多个容器运行相同的系统，这些系统里大部分文件内容都是相同的
+2. 为了节省资源，将相同的内容和不同的内容隔开，分成只读层和可写层
+3. 然后就可以挂载同一个只读层，再挂载不同的可写层上
+   1. 只读层（相同）：镜像
+   2. 可写层（不同）：容器
+
+> linux联合文件系统——分层
 >
 > 可以把不同的文件系统一层层的叠加的挂载起来，但app使用的时候看起来就是一个文件系统
-
-容器也拥有独立的文件系统。
-
-宿主机上多个容器运行相同的系统，这些系统里大部分文件内容都是相同的。为了节省资源，将相同的内容和不同的内容隔开，分成只读层和可写层。然后就可以挂载同一个只读层，再挂载不同的可写层上。
-
-- 只读层（相同）：镜像
-- 可写层（不同）：容器
 
 ![unionfs1](Docker.assets/unionfs.png)
 
@@ -152,17 +106,21 @@ C-S架构，分为2部分
 
 ### 环境
 
+ Linux要求内核3.0以上
+
 ```shell
 uname -r 
-4.15.0-96-generic #Linux要求内核3.0以上
+4.15.0-96-generic
 
 cat /etc/os-release 
 ```
 
 ### 安装
 
+Docker的旧版本称为docker或docker-engine
+
 ```shell
-#1.卸载旧版本(Docker的旧版本称为docker或docker-engine)
+# 1.卸载旧版本
 yum remove docker \
                 docker-client \ 
                 docker-client-latest \ 
@@ -214,17 +172,15 @@ rm -rf /var/lib/docker  #/var/lib/docker 是docker的默认工作路径！
 
 ### 设置仓库
 
-> 在新主机上首次安装 Docker Engine-Community 之前需要设置 Docker 仓库，之后可以从仓库安装和更新 Docker 
+在新主机上首次安装Docker Engine-Community之前需要设置Docker仓库，之后可以从仓库安装和更新Docker 
 
-更新 apt 包索引
+先更新apt包索引
 
 ```bash
 sudo apt-get update
 ```
 
 卸载旧版本
-
-> Docker 的旧版本被称为 docker，docker.io 或 docker-engine
 
 ```bash
 sudo apt-get remove docker docker-engine docker.io containerd runc
@@ -312,7 +268,7 @@ sudo service docker restart
 
 
 
-# Docker常用命令
+# Docker命令
 
 ## 帮助命令
 
@@ -340,11 +296,11 @@ docker load			#从压缩文件提取镜像
 
 ### docker images
 
-- REPOSITORY：镜像的仓库源 
-- TAG：镜像的标签 
-- IMAGE ID：镜像的id 
-- CREATED：镜像的创建时间 
-- SIZE：镜像的大小
+- `REPOSITORY`：镜像的仓库源 
+- `TAG`：镜像的标签 
+- `IMAGE ID`：镜像的id 
+- `CREATED`：镜像的创建时间 
+- `SIZE`：镜像的大小
 
 ```shell
 docker images
@@ -375,9 +331,9 @@ docker pull 镜像名[:tag]
 
 用于将镜像推送到远程仓库之前给镜像打标签
 
-> 不是重命名标签，而是给同一个镜像创建一个额外的标签（同一个镜像id）
->
-> 镜像名称格式：registry host ip:port/group name/project name:tag
+- 不是重命名标签，而是给同一个镜像创建一个额外的标签（同一个镜像id）
+
+- 镜像名称格式：registry host ip:port/group name/project name:tag
 
 ```bash
 # docker tag 旧image:tag 新image:tag
@@ -386,7 +342,7 @@ docker tag grafana/grafana:latest gitlab.buaanlsde.cn:4567/buaapyj/registry/msop
 
 ### docker push
 
-推送到远程仓库中
+将镜像推送到远程仓库中
 
 ```bash
 # docker push image:tag
@@ -408,15 +364,16 @@ docker rmi -f $(docker images -aq)
 ## 容器命令
 
 ```shell
-docker ps            	 #列出所有运行的容器
-docker run 镜像id    		#创建容器并启动 
-docker start 容器id 		#启动容器 
-docker restart 容器id 	#重启容器 
-docker rm 容器id 			#删除指定容器 
-docker stop 容器id 		#停止当前正在运行的容器(-d运行)
-docker kill 容器id 		#强制停止当前容器
-docker rename 容器id 		#重新命名容器
-docker cp 				 #容器和宿主机中的文件互传
+docker ps           #列出所有运行的容器
+docker run     		#创建容器并启动 
+docker start  		#启动容器 
+docker restart  	#重启容器 
+docker rm 			#删除指定容器 
+docker stop 		#停止当前正在运行的容器(-d运行)
+docker kill 		#杀死正在运行的容器
+docker rename 		#重新命名容器
+docker cp 			#容器和宿主机中的文件互传
+dockeer top			#查看容器中进程
 
 #列出所有容器命令
 docker container 
@@ -427,62 +384,94 @@ docker container COMMAND --help
 
 ### docker ps
 
+容器的状态共有7种
+
+- `created`：已创建
+- `restarting`：重启中
+- `running`：运行中
+- `removing`：迁移中
+- `paused`：暂停
+- `exited`：停止
+- `dead`
+
 ```shell
-# 列出当前的容器 (默认是正在运行)
+# 显示当前正在运行的容器
 docker ps	
 
-#显示所有容器ID
+# --all 显示所有的容器（包括未运行的）
+docker ps -a 
+
+# 显示当前正在运行的容器的ID
+$ docker ps -q
+
+# 显示所有容器ID
 docker ps -aq
-# -a, --all 列出所有的容器(运行中和停止的)
-# -q, --quiet Only display numeric IDs
+
+# 显示最后被创建的n个容器
+docker ps -n 3
+
+# 显示最后被创建的容器,相当于-n 1
+docker ps -l
+
+# 显示容器文件大小（容器虚拟大小 = 容器真实增加大小 + 容器镜像大小）
+
+docker ps -s
 ```
 
 ### docker run
 
-```shell
-#创建容器并启动 
-docker run [可选参数] image
+`docker run [可选参数] image`
 
-#参数说明 
---name="Name" 	#指定容器名
--d 				#以后台方式运行(Daemon) 
---rm			#容器退出后自动删除
--it 			#使用交互方式运行进入容器
--p 				#指定容器的端口(映射到宿主机端口)
-                #            -p 主机端口:容器端口(常用) 
-                #            -p ip:主机端口:容器端口 
-                #            -p 容器端口
-				#			 -P(大写) 随机指定端口
-						
-						
-# exit容器停止，从容器退回宿主机
-# ctrl +P +Q #容器不停止，从容器退回宿主机
+**可选参数**
+
+- `--name`：指定容器名
+- `-d`：以后台方式运行
+- `-e`：指定环境变量，容器中可以使用该环境变量
+- `--rm`：容器退出后自动删除
+- `-it`：使用交互方式运行进入容器
+- `-p`：指定容器暴露的端口（映射到宿主机端口）
+  - `-p` 容器端口
+  - `-p` 主机端口:容器端口
+  - `-p` ip:主机端口:容器端口 
+  - `-P` 随机指定端口
+
+```shell
+docker run -d -p 123:80 --name inkContainer image
 ```
 
 ### docker exec
 
-进入容器并开启一个新的终端运行bash，bash进程和主容器进程拥有相同的命名空间，
+进入一个正在运行的容器中执行命令
 
-`exit`退出运行命令，命令运行完后就退出（运行不完就不退出）
+- 需要容器处于运行中且`PID 1`进程也处于运行中才能执行`exec`操作
+- 命令将在容器的默认目录中运行
+- 如果Dockerfile中使用WORKDIR指令指定了自定义目录，则会进入该目录
+- 如果命令中使用`-w`指定了工作目录，则会进入该目录
 
-`-it`是以交互的方式进入容器, `/bin/sh`或者`/bin/bash`
+`-it`是以交互的方式进入容器
 
-- -i：确保输标准入流保持开放，需要在shell中输入命令
-- -t：分配一个伪终端TTY
+- `-i`：确保输标准入流保持开放，需要在shell中输入命令
+- `-t`：分配一个伪终端TTY
 
-```shell
-# 进入
-docker exec -it 容器id /bin/sh
+`/bin/sh`或者`/bin/bash`：即打开容器内的终端经常，bash进程和主容器进程拥有相同的命名空间
+
+**退出容器**
+
+- `exit`：容器不停止，从容器退回宿主机
+- `ctrl+p+q`：容器不停止，从容器退回宿主机
+
+> 设置环境变量只会在这次会话中生效
+
+```bash
+# 进入容器，指定bash目录，开启一个交互模式的终端
 docker exec -it 容器id /bin/bash
+docker exec -it 容器id /bin/sh
 
-# 退出
-exit
-
-# 进入容器正在执行的终端
-docker attach 容器id
+# 查看容器默认工作目录
+docker exec -it 容器id pwd
 ```
 
-> 使用`exit`退出docker容器时提示**You have stopped jobs**
+使用`exit`退出docker容器时提示**You have stopped jobs**
 
 ```bash
 # 查看哪些进程没结束
@@ -491,27 +480,104 @@ jobs -l
 kill -9 pid
 ```
 
+### docker attach
+
+连接到正在运行中的容器（容器必须正在运行），然后进执行命令
+
+> 使用ssh登陆进容器需要在容器中启动sshd，存在开销和攻击面增大的问题，同时也违反了Docker所倡导的一个容器一个进程的原则
+
+**退出容器**
+
+- `exit`：容器停止，从容器退回宿主机
+- `ctrl+p+q`：容器不停止，从容器退回宿主机
+
+```bash
+docker attach 容器id
+```
+
+### docker top
+
+查看容器中运行的进程信息
+
+- 容器运行时不一定有`/bin/bash`终端来交互执行`top`命令
+- 容器也不一定有`top`命令
+
+> 可以配合`grep`查找指定进程
+
+```bash
+docker top inkMySQL
+```
+
+### docker logs
+
+查看容器的日志
+
+- `--details`：显示更多的信息
+- `-f`：跟踪实时日志
+  - `--since`：显示自某个timestamp之后的日志，或相对时间（如42m）
+  - `--tail`：从日志末尾显示多少行日志（默认all）
+- `-t`：显示时间戳
+  - `--until`：显示自某个timestamp之前的日志，或相对时间（如42m）
+
+```bash
+# 显示日志信息（实时更新）
+docker logs -ft
+
+# 需要显示日志条数 
+docker logs --tail number 
+
+# 查看最近30分钟的日志
+docker logs --since 30m 容器id
+
+# 查看指定时间后的日志，只显示最后100行
+docker logs -ft --since="2018-02-08" --tail=100 容器id
+
+# 查看某时间段的日志
+docker logs -t --since="2018-02-08T13:23:37" --until "2018-02-09T12:23:37" 容器id
+```
+
+### docker stats
+
+显示容器状态（CPU和内存利用率等运行信息）
+
+```bash
+docker stats 容器id
+```
+
+### docker inspect
+
+查看容器或者镜像的元数据
+
+```bash
+# 镜像
+docker inspect mysql:5.6
+
+# 容器
+docker inspect inkMySQL
+```
+
 ### docker commit
 
-修改容器后数据并没有持久化,从修改后的容器中创建新的镜像可以保存修改(将应用和环境打包成一个镜像)
+修改容器后数据并没有持久化，从修改后的容器中创建新的镜像可以保存修改（将应用和环境打包成一个镜像）
+
+- 创建操作是黑盒的，并不知道修改了那些东西
+- `docker build`就会分层写好修改并生成Dockerfile
 
 ```bash
 docker commit -m = "描述信息" -a = "作者" 容器id 目标镜像名:[TAG]
-
-# 创建操作是黑盒的,并不知道修改了那些东西
-# docker build就会分层写好修改,生成docker file
 ```
 
 ### docker build
 
+使用Dockerfile构建成镜像
+
+- `-f`：指定要使用的Dockerfile路径，使用当前目录的Dockerfile时可以省略 
+- `-t/--tag`: 镜像名及标签，可以在一次构建中为一个镜像设置多个标签（也可以省略标签）
+
 ```shell
-# 使用dockerfile构建成镜像
-# -f: 指定要使用的Dockerfile路径, 
-# -f: .表示当前目录,使用当前目录的Dockerfile构建时可以省略 
-    
-# -t/--tag: 镜像名及标签(name:tag或name),可以在一次构建中为一个镜像设置多个标签
-docker build -f 文件路径 -t 用户名/ImageName:TagName
-docker build -t 用户名/ImageName:TagName .
+docker build -f 文件路径 -t 用户名/image:Tag
+# .表示当前目录
+docker build -t 用户名/image:Tag .
 
 #使用URL github.com/creack/docker-firefox的Dockerfile创建镜像
 docker build github.com/creack/docker-firefox
@@ -526,15 +592,17 @@ docker container prune
 
 ### docker rm
 
+容器即使已经退出也仍然存在
+
 ```shell
-# 删除指定的容器,不能删除正在运行的容器,强制删除:rm -rf 
+# 删除指定的容器,不能删除正在运行的容器
 docker rm 容器id 
 
 # 删除所有容器 
 docker rm -f $(docker ps -aq) 	
 
-# 删除所有的容器（复合指令）
-docker ps -a -q|xargs docker rm 
+# 删除所有的容器
+docker ps -aq | xargs docker rm 
 ```
 
 ### docker cp
@@ -554,54 +622,13 @@ docker cp /home/dog/yinke/prometheus/config/alertrules.yml e87a0a440925:/etc/pro
 
 
 
-## 其他命令
-
-```shell
-# 查看日志
-docker logs --help 
-Options:
---details 		#Show extra details provided to logs 
--f, --follow 	#Follow log output 
---since  		#string Show logs since timestamp 
---tail string 	#Number of lines to show from the end of the logs (default "all") 
--t, --timestamps#Show timestamps 
-	--until 	#string Show logs before a timestamp 
-
-# 显示日志信息(一直更新)
-docker logs -tf 
-
-# 需要显示日志条数 
-docker logs --tail number 
-
-# 查看n行日志 
-docker logs -t --tail n 容器id 
-
-# 跟着日志
-docker logs -ft 容器id 
-
-# 显示容器状态
-docker stats
-
-# 查看容器元数据
-docker inspect
-
-# 显示容器进程
-docker top
-
-# 显示容器内产生的变化
-docker diff
-
-# 显示容器端口映射
-docker port
-```
-
 ![Docker命令](Docker.assets/Docker命令.png)
 
 # Docker数据卷
 
 **数据持久化管理**
 
-linux是万物皆文件，所以内存也是一种文件系统，可以通过tmpfs将一块内存挂载进来
+linux是万物皆文件，所以**内存也是一种文件系统**，可以通过tmpfs将一块内存挂载进来
 
 ![docker数据卷](Docker.assets/docker数据卷.png)
 
@@ -621,7 +648,7 @@ docker volume rm
 
 ## 挂载
 
-三种挂载方式
+**挂载方式**
 
 - 匿名挂载：`-v 容器内路径`
 - 具名挂载：`-v 卷名:容器内路径`
@@ -632,12 +659,21 @@ docker volume rm
 >
 > 可以通过`docker inspect`命令查看元数据信息中的挂载地址
 
+**挂载目录**
+
+- 容器内目录不可以为相对路径
+- 宿主机目录如果不存在则会自动创建
+- 宿主机的相对目录的相对路径是指`/var/lib/docker/volumes/`，与宿主机的当前目录无关
+- 如果`-v`只指定了一个目录，则会在`/var/lib/docker/volumes/`下随机生成一个目录
+- 如果挂载了目录，即使容器销毁了，宿主机的挂载目录也不会消失（持久化存储）
+
 ```shell
-# -v, --volume list 
-docker run -d -v 主机目录:容器内目录 images
+docker run -v 主机目录:容器内目录 images
 
 docker run --name inkGrafana -d -p 3000:3000 -v /home/dog/yinke/grafana/conf/defaults.ini:/usr/share/grafana/conf/defaults.ini -v /home/dog/yinke/grafana/public/index.html:/usr/share/grafana/public/views/index.html grafana/grafana
 ```
+
+
 
 # Dockerfile
 

@@ -554,6 +554,9 @@ docker inspect mysql:5.6
 
 # 容器
 docker inspect inkMySQL
+
+# 查看容器的ip地址
+docker inspect -f ='{{.NetworkSettings.IPAddress}}' 容器id
 ```
 
 ### docker commit

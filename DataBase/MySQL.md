@@ -50,7 +50,7 @@ default-character-set=utf8
 
 
 
-## 创建mysql容器
+## 创建MySQL容器
 
 - `--restart=always`： Docker重启时容器会自动启动
 - `--privileged=true`：容器内的root拥有真正root权限，否则容器内root只是外部普通用户权限
@@ -71,7 +71,7 @@ docker run --restart=always --privileged=true -d -p 3306:3306 --name inkmysql -v
 
 
 
-## 查看mysql容器ip
+## 查看MySQL容器ip
 
 172.17.0.9
 
@@ -86,14 +86,14 @@ docker inspect --format='{{.NetworkSettings.IPAddress}}' a9757d991f3c
 
 
 
-## 启动mysql
+## 启动MySQL数据库
 
 - `-u`后面可以省略空格
 - `-p`指定密码时中间不能有空格
 
-> mysql的第一个非选项参数被当作默认数据库的名称，如果没有这样的选项MySQL就不会选择默认数据库
+> MySQL的第一个非选项参数被当作默认数据库的名称，如果没有这样的选项MySQL就不会选择默认数据库
 >
-> 所以说在命令行中，mysql密码和`-p`或者`--password`参数之间有空格的话，mysql会认为输入的是登录mysql后自动选择的数据库而不是密码
+> 所以说在命令行中，root的密码和`-p`或者`--password`参数之间有空格的话，MySQL会认为输入的是登录mysql后自动选择的数据库而不是密码
 
 ```bash
 # 进入mysql容器
@@ -110,13 +110,13 @@ mysql -u root -p
 
 ## 配置远程连接
 
-要想在外部连接mysql容器进行远程管理，就需要配置容器里的mysql的root账户的主机host
+要想在外部连接MySQL容器进行远程管理，就需要配置容器里的MySQL的root账户的主机host
 
-- 将它修改成通配符`％`，这样就可以让任意主机连接mysql容器
+- 将它修改成通配符`％`，这样就可以让任意主机连接MySQL容器
 
-> 一般mysql中默认的`host`是`localhost`，可以以`root`用户登录mysql
+> 一般MySQL中默认的`host`是`localhost`，可以以`root`用户登录MySQL
 >
-> mysql使用mysql数据库中的user表来管理权限，修改user表就可以修改权限（只有root账号可以修改）
+> MySQL使用mysql数据库中的user表来管理权限，修改user表就可以修改权限（只有root账号可以修改）
 
 ```mysql
 # 查看数据库
@@ -155,7 +155,7 @@ flush privileges;
 
 ## 导入数据
 
-拷贝sql文件到mysql容器中
+拷贝sql文件到MySQL容器中
 
 ```bash
 #docker cp 宿主机文件路径 容器id:拷贝到容器里面的绝对路径
@@ -185,7 +185,7 @@ source /root/course/populate.sql;
 
 ## 连接数据库
 
-输入mysql服务器的url，用户和密码
+输入MySQL服务器的url，用户和密码
 
 ![datagrip连接](MySQL.assets/datagrip连接.png)
 
@@ -264,7 +264,7 @@ structed query language结构化查询语句
 - sql语句可以分成多行书写，最后以分号`;`结束
 - 多条sql语句必须以分号`;`分隔
 
-> mysql不需要在单条sql语句后加分号`;`，但是mysql命令行上必须加分号`;`
+> MySQL不需要在单条sql语句后加分号`;`，但是mysql命令行上必须加分号`;`
 
 ### 连接数据库
 
@@ -275,7 +275,7 @@ structed query language结构化查询语句
 
 ### auto_increment自动增量
 
-某些表的列需要唯一值，mysql可以自动为每一行分配一个可用值
+某些表的列需要唯一值，MySQL可以自动为每一行分配一个可用值
 
 > 需要create创建表时把它作为表定义的组成部分
 
@@ -513,17 +513,17 @@ col之间用逗号`,`隔开
 
 ## 通配符过滤
 
-通配符（wildcard）
+- 通配符（wildcard）
+  - 用来匹配值的一部分的特殊字符
+- 搜索模式（search pattern）
+  - 由字面值，通配符或二者结合组合成的搜索条件（search criteria）
+- `Like`操作符
+  - 指示MySQL后面跟的搜索模式利用通配符匹配而不是直接相等匹配
 
-- 用来匹配值的一部分的特殊字符
+**注意**
 
-搜索模式（search pattern）
-
-- 由字面值，通配符或二者结合组合成的搜索条件（search criteria）
-
-`Like`操作符
-
-- 指示MySQL后面跟的搜索模式利用通配符匹配而不是直接相等匹配
+- 通配符的搜索处理要花费更多时间
+- 一般不要将通配符放在搜索模式的开始处
 
 > 之前的数据过滤都是基于已知值的
 >
@@ -539,9 +539,9 @@ col之间用逗号`,`隔开
 
 `%`
 
-- 表示任意字符出现任意次数
-- 通配符可以在搜索模式的任意位置使用，并且可以使用多个通配符
+- 匹配任意个数的任意字符
 - 可以匹配0个字符，但无法匹配空值`null`
+- 通配符可以在搜索模式的任意位置使用，并且可以使用多个通配符
 
 > `'jet%'`：匹配由`jet`开头的，后面是任意个数的任意字符的值
 >
@@ -551,7 +551,54 @@ col之间用逗号`,`隔开
 
 ### 下划线_操作符
 
+`select prod_id,prod_name from products where prod_name like '_ ton anvil';`
 
+`_`
+
+- 匹配单个任意字符
 
 # 正则表达式搜索
+
+- 正则表达式是用来匹配文本的特殊的字符集合
+
+- MySQL允许使用正则表达式过滤select检索出来的数据
+  - MySQL仅支持多数正则表达式实现的一个子集
+- `regexp`操作符
+  - 指示MySQL后面跟的搜索模式利用正则表达式匹配
+
+> 所有种类的程序设计语言，文本编辑器和操作系统都支持正则表达式
+
+## 基本字符匹配
+
+`select prod_id,prod_name from products where prod_name regexp '1000';`
+
+`select prod_id,prod_name from products where prod_name regexp '.000';`
+
+
+
+## or匹配
+
+
+
+## 匹配几个字符之一
+
+
+
+## 匹配范围
+
+
+
+## 匹配特殊字符
+
+
+
+## 匹配字符类
+
+
+
+## 匹配多个实例
+
+
+
+## 定位符
 

@@ -88,10 +88,13 @@ Linux的Shell有许多种，每种都有不同的特点
 
 ### login和non-login
 
+login shell与non-login shell的主要区别在于它们**启动时会读取不同的配置文件**，从而导致环境不一样
+
+在终端桌面直接启动的shell窗口和在shell中使用`su`切换用户的窗口都属于non-login shell 
+
 - **配置文件**
-  - login shell与non-login shell的主要区别在于它们**启动时会读取不同的配置文件**，从而导致环境不一样
   - `/etc/profile`：系统的全局配置文件，为系统的每个用户设置环境信息（不建议修改）
-  - 配置个人环境：修改`~/.bash_profile`、`~/.bash_login`、`~/.profile`这三个配置文件即可
+  - `~/.bash_profile`、`~/.bash_login`、`~/.profile`：配置个人环境修改这三个配置文件
 
 - **login shell**
 
@@ -102,36 +105,36 @@ Linux的Shell有许多种，每种都有不同的特点
   > 登录终端输入账号和密码取得的bash就是login shell
 
 - **non-login shell**
+  - 进入了login shell后输入`bash`就会进入一个non-login shell
+  - 交互式non-login shell启动时只读取`~/.bashrc`配置文件
+  - 非交互式non-login shell不读取上述的所有配置文件，而是**查找环境变量**`BASH_ENV`，读取并执行`BASH_ENV`**指向的文件中的命令**
 
-**进入了login shell后输入**`bash`**就会进入一个non login shell**
-
-- 交互式non-login shell启动时**只读取**`~/.bashrc`资源配置文件
-- 非交互式non-login shell不读取上述的所有配置文件，而是**查找环境变量**`BASH_ENV`，读取并执行`BASH_ENV`**指向的文件中的命令**
-
-> 在终端桌面直接启动的shell窗口和在shell窗口su切换用户的窗口都属于non-login shell 
->
 > 所以su切换用户是不会读取`/etc/profile`配置文件的，也就不会改变环境变量等
+>
 
 ### .bashrc
 
 > The individual per-interactive-shell startup file.
 
-bashrc用于**交互式non-loginshell**
+`~/.bashrc`配置文件用于交互式non-login shell
 
-- `/etc/bashrc`：为**每一个**运行bash shell的用户执行该文件
+- `/etc/bashrc`：为每一个运行bash shell的用户执行该文件
 - `~/.bashrc`：**专用于某个用户**的bash shell的个性化设置信息，当该用户登录时以及每次打开新的shell时读取该文件
+  - 个性化设置如命令别名、路径、**环境变量**等
 
-> 个性化设置如命令别名、路径、环境变量等
+一般会在`~/.bash_profile`文件中显式调用`~/.bashrc`
 
-一般会在`~/.bash_profile`文件中显式调用`~/.bashrc`。为了加载用户首选项，bash在每次启动时首先会去读取`~/.bash_profile`文件，这样`~/.bashrc`配置文件中的内容也得到执行，个性化设置也就生效了
+1. 为了加载用户首选项，bash在每次启动时首先会去读取`~/.bash_profile`文件
 
-修改`~/.bashrc`后会在下次启动终端时应用，也可以让它立即生效
+2. 这样`~/.bashrc`配置文件中的内容也得到执行，个性化设置也就生效了
 
-```bash
-source ~/.bashrc
-```
+3. 修改`~/.bashrc`后会在下次启动终端时应用，也可以执行`source`让它立即生效
 
+   ```bash
+   source ~/.bashrc
+   ```
 
+   
 
 ## 通配符
 
@@ -761,11 +764,77 @@ netstat -nultp
 ## vim编辑器
 
 - 命令模式
+  - 输入`i`进入插入模式
 - 插入模式
+  - 按`esc`回到命令模式
+  - 按`:`回到命令模式，在底部打开命令行
 
 > vim命令严格区分大小写
 
+### 命令模式
+
+- 按小写`o`在下方插入一行并进入插入模式（大写`O`则在上方插入）
+
+- **搜索字符串**
+  - `/string`：向前查找（向文件尾）
+  - `？string`：向后查找（向文件头）
+    - 使用`n/N`跳转
+
+- **忽略大小写**
+  - `:set ignorecase`
+
+- **重新开启大小写敏感**
+  - `:set noignorecase`
+
+### 插入模式
+
+- `a`：在光标后插入
+- `i`：在光标位置插入
+- `o`：在光标下一行插入
+
+### 移动光标
+
+- `h`：向左移动一格
+- `l`：向右移动一格
+- `k`：向上移动一格
+- `j`：向下移动一格
+- `^`：移动到行首
+- `$`：移动到行尾
+- `w`：移动到下一个单词
+- `b`：移动到上一个单词
+
+> 可以在命令前加上数字表示重复多少次移动：`5w`
+
+### 删除
+
+- `x`：删除光标位置的字符
+- `dd`：删除光标所在行
+- `D`：删除光标位置到行尾之间的所有字符
+
+### 复制粘贴
+
+- `yy`：复制光标所在行
+- `P`：在光标所在位置粘贴最近复制或删除的内容
+
 ## 正则表达式
+
+### 字符集和单词
+
+### 字符类
+
+### 位置匹配
+
+### 字符转义
+
+### 重复
+
+### 子表达式
+
+### 反义
+
+### 分支
+
+### 逆向引用
 
 
 

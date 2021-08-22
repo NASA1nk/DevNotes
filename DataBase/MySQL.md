@@ -73,6 +73,8 @@ docker run --restart=always --privileged=true -d -p 3306:3306 --name inkmysql -v
 
 ## 查看mysql容器ip
 
+172.17.0.9
+
 ```bash
 # 在显示信息里面找
 # "NetworkSettings"的"IPAddress"
@@ -135,6 +137,9 @@ show full columns from user;
 # 查看Host字段的信息
 SELECT Host FROM user;
 
+# 查看2个字段信息
+select user, host from user;
+
 # 修改配置
 update user set host ='％'where user ='root'
 
@@ -160,6 +165,12 @@ docker cp /home/dog/yinke/mysql/CrashCourse/populate.sql a9757d991f3c:/root/cour
 
 ## 创建数据库
 
+DATABASE（数据库）或者SCHEMA（模式）都可以
+
+> `CREATE Schema databaseName;`
+>
+> `show Schemas;`
+
 ```mysql
 # 创建数据库
 CREATE DATABASE course；
@@ -169,4 +180,173 @@ use course;
 source /root/course/create.sql;
 source /root/course/populate.sql;
 ```
+
+# DataGrip
+
+## 连接数据库
+
+输入mysql服务器的url，用户和密码
+
+![datagrip连接](MySQL.assets/datagrip连接.png)
+
+## 打开控制台
+
+右键数据库或表，打开控制台，就可以写sql
+
+![datagripconsole](MySQL.assets/datagripconsole.png)
+
+
+
+## 执行sql
+
+- 打开sql文件运行
+- 在控制台（console）运行
+
+> 可以运行sql文件作为一个整体
+
+
+
+# MySQL基本概念
+
+## DBMS数据库管理系统
+
+MySQL是数据库软件（DBMS）
+
+数据库（database）是通过数据库软件创建和操作的容器，使用DBMS访问数据库
+
+## table表
+
+特定类型数据的结构化清单
+
+- 数据库中表的名字是唯一的
+- 表具有一些特性，描述表的这组信息就**模式**
+
+> 模式用来描述数据库中特定的表以及整个数据库（和其中表的关系）
+
+### col列
+
+表中的一个字段
+
+每个col都有相应的数据类型（datatype）
+
+### row行
+
+表中的一个记录
+
+表中数据按行存储
+
+> 相当于数据库记录（record）
+
+### primary key主键
+
+表中一列（或一组列），其值能唯一区分表中的每一行，这个列（或一组列）成为主键
+
+- 每个表应该都具有一个主键
+- 表中任意列都可以作为主键，主要满足
+  - 任意两行都具有不同的值
+  - 每个行都具有一个值
+
+> 主键不允许`NULL`值
+
+## schema模式
+
+关于数据库和表的布局及特性的信息
+
+通常模式可以作为数据库的同义词
+
+## SQL
+
+structed query language结构化查询语句
+
+- sql语句不区分大小写
+- sql语句所有空格都被忽略
+- sql语句可以分成多行书写，最后以分号`;`结束
+- 多条sql语句必须以分号`;`分隔
+
+> mysql不需要在单条sql语句后加分号`;`，但是mysql命令行上必须加分号`;`
+
+### 连接数据库
+
+1. 查看数据库
+   1. `show databases;`
+2. 连接数据库
+   1. `use databaseName;`
+
+### auto_increment自动增量
+
+某些表的列需要唯一值，mysql可以自动为每一行分配一个可用值
+
+> 需要create创建表时把它作为表定义的组成部分
+
+### DESCRIBE
+
+`show columns from`的快捷方式
+
+`describe customers` = `show columns from customers`
+
+
+
+# 检索数据
+
+## 检索单列
+
+`select prod_name from products;`
+
+查询语句如果未过滤或排序，则返回结果的顺序无意义
+
+## 检索多列
+
+`select prod_id,prod_name,prod_price from products;`
+
+col之间用逗号`,`隔开
+
+![检索多列](MySQL.assets/检索多列.png)
+
+## 检索所有列
+
+`select * from table;`
+
+使用通配符`*`
+
+- 返回所有col的顺序无意义
+- 可以检索出名字未知的col
+
+
+
+## 检索不同行
+
+`select distinct vend_id from products;`
+
+`distinct`
+
+- 只返回不同的值
+- 必须直接放在col的前面
+- 会应用于后面的所有col
+
+> distinct：清晰的; 清楚的; 明白的; 明显的; 截然不同的; 有区别的; 不同种类的; 确定无疑的; 确实的; 确切的
+
+
+
+## 限制结果
+
+`select prod_name from products limit 10;`
+
+`select prod_name from products limit 5,5;`
+
+`limit`
+
+- 限制返回不多于n col
+- 指定返回从n到m的col（闭区间[n,m]）
+
+> 检索结果从col 0开始
+
+## 完全限制
+
+`select products.prod_name from products;`
+
+`select products.prod_name from course.products;`
+
+同时使用database，table和col指定检索
+
+# 排序检索数据
 

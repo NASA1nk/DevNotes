@@ -200,7 +200,8 @@ source /root/course/populate.sql;
 ## 执行sql
 
 - 打开sql文件运行
-- 在控制台（console）运行
+- 在控制台（console）运行（
+  - 快捷键：`ctrl+enter`
 
 > 可以运行sql文件作为一个整体
 
@@ -286,7 +287,15 @@ structed query language结构化查询语句
 
 
 
+### 子句
+
+SQL语句由子句构成
+
+子句通常由关键字和数据组成，如`select`的`from`子句
+
 # 检索数据
+
+- `select`
 
 ## 检索单列
 
@@ -337,6 +346,7 @@ col之间用逗号`,`隔开
 
 - 限制返回不多于n col
 - 指定返回从n到m的col（闭区间[n,m]）
+- 必须在`order by`子句之后
 
 > 检索结果从col 0开始
 
@@ -350,3 +360,122 @@ col之间用逗号`,`隔开
 
 # 排序检索数据
 
+- `select`
+- `order by`
+
+检索返回的col不是纯粹的随机顺序，一般是将以它在底层table中出现的顺序，可能是数据最开始添加到table中的顺序，但是数据经过更新或者删除，顺序就会受到MySQL重用回收空间的影响
+
+> 关系型数据库设计理论认为，如果不明确规定排序，就不应该假定检索出的数据的顺序有序
+
+## 排序数据
+
+`select prod_name from products order by prod_name;`
+
+`order by`子句
+
+- 默认以字母升序排序（`ASC`）
+- 也可以用非检索的列排序
+- 必须在`from`子句之后
+
+## 按多个列排序
+
+`select prod_price,prod_name from products order by prod_price,prod_name;`
+
+指定col，用逗号`,`分开
+
+- 排序按指定的col执行
+- 只有第一个col排序具有相同的值的情况才会按照第二个col进行排序
+- 如果第一个col排序没有相同的，则不会再根据第二个col进行排序
+
+## 指定排序方向
+
+`select prod_id,prod_price,prod_name from products order by prod_price desc;`
+
+`select prod_id,prod_price,prod_name from products order by prod_price desc,prod_name;`
+
+`desc`
+
+- 按降序排列
+- 只应用于直接位于其前面的col
+- 不直接位于`desc`前面的col仍默认按升序排列
+- 如果要在多个col上进行降序排序，必须每一个都指定`desc`
+
+> 可以用`ASC`指定升序，但默认就是升序
+>
+> 可以结合`limit`检索最值
+
+
+
+# 过滤数据
+
+- `select`
+- `where`
+
+通常根据指定的搜索条件（search criteria）提取table的子集
+
+> 搜索条件也称为过滤条件（filter condition）
+
+## 搜索条件
+
+`select prod_name,prod_price from products where prod_price = 2.5;`
+
+`select prod_name,prod_price from products where prod_name = 'safe';`
+
+`select prod_name,prod_price from products where prod_price <= 10;`
+
+`where`
+
+- 操作符：`>`,`<`,`>=`,`<=`,`!=`,`<>`,`between`
+
+- 在`from`子句之后
+- 在`order by`子句之前
+- 不区分大小写
+
+> 相等测试：检索一个col是否有指定的值
+>
+> `单引号`用来限定字符串
+
+## 不匹配检查
+
+`select prod_name,prod_price from products where prod_price <> 10;`
+
+`select prod_name,prod_price from products where prod_price != 10;`
+
+## 范围值检查
+
+`select prod_name,prod_price from products where prod_price between 5 and 10;`
+
+`between`
+
+- 指定范围的低端值和高端值
+- 低端值和高端值用`and`连接
+
+## 空值检查
+
+`select prod_name,prod_price from products where prod_price is null;`
+
+`select cust_id from customers where cust_email is null;`
+
+`is null`子句
+
+- 一个col不包含值时，称为包含空值`null`
+- `null`指无值（no value），和0,空字符串，空格不同
+- `null`值不会包含在不匹配的返回数据中（数据库不知道是否匹配）
+
+## 组合过滤
+
+通过逻辑操作符（logical operator）连结多个`where`子句
+
+- `and`子句
+- `or`子句
+- `not`子句
+
+### and操作符
+
+`select prod_id,prod_price,prod_name from products where vend_id = 1003 and prod_price <= 10;`
+
+过滤多个col
+
+### or操作符
+
+### not操作符

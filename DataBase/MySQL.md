@@ -409,7 +409,14 @@ col之间用逗号`,`隔开
 # 过滤数据
 
 - `select`
+
 - `where`
+
+  - 操作符：`>`,`<`,`>=`,`<=`,`!=`,`<>`,`between`
+
+  - 在`from`子句之后
+  - 在`order by`子句之前
+  - 不区分大小写
 
 通常根据指定的搜索条件（search criteria）提取table的子集
 
@@ -422,14 +429,6 @@ col之间用逗号`,`隔开
 `select prod_name,prod_price from products where prod_name = 'safe';`
 
 `select prod_name,prod_price from products where prod_price <= 10;`
-
-`where`
-
-- 操作符：`>`,`<`,`>=`,`<=`,`!=`,`<>`,`between`
-
-- 在`from`子句之后
-- 在`order by`子句之前
-- 不区分大小写
 
 > 相等测试：检索一个col是否有指定的值
 >
@@ -466,16 +465,93 @@ col之间用逗号`,`隔开
 
 通过逻辑操作符（logical operator）连结多个`where`子句
 
-- `and`子句
-- `or`子句
-- `not`子句
+- `and`
+- `or`
+- `in`
+- `not`
+
+`and`优先级大于`or`，需要使用圆括号`()`来设置计算次序
+
+> `where`子句可以包含任意的`and`和`or`操作符
 
 ### and操作符
 
 `select prod_id,prod_price,prod_name from products where vend_id = 1003 and prod_price <= 10;`
 
-过滤多个col
+检索匹配多个条件
 
 ### or操作符
 
+`select prod_price,prod_name from products where vend_id = 1003 or vend_id = 1002;`
+
+检索匹配任一条件
+
+### in操作符
+
+`select prod_name,prod_price from products where vend_id in (1002,1003) order by prod_name;`
+
+`select prod_name,prod_price from products where vend_id = 1002 or vend_id = 1003 order by prod_name;`
+
+`in`
+
+- 指定条件范围（范围中的每个条件都可以进行匹配）
+- 实现功能和`or`相同，但是有很多优点
+  - 使用长的合法选项清单时，`in`的语法更清楚直观
+  - `in`的计算次序更容易管理
+  - `in`一般比`or`快
+  - `in`可以包含其他`select`子句
+
 ### not操作符
+
+`select prod_name,prod_price from products where vend_id not in (1002,1003) order by prod_name;`
+
+`not`
+
+- 否定`not`之后的所有条件
+- 一般和`in`联合使用
+- MySQL支持`not`对`in`,`betweed`,`exists`子句取反
+
+## 通配符过滤
+
+通配符（wildcard）
+
+- 用来匹配值的一部分的特殊字符
+
+搜索模式（search pattern）
+
+- 由字面值，通配符或二者结合组合成的搜索条件（search criteria）
+
+`Like`操作符
+
+- 指示MySQL后面跟的搜索模式利用通配符匹配而不是直接相等匹配
+
+> 之前的数据过滤都是基于已知值的
+>
+> wildcard即sql中`where`子句中有特殊含义的字符
+
+### 百分号%操作符
+
+`select prod_id,prod_name from products where prod_name like 'jet%';`
+
+`select prod_id,prod_name from products where prod_name like '%anvil%';`
+
+`select prod_id,prod_name from products where prod_name like 's%e';`
+
+`%`
+
+- 表示任意字符出现任意次数
+- 通配符可以在搜索模式的任意位置使用，并且可以使用多个通配符
+- 可以匹配0个字符，但无法匹配空值`null`
+
+> `'jet%'`：匹配由`jet`开头的，后面是任意个数的任意字符的值
+>
+> `'%anvil%'`：匹配包含`anvil`的值，`anvil`前后可以是任意个数的任意字符
+>
+> `'s%e'`：匹配由`s`开头，`e`结尾的，中间可以是任意个数的任意字符的值
+
+### 下划线_操作符
+
+
+
+# 正则表达式搜索
+

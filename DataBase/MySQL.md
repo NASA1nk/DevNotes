@@ -559,7 +559,7 @@ col之间用逗号`,`隔开
 
 # 正则表达式搜索
 
-- 正则表达式是用来匹配文本的特殊的字符集合
+- 正则表达式（regexp）是用来匹配文本的特殊的字符集合
 
 - MySQL允许使用正则表达式过滤select检索出来的数据
   - MySQL仅支持多数正则表达式实现的一个子集
@@ -574,31 +574,137 @@ col之间用逗号`,`隔开
 
 `select prod_id,prod_name from products where prod_name regexp '.000';`
 
+`.`
 
+- 用于匹配任意一个字符
+- `regexp`是col值内匹配
+- `like`是col整行值匹配
+
+`binary`
+
+- 用于匹配区分大小写
+
+> 默认不区分大小写
 
 ## or匹配
 
+`select prod_id,prod_name from products where prod_name regexp '1000|2000' order by prod_name;`
 
+`|`
+
+- 用于匹配其中的一个条件
 
 ## 匹配几个字符之一
 
+`select prod_id,prod_name from products where prod_name regexp '[123] Ton' order by prod_name;`
 
+`[]`
+
+- 匹配方括号中的任意一个字符
+
+> [123]相当于[1|2|3]
+
+## 反义匹配
+
+`select prod_id,prod_name from products where prod_name regexp '[^123] Ton' order by prod_name;`
+
+`[^]`
+
+- 匹配除了指定字符外的所有字符
+
+> 需要在`[]`中来否定指定的字符集
 
 ## 匹配范围
 
+`select prod_id,prod_name from products where prod_name regexp '[0-9] Ton' order by prod_name;`
 
+`-`
+
+- 定义一个范围
 
 ## 匹配特殊字符
 
+`select prod_id,prod_name from products where prod_name regexp '\\.' order by prod_name;`
 
+`\\`
+
+- 用来匹配转义字符（正则表达式所用的特殊字符）
+- `\\f`：换页
+- `\\n`：换行
+- `\\r`：回车
+- `\\\`：`\`本身
 
 ## 匹配字符类
 
+字符类（character class）
 
+- 预定义的字符集
+- `[[:alnum:]]`：文字，数字字符
+- `[[:alpha:]]`：字母字符
+- `[[:lower:]]`：小写字母
+- `[[:upper:]]`：大写字母
+- `[[:digit:]]`：小数
+- `[[:space:]]`：空格
+- `[[:punct:]]`：标点符号
 
 ## 匹配多个实例
 
+`select prod_name from products where prod_name regexp '\\([0-9] sticks?\\)' order by prod_name;`
+
+`select prod_name from products where prod_name regexp '[[:digit:]]{4}' order by prod_name;`
+
+> - `s?`用于匹配0个或者1个`s`，这样可以匹配出`stick`和`sticks`
+> - `[[:digit:]]{4}`：也可以表示为`[0-9][0-9][0-9][0-9]`
+
+控制匹配的字符的个数
+
+- `*`：匹配0个或者多个
+- `+`：匹配1个或者多个
+- `?`：匹配0个或者1个
+- `{n}`：指定匹配n个
+- `{n,}`：指定匹配n个或者更多个
+- `{n,m}`：指定匹配的个数不少于n个，不多于m个（m<=255）
+
+![正则匹配多个实例](MySQL.assets/正则匹配多个实例.png)
+
+## 位置匹配
+
+`select prod_name from products where prod_name regexp '^[0-9\\.]' order by prod_name;`
+
+> 以数字或者小数点开头的字符
+
+定位符用来限制搜索匹配字符所在的位置
+
+- `^`：文本开始
+- `$`：文本结尾
+- `[[:<:]]`：词的开始
+- `[[:>:]]`：词的结尾
+
+> 使用定位符可以让`regexp`和`like`达到同一个效果
 
 
-## 定位符
+
+# 计算字段
+
+存储在table中的数据往往不是直接需要的（不同的信息包含在不同的table和col中），所以要在database中检索出计算或格式化后的数据再返回
+
+- 字段（`field`）：与col同义
+- 计算字段运行时在select语句中创建
+- 只有database知道select语句中哪些col是实际存储的col，哪些col是计算字段
+
+> DBMS设计用来快速转换，所以不在应用程序端处理
+
+## 拼接字段
+
+拼接（concatenate）
+
+`Concat()`：MySQL的拼接函数
+
+- 指定一个或多个串，用逗号隔开
+
+> 多数DBMS使用`+`和`||`来拼接，所以将SQL语句转换为MySQL语句时要注意
+
+`select Concat(vend_name,'(',vend_country,')') from vendors order by vend_name;`
+
+## 字段别名
 

@@ -181,6 +181,8 @@ source /root/course/create.sql;
 source /root/course/populate.sql;
 ```
 
+
+
 # DataGrip
 
 ## 连接数据库
@@ -293,6 +295,8 @@ SQL语句由子句构成
 
 子句通常由关键字和数据组成，如`select`的`from`子句
 
+
+
 # 检索数据
 
 - `select`
@@ -357,6 +361,8 @@ col之间用逗号`,`隔开
 `select products.prod_name from course.products;`
 
 同时使用database，table和col指定检索
+
+
 
 # 排序检索数据
 
@@ -557,6 +563,8 @@ col之间用逗号`,`隔开
 
 - 匹配单个任意字符
 
+
+
 # 正则表达式搜索
 
 - 正则表达式（regexp）是用来匹配文本的特殊的字符集合
@@ -706,5 +714,41 @@ col之间用逗号`,`隔开
 
 `select Concat(vend_name,'(',vend_country,')') from vendors order by vend_name;`
 
+`select Concat(rtrim(vend_name),'(',rtrim(vend_country),')') from vendors order by vend_name;`
+
+> - `trim()`：去掉串左右两边的空格
+> - `rtrim()`：去掉串右边的空格
+> - `ltrim()`：去掉串左边的空格
+
+![Concat拼接函数](MySQL.assets/Concat拼接函数.png)
+
 ## 字段别名
 
+拼接后的col并没有名字，所以应用程序无法引用它
+
+alias
+
+- 一个字段或者值的替换名
+- 使用`as`关键字赋予别名
+
+> as指示SQL创建一个指定名字的计算字段的col，就像一个实际的col一样
+>
+> 别名也称为导出列（derived col）
+
+`select Concat(rtrim(vend_name),'(',rtrim(vend_country),')') as vend_titile from vendors order by vend_name;`
+
+![别名alias](MySQL.assets/别名alias.png)
+
+## 算术计算
+
+对检索出来的数据进行计算
+
+`select prod_id,quantity,item_price,quantity*orderitems.item_price as expanded_price from orderitems where order_num=20005;`
+
+> `expanded_price` col是一个计算字段
+
+![算术运算](MySQL.assets/算术运算.png)
+
+
+
+# 数据处理函数

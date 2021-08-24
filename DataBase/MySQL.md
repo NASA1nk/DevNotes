@@ -865,5 +865,110 @@ alias
 
 # 汇总数据
 
-**聚集函数**
+汇总表中的数据（col的处理），而不是实际数据
+
+- table中的col数
+- table中的col数和
+- table中的col中的最大值，平均值
+
+## 聚集函数
+
+**aggregate function**
+
+- `AVG()`：返回col的平均值
+- `COUNT()`：返回col的row数
+- `MAX()`：返回col的最大值
+- `MIN()`：返回col的最小值
+- `SUM()`：返回col的值的和
+
+### AVG
+
+- 返回所有col的平均数
+
+- 返回特定col或row的平均数
+  - `AVG(col)`
+  - `where`子句指定
+
+> 忽略值为`null`的行
+
+`select avg(prod_price) as avg_price from products;`
+
+`select avg(prod_price) as avg_price_1003 from products where vend_id = 1003;`
+
+### COUNT
+
+- 返回table中的row数目
+  - 使用`*`对row计数，不忽略`null`
+- 返回指定col的row数目
+  - 忽略`null`值
+
+`select count(*) as num_cust from customers;`
+
+`select count(cust_email) as num_email from customers;`
+
+### MAX
+
+- 返回指定col的最大值
+  - 必须指定col
+- 忽略`null`值的行
+
+`select max(prod_price) as max_price from products;`
+
+### SUM
+
+- 返回指定col的和
+- 返回计算值的和
+- 忽略`null`值的行
+
+`select sum(quantity) as items_orderd from orderitems where order_num =  20005;`
+
+`select sum(item_price*quantity) as totle_price from orderitems where order_num =  20005;`
+
+## 聚集不同值
+
+聚集函数（aggregate function）
+
+- 对所有行计算，指定all参数或者无参数
+- 只计算不同的值的行，指定`DISTINCT`参数
+
+`DISTINCT`
+
+- 指定col的情况下，只能用于`COUNT(col)`
+- 不能用于`COUNT(*)`
+- 必须使用col
+- 不能用于计算和表达式
+
+`select avg(distinct prod_price) as avg_price from products where vend_id = 1003;`
+
+## 组合聚集函数
+
+`select count(*) as num_items,max(prod_price) as max_price,avg(prod_price) as avg_price from products;`
+
+
+
+# 分组数据
+
+把数据分为多个逻辑组，在每个逻辑组上进行聚集操作
+
+## 创建分组
+
+`GROUP BY`子句
+
+- 让MySQL进行分组并对每个分组进行聚集而不是整个table
+- `group by`子句可以包含任意数目的col
+  - `group by`子句中列出的每个col都必须是检索的col或有效的表达式（不能是聚集函数）
+  - 除了聚集函数，`select`中的每个col都要在`group by`子句中给出
+  - 如果在`select`中使用了表达式，则`group by`子句中必须使用相同的表达式（不能使用别名）
+- 嵌套分组时，指定的所有col都要参与计算，数据在最后的分组中聚集
+- 如果分组col中有`null`值，则将`null`作为一个分组
+- 如果col的行中有`null`值，则将`null`作为一个分组
+- `group by`子句必须在`where`子句后，`order by`子句前
+
+`select vend_id,count(*) as num_prods from products group by vend_id;`
+
+> `select`指定2个col，`group by`子句提示MySQL按`vend_id`排序并分组数据，对每个`vend_id`分组的数据进行`count`计算
+
+## 过滤分组
+
+`HAVING`
 

@@ -268,7 +268,18 @@ structed query language结构化查询语句
 
 > MySQL不需要在单条sql语句后加分号`;`，但是mysql命令行上必须加分号`;`
 
-### 连接数据库
+### select子句顺序
+
+`select`
+
+1. `from`
+2. `where`
+3. `group by`
+4. `having`
+5. `order by`
+6. `limit`
+
+### `连接数据库`
 
 1. 查看数据库
    1. `show databases;`
@@ -753,8 +764,6 @@ alias
 
 # 数据处理函数
 
-函数没有SQL的可移植性（portable）强
-
 函数功能
 
 - 处理文本串
@@ -764,6 +773,8 @@ alias
   - 从值中提取特定的日期和时间
 - 返回DBMS使用的特殊信息
   - 用户登录信息，版本信息
+
+> 函数没有SQL的可移植性（portable）强
 
 ## 数值处理
 
@@ -971,4 +982,57 @@ alias
 ## 过滤分组
 
 `HAVING`
+
+- 过滤分组
+
+> `where`是先过滤指定的row，再分组，`having`则是先分组，再过滤row
+
+`select cust_id,count(*) as orders from orders group by cust_id having count(*) >= 2;`
+
+`where`和`having`联合
+
+`select vend_id,count(*) as num_prods from products where prod_price>=10  group by vend_id having count(*) >= 2;`
+
+## 分组排序
+
+`group by`和`order by`的区别
+
+- group by分组后不一定按照分组的顺序输出，order by按照排序的顺序输出
+- group by必须使用选择的col或者表达式col，并且每一个col都要使用，order by可以使用任意列，甚至非选择列也可以使用
+
+> 所以要使group by输出的分组符合想要的顺序，应该使用order by
+
+`select order_num,sum(quantity*item_price) as total_price from orderitems group by order_num having sum(quantity*item_price)>=50 order by total_price;`
+
+
+
+# 子查询
+
+subquery
+
+- 嵌套在其他查询中的查询
+  - 一条`select`返回的结果作为另一条`select`的`where`子句
+- 子查询总是从内向外查询
+- 在where子句中使用子查询要保证子查询的select和where子句返回相同数目的col
+
+
+
+> 以前的`selsect`都是从单个table中检索数据的简单查询
+
+## 子查询过滤
+
+简单查询
+
+1. `select  order_num from orderitems where prod_id='TNT2';`
+2. `select cust_id from orders where order_num in (20005,20007);`
+
+> 第一个`select`的检索结果为20005，20007
+
+合并查询
+
+- 将第一个select做为第二个select的子查询
+
+`select cust_id from orders where order_num in (select  order_num from orderitems where prod_id='TNT2');`
+
+## 作为计算字段使用子查询
 

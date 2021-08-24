@@ -303,32 +303,28 @@ SQL语句由子句构成
 
 ## 检索单列
 
-`select prod_name from products;`
-
 查询语句如果未过滤或排序，则返回结果的顺序无意义
+
+`select prod_name from products;`
 
 ## 检索多列
 
-`select prod_id,prod_name,prod_price from products;`
-
 col之间用逗号`,`隔开
+
+`select prod_id,prod_name,prod_price from products;`
 
 ![检索多列](MySQL.assets/检索多列.png)
 
 ## 检索所有列
-
-`select * from table;`
 
 使用通配符`*`
 
 - 返回所有col的顺序无意义
 - 可以检索出名字未知的col
 
+`select * from table;`
 
-
-## 检索不同行
-
-`select distinct vend_id from products;`
+## 检索去重
 
 `distinct`
 
@@ -336,15 +332,13 @@ col之间用逗号`,`隔开
 - 必须直接放在col的前面
 - 会应用于后面的所有col
 
+`select distinct vend_id from products;`
+
 > distinct：清晰的; 清楚的; 明白的; 明显的; 截然不同的; 有区别的; 不同种类的; 确定无疑的; 确实的; 确切的
 
 
 
-## 限制结果
-
-`select prod_name from products limit 10;`
-
-`select prod_name from products limit 5,5;`
+## 限制数目
 
 `limit`
 
@@ -352,15 +346,21 @@ col之间用逗号`,`隔开
 - 指定返回从n到m的col（闭区间[n,m]）
 - 必须在`order by`子句之后
 
+`select prod_name from products limit 10;`
+
+`select prod_name from products limit 5,5;`
+
 > 检索结果从col 0开始
+>
+> 返回特定行使用`limit n,n`
 
 ## 完全限制
+
+同时使用database，table和col指定检索
 
 `select products.prod_name from products;`
 
 `select products.prod_name from course.products;`
-
-同时使用database，table和col指定检索
 
 
 
@@ -375,17 +375,15 @@ col之间用逗号`,`隔开
 
 ## 排序数据
 
-`select prod_name from products order by prod_name;`
-
 `order by`子句
 
 - 默认以字母升序排序（`ASC`）
 - 也可以用非检索的列排序
 - 必须在`from`子句之后
 
-## 按多个列排序
+`select prod_name from products order by prod_name;`
 
-`select prod_price,prod_name from products order by prod_price,prod_name;`
+## 按多个列排序
 
 指定col，用逗号`,`分开
 
@@ -393,11 +391,9 @@ col之间用逗号`,`隔开
 - 只有第一个col排序具有相同的值的情况才会按照第二个col进行排序
 - 如果第一个col排序没有相同的，则不会再根据第二个col进行排序
 
+`select prod_price,prod_name from products order by prod_price,prod_name;`
+
 ## 指定排序方向
-
-`select prod_id,prod_price,prod_name from products order by prod_price desc;`
-
-`select prod_id,prod_price,prod_name from products order by prod_price desc,prod_name;`
 
 `desc`
 
@@ -405,6 +401,10 @@ col之间用逗号`,`隔开
 - 只应用于直接位于其前面的col
 - 不直接位于`desc`前面的col仍默认按升序排列
 - 如果要在多个col上进行降序排序，必须每一个都指定`desc`
+
+`select prod_id,prod_price,prod_name from products order by prod_price desc;`
+
+`select prod_id,prod_price,prod_name from products order by prod_price desc,prod_name;`
 
 > 可以用`ASC`指定升序，但默认就是升序
 >
@@ -418,17 +418,19 @@ col之间用逗号`,`隔开
 
 - `where`
 
-  - 操作符：`>`,`<`,`>=`,`<=`,`!=`,`<>`,`between`
-
-  - 在`from`子句之后
-  - 在`order by`子句之前
-  - 不区分大小写
-
 通常根据指定的搜索条件（search criteria）提取table的子集
 
 > 搜索条件也称为过滤条件（filter condition）
 
 ## 搜索条件
+
+`where`
+
+- 操作符：`>`,`<`,`>=`,`<=`,`!=`,`<>`,`between`
+
+- 在`from`子句之后
+- 在`order by`子句之前
+- 不区分大小写
 
 `select prod_name,prod_price from products where prod_price = 2.5;`
 
@@ -448,24 +450,24 @@ col之间用逗号`,`隔开
 
 ## 范围值检查
 
-`select prod_name,prod_price from products where prod_price between 5 and 10;`
-
 `between`
 
 - 指定范围的低端值和高端值
 - 低端值和高端值用`and`连接
 
+`select prod_name,prod_price from products where prod_price between 5 and 10;`
+
 ## 空值检查
-
-`select prod_name,prod_price from products where prod_price is null;`
-
-`select cust_id from customers where cust_email is null;`
 
 `is null`子句
 
 - 一个col不包含值时，称为包含空值`null`
 - `null`指无值（no value），和0,空字符串，空格不同
 - `null`值不会包含在不匹配的返回数据中（数据库不知道是否匹配）
+
+`select prod_name,prod_price from products where prod_price is null;`
+
+`select cust_id from customers where cust_email is null;`
 
 ## 组合过滤
 
@@ -482,21 +484,17 @@ col之间用逗号`,`隔开
 
 ### and操作符
 
-`select prod_id,prod_price,prod_name from products where vend_id = 1003 and prod_price <= 10;`
-
 检索匹配多个条件
+
+`select prod_id,prod_price,prod_name from products where vend_id = 1003 and prod_price <= 10;`
 
 ### or操作符
 
-`select prod_price,prod_name from products where vend_id = 1003 or vend_id = 1002;`
-
 检索匹配任一条件
 
+`select prod_price,prod_name from products where vend_id = 1003 or vend_id = 1002;`
+
 ### in操作符
-
-`select prod_name,prod_price from products where vend_id in (1002,1003) order by prod_name;`
-
-`select prod_name,prod_price from products where vend_id = 1002 or vend_id = 1003 order by prod_name;`
 
 `in`
 
@@ -507,15 +505,19 @@ col之间用逗号`,`隔开
   - `in`一般比`or`快
   - `in`可以包含其他`select`子句
 
-### not操作符
+`select prod_name,prod_price from products where vend_id in (1002,1003) order by prod_name;`
 
-`select prod_name,prod_price from products where vend_id not in (1002,1003) order by prod_name;`
+`select prod_name,prod_price from products where vend_id = 1002 or vend_id = 1003 order by prod_name;`
+
+### not操作符
 
 `not`
 
 - 否定`not`之后的所有条件
 - 一般和`in`联合使用
 - MySQL支持`not`对`in`,`betweed`,`exists`子句取反
+
+`select prod_name,prod_price from products where vend_id not in (1002,1003) order by prod_name;`
 
 ## 通配符过滤
 
@@ -537,17 +539,17 @@ col之间用逗号`,`隔开
 
 ### 百分号%操作符
 
-`select prod_id,prod_name from products where prod_name like 'jet%';`
-
-`select prod_id,prod_name from products where prod_name like '%anvil%';`
-
-`select prod_id,prod_name from products where prod_name like 's%e';`
-
 `%`
 
 - 匹配任意个数的任意字符
 - 可以匹配0个字符，但无法匹配空值`null`
 - 通配符可以在搜索模式的任意位置使用，并且可以使用多个通配符
+
+`select prod_id,prod_name from products where prod_name like 'jet%';`
+
+`select prod_id,prod_name from products where prod_name like '%anvil%';`
+
+`select prod_id,prod_name from products where prod_name like 's%e';`
 
 > `'jet%'`：匹配由`jet`开头的，后面是任意个数的任意字符的值
 >
@@ -557,11 +559,11 @@ col之间用逗号`,`隔开
 
 ### 下划线_操作符
 
-`select prod_id,prod_name from products where prod_name like '_ ton anvil';`
-
 `_`
 
 - 匹配单个任意字符
+
+`select prod_id,prod_name from products where prod_name like '_ ton anvil';`
 
 
 
@@ -578,10 +580,6 @@ col之间用逗号`,`隔开
 
 ## 基本字符匹配
 
-`select prod_id,prod_name from products where prod_name regexp '1000';`
-
-`select prod_id,prod_name from products where prod_name regexp '.000';`
-
 `.`
 
 - 用于匹配任意一个字符
@@ -592,47 +590,49 @@ col之间用逗号`,`隔开
 
 - 用于匹配区分大小写
 
+`select prod_id,prod_name from products where prod_name regexp '1000';`
+
+`select prod_id,prod_name from products where prod_name regexp '.000';`
+
 > 默认不区分大小写
 
 ## or匹配
-
-`select prod_id,prod_name from products where prod_name regexp '1000|2000' order by prod_name;`
 
 `|`
 
 - 用于匹配其中的一个条件
 
-## 匹配几个字符之一
+`select prod_id,prod_name from products where prod_name regexp '1000|2000' order by prod_name;`
 
-`select prod_id,prod_name from products where prod_name regexp '[123] Ton' order by prod_name;`
+## 匹配几个字符之一
 
 `[]`
 
 - 匹配方括号中的任意一个字符
 
+`select prod_id,prod_name from products where prod_name regexp '[123] Ton' order by prod_name;`
+
 > [123]相当于[1|2|3]
 
 ## 反义匹配
-
-`select prod_id,prod_name from products where prod_name regexp '[^123] Ton' order by prod_name;`
 
 `[^]`
 
 - 匹配除了指定字符外的所有字符
 
+`select prod_id,prod_name from products where prod_name regexp '[^123] Ton' order by prod_name;`
+
 > 需要在`[]`中来否定指定的字符集
 
 ## 匹配范围
-
-`select prod_id,prod_name from products where prod_name regexp '[0-9] Ton' order by prod_name;`
 
 `-`
 
 - 定义一个范围
 
-## 匹配特殊字符
+`select prod_id,prod_name from products where prod_name regexp '[0-9] Ton' order by prod_name;`
 
-`select prod_id,prod_name from products where prod_name regexp '\\.' order by prod_name;`
+## 匹配特殊字符
 
 `\\`
 
@@ -641,6 +641,8 @@ col之间用逗号`,`隔开
 - `\\n`：换行
 - `\\r`：回车
 - `\\\`：`\`本身
+
+`select prod_id,prod_name from products where prod_name regexp '\\.' order by prod_name;`
 
 ## 匹配字符类
 
@@ -657,13 +659,6 @@ col之间用逗号`,`隔开
 
 ## 匹配多个实例
 
-`select prod_name from products where prod_name regexp '\\([0-9] sticks?\\)' order by prod_name;`
-
-`select prod_name from products where prod_name regexp '[[:digit:]]{4}' order by prod_name;`
-
-> - `s?`用于匹配0个或者1个`s`，这样可以匹配出`stick`和`sticks`
-> - `[[:digit:]]{4}`：也可以表示为`[0-9][0-9][0-9][0-9]`
-
 控制匹配的字符的个数
 
 - `*`：匹配0个或者多个
@@ -673,13 +668,16 @@ col之间用逗号`,`隔开
 - `{n,}`：指定匹配n个或者更多个
 - `{n,m}`：指定匹配的个数不少于n个，不多于m个（m<=255）
 
+`select prod_name from products where prod_name regexp '\\([0-9] sticks?\\)' order by prod_name;`
+
+`select prod_name from products where prod_name regexp '[[:digit:]]{4}' order by prod_name;`
+
+> - `s?`用于匹配0个或者1个`s`，这样可以匹配出`stick`和`sticks`
+> - `[[:digit:]]{4}`：也可以表示为`[0-9][0-9][0-9][0-9]`
+
 ![正则匹配多个实例](MySQL.assets/正则匹配多个实例.png)
 
 ## 位置匹配
-
-`select prod_name from products where prod_name regexp '^[0-9\\.]' order by prod_name;`
-
-> 以数字或者小数点开头的字符
 
 定位符用来限制搜索匹配字符所在的位置
 
@@ -688,6 +686,10 @@ col之间用逗号`,`隔开
 - `[[:<:]]`：词的开始
 - `[[:>:]]`：词的结尾
 
+`select prod_name from products where prod_name regexp '^[0-9\\.]' order by prod_name;`
+
+> 以数字或者小数点开头的字符
+>
 > 使用定位符可以让`regexp`和`like`达到同一个效果
 
 
@@ -717,8 +719,6 @@ col之间用逗号`,`隔开
 `select Concat(rtrim(vend_name),'(',rtrim(vend_country),')') from vendors order by vend_name;`
 
 > - `trim()`：去掉串左右两边的空格
-> - `rtrim()`：去掉串右边的空格
-> - `ltrim()`：去掉串左边的空格
 
 ![Concat拼接函数](MySQL.assets/Concat拼接函数.png)
 
@@ -752,3 +752,118 @@ alias
 
 
 # 数据处理函数
+
+函数没有SQL的可移植性（portable）强
+
+函数功能
+
+- 处理文本串
+  - 删除，填充，大小写转换
+- 对数值数据进行算术运算
+- 处理日期和时间值
+  - 从值中提取特定的日期和时间
+- 返回DBMS使用的特殊信息
+  - 用户登录信息，版本信息
+
+## 数值处理
+
+**数值处理函数**
+
+- `Abs()`：返回一个数的绝对值
+- `Exp()`：返回一个数的指数值
+- `Sqrt()`：返回一个数的平方根
+- `Mod()`：返回除操作的余数
+- `Cos()`：返回一个数的余弦值
+- `Pi()`：返回Π
+- `Rand()`：返回一个随机数
+
+## 文本处理
+
+**文本处理函数**
+
+- `trim()`：去掉串左右两边的空格
+  - `rtrim()`：去掉串右边的空格
+  - `ltrim()`：去掉串左边的空格
+
+- `Upper()`：将文本转换为大写
+- `Length()`：返回串的长度
+- `Locate()`：找出串的一个字串
+- `Left()`：返回串左边的字符
+- `Soundex()`：返回串的soundex值
+- `SubString()`：返回字串的字符
+
+`select vend_name, upper(vend_name) as vend_name_up from vendors order by vend_name;`
+
+> Soundex 
+
+## 时间日期处理
+
+日期和时间需要使用相应的数据类型（`datetime`）和特殊的数据格式来存储
+
+- 以便快速有效地排序或过滤
+- 节省存储空间
+
+> 应用程序不会这样，所以需要用函数来处理时间和日期数据
+
+**日期格式**
+
+- `yyyy-mm-dd` （应该总是使用4位数的年份）
+
+**日期时间处理函数**
+
+- `AddDate()`：增加一个日期（周，天）
+
+- `AddTime()`：增加一个时间（时，分）
+
+- `CurDate()`：返回当前日期
+
+- `CurTime()`：返回当前时间
+
+- `Date()`：返回日期时间的日期部分
+
+- `Time()`：返回日期时间的时间部分
+
+- `Date_Add()`：日期运算
+
+- `Date_Diff()`：计算两个日期的差
+
+- `Date_Format()`：返回格式化的时期或时间字符串
+
+- `DayOfWeek()`：返回日期对应的星期几
+
+- `Now()`：返回当前日期和时间
+
+- `Year()`：返回日期的年份部分
+
+- `Month()`：返回日期的月份部分
+
+- `Day()`：返回日期的天数部分
+
+- `Hour()`：返回时间的小时部分
+
+- `Minute()`：返回时间的分钟部分
+
+- `Second()`：返回时间的秒部分
+
+  
+
+`select cust_id,order_num from orders where order_date = '2005-09-01';`
+
+`select cust_id,order_num from orders where date(order_date) = '2005-09-01';`
+
+`select cust_id,order_num from orders where date(order_date) between '2005-09-01' and '2005-09-30';`
+
+`select cust_id,order_num from orders where year(order_date)  = 2005 and month(order_date) = 9;`
+
+> `datetime`类型存储日期和时间，仅仅匹配日期时不够的（如果时间不是`00：00：00`）
+>
+> 使用`between and`来确定范围
+>
+> 指定年份和月份就不用考虑每个月有多少天（特别是判断闰年2月）
+
+
+
+# 汇总数据
+
+**聚集函数**
+

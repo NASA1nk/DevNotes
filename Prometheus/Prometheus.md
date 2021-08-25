@@ -680,13 +680,13 @@ docker cp 877d50ad097d:/usr/share/grafana/public/views/index.html /home/dog/yink
 docker run --name inkGrafana -d -p 3000:3000 --privileged=true -v /home/dog/yinke/grafana/conf/defaults.ini:/usr/share/grafana/conf/defaults.ini -v /home/dog/yinke/grafana/public/index.html:/usr/share/grafana/public/views/index.html grafana/grafana
 ```
 
-## 添加数据源
+## 添加数据源.l
 
 1. 设置`Configuration`
 2. 选择`Data Sources`
-3. 点击`Add data source`，
+3. 点击`Add data source`
 4. 选择`Time series databases`时序数据库中的`Prometheus`
-5. 填写数据源名称和URL地址http://10.2.14.105.9100并保存
+5. 填写数据源名称和URL地址http://10.2.14.105:9100并保存
 
 ![Grafana连接Prometheus](Prometheus.assets/Grafana连接Prometheus.png)
 

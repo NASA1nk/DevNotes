@@ -2641,7 +2641,7 @@ JSON（JavaScript Object Notation）：一种轻量级的**数据交换格式**
 - JSON表示的对象就是标准的JavaScript语言的对象
 - JSON标准规定JSON编码是UTF-8
 
-JSON和Python内置的数据类型对应如下：
+JSON和Python内置的数据类型对应如下
 
 | JSON类型   | Python类型 |
 | :--------- | :--------- |
@@ -2663,6 +2663,8 @@ python内置的`json`模块提供了Python对象到JSON格式的转换
 - `json.dumps()`：将数据类型转换成字符串`str`，内容是标准JSON格式
 - `json.dump()`：将数据类型转换成字符串`str`，并存储在文件中
 
+> `indent=2`：将数据格式化
+
 **反序列化**
 
 - `json.loads()`：把JSON字符串反序列化成数据类型
@@ -2675,6 +2677,7 @@ d = dict(name='Bob', age=20, score=88)
 
 # '{"name": "Bob", "age": 20, "score": 88}'
 json.dumps(d)
+json.dumps(d,incent=2)
 
 json_str = '{"age": 20, "score": 88, "name": "Bob"}'
 
@@ -2951,4 +2954,3 @@ t.join()
 print('thread %s ended.' % threading.current_thread().name)
 ```
 
-# wo

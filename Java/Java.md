@@ -445,7 +445,6 @@ Java没有内置的字符串类型，但在标准Java类库中提供了一个预
 > 任何一个java对象都可以转换为字符串
 >
 > 因为字符串不可变，编译器可以让字符串共享（公共的存储池）
->
 
 - **子串**
 
@@ -786,10 +785,6 @@ public class Doc {
 
 ## Scanner
 
-> `Java.util.Scanner`是JavaSE5的新特性（`Java.util`包）
->
-> 所有不在`Java.lang`包中的关键字都需要`import`导包
-
 通过`Scanner`类获取用户的输入
 
 - 判断是否有输入数据
@@ -810,6 +805,10 @@ public class Doc {
 
   `scanner.close();`
 
+> `Java.util.Scanner`是JavaSE5的新特性（`Java.util`包）
+>
+> 所有不在`Java.lang`包中的关键字都需要`import`导包
+>
 > 输入IO流的的类，使用完都要关闭否则会一直占用资源
 
 ```java
@@ -846,8 +845,6 @@ public class Demo01 {
 - `nextBoolean()`
 - `nextBigInteger()`
 
-等等......
-
 ```java
 import java.util.Scanner;
 
@@ -868,7 +865,7 @@ public class Demo02 {
 
 
 
-**查看Scanner源码**
+**Scanner源码**
 
 按住**crtl**点击`Scanner`类，点击**Structure**可以看到`Scanner`类种的方法
 
@@ -897,7 +894,7 @@ char[] password = con.readPassword();
 
   用`File`对象构造`Scanner`对象对文件进行读取
 
-  - 文件名中有`\`，需要加额外的`\`
+  - 文件名中有`\`，需要转义
   - 指定相对文件名时，文件位于Java虚拟机启动路径的相对位置
 
   ```java
@@ -913,6 +910,75 @@ char[] password = con.readPassword();
   ```
 
 如果用一个不存在文件创建`Scanner`，或者用一个不能被创建的文件名构造一个`PrintWriter`，就会发生异常
+
+
+
+# 反编译文件
+
+执行Java程序会生成`.class`文件
+
+1. 查看编译文件输出路径
+
+   > `out`目录
+
+   ![编译路径](Java.assets/编译路径.png)
+
+2. 正常查看编译的`class`文件（乱码）
+
+   ![编译文件](Java.assets/编译文件.png)
+
+3. 在idea中打开`.java`文件所在的文件夹
+
+   ![复制](Java.assets/复制.png)
+
+4. 将`class`文件拖进文件夹
+
+   ![复制class](Java.assets/复制class.png)
+
+5. 在idea中查看`class`文件
+
+   发现字符串匹配其实最后找的还是`case`后面的**哈希值**
+
+   > ide会反编译`.class`文件
+   
+   ![switch反编译](Java.assets/switch反编译.png)
+
+
+
+## 命令行查看反编译文件
+
+`WF.java`文件
+
+```
+package com.ink;
+
+import org.junit.Test;
+
+public class WF {
+    @Test
+    public void test(){
+        while(true){
+            System.out.println("ink");
+        }
+    }
+    @Test
+    public void test2(){
+        for(;;){
+            System.out.println("ink");
+        }
+    }
+}
+```
+
+在命令行进入到WF.class所在的目录下，运行
+
+`javap -c fileName.class`
+
+可以看到
+
+`while(true)`和`for(;;)`的字节码文件时一样的
+
+![命令行查看方编译文件](Java.assets/命令行查看方编译文件.png)
 
 
 
@@ -992,34 +1058,6 @@ public static void main(String[] args) {
   }
 }
 ```
-
-
-
-### 反编译文件
-
-Java程序执行是生成了`class`文件
-
-1. 查看编译文件输出路径
-
-   ![编译路径](Java.assets/编译路径.png)
-
-2. 正常查看编译的`class`文件（乱码）
-
-   ![编译文件](Java.assets/编译文件.png)
-
-3. 在idea中打开`.java`文件所在的文件夹
-
-   ![复制](Java.assets/复制.png)
-
-4. 将`class`文件复制进文件夹
-
-   ![复制class](Java.assets/复制class.png)
-
-5. 在idea中查看`class`文件
-
-   发现字符串匹配其实最后找的还是`case`后面的**哈希值**
-
-   ![switch反编译](Java.assets/switch反编译.png)
 
 
 

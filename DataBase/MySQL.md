@@ -251,6 +251,10 @@ MySQL是数据库软件（DBMS）
 
 > 主键不允许`NULL`值
 
+### foreign key外键
+
+表中一列（或一组列），它包含另一个表的主键
+
 ## schema模式
 
 关于数据库和表的布局及特性的信息
@@ -1036,3 +1040,49 @@ subquery
 
 ## 作为计算字段使用子查询
 
+由子查询建立计算字段
+
+相关子查询（correlated subquery）
+
+- 涉及到外部查询的子查询
+- 需要使用完全限定列名要避免col的二义性
+
+`select cust_id,cust_name,(select count(*) from orders where orders.cust_id = customers.cust_id ) as orders from customers;`
+
+> 指定table.col：`orders.cust_id = customers.cust_id`
+
+
+
+# 联结
+
+联结表（join table）
+
+## 关系表
+
+**关系型数据库设计**
+
+- 把信息分解成多个表，一类数据一个表
+- 各个表通过常用值互相关联
+  - 常用值即关系设计中的关系（relational）
+
+**可伸缩性（scale）**
+
+- scale well：能够适应不断增加的工作量而不失败
+
+**供货商和产品**
+
+- 供货商和产品信息数据需要分开存储
+
+- 同一个供货商生产的产品的供货商信息相同，如果每个产品都存储供货商信息浪费时间和空间
+- 供货商信息改变的话不用修改所有产品中的信息，只要修改一次
+
+**设计**
+
+2个表
+
+- vendors表包含所有的供货商信息，每个供货商具有唯一的标识，成为主键（primary key）
+- productors表包含所有的商品信息，它只需要存储供货商的唯一标识，vendors的主键就是productor表的外键（foreign key）
+
+> 外键将productor表和vendors表相连，利用外键，产品就可以从vendors表中找到对应的供货商信息
+
+## 联结的作用

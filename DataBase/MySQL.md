@@ -746,9 +746,11 @@ alias
 - 一个字段或者值的替换名
 - 使用`as`关键字赋予别名
 
-> as指示SQL创建一个指定名字的计算字段的col，就像一个实际的col一样
+> `as`指示SQL创建一个指定名字的计算字段的col，就像一个实际的col一样
 >
 > 别名也称为导出列（derived col）
+>
+> [表别名](# 表别名)
 
 `select Concat(rtrim(vend_name),'(',rtrim(vend_country),')') as vend_titile from vendors order by vend_name;`
 
@@ -1065,9 +1067,12 @@ subquery
 - 各个表通过常用值互相关联
   - 常用值即关系设计中的关系（relational）
 
-**可伸缩性（scale）**
+**分解数据的优点**
 
-- scale well：能够适应不断增加的工作量而不失败
+- 更有效地存储
+- 更方便的处理
+- 更大的可伸缩性（scale）
+  - scale well：能够适应不断增加的工作量而不失败
 
 **供货商和产品**
 
@@ -1086,3 +1091,75 @@ subquery
 > 外键将productor表和vendors表相连，利用外键，产品就可以从vendors表中找到对应的供货商信息
 
 ## 联结的作用
+
+一种机制
+
+- 在一条select语句中关联表
+
+联结只是存在于查询中，并不实际存在
+
+> 需要的数据存储在多个表中
+
+**维护引用的完整性**
+
+- 仅在关系col中插入合法的数据
+
+## 创建联结
+
+**笛卡尔积**
+
+- 联结两个表时，实际上是拿第一个表的每一行和第二个表的每一行对比，所以如果不通过`where`子句过滤某些row，就会返回所有的行（n*m）
+- 有一些组合是根本不存在的，即会组合出错误的数据返回，所以联结必须要有`where`子句进行过滤
+
+**where子句过滤**
+
+- 用`where`子句联结`vendors`和`products`表
+
+`select vend_name,prod_name,prod_price from vendors,products where vendors.vend_id = products.vend_id order by vend_name,prod_name;`
+
+## 内部联结
+
+- 上述联结称为**等值联结**（equijoin），可以使用`inner join`指定联结的类型为内部联结
+  - 联结条件使用`on`子句（代替`where`子句）
+
+> 等值联结就是内部联结
+>
+> 两个表的关系是`from`子句的组成部分，所以是内部（inner）
+
+`select vend_name,prod_name,prod_price from vendors inner join products on vendors.vend_id = products.vend_id order by vend_name,prod_name;`
+
+## 多表联结
+
+一条`select`语句对联结的表的数目没有影响
+
+1. 列出所有要联结的表
+2. 定义要联结的表之间的关系
+
+> 联结的表越多，耗费的资源越多
+
+`select prod_name,vend_name,prod_price,quantity from products,orderitems,vendors where orderitems.prod_id = products.prod_id and products.vend_id = vendors.vend_id and orderitems.order_num = 20005;`
+
+> 使用`and`连接联结条件
+
+## 表别名
+
+- 缩短SQL语句
+- 可以在单条`select`语句中多次引用相同的表
+- 表别名只在执行的时候使用，不会返回给到客户端
+
+> [字段别名](# 字段别名)
+
+`select cust_name,cust_contact from customers as c, orders as o,orderitems as oi where c.cust_id = o.cust_id and oi.order_num = o.order_num and prod_id = 'TNT2';`
+
+## 自联结
+
+在单条`select`语句中多次引用相同的表
+
+- 使用**表别名**用于明确引用同一个表的不同实例
+
+**子查询**
+
+`select prod_id,prod_name from products where vend_id = (select vend_id from products where prod_id = 'DTNTR');`
+
+**自联结**
+

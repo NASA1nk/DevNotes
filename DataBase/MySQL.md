@@ -1094,9 +1094,11 @@ subquery
 
 一种机制
 
-- 在一条select语句中关联表
+- 在一条select语句中关联不同的表
+  - 关联不同表中的行（一个表中的行和另一个表中的行相关联）
 
-联结只是存在于查询中，并不实际存在
+- 联结只是存在于查询中，并不实际存在
+
 
 > 需要的数据存储在多个表中
 
@@ -1121,6 +1123,7 @@ subquery
 
 - 上述联结称为**等值联结**（equijoin），可以使用`inner join`指定联结的类型为内部联结
   - 联结条件使用`on`子句（代替`where`子句）
+  - 会返回所有的数据
 
 > 等值联结就是内部联结
 >
@@ -1162,4 +1165,37 @@ subquery
 `select prod_id,prod_name from products where vend_id = (select vend_id from products where prod_id = 'DTNTR');`
 
 **自联结**
+
+`select p1.prod_id,p1.prod_name from products as p1,products as p2 where p1.vend_id = p2.vend_id and p2.prod_id = 'DTNTR';`
+
+## 自然联结
+
+自然联结使每个col只返回一次
+
+- 要求只能选择唯一的col
+- 通过通配符`select *`实现
+  - 对其他table的col使用明确的子集
+
+> 内部联结（等值连接）会返回所有的数据，即使相同的col也可以出现多次
+>
+> 不是系统实现
+
+`select c.* , o.order_num, o.order_date, oi.prod_id, oi.quantity, oi.item_price from customers as c, orders as o, orderitems as oi where c.cust_id = o.cust_id and oi.order_num = o.order_num and prod_id = 'FB';`
+
+## 外部联结
+
+`outer join`
+
+- 包含了相关表中没有关联行的行
+- 必须使用`left`和`right`来指定包括其所有col的表
+  - `left`：指`outer join`左边的表
+  - `right`：指`outer join`右边的表
+
+`select customers.cust_id,orders.order_num from customers left outer join orders on customers.cust_id = orders.cust_id`
+
+> `left`指定返回左边的`customers`表中所有的行
+>
+> 即使`customers`中`cust_id=10002`的行没有在`orders`表中出现，也会作为结果被返回
+
+![外部联结](MySQL.assets/外部联结.png)
 

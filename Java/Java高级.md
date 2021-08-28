@@ -2398,25 +2398,53 @@ System.out.println(user);
 
 # 泛型
 
-- `<E>`：E表示**类型**（必须是类，不能是基本数据类型）
-- 允许在定义类、接口时通过一个标识（**类型参数**）表示类中某个属性类型或者某个方法返回值及参数类型
-- 实例化集合类时指定具体的泛型类型，在集合类或者接口中定义类或者接口时，内部结构使用到类的泛型的位置都指定为实例化时的泛型类型
-- 实例化时没有指明泛型类型，则默认为`java.lang.Object`
+**Generic**
 
-> 集合容器类在设计阶、声明阶段**不能确定容器中实际存的是什么类型的对象**
->
-> - JDK5之前只能把元素类型设计为`Object`
-> - JDK5之后改写了集合框架中的全部接口和类，为这些接口、类增加了泛型支持，把**元素的类型设计成一个参数**（这时除了元素的类型不确定，其他的部分是确定的），这个**类型参数**就叫做泛型。从而可以在声明集合变量、创建集合对象时传入类型实参
+集合容器类在设计阶段和声明阶段**不能确定容器中实际存的是什么类型的对象**
+
+- JDK5之前只能把元素类型设计为`Object`
+- JDK5之后改写了集合框架中的全部接口和类，为这些接口、类增加了泛型支持
+  - 把**元素的类型设计成一个参数**（这时除了元素的类型不确定，其他的部分是确定的），这个**类型参数**就叫做泛型
+  - 从而可以在声明集合变量、创建集合对象时传入类型实参
+
+**本质**
+
+- 泛型的本质是参数化类型，即将所操作的数据类型指定为一个参数
+
+
+> JDK5的新特性
+
+
+
+`<E>`
+
+- E表示**类型**
+  - 必须是类，不能是基本数据类型
+
+- 允许在定义类、接口时通过一个标识（**类型参数**）表示类中某个属性类型或者某个方法返回值及参数类型
+- 实例化集合类时指定具体的泛型类型
+  - 在集合类或者接口中定义类或者接口时，内部结构使用到类的泛型的位置都指定为实例化时的泛型类型
+  - 实例化时没有指明泛型类型，默认为`java.lang.Object`
 
 **优点**
 
-- **类型安全**：只有指定类型才可以添加到集合中（**编译时**检查）
-- **便捷**：读取出来的对象不需要强转，运行时就不会产生`ClassCastException`异常
+- **类型安全**
+  - 只有指定类型才可以添加到集合中
+  - 泛型为了安全，所有与泛型相关的异常都应该在编译期间发现
+- **便捷**
+  - 读取出来的对象不需要使用`instanceof`判断再类型强制转换
+  - 运行时不会产生`ClassCastException`异常
+    - `java.lang.ClassCastException: java.lang.Integer cannot be cast to java.lang.String`
 
-> 使用Object的**缺点**
+> 使用`Object`的**缺点**
 >
 > - **类型不安全**：任何类型都可以添加到集合中（没有类型检查）
 > - **繁琐**：读取出来的对象需要强转，可能有`ClassCastException`
+
+`List`和`List <Object>`的区别
+
+- List属于原始类型，不会进行安全类型检查，也不存在泛型类型的限制
+- `List<Object>`泛型为Object，会进行安全类型检查，受泛型的限制
 
 ```java
 package com.ink.Generic;
@@ -2428,6 +2456,7 @@ import java.util.*;
 public class GenericTest {
     @Test
     public void test(){
+//        指定类型为Integer
         ArrayList<Integer> list = new ArrayList<>();
         list.add(12);
         list.add(25);
@@ -2459,6 +2488,52 @@ public class GenericTest {
 }
 ```
 
+## 类型擦除
+
+所有的类型参数都用限定的类型替换
+
+- 泛型只在**编译阶段**有效，通过类型擦除实现
+- 在对象进入和离开方法处添加类型检验和类型转换方法，编译后的.class文件是不包含任何泛型信息的
+
+泛型擦除不等价于`Object`
+
+- 指定`Object`编译时会类型检查，必须按照`Object`处理
+- 擦除则编译不会类型检查
+
+
+
+**Java编译器擦除泛型的步骤**
+
+1. 检查泛型类型，获取目标类型
+2. 擦除类型变量，并替换为限定类型
+   1. 如果泛型类型的类型变量没有限定()，则用Object作为原始类型
+   2. 如果有限定()，则用`XClass`作为原始类型 如果有多个限定`(T extends XClass1&XClass2)`，则使用第一个边界XClass1作为原始类
+3. 在必要时插入类型转换以保持类型安全
+4. 生成桥方法以在扩展时保持多态性
+
+## 泛型的使用
+
+- 泛型的类型参数只能是类类型，不能是简单类型。
+- 不能对确定的泛型类型使用`instanceof`操作（编译时会出错）
+
+- 如果泛型结构是一个接口或抽象类，则不可创建泛型类的对象
+- 不能声明泛型数组`new E[]`
+  - 虚拟机本身的实现就不支持泛型数组。因为**数组是协变，擦除后就没法满足数组协变的原则**
+  - 可以使用`Object`数组类型强制转换：`E[] elements = (E[])new Object[capacity]`
+- 异常类不能是泛型的
+- 实例化后，操作原来泛型位置的结构必须与指定的泛型类型一致
+- 泛型如果不指定，就会被擦除（编译不会类型检查），泛型对应的类型均按照`Object`处理
+- 泛型不同的引用不能相互赋值
+  - `ArrayList<String>`和`ArrayList<Integer>`不能相互赋值
+- JDK7后，泛型简化了操作（后面不用再加泛型）
+  - `ArrayList<String> f = new ArrayList<>()`
+- 在类、接口上声明的泛型在本类、接口中即代表了某种类型
+  - 可以作为非静态属性的类型、非静态方法的参数类型、非静态方法的返回值类型
+  - 但不能在**静态方法**中使用类的泛型
+    - 因为泛型是在**实例化的时候确定**，而静态方法是随着类的创建一起加载的，所以无法使用类的泛型
+
+> 泛型要使用就要一直使用，否则就都不用
+
 ## 自定义泛型结构
 
 **三种结构**
@@ -2467,30 +2542,14 @@ public class GenericTest {
 - 自定义泛型接口
 - 自定义泛型方法
 
-**注意**
-
-- 实例化后，操作原来泛型位置的结构必须与指定的泛型类型一致
-- 泛型不同的引用不能相互赋值（`ArrayList<String>`和`ArrayList<Integer>`不能相互赋值）
-- 泛型如果不指定，就会被擦除（编译不会类型检查），泛型对应的类型均按照`Object`处理
-- 如果泛型结构是一个接口或抽象类，则不可创建泛型类的对象
--  JDK7后，泛型的简化操作`ArrayList<String> f = new ArrayList<>()`（后面不用再加泛型）
-- 在类/接口上声明的泛型在本类或本接口中即代表某种类型，可以作为非静态属性的类型、非静态方法的参数类型、非静态方法的返回值类型。但在**静态方法中不能使用类的泛型**（泛型是在实例化的时候确定，但是静态方法是随着类的创建一起加载的，所以无法使用类的泛型）
-- 异常类不能是泛型的
-- 不能声明泛型数组`new E[]`，但是可以使用`Object`数组强转：`E[] elements = (E[])new Object[capacity]`
-
-> 泛型要使用一路都用，要不用一路都不用
->
-> 泛型擦除不等价于Object，因为指定Object，编译会类型检查，必须按照Object处理，擦除则编译不会类型检查
-
-
-
 ### 自定义泛型类/接口
 
-定义时不知道数据类型（在实例化的时候才知道）就可以使用泛型
+定义时不知道数据类型（在实例化的时候才知道）
 
-- 泛型类可以有多个参数，一起放在尖括号内，逗号隔开（`<E1,E2,E3>`） 
-- 泛型类的构造器没有变化，实例化的时候需要加上`<T>`
-- 如果定义了泛型类，实例化的时候就要指明类的泛型（不指明默认泛型类型是`Object`类型）
+- 泛型类可以有多个参数，在尖括号内用逗号隔开
+  - `<E1,E2,E3>` 
+- 泛型类的构造器没有变化
+  - 但是在实例化的时候需要加上`<T>`，不指明默认泛型类型是`Object`类型）
 
 > 常用`<T>`表示（Type的缩写）
 
@@ -2500,9 +2559,10 @@ package com.ink.Generic;
 public class Order<T>{
     String orderName;
     int orderId;
-    // 类的内部结构可以使用类的泛型
+    // 在类的内部使用类的泛型
     T orderT;
-
+	
+    // 构造器没有变化
     public Order() {
     }
 
@@ -2511,7 +2571,8 @@ public class Order<T>{
         this.orderId = orderId;
         this.orderT = orderT;
     }
-
+    
+    // 可以作为非静态方法的返回值类型 
     public T getOrderT() {
         return orderT;
     }
@@ -2541,77 +2602,13 @@ import java.util.*;
 public class GenericTest {
     @Test
     public void test(){
+        // 实例化时指明泛型的类型
         Order<String> order = new Order<String>("A",1001,"order(A)");
         // Order{orderName='A', orderId=1001, orderT=order(A)}
         System.out.println(order.toString());
         order.setOrderT("AA:order");
         // Order{orderName='A', orderId=1001, orderT=AA:order}
         System.out.println(order.toString());
-    }
-}
-```
-
-**继承**
-
-父类有泛型，子类可以选择**保留泛型**也可以选择**指定泛型类型**
-
-**指定了泛型类型的子类不再是泛型类**（实例化时不再需要指明泛型类型）
-
-> 没有保留也没有指定泛型类型，则泛型擦除
-
-```java
-package com.ink.Generic;
-
-//继承带泛型的父类时指明了泛型类型
-public class SubOrder extends Order<Integer>{
-}
-```
-
-```java
-package com.ink.Generic;
-
-import org.junit.Test;
-
-import java.util.*;
-
-public class GenericTest {
-    @Test
-    public void test(){
-        // 实例化时不再需要指明泛型类型
-        SubOrder subOrder = new SubOrder();
-        subOrder.setOrderT(1122);
-        // Order{orderName='null', orderId=0, orderT=1122}
-        System.out.println(subOrder.toString());
-    }
-}
-```
-
-**保留了泛型类型的子类仍然是泛型类**
-
-> 可以全部保留也可以部分保留（部分指定），还可以增加自己的泛型
-
-```java
-package com.ink.Generic;
-
-//继承带泛型的父类时,没有指明泛型类型
-public class SubOrder<T> extends Order<T>{
-}
-```
-
-```java
-package com.ink.Generic;
-
-import org.junit.Test;
-
-import java.util.*;
-
-public class GenericTest {
-    @Test
-    public void test(){
-        SubOrder<String> subOrder = new SubOrder<>();
-        subOrder.setOrderT("ink");
-        // Order{orderName='null', orderId=0, orderT=ink}
-        System.out.println(subOrder.toString());
     }
 }
 ```
@@ -2624,13 +2621,14 @@ public class GenericTest {
 
 - 泛型方法的泛型参数与方法所在类的泛型参数无关
 - 泛型方法和所在类或接口无关（与它们是不是泛型类无关）
-- 泛型方法可以声明为静态，因为泛型参数是在调用方法时确定的，而不是在实例化的时候确定的
+- 泛型方法可以声明为静态
+  - 因为泛型参数是在调用方法时确定的，而不是在实例化的时候确定的
 
 > 不是方法中使用了类或接口的泛型就是泛型方法
 
 **泛型方法格式**
 
-[访问权限] <泛型> 返回类型 方法名（[泛型标识 参数名称]） 抛出的异常
+- `[访问权限] <泛型> 返回类型 方法名（[泛型标识 参数名称]） 抛出的异常`
 
 ```java
 public class Order<T>{
@@ -2640,6 +2638,7 @@ public class Order<T>{
 
     public Order() {
     }
+    // 泛型方法
     public <E> List<E> copyFromArrayToList(E[] arr){
         ArrayList<E> list = new ArrayList<>();
         for (E e:arr
@@ -2673,7 +2672,7 @@ public class GenericTest {
 
 **实际应用**
 
-**返回值不确定**
+- 数据库字段的返回值类型不确定
 
 ```java
 // data(base) access object
@@ -2694,13 +2693,83 @@ B是A的一个**子类型**（子类或者子接口），G是具有泛型声明�
 - `G<B>`并不是`G<A>`的子类型（`List<String>`并不是`List<Object>`的子类），二者是并列关系
 - `B<G>`是`A<G>`的子类型（`ArrayList<String>`是`List<String>`的子类）
 
+> 即容器里装的东西之间有继承关系，但容器之间是没有继承关系的，所以引入了限定通配符
+
+### 泛型类的继承
+
+父类有泛型，子类可以选择**保留泛型**或者**指定泛型类型**
+
+- **指定了泛型类型的子类不再是泛型类**
+  - 实例化时不再需要指明泛型类型
+- **保留了泛型类型的子类仍然是泛型类**
+  - 可以全部保留也可以部分保留，部分指定
+  - 还可以增加子类自己的泛型
+- 没有保留也没有指定泛型类型，则泛型擦除
+
+```java
+package com.ink.Generic;
+
+// 继承带泛型的父类时指明了泛型类型为Integer
+public class SubOrder extends Order<Integer>{
+}
+```
+
+```java
+package com.ink.Generic;
+
+import org.junit.Test;
+
+import java.util.*;
+
+public class GenericTest {
+    @Test
+    public void test(){
+        // 实例化时不再需要指明泛型类型
+        SubOrder subOrder = new SubOrder();
+        subOrder.setOrderT(1122);
+        // Order{orderName='null', orderId=0, orderT=1122}
+        System.out.println(subOrder.toString());
+    }
+}
+```
+
+```java
+package com.ink.Generic;
+
+// 继承带泛型的父类时,没有指明泛型类型，SubOrder也是泛型类
+public class SubOrder<T> extends Order<T>{
+}
+```
+
+```java
+package com.ink.Generic;
+
+import org.junit.Test;
+
+import java.util.*;
+
+public class GenericTest {
+    @Test
+    public void test(){
+        // 实例化时需要指明泛型
+        SubOrder<String> subOrder = new SubOrder<>();
+        subOrder.setOrderT("ink");
+        // Order{orderName='null', orderId=0, orderT=ink}
+        System.out.println(subOrder.toString());
+    }
+}
+```
 
 
-## 通配符
 
-`?`
+## 非限定通配符 <?>
 
-B是A的一个**子类型**（子类或者子接口），G是具有泛型声明的类或接口。`G<B>`并不是`G<A>`的子类型，二者是并列关系，共同的父类是`G<?>`
+`<?>`
+
+可以用任意类型来替代
+
+- B是A的一个**子类型**（子类或者子接口），G是具有泛型声明的类或接口
+  - `G<B>`并不是`G<A>`的子类型，二者是并列关系，共同的父类是`G<?>`
 
 ```java
 package com.ink.Generic;
@@ -2731,49 +2800,48 @@ public class GenericTest {
 }
 ```
 
+### 非限定通配符的使用
 
-
-**通配符的使用**
-
-- 通配符**不能**用在泛型方法声明上，返回值类型前面<>不能使用?
+- 通配符**不能**用在泛型方法声明上
 - 通配符**不能**用在泛型类的声明上
 - 通配符**不能**用在创建对象上
 - 使用通配符后，除了`null`不能再向其中写入数据，**但是可以读取其中的数据**（`Object`类型）
 
-> 读取List<?>的对象list中的元素永远是安全的，因为不管list的真实类型是什么，它包含的都是Object
+> 读取`List<?>`的对象list中的元素永远是安全的，因为不管list的真实类型是什么，它包含的都是Object
 
 ```java
-// 编译错误
+// 编译错误，不能用在泛型方法声明上
 public static <?> void test(ArrayList<?> list){
 }
-// 编译错误
+// 编译错误，不能用在泛型类的声明上
 class GenericTypeClass<?>{
 }
-// 编译错误
+// 编译错误，不能用在创建对象上
 ArrayList<?> list = newArrayList<?>();
 ```
 
 
 
-**有限制的通配符**
+## 限定通配符
 
-指定赋值的**区间范围**
+**Wildcards**
 
-- 指定上限`extends`：使用时指定的类型必须**继承某个类**或者**实现某个接口**（<=） 
-- 指定下限`super`：使用时指定的类型**不能小于操作的类**（>=）
+限定通配符对类型进行了限制，指定了赋值的**区间范围**
+
+- 指定上界`<? extends T>`
+  - 使用时指定的类型必须**继承某个类**或者**实现某个接口**（<=） 
+  - 类型实参只能传入类型为T和T的子类
+- 指定下界`<? super T>`
+  - 使用时指定的类型**不能小于操作的类**（>=）
+  - 类型实参只准传入类型为T和T的父类
 
 > 注意读取数据时的赋值对象（多态）
+>
+> 让容器之间有了继承关系
 
 ```java
-// 只允许泛型为Number及Number子类的引用调用
-<?extends Number>
-    
-// 只允许泛型为Number及Number父类的引用调用
-<? super Number>
-    
 // 只允许泛型为实现Comparable接口的实现类的引用调用
 <? extends Comparable>
-    
 
 package com.ink.Generic;
 
@@ -2805,6 +2873,16 @@ public class GenericTest {
     }
 }
 ```
+
+### 限定通配符的问题
+
+边界让不同泛型之间的转换更容易了，但是容器的部分功能可能会失效
+
+- 指定上界`<? extends T>`后，无法再向容器内存数据，但可以取数据
+  - 因为编译器只知道容器中的类型是T类或者T的子类
+- 指定下界`<? super T>`后，可以向容器内存数据，但从容器中取数据只能存入`object`对象中
+  - 因为编译器只知道容器中的类型是T类或者T的父类
+  - 这样数据的类型信息就丢失了
 
 
 

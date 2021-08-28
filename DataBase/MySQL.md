@@ -349,7 +349,7 @@ col之间用逗号`,`隔开
 
 `select distinct vend_id from products;`
 
-> distinct：清晰的; 清楚的; 明白的; 明显的; 截然不同的; 有区别的; 不同种类的; 确定无疑的; 确实的; 确切的
+> distinct：截然不同的; 有区别的; 不同种类的; （清晰的; 清楚的; 明白的; 明显的; 确定无疑的; 确实的; 确切的）
 
 
 
@@ -790,6 +790,7 @@ alias
 - `Exp()`：返回一个数的指数值
 - `Sqrt()`：返回一个数的平方根
 - `Mod()`：返回除操作的余数
+  - `mod(c.id,2) = 1`
 - `Cos()`：返回一个数的余弦值
 - `Pi()`：返回Π
 - `Rand()`：返回一个随机数
@@ -842,7 +843,9 @@ alias
 
 - `Date_Add()`：日期运算
 
-- `Date_Diff()`：计算两个日期的差
+- `Date_Diff(date1,date2)`：计算两个日期的差
+
+  - 结果是日期1与日期2相差的天数。 如果日期1比日期2大结果为正，如果日期1比日期2小结果为负
 
 - `Date_Format()`：返回格式化的时期或时间字符串
 
@@ -950,8 +953,7 @@ alias
 
 `DISTINCT`
 
-- 指定col的情况下，只能用于`COUNT(col)`
-- 不能用于`COUNT(*)`
+- 指定col的情况下，只能用于`COUNT(col)`，不能用于`COUNT(*)`
 - 必须使用col
 - 不能用于计算和表达式
 
@@ -991,13 +993,18 @@ alias
 
 - 过滤分组
 
-> `where`是先过滤指定的row，再分组，`having`则是先分组，再过滤row
+- `having`则是先分组，再过滤row
+- `where`是先过滤指定的row，再分组
 
 `select cust_id,count(*) as orders from orders group by cust_id having count(*) >= 2;`
 
-`where`和`having`联合
+**where和having联合使用**
 
 `select vend_id,count(*) as num_prods from products where prod_price>=10  group by vend_id having count(*) >= 2;`
+
+**查找Person表中所有重复的电子邮箱**
+
+`select Email from Person group by Email having count(Email) > 1;`
 
 ## 分组排序
 
@@ -1142,8 +1149,6 @@ subquery
 
 `select prod_name,vend_name,prod_price,quantity from products,orderitems,vendors where orderitems.prod_id = products.prod_id and products.vend_id = vendors.vend_id and orderitems.order_num = 20005;`
 
-> 使用`and`连接联结条件
-
 ## 表别名
 
 - 缩短SQL语句
@@ -1168,6 +1173,8 @@ subquery
 
 `select p1.prod_id,p1.prod_name from products as p1,products as p2 where p1.vend_id = p2.vend_id and p2.prod_id = 'DTNTR';`
 
+`select e1.Name as Employee from Employee as e1,Employee as e2 where e1.ManagerId = e2.Id and e1.Salary > e2.Salary;`
+
 ## 自然联结
 
 自然联结使每个col只返回一次
@@ -1190,6 +1197,8 @@ subquery
 - 必须使用`left`和`right`来指定包括其所有col的表
   - `left`：指`outer join`左边的表
   - `right`：指`outer join`右边的表
+
+> `left join`是`left outer join`的缩写
 
 `select customers.cust_id,orders.order_num from customers left outer join orders on customers.cust_id = orders.cust_id`
 

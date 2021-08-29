@@ -746,6 +746,8 @@ alias
 - 一个字段或者值的替换名
 - 使用`as`关键字赋予别名
 
+> `as`可以省略
+>
 > `as`指示SQL创建一个指定名字的计算字段的col，就像一个实际的col一样
 >
 > 别名也称为导出列（derived col）
@@ -1198,7 +1200,7 @@ subquery
   - `left`：指`outer join`左边的表
   - `right`：指`outer join`右边的表
 
-> `left join`是`left outer join`的缩写
+> `outer`可以省略：`left outer join`简写为`left join`
 
 `select customers.cust_id,orders.order_num from customers left outer join orders on customers.cust_id = orders.cust_id`
 
@@ -1207,4 +1209,91 @@ subquery
 > 即使`customers`中`cust_id=10002`的行没有在`orders`表中出现，也会作为结果被返回
 
 ![外部联结](MySQL.assets/外部联结.png)
+
+
+
+
+
+# 面试题
+
+## 银行余额
+
+一个用户可以有多张卡
+
+- 返回余额最多的北京的用户，如果余额相同，按名字排序
+
+> ```
+> create table Card
+> (
+>     id  int    not null
+>         primary key,
+>     cid int    null,
+>     tid int    null,
+>     bal double null
+> );
+> 
+> create table Customer
+> (
+>     id   int         not null
+>         primary key,
+>     name varchar(20) null,
+>     city varchar(20) null
+> );
+> ```
+
+思路
+
+对cid进行聚集，返回最高的bal
+
+```mysql
+select cu.name as CustomerName, t.m
+from Customer as cu,
+     (select cid, sum(bal) as m
+      from Card
+      group by cid
+      order by m desc) as t
+where cu.id = t.cid
+  and cu.city = 'beijing'
+order by t.m desc, cu.name;
+```
+
+问题
+
+如果存在相同的余额，未能按照name排序依次输出
+
+```mysql
+select cid, sum(bal) as m
+from Card
+group by cid
+order by m desc;
+
+select cid, sum(bal) as m
+from Card
+group by cid
+order by m desc
+limit 1;
+
+select cid, sum(bal) as m
+from Card
+group by cid
+having m = (select sum(bal) as m
+            from Card
+            group by cid
+            order by m desc
+            limit 1);
+
+
+select cu.name as CustomerName
+from Customer as cu,
+     (select cid, sum(bal) as m
+      from Card
+      group by cid
+      having m = (select sum(bal) as m
+                  from Card
+                  group by cid
+                  order by m desc
+                  limit 1)) as t
+where cu.id = t.cid
+order by cu.name;
+```
 

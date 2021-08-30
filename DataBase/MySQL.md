@@ -174,12 +174,46 @@ DATABASE（数据库）或者SCHEMA（模式）都可以
 ```mysql
 # 创建数据库
 CREATE DATABASE course；
-# 切换
+# 切换数据库
 use course;
 # 提示Query OK，表示sql文件已经被成功执行
 source /root/course/create.sql;
 source /root/course/populate.sql;
 ```
+
+使用命令创建
+
+```bash
+mysql -uroot -p1 course < /root/course/create.sql
+```
+
+
+
+## 导出数据
+
+使用`mysqldump`命令导出数据库文件
+
+```bash
+# 进入容器，进入mysql
+docker exec -it a9757d991f3c /bin/bash
+
+# 导出所有的表结构和数据
+mysqldump test -uroot -p1 > /root/dump/test.sql
+
+# 导出某个数据库所有表结构
+# -d，--no-data 导出结构,不导出数据
+mysqldump -d test -uroot -p1 > /root/dump/test1.sql
+
+# 导出某个数据库所有表数据
+# -t，--no-create-info 导出数据,不导出结构
+mysqldump -t test -uroot -p1 > /root/dump/test2.sql
+
+# 导出某个数据库特定表和数据（
+# 数据和表结构
+mysqldump test -uroot -p1 Customer > /root/dump/Customer.sql
+```
+
+
 
 
 
@@ -206,6 +240,21 @@ source /root/course/populate.sql;
   - 快捷键：`ctrl+enter`
 
 > 可以运行sql文件作为一个整体
+
+
+
+## 导出表和数据
+
+[DataGrip 数据导出与导入](https://www.meaoo.cn/2018/04/03/20180403001.html)
+
+右键数据库或表，选择`Export with 'mysqldump'`
+
+- 使用MySql的`mysqldump`组件进行数据导出
+- 该方法导出的SQL文件，可以选择是否包含数据或者是只导出数据结构
+
+> `Export data to Files`是导出各种单个文件，比如，SQL，HTML，TSV，CSV等文件，是在对某个表进行操作的时候使用的
+
+![导出表和数据](MySQL.assets/导出表和数据.png)
 
 
 

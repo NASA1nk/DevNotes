@@ -1218,25 +1218,26 @@ subquery
 
 **子查询**
 
-`select prod_id,prod_name from products where vend_id = (select vend_id from products where prod_id = 'DTNTR');`
+- `select prod_id,prod_name from products where vend_id = (select vend_id from products where prod_id = 'DTNTR');`
 
 **自联结**
 
-`select p1.prod_id,p1.prod_name from products as p1,products as p2 where p1.vend_id = p2.vend_id and p2.prod_id = 'DTNTR';`
+- `select p1.prod_id,p1.prod_name from products as p1,products as p2 where p1.vend_id = p2.vend_id and p2.prod_id = 'DTNTR';`
 
-`select e1.Name as Employee from Employee as e1,Employee as e2 where e1.ManagerId = e2.Id and e1.Salary > e2.Salary;`
+- `select e1.Name as Employee from Employee as e1,Employee as e2 where e1.ManagerId = e2.Id and e1.Salary > e2.Salary;`
 
 ## 自然联结
 
-自然联结使每个col只返回一次
+自然联结使每个`col`只返回一次
+
+- 不是系统实现，通过过滤检索实现
 
 - 要求只能选择唯一的col
 - 通过通配符`select *`实现
   - 对其他table的col使用明确的子集
 
-> 内部联结（等值连接）会返回所有的数据，即使相同的col也可以出现多次
+> 内部联结（等值连接）会返回所有的数据，即使相同的`col`也可以出现多次
 >
-> 不是系统实现
 
 `select c.* , o.order_num, o.order_date, oi.prod_id, oi.quantity, oi.item_price from customers as c, orders as o, orderitems as oi where c.cust_id = o.cust_id and oi.order_num = o.order_num and prod_id = 'FB';`
 
@@ -1258,6 +1259,76 @@ subquery
 > 即使`customers`中`cust_id=10002`的行没有在`orders`表中出现，也会作为结果被返回
 
 ![外部联结](MySQL.assets/外部联结.png)
+
+
+
+## 带聚集函数的联结
+
+将多表联结后再使用聚集函数
+
+- `select customers.cust_name,customers.cust_id,count(orders.order_num) as num_ord from customers inner join orders on customers.cust_id = orders.cust_id group by orders.cust_id;`
+- `select customers.cust_name,customers.cust_id,count(orders.order_num) as num_ord from customers left join orders on customers.cust_id = orders.cust_id group by orders.cust_id;`
+
+
+
+# 组合查询
+
+并（`union`）查询，也叫复合（`compound`）查询
+
+- 在单个查询中从不同的表中返回类似结构的数据
+- 对单个表执行多个查询，按单个查询返回数据
+
+> 具有多个`where`子句的`select`语句都可以改写成组合查询
+
+## UNION
+
+使用`union`关键字组合多条`select`语句，将结果组合成单个结果集
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

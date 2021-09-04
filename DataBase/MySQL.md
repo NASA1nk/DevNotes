@@ -1237,7 +1237,6 @@ subquery
   - 对其他table的col使用明确的子集
 
 > 内部联结（等值连接）会返回所有的数据，即使相同的`col`也可以出现多次
->
 
 `select c.* , o.order_num, o.order_date, oi.prod_id, oi.quantity, oi.item_price from customers as c, orders as o, orderitems as oi where c.cust_id = o.cust_id and oi.order_num = o.order_num and prod_id = 'FB';`
 
@@ -1280,47 +1279,95 @@ subquery
 
 > 具有多个`where`子句的`select`语句都可以改写成组合查询
 
-## UNION
-
 使用`union`关键字组合多条`select`语句，将结果组合成单个结果集
 
+`select vend_id,prod_id,prod_price from products where prod_price<=5 union select vend_id,prod_id,prod_price from products where vend_id in (1001,1002);`
+
+> 等价于
+>
+> `select vend_id,prod_id,prod_price from products where prod_price<=5 or vend_id in (1001,1002);`
+
+## UNION使用
+
+### union规则
+
+- `union`必须由两条或者两条以上的`select`语句组成，每条`select`语句之间都要用union分隔
+- union中的每个查询都必须包含相同的col，表达式或聚集函数
+  - col之间不要求顺序
+  - col数据类型必须兼容
+
+### 包含重复行
+
+`union`会自动去除重复行
+
+使用`union all`可以保留重复行
+
+`select vend_id,prod_id,prod_price from products where prod_price<=5 union all select vend_id,prod_id,prod_price from products where vend_id in (1001,1002);`
 
 
 
+## 组合查询结果排序
+
+- 使用`union`组合查询只能使用一条`order by`子句
+- `order by`子句必须在最后一条select语句后面
+
+`select vend_id,prod_id,prod_price from products where prod_price<=5 union all select vend_id,prod_id,prod_price from products where vend_id in (1001,1002) order by vend_id,prod_price;`
+
+> 无法部分排序
+>
 
 
 
+# 全文本搜索
+
+并非所有的引擎都支持全文本搜索
+
+- MyISAM支持
+- InnoDB不支持
+
+> 正则表达式匹配的进阶
+>
+
+要进行全文本搜索必须索引被搜索的`col`
+
+- 数据改变后要重新索引
+- 在对表列适当设计后，MySQL会自动进行所有的索引和重新索引
+
+## FULLTEXT
+
+- 在`create table`中使用`fulltext`子句，MySQL会根据`fulltext`指定的`col`对它进行索引
+- 不要在导入数据的时候使用fulltext子句
 
 
 
+## 搜索函数
 
+- `Match()`
+  - 指定被搜索的col
+- `Against()`
+  - 指定使用的搜索表达式
 
+`select note_text from productnotes where match(note_text) against('rabbit');`
 
+> `match(col)`指定的`col`必须是和`fulltext`中定义的相同，如果指定多个`col`，则顺序也要完全相同
+>
+> 除非使用binary方式，否则全文本搜索不区分大小写
 
+等价于
 
+`select note_text from productnotes where note_text like '%rabbit%';`
 
+## 搜索等级
 
+全文本搜索会对结果进行排序，具有较高等级的行先返回
 
+`select note_text,match(note_text) against('rabbit') as rank from productnotes;`
 
+> 不含搜索文本的行的`rank=0`，这也是全文本搜索排除行以及排序的方法
 
+![全文本搜索rank](MySQL.assets/全文本搜索rank.png)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+## 查询拓展
 
 
 

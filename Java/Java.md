@@ -1280,16 +1280,22 @@ public class Demo01 {
 
 
 
-## 命令行传参
+## main方法
 
-当一个程序运行时才给它传递信息，通过传递**命令行参数**给`main()`方法实现
-
-> `public static void main(String[] args)`中`String[] args`是参数
+- `main()`方法作为程序的入口
+- `main()`方法也是一个普通的静态方法
+  - 可以通过类来调用
+  - 静态方法中不能调用非静态方法
+- 一个`.java`文件中只能有一个`public class`，但是可以有多个`class`以及多个`main()`方法
+  - 需要指定一个`main()`方法来作为程序的入口
+- `mian()`方法可以作为和控制台交互的方式
+  - 当一个程序运行时才给它传递信息，通过传递**命令行参数**给`main()`方法实现
 
 ```java
 package com.ink.method;
 
 public class Demo02 {
+  // String[] args`是参数
   public static void main(String[] args) {
     for (int i = 0; i < args.length; i++) {
       System.out.println("args[" + i + "]" + args[i]);
@@ -1362,17 +1368,6 @@ public class Demo02 {
 ```
 
 
-
-## 递归
-
-一种思想：方法本身调用自己这个方法
-
-递归结构：
-
-- **递归头**：何时结束递归，不再调用自身
-- **递归体**：何时需要递归，调用自身
-
-> StackOverflowError栈溢出
 
 
 

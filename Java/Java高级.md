@@ -289,8 +289,8 @@ System.out.println(s3 == s7);
 **快捷键**：`ctrl+F12`
 
 - `StringBuidler append(obj)`：字符串拼接
-- `StringBuffer delete(int start,int end)`：删除指定位置内容
-- `StringBuffer replace(int start,int end,String str)`：把**[start,end)**位置的内容替换为str
+- `StringBuffer delete(int start,int end)`：删除`[start,end)`的内容
+- `StringBuffer replace(int start,int end,String str)`：把`[start,end)`位置的内容替换为`str`
 - `StringBuffer insert(int offset,obj)`：字符插入
 - `StringBuffer reverse()`：反转字符串
 
@@ -304,28 +304,26 @@ System.out.println(s3 == s7);
 
 **这些方法支持方法链操作**
 
-**方法链**
-
-可以`...`一直调用（**返回this**）
+- **方法链**：可以`...`一直调用（**返回this**）
 
 ![方法链](Java高级.assets/方法链.png)
 
 
 
-## StringBuidler类
+## StringBuilder类
+
+`StringBuilder`对象的字符内容存储在一个字符数组`value[]`中（没有`final`修饰，可变）
 
 - **可变的字符序列**
 - **线程不安全的，效率高**
 
-> JDK5.0新增
+> JDK5新增
 >
 > 不涉及线程的时候（不考虑线程安全时），优先使用
 
-`StringBuidler`对象的字符内容存储在一个字符数组`value[]`中（没有`final`修饰，可变）
-
 **效率**
 
-`StringBuidler` > `StringBuidler` > `String`
+- `StringBuilder` > `StringBuffer` > `String`
 
 **方法**
 
@@ -1704,7 +1702,7 @@ list.add(123);
 
 #### LinkedList
 
-LinkedList
+LinkedList继承自AbstractSequentialList类
 
 - 是`List`
 - 是`Queue`
@@ -1712,9 +1710,9 @@ LinkedList
 
 底层使用**双向链表**存储
 
-- 分配内存空间不是必须是连续的
-- 插入、删除操作，时间复杂度为O(1)
-- 访问遍历元素，时间复杂度为O(n)
+- 分配内存空间不是必须连续
+- 插入、删除操作，时间复杂度为`O(1)`
+- 访问遍历元素，时间复杂度为`O(n)`
 
 ```java
 // 内部声明了Node(双向链表)类型的first和last属性,默认为NULL

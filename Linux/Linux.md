@@ -1716,7 +1716,7 @@ su root
 ## 安装git
 
 ```bash
-#确保系统和apt包列表完全更新
+#确保系统和apt包列表完全更新（update更新软件列表，upgrade更新软件）
 sudo apt-get update -y
 sudo apt-get upgrade -y
 
@@ -1748,10 +1748,15 @@ git config --list
 
 - 在PowerShell中安装Powerline字体集合
 
+- If you are running a Debian or Ubuntu based Linux distribution
+  `sudo apt-get install fonts-powerline`
+
 ```bash
 git clone https://github.com/powerline/fonts.git
 cd fonts
 .\install.ps1
+
+# ./install.sh
 ```
 
 ### 安装zsh
@@ -1777,7 +1782,8 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 ```bash
 # 配置 zsh
 vim ~/.zshrc
-# 修改ZSH_THEME
+# 修改第11行
+ZSH_THEME="agnoster"
 ```
 
 打开WindowsTerminal的JSON配置文件，在`schemes`中添加一个主题（主题名随意） 这里为`inswsl2`，并把字体改为一个Powerline字体
@@ -1823,13 +1829,24 @@ vim ~/.zshrc
 
 再把命令行的机器名称去掉，并调整用户名的背景色
 
-- 编辑agnoster主题文件
+- 编辑`agnoster`主题文件
 
 ```bash
 vi ~/.oh-my-zsh/themes/agnoster.zsh-theme
 
 # 把 92 行修改为
 prompt_segment green black "%(!.%{%F{yellow}%}.)%n"
+```
+
+### 设置为默认bash
+
+```bash
+vim ~/.bashrc
+# 添加
+export SHELL=`which zsh`
+[ -z "$ZSH_VERSION" ] && exec "$SHELL" -l
+# 更新
+source ~/.bashrc
 ```
 
 

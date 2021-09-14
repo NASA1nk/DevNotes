@@ -852,6 +852,19 @@ public class Compare {
 }
 ```
 
+对二维数组进行排序
+
+```java
+Arrays.sort(points,(t1,t2)->{
+    if(t1[0] != t2[0]){
+        return t1[0] - t2[0];
+    }
+    else{
+        return t1[1] - t2[1];
+    }
+});
+```
+
 
 
 # 枚举类
@@ -1760,7 +1773,7 @@ list.add(123);
 - `Object remove(int index)`：删除链表index位置的元素并返回
   - `List`中的`remove()`方法重载了`Collection`的方法，一个根据索引删除，一个根据元素删除
   - 因为`Collection`集合添加`int`类型的元素也会自动装箱为`Integer`，所以当参数是`int`类型时默认是索引
-  - 如果想删除元素，则需调用`new Integer()`
+  - 如果想删除元素，则需调用`new Integer(val)`
 - `Object removeFirst()`:删除链表头部元素并返回
 - `Object removeLast()`:删除链表尾部元素并返回
 
@@ -2391,6 +2404,30 @@ System.out.println(user);
 **同步控制**
 
 **Collections**类中提供了多个`synchronizedXxx()`方法，可以**将指定集合包装成线程同步的集合**，从而可以解决多线程并发访问集合时的**线程安全问题**
+
+### 自定义排序
+
+`sort(List,Comparator)`：根据指定`Comparator`的顺序对`List`中元素进行排序
+
+```java
+Collections.sort(dictionary,new Comparator<String>(){
+    @Override
+    public int compare(String s1,String s2){
+        if(s1.length() == s2.length()){
+            int i = 0;
+            while(i < s1.length()){
+                if(s1.charAt(i) != s2.charAt(i)){
+                    return s1.charAt(i) - s2.charAt(i);
+                }
+                i++;
+            }
+        }   
+        else{
+            return -(s1.length()-s2.length());
+        }
+    }
+});
+```
 
 
 

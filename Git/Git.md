@@ -77,7 +77,7 @@ git init
 
 ## 添加
 
-由本地文件添加到暂存区
+由本地文件添加到**暂存区**
 
 ```bash
 #查看已修改的文件
@@ -91,19 +91,29 @@ git add .
 
 ## 提交
 
-`git add`后提交到版本库，可以在head文件中看到
+### 本地仓库
 
-> 使用`git log`查看提交历史
+`git add`后再提交到版本地的本库，可以在head文件中看到，每个commit都是一个版本
+
+> 使用`git log`查看提交历史，可以查看`commit id`
 
 ```bash
 git commit -m "注释"
 ```
 
+### 远程仓库
+
+```bash
+git push 远程仓库
+```
+
+
+
 ## 撤销
 
-gitjk工具
+`gitjk`工具
 
-提示命令，在想撤销的命令后一条输入gitjk（紧挨着）
+提示命令，在想撤销的命令后一条输入`gitjk`（紧挨着）
 
 > 会输出用于撤销的命令
 
@@ -115,7 +125,7 @@ git commit file_name -m "注释"
 gitjk
 ```
 
-命令
+撤销命令
 
 ```bash
 # 撤销git add
@@ -177,6 +187,17 @@ git log
 
 ```bash
 git branch
+
+# 查看远程分支
+git branch -r
+
+
+# 查看本地和远程分支
+git branch -a
+
+
+# 查看远程分支和本地分支的对应关系
+git remote show origin
 ```
 
 ### 创建新分支
@@ -185,7 +206,7 @@ git branch
 # 创建后不会自动切换到新的分支
 git branch branch_name
 
-# 创建新分支并立即切换到该分支下
+# 创建新分支并切换到该分支下
 git checkout -b branch_name
 ```
 
@@ -193,11 +214,14 @@ git checkout -b branch_name
 
 ```bash
 git checkout branch_name
+
+# 切换到上一个分支
+git checkout -
 ```
 
 ### 修改默认分支
 
-> 修改默认分支为 `main` 分支
+> 修改默认分支为`main`分支
 
 ```bash
 git config --global init.defaultBranch main

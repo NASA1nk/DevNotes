@@ -53,7 +53,66 @@ python temp.py
 
 
 
-## Anconda
+# Anconda
+
+Anaconda是python的一个发行版，包括了python和很多科学计算的第三方库以及一个包管理器conda
+
+## 安装
+
+- 在清华开源站下载
+  - [Index of /anaconda/archive/ | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/)
+- Anaconda默认不建议添加到环境变量中，可能导致出错
+  - 选择默认使用python的版本
+
+> 选择`All Users`
+
+## 配置环境变量
+
+Anaconda安装在`C:\Env\Anaconda`
+
+> **找到在自己的电脑上Anaconda安装的位置**，在Anaconda Prompt中输入`where conda`
+
+在环境变量中添加目录
+
+- `C:\Env\Anaconda`
+  - Python需要
+- `C:\Env\Anaconda\Scripts`
+  - conda自带的脚本
+- `C:\Env\Anaconda\Library\mingw-w64\bin`
+  - 使用C with python需要
+- `C:\Env\Anaconda\Library\bin`
+  - jupyter notebook动态库
+
+## 验证
+
+1. 在cmd中输入`python`查看是否有Python环境
+2. 在cmd中输入`conda --version`或者`conda info`查看是否有conda环境
+
+
+
+## 修改镜像地址
+
+更换到国内镜像源地址
+
+在Anaconda prompt中执行
+
+```bash
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
+
+# 设置搜索时显示通道地址
+conda config --set show_channel_urls yes
+
+# 验证
+conda config --show channels
+```
+
+
+
+![验证修改通道](Python.assets/验证修改通道.png)
+
+## conda
 
 在Anaconda中，conda和pip安装的包都是python环境的一部分（安装在同一路径），项目对于包的使用是没有区别的
 
@@ -71,12 +130,61 @@ conda可以自动处理包之间的依赖关系（相比pip）
 ```bash
 # 创建环境
 conda create -n ink python=3.6
+
+# 查看环境
+conda env list
+
 # 激活环境
 conda activate ink
+
+# 离开环境
 conda deactivate ink
 ```
 
-## Pyenv
+## 导出环境
+
+先进入需要导出的环境执行命令，在当前文件夹下会出现一个`env.yaml`文件，就是conda的环境文件
+
+> YAML文件包括Pyhton版本和所有包的名称，在终端中上可以看到导出的环境文件路径
+
+```bash
+conda env export > env.yaml
+```
+
+该文件在conda内安装的时候只会安装由conda下载的包，并不会安装由pip下载的包，所以还需要将pip下载的包单独导出
+
+```bash
+pip freeze > pip.txt
+```
+
+## 导入环境
+
+先导入`env.yaml`创建环境，进入环境后再导入`pip.txt`
+
+> 注意路径
+
+```bash
+conda env create -f env.yaml
+
+conda activate env
+
+pip install -r pip.txt
+```
+
+## 更新环境
+
+先进入环境，然后更新环境
+
+```bash
+# -f表示要导出文件在本地的路径
+conda env update -f=/path/environment.yaml
+```
+
+
+
+
+
+# Pyenv
 
 Python环境管理工具，可以切换全局解释器版本
 

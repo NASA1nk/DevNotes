@@ -9,11 +9,11 @@
 
 ## 版本库
 
-所有版本信息存放在`.git`文件夹中（不要传上去）
+- 所有版本信息存放在`.git`文件夹中（不会传上去）
 
-文件命名：使用文件的`SHA-1`值作为文件名
-
-SHA-1是一个哈希函数，使用文件的内容计算出一串数字作为文件特征。这样回滚后相同内同的文件也只会保留一份。
+- 文件命名
+  - 使用文件的`SHA-1`值作为文件名
+  - SHA-1是一个哈希函数，**使用文件的内容计算出一串数字作为文件特征**，这样回滚后相同内同的文件也只会保留一份
 
 ![SHA-1](Git.assets/SHA-1.png)
 
@@ -21,12 +21,14 @@ SHA-1是一个哈希函数，使用文件的内容计算出一串数字作为文
 
 树形结构
 
-- blob：数据文件（二进制）
-- tree：目录结构
+- `blob`：数据文件（二进制）
+- `tree`：目录结构
 
 ![目录结构](Git.assets/%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84.png)
 
-使用`object`管理所有的目录结构，并且用SHA-1的前两位对文件分级（避免存储过多，索引太慢）
+使用`object`管理所有的目录结构
+
+- 使用SHA-1的前两位对文件分级（避免存储过多，索引太慢）
 
 ![文件分级](Git.assets/%E6%96%87%E4%BB%B6%E5%88%86%E7%BA%A7.png)
 
@@ -34,8 +36,8 @@ SHA-1是一个哈希函数，使用文件的内容计算出一串数字作为文
 
 本地仓库
 
-- git add
-- git commit
+- `git add`
+- `git commit`
 
 ![暂存](Git.assets/%E6%9A%82%E5%AD%98.png)
 
@@ -47,7 +49,9 @@ SHA-1是一个哈希函数，使用文件的内容计算出一串数字作为文
 
 ## 快照
 
-`commit`会产生一个新的快照（多次commit形成一条链表），每个对应不同的SHA-1值，HEAD会指向最新的快照
+- 每一次`commit`都会产生一个新的快照
+  - 多次commit形成一条链表
+- 每个快照都对应不同的SHA-1值，HEAD会指向最新的快照
 
 ## 协同分支
 
@@ -55,53 +59,57 @@ SHA-1是一个哈希函数，使用文件的内容计算出一串数字作为文
 
 合并方式：
 
-- Merge：
-  - git checkout
-  - git merge
+- Merge
+  - `git checkout`
+  - `git merge`
 - Rebase（会修改历史，建议本地用）
-  - git checkout
-  - git rebase
+  - `git checkout`
+  - `git rebase`
 - Cheey-pick（合并某一版本）
-  - git checkout
-  - git cheery-pick
+  - `git checkout`
+  - `git cheery-pick`
 
 # Git命令
 
 ## 初始化
 
-将文件夹变成仓库（创建隐藏文件夹`.git`）
+将文件夹变成仓库
+
+- 创建隐藏文件夹`.git`
 
 ```bash
 git init
 ```
 
-## 添加
+## 添加到暂存区
 
 由本地文件添加到**暂存区**
 
 ```bash
-#查看已修改的文件
+# 查看已修改的文件
 git status
 
-git add filename
+git add fileName
 
-#全部加入
+# 全部加入
 git add .
 ```
 
 ## 提交
 
-### 本地仓库
+### 提交到本地仓库
 
-`git add`后再提交到版本地的本库，可以在head文件中看到，每个commit都是一个版本
+`git add`后再提交到版本的本地库，可以在`head`文件中看到
 
-> 使用`git log`查看提交历史，可以查看`commit id`
+- 每个commit都是一个版本
+
+- 使用`git log`查看提交历史，可以查看`commit id`
 
 ```bash
 git commit -m "注释"
 ```
 
-### 远程仓库
+### 提交到远程仓库
 
 ```bash
 git push 远程仓库
@@ -298,7 +306,49 @@ git stash clear
 
 # Git配置
 
+## 配置用户信息
+
+```bash
+# 查看当前Git环境所有配置
+# 可以配置一些命令别名
+git config --list 
+```
+
 ![设置个人信息](Git.assets/设置个人信息.png)
+
+## SSH连接GitHub
+
+在`config`文件中保存着连接的url
+
+- 使用https url，通过git提交的时候要输入用户名和密码
+- 使用ssh url，通过git提交的时候不需要繁琐的验证过程
+
+![gitconfig](Git.assets/gitconfig.png)
+
+### 创建密钥
+
+在`~/.ssh`目录下生成密钥
+
+```bash
+ssh-keygen -t rsa -C "541640794@qq.com"
+```
+
+
+
+![生成密钥](Git.assets/生成密钥.png)
+
+### 获取密钥
+
+将公钥`id_rsa.pub`作为ssh key
+
+![获取SSHKey](Git.assets/获取SSHKey.png)
+
+### 创建SSH Key
+
+1. `GitHub-Setting`
+2. `SSH and GPG keys`
+3. `New SSH key`
+4. 复制`id_rsa.pub`即可 
 
 
 
@@ -313,7 +363,7 @@ git remote -v
 
 本地一般使用master做主分支，git使用main做主分支，需要修改
 
-添加后，远程库的名字是`origin`（Git默认）
+添加后，远程仓库的名字是`origin`（Git默认）
 
 ![github](Git.assets/github.png)
 
@@ -376,7 +426,7 @@ git push -u origin main
 
 1.初始化
 
-新建文件夹，在终端中执行git init
+新建文件夹，在终端中执行`git init`
 
 ![VSCode创建仓库](Git.assets/VSCode创建仓库.png)
 
@@ -392,16 +442,17 @@ git push -u origin main
 
 3.查看历史信息
 
-可以git checkout SHA-1切换版本
+可以`git checkout SHA-1`切换版本
 
 ![VSCode查看信息](Git.assets/VSCode查看信息.png)
 
 4.创建和切换分支
 
-点击左下角的mian图标
+点击左下角的main图标
 
 ![VSCode创建分支](Git.assets/VSCode创建分支.png)
 
 5.提交文件
 
 在main图标旁边的就是push按钮
+

@@ -1532,24 +1532,6 @@ CopyIp或域名  主机名 host-key
 
 
 
-## Xshell连接云服务器
-
-1. **腾讯云生成密钥**
-
-   1. 下载密钥文件`ink.pem`
-
-   2. 点击刚创建的SSH密钥，复制其中的**公钥**，然后放在同一个文件夹中
-
-      > 公钥的名称和密钥一样，后缀为`.pub`，密钥没有文件名后缀
-
-2. **绑定云主机**
-
-3. **Xshell加载密钥**
-
-   1. 点击XShell左上角的新建连接按钮，输入主机名和ip，点击连接
-   2. 账号密码登录，输入密码
-   3. SSH登录，选择下载的密钥`ink.pem`(腾讯云生成的时候没有密码，不用输入)
-
 
 
 # 防火墙
@@ -1616,107 +1598,120 @@ systemctl restart firewalld.service
 
 # WSL
 
-`Windows Subsystem for Linux（`简称WSL）是一个为在Windows 10上能够原生运行**Linux二进制可执行文件**（ELF格式）的兼容层
+`Windows Subsystem for Linux`（WSL）是一个为在Windows 10上能够原生运行**Linux二进制可执行文件**（ELF格式）的兼容层
 
-WSL不是虚拟机而是子系统，是Windows的一部分，并不像虚拟机一样与宿主系统隔离，**windows下的所有文件在Linux subsystem里都有映射的**，所以在Linux subsystem里运行一些危险指令也会影响到Windows
+- WSL不是虚拟机而是子系统，是Windows的一部分
+- WSL并不像虚拟机一样与宿主系统隔离，**windows下的所有文件在Linux subsystem里都有映射的**，所以在Linux subsystem里运行一些危险指令也会影响到Windows
+- 目标是使纯正的Ubuntu"Trusty Tahr"映像能下载和解压到用户的本地计算机，并且映像内的工具和实用工具能在此子系统上原生运行
 
-目标是使纯正的Ubuntu 14.04 "Trusty Tahr"映像能下载和解压到用户的本地计算机，并且映像内的工具和实用工具能在此子系统上原生运行。
-
-> 它是由微软与Canonical公司合作开发
+> 由微软与Canonical公司合作开发
 
 ## 安装
 
-1. **启用适用于Linux的Windows子系统**
+[在 Windows 10 上安装 WSL | Microsoft Docs](https://docs.microsoft.com/zh-cn/windows/wsl/install-win10)
 
-   1. 使用管理员身份打开PowerShell，执行以下命令
+### 启用适用于Linux的Windows子系统
 
-      ```bash
-      dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
-      ```
+- 在搜索栏中搜索并打开**启用或关闭Windows功能**，勾选**适用于Linux的Windows子系统**项
 
-   2. 或者在搜索栏中搜索并打开**启用或关闭Windows功能**，勾选**适用于Linux的Windows子系统**项
+- 或者使用管理员身份打开PowerShell，执行以下命令
 
-   3. 重启
+    ```bash
+    dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+    ```
 
-2. **检查运行WSL2的要求**
-
-   安装WSL2，对不同架构的CPU有不同的Win10版本要求，需要确保Win10版本号为2004（内部版本19041或更高）即可
-
-   `win+r`输入`winver`可快速查看Windows版本。如果Win10版本号低于2004，可使用Windows10易升工具手动升级。
-
-   下载Windows10易升工具，下载后运行等待完成升级即可
-
-   ```bash
-   https://www.microsoft.com/zh-cn/software-download/windows10
-   ```
-
-3. **启用虚拟机功能**
-
-   以管理员身份打开PowerShell，执行以下命令
-
-   ```bash
-   dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
-   ```
-
-4. **下载Linux内核更新包并运行**
-
-   > WSL2需要更新其内核组件。有关信息，请访问 https://aka.ms/wsl2kernel
-
-5. **将WSL2设置为默认版本**
-
-   ```bash
-   wsl --set-default-version 2
-   ```
-
-6. 在微软应用商店搜索Linux，选择合适的发行版，这里选用Ubuntu 18.04 LTS
-
-7. 启动Ubuntu 18.04 LTS，创建用户名及密码
-
-8. 验证：查看WSL版本，确保WSL的版本为 2.0
-
-   ```bash
-   $ wsl -l -v
-   ```
-   
-9. 设置WSL的默认版本
-
-   ```bash
-   wsl --set-version Ubuntu-18.04 2
-   ```
+- 重启
 
 
+### 检查运行WSL2的要求
+
+安装WSL2对不同架构的CPU有不同的Win10版本要求
+
+> - 对于 x64 系统：**版本 1903** 或更高版本，采用 **内部版本 18362** 或更高版本
+> - 对于 ARM64 系统：**版本 2004** 或更高版本，采用 **内部版本 19041** 或更高版本
+
+- 快速查看Windows版本
+  - `win+r`输入`winver`
+- 如果Win10版本号低于2004，可使用Windows10易升工具手动升级
+  - 下载Windows10易升工具，下载后运行等待完成升级即可
+
+    ```bash
+    https://www.microsoft.com/zh-cn/software-download/windows10
+    ```
+
+### 启用虚拟机功能
+
+以管理员身份打开PowerShell，执行命令
+
+```bash
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+```
+
+### 下载Linux内核更新包并运行
+
+1. WSL2需要更新其内核组件：https://aka.ms/wsl2kernel
+2. 运行更新包
+   1. 系统将提示你提供提升的权限，选择**是**以批准此安装
+3. 重启
+
+### 将WSL2设置为默认版本
+
+```bash
+wsl --set-default-version 2
+```
+
+### 下载Linux发行版
+
+1. 在微软应用商店搜索Linux，选择合适的发行版
+2. 启动Ubuntu 20.04 LTS，创建用户名及密码
+
+> 首次启动新安装的Linux发行版时，将打开一个控制台窗口，系统会要求等待一分钟或两分钟，以便文件解压缩并存储到电脑上
+
+### 验证
+
+查看WSL版本，确保WSL的版本为2.0
+
+```bash
+wsl -l -v
+```
 
 ## 账号
 
-**Ubuntu 18.04 LTS**
+**Ubuntu 20.04 LTS**
 
 ```sh
-#给root设置密码
-su passwd root
+#user：ink
+#passwd：空格
 
-#切换root
+# 给root设置密码
+# passwd：空格
+sudo passwd root
+
+# 切换root
 su root
 ```
 
 ## 查看文件
 
-1. 在Linux查看windows其他分区（WSL可以将其它盘符挂载在`/mnt`下），
+1. 在Linux查看windows的分区
 
-2. windows中C、D、E盘都对应在子系统中`/mnt`目录中
+   1. WSL将其它盘符挂载在`/mnt`下
+   2. windows中C、D盘都对应在`/mnt`目录中
 
-3. 在Windows下查看WSL文件位置
+2. 在Windows下查看WSL文件位置
 
    1. wsl ubuntu 文件在本地磁盘的位置
 
    ```bash
    # 绝对路径
-   C:\Users\用户\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\LocalState\rootfs
+   C:\Users\用户\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu20.04onWindows_79rhkp1fndgsc\LocalState
    ```
 
 ## 安装git
 
 ```bash
-#确保系统和apt包列表完全更新（update更新软件列表，upgrade更新软件）
+# 确保系统和apt包列表完全更新
+# update更新软件列表，upgrade更新软件
 sudo apt-get update -y
 sudo apt-get upgrade -y
 
@@ -1725,10 +1720,21 @@ sudo apt-get install git
 
 # 验证
 git --version
+```
 
+### git配置
+
+在`~/.gitconfig`文件中
+
+> global是读/写当前用户全局的配置文件，属于某个用户`home/ink`
+
+```bash
 # 个人信息
 git config --global user.name "ink"
 git config --global user.email "541640794@qq.com"
+
+# 配置代理
+git config --global http.proxy 10.2.3.124:1080
 
 # 查看(q+enter退出)
 git config --list
@@ -1737,39 +1743,59 @@ git config --list
 ## oh-my-zsh
 
 - Linux发行版的默认命令解释器是Bash
-
-- Zsh是另一个常用的命令解释器，相比于默认的Bash，Zsh有更多的自定义选项，并支持扩展，因此Zsh可以实现更强大的命令补全，命令高亮等一系列功能
-
-- 默认的Zsh配置比较麻烦，在GitHub上有一个配置文件oh-my-zsh，是目前为止最流行的Zsh配置
+- Zsh是另一个常用的命令解释器
+  - 相比于默认的Bash，Zsh有更多的自定义选项，并支持扩展，因此Zsh可以实现更强大的命令补全，命令高亮等一系列功能
+- 默认的Zsh配置比较麻烦
+  - 在GitHub上有一个配置文件oh-my-zsh，是目前为止最流行的Zsh配置
 
 ### 下载字体
 
 安装额外的字体来支持oh-my-zsh显示特殊的符号
 
 - 在PowerShell中安装Powerline字体集合
-
 - If you are running a Debian or Ubuntu based Linux distribution
   `sudo apt-get install fonts-powerline`
+
+> 在poweshell执行`install.ps1`失败时（提示因为在此系统上禁止运行脚本，也就是说没有权限）
+>
+> ```shell
+> # 查看
+> get-ExecutionPolicy
+> 
+> # 如果输出Restricted，表示受限制的，表示状态是禁止的，
+> # 给权限
+> Set-ExecutionPolicy -Scope CurrentUser
+> # 输入
+> RemoteSigned
+> ```
 
 ```bash
 git clone https://github.com/powerline/fonts.git
 cd fonts
-.\install.ps1
 
-# ./install.sh
+# windows
+#.\install.ps1
+
+# linux
+./install.sh
 ```
 
 ### 安装zsh
 
 ```bash
+# 更新
 sudo apt update
+
+# 安装
 sudo apt install git zsh -y
 
-#查看是否已安装了zsh
+# 查看是否已安装了zsh
 zsh --version
 ```
 
 ### 安装oh-my-zsh
+
+> Cloning into '`/home/ink/.oh-my-zsh`'
 
 ```bash
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
@@ -1779,14 +1805,19 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 
 将主题设置为`agnoster`
 
+> [Themes · ohmyzsh/ohmyzsh Wiki (github.com)](https://github.com/ohmyzsh/ohmyzsh/wiki/Themes)
+
 ```bash
-# 配置 zsh
+# 配置zsh
 vim ~/.zshrc
-# 修改第11行
+# 修改第11行ZSH_THEME
 ZSH_THEME="agnoster"
 ```
 
-打开WindowsTerminal的JSON配置文件，在`schemes`中添加一个主题（主题名随意） 这里为`inswsl2`，并把字体改为一个Powerline字体
+打开WindowsTerminal的JSON配置文件，在`schemes`中添加一个主题
+
+- 主题名随意，这里为`inswsl2`
+- 并把字体改为一个Powerline字体
 
 ```json
 "schemes": [
@@ -1814,39 +1845,28 @@ ZSH_THEME="agnoster"
 ],
 ```
 
-然后在该JSON文件中把wsl终端的主题设置为该`inkwsl2`主题，并把字体改为喜欢的一个 Powerline字体
+然后在JSON文件中把wsl终端的主题设置为该`inkwsl2`主题，并把字体改为喜欢的一个Powerline字体
 
 ```json
-            {
-                "guid": "{c6eaf9f4-32a7-5fdc-b5cf-066e8a4b1e40}",
-                "hidden": false,
-                "name": "Ubuntu-18.04",
-                "colorScheme": "inkwsl2",
-                "source": "Windows.Terminal.Wsl",
-                "fontFace": "DejaVu Sans Mono for Powerline"
-            },
+{
+    "guid": "{07b52e3e-de2c-5db4-bd2d-ba144ed6c273}",
+    "hidden": false,
+    "name": "Ubuntu-20.04",
+    "colorScheme": "inkwsl2",
+    "fontFace": "DejaVu Sans Mono for Powerline"
+    "source": "Windows.Terminal.Wsl"
+},
 ```
 
 再把命令行的机器名称去掉，并调整用户名的背景色
 
-- 编辑`agnoster`主题文件
+编辑`agnoster`主题文件
 
 ```bash
 vi ~/.oh-my-zsh/themes/agnoster.zsh-theme
 
 # 把 92 行修改为
 prompt_segment green black "%(!.%{%F{yellow}%}.)%n"
-```
-
-### 设置为默认bash
-
-```bash
-vim ~/.bashrc
-# 添加
-export SHELL=`which zsh`
-[ -z "$ZSH_VERSION" ] && exec "$SHELL" -l
-# 更新
-source ~/.bashrc
 ```
 
 
@@ -1859,17 +1879,168 @@ source ~/.bashrc
 - 各种丰富的插件(git/dig/aria2…)
 - 可运行 Windows 或软件
 
-**复制粘贴**
+**复制粘贴功能**
 
-在菜单栏点击 「settings」 --> 「Configuration」，在弹出的对话框中选择 「terminal」，将 「paste using right-click」 勾上
+1. 在菜单栏点击settings->Configuration
+2. 在弹出的对话框中选择terminal
+3. 勾上paste using right-click
 
 
 
 # WindowsTerminal
 
-**设置默认Ubuntu**
+**设置默认启动终端**
 
-点击标签右边的下拉三角-选择设置-打开JSON 配置文件-在`profiles`-`list`中找到Ubuntu的guid复制-粘贴到文件开头的 `defaultProfile` 的值
+1. 标签右边的下拉三角
+2. 选择设置-打开JSON配置文件
+3. 在`profiles`-`list`中找到Ubuntu的guid
+4. 复制粘贴到文件开头的`defaultProfile`的值
+
+## oh-my-posh
+
+使用管理员权限打开PowerShell并把oh-my-posh安装到所有用户
+
+> 安装oh-my-posh和posh-git
+
+```powershell
+Install-Module posh-git
+Install-Module oh-my-posh
+
+# 安装到当前用户
+Install-Module posh-git -Scope CurrentUser
+Install-Module oh-my-posh -Scope CurrentUser
+```
+
+安装完成后
+
+- 设置当前终端
+
+> 这些指令仅限于本次会话的PowerShell有效
+
+```pow
+Import-Module posh-git
+Import-Module oh-my-posh
+Set-PoshPrompt PowerLine
+```
+
+添加到启动脚本
+
+在PowerShell中输入`code $profile` ，然后将以下内容输入保存
+
+> code是通过vscode打开
+
+```powershell
+Import-Module posh-git
+Import-Module oh-my-posh
+Set-PoshPrompt paradox
+```
+
+## 配置文件
+
+WindowsTerminal的配置文件
+
+- `C:\Users\用户\AppData\Local\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json`
+
+> - 顶部的`$schema`是软件生成的固定内容
+> - `//global settings`位置可以设置很多终端表现相关的设置选项
+> - `profile`处设置Shell相关的配置选项
+> - `schemes`处设置颜色配置相关的配置选项
+> - `keybindings`设置键盘组合键相关的配置选项
+
+在`settings.json`中修改配置
+
+- `profiles`中powershell对应的配置
+
+```json
+    "profiles": 
+    {
+        "defaults": {},
+        "list": 
+        [
+            {
+                // 启动的shell，填入wsl命令就可以启动默认的Linux子系统，wsl ~就可以让启动目录是wsl的用户主目录~
+                "commandline": "powershell.exe",
+                "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+                "hidden": false,
+                "name": "Windows PowerShell",
+                // 不透明度，值越大背景就越浓，否则就越淡
+                "acrylicOpacity": 0.75,
+                "closeOnExit": "graceful",
+                // 颜色主题，对应下面的Scheme数组
+                "colorScheme": "Adventure",
+                // 光标颜色
+                "cursorColor": "#657B83",
+                // 光标形状：bar，empytBox，filledBox，vintage
+                "cursorShape": "filledBox",
+                "font": 
+                {
+                    "face": "DejaVu Sans Mono for Powerline",
+                    "size": 16
+                },
+                "historySize": 9001,
+                "padding": "0, 0, 0, 0",
+                "snapOnInput": true,
+                "startingDirectory": "%USERPROFILE%",
+                // 是否开启毛玻璃特效
+                "useAcrylic": true
+            },
+```
+
+## 配置颜色主题
+
+- [颜色主题仓库](https://github.com/mbadolato/iTerm2-Color-Schemes)
+  - 在仓库中找到想要的颜色主题
+
+- [主题下载](https://github.com/mbadolato/iTerm2-Color-Schemes/tree/master/windowsterminal)
+  - 在这里搜索对应的windows terminal主题
+- 配置
+  - 粘贴到`schemes`数组中
+  - 在想应用的配置文件里的`colorScheme`设置为下载的主题的名字
+
+> 选择`Adventure`主题
+
+## 添加Git Bash
+
+在profiles的list数组中添加节点
+
+### commandline
+
+- `C:\Env\Git\Git\bin\bash.exe` 
+
+### 生成 GUID
+
+- GUID 是全球唯一标识符，目的是为了唯一标识一个资源
+- 可以在网上搜索专门的GUID生成网站
+  - [Generate GUIDs online (guidgen.com)](https://www.guidgen.com/)
+
+> 4d39adb0-d31e-436e-b7f2-42371cf45da5
+
+```json
+{
+    "guid": "{4d39adb0-d31e-436e-b7f2-42371cf45da5}",
+    "hidden": false,
+    "name": "Git Bash",
+    "commandline": "C:\\Env\\Git\\Git\\bin\\bash.exe ",
+    "colorScheme":"Adventure",
+    "fontFace":"Fira Code",
+    "icon":"http://docs.hexcode.cn/git.png"
+},
+```
 
 
+
+## 显示conda环境
+
+```json
+{
+  "type": "python",
+  "style": "powerline",
+  "powerline_symbol": "\uE0B0",
+  "foreground": "#100e23",
+  "background": "#906cff",
+  "properties": {
+    "prefix": " \uE235 "
+  }
+}
+```
 

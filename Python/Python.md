@@ -141,37 +141,38 @@ conda activate ink
 conda deactivate ink
 ```
 
-## 导出环境
+## 环境迁移
 
-先进入需要导出的环境执行命令，在当前文件夹下会出现一个`env.yaml`文件，就是conda的环境文件
-
-> YAML文件包括Pyhton版本和所有包的名称，在终端中上可以看到导出的环境文件路径
+### 相同操作系统之间
 
 ```bash
+# 导出
+conda list --explicit > msops.txt
+
+# 导入
+conda create --name msops --file msops.txt
+```
+
+### 不同的平台和操作系统之间
+
+1. 先进入需要导出的环境执行命令，在当前文件夹下会出现一个`env.yaml`文件，就是conda的环境文件
+   1. yaml文件包括Pyhton版本和所有包的名称，在终端中上可以看到导出的环境文件路径
+   2. yaml文件只是一个安装目录，并不是安装包本身，导入时候仍会下载
+   3. 由conda基于软件包的名称构建环境
+2. 该文件在conda内安装的时候只会安装由conda下载的包，并不会安装由pip下载的包，所以还需要将pip下载的包单独导出
+3. 先导入`env.yaml`创建环境，进入环境后再导入`pip.txt`
+
+```bash
+# 导出
 conda env export > env.yaml
-```
-
-该文件在conda内安装的时候只会安装由conda下载的包，并不会安装由pip下载的包，所以还需要将pip下载的包单独导出
-
-```bash
 pip freeze > pip.txt
-```
-
-## 导入环境
-
-先导入`env.yaml`创建环境，进入环境后再导入`pip.txt`
-
-> 注意路径
-
-```bash
+# 导入
 conda env create -f env.yaml
-
 conda activate env
-
 pip install -r pip.txt
 ```
 
-## 更新环境
+### 更新环境
 
 先进入环境，然后更新环境
 

@@ -1,58 +1,35 @@
 
 
-# 相关概念
-
-数据是描述现实世界中的各种事物的可以识别的符号。
-
-信息是一种已经被加工为特定形式的数据。
-
-数据是信息的载体，是信息的具体表现形式。数据只有被加工从成信息，才具有使用价值。
-
-
-
-一个数据库事务通常包含了一个序列的对数据库的读/写操作
-
-SQL 结构化查询语言  structured query language
-
-
-
-### **事务的ACID特性**
-
-原子性(Atomicity)：事务中的全部操作在数据库中是不可分割的，要么全部完成，要么全部不执行
-一致性(Consistency)：几个并行执行的事务，其执行结果必须与按某一顺序 串行执行的结果相一致
-隔离性(Isolation)：事务的执行不受其他事务的干扰，事务执行的中间结果对其他事务必须是透明的
-持久性(Durability):对于任意已提交事务，系统必须保证该事务对数据库的改变不被丢失，即使数据库出现故障
-
-
-
 # Neo4j
 
-### 服务器DB
+## 服务器
 
-账号:   neo4j
+- 账号：neo4j
 
-密码：123456
+- 密码：123456
 
-```xshell
-数据路径：/var/lib/neo4j/data/databases/graph.db
-删除数据库：rm -rf /var/lib/neo4j/data/databases/graph.db
-```
+## 数据路径
+
+- `/var/lib/neo4j/data/databases/graph.db`
+
+> 删除数据库：`rm -rf /var/lib/neo4j/data/databases/graph.db`
 
 
 
-### 导入数据
+## 导入数据
 
 **CSV文件**
 
-CSV 是逗号分隔值的文件。neo4j是utf-8的，而CSV默认保存是ANSI的，需要用记事本另存为成UTF-8
+- 逗号分隔值的文件
+- neo4j是utf-8的，而CSV默认保存是ANSI的，需要用记事本另存为成UTF-8
 
-使用**LOAD CSV**命令将CSV文件导入到：**/var/lib/neo4j/import**
+使用`LOAD CSV`命令将CSV文件导入到：`/var/lib/neo4j/import`
 
 ```
 LOAD CSV WITH HEADERS FROM “file:///file.name” AS line
 ```
 
-将指定路径下的CSV文件读取出来，其中“file-url”是文件的地址，可以是本地文件路径也可以是网址（但是必须设置权限，以便外部源可以读取该文件）。
+将指定路径下的CSV文件读取出来，其中file-url是文件的地址，可以是本地文件路径也可以是网址（但是必须设置权限，以便外部源可以读取该文件）
 
 with headers是在导入CSV时附带上头部，**从文件中读取第一行作为参数名**，只有在使用了该参数后，才可以使用line.name这样的表示方式。否则需要使用{movieId:line[0],name1:line[1],year:line[2],tag:line[3]}的表示方式。每个节点的属性由导入的CSV文件的每行指定。
 

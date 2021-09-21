@@ -739,6 +739,8 @@ Linux系统中每个文件都设有访问权限来决定用户是否能通过某
 chmod 777 dirName
 ```
 
+### chattr
+
 # 磁盘管理
 
 ## 挂载
@@ -794,33 +796,45 @@ passwd ink
 
 **用户名**:**口令**:**用户标识号**:**组标识号**:**注释性描述**:**主目录**:**登录Shell**
 
-1. **用户名(login_name)**：代表**用户账号**的字符串。通常长度不超过8个字符，由大小写字母和/或数字组成。**登录名中不能有冒号**（冒号在这里是分隔符）
+1. **用户名(login_name)**
+
+   1. 代表**用户账号**的字符串。通常长度不超过8个字符，由大小写字母和/或数字组成。**登录名中不能有冒号**（冒号在这里是分隔符）
 
    > 为了兼容起见，登录名中最好不要包含`.`，不要使用`-`和`+`开头
 
-2. **口令(passwd)**：存放加密后的用户口令，这个字段存放的只是用户口令的**加密串**，不是明文，由于`/etc/passwd`文件对所有用户都可读，所以它一个安全隐患。
+2. **口令(passwd)**
+
+   1. 存放加密后的用户口令，这个字段存放的只是用户口令的**加密串**，不是明文，由于`/etc/passwd`文件对所有用户都可读，所以它一个安全隐患。
 
    > 现在许多Linux系统都使用了**shadow技术**，把真正的加密后的用户口令字存放到`/etc/shadow`文件中，而在`/etc/passwd`文件的口令字段中只存放一个特殊的字符，例如`x`或者`*`
 
-3. **用户标识号(UID)**：系统内部用它来标识用户。一般情况下它与用户名是一一对应的。**如果几个用户名对应的用户标识号是一样的，系统内部将把它们视为同一个用户**，但是它们可以有不同的口令、不同的主目录以及不同的登录Shell等
+3. **用户标识号(UID)**
 
-   UID取值范围是0-65535
+   1. 系统内部用它来标识用户。一般情况下它与用户名是一一对应的。**如果几个用户名对应的用户标识号是一样的，系统内部将把它们视为同一个用户**，但是它们可以有不同的口令、不同的主目录以及不同的登录Shell等
+   2. UID取值范围是0-65535
+      1. 0是超级用户root的标识号
+      2. 1-99由系统保留作为管理账号
+      3. 普通用户的标识号从100开始（在Linux系统中界限是500）
 
-   - 0是超级用户root的标识号
-   - 1-99由系统保留作为管理账号
-   - 普通用户的标识号从100开始（在Linux系统中界限是500）
+4. **组标识号(GID)**
 
-4. **组标识号(GID)**：用户所属的用户组，它对应着`/etc/group`文件中的一条记录
+   1. 用户所属的用户组，它对应着`/etc/group`文件中的一条记录
 
-5. **注释性描述(users)**：记录用户的一些个人情况（例如用户的真实姓名、电话、地址等）
+5. **注释性描述(users)**
+
+   1. 记录用户的一些个人情况（例如用户的真实姓名、电话、地址等）
 
    > 这个字段并没有什么实际的用途。不同的Linux系统中格式没有统一。在许多Linux系统中这个字段存放的是一段任意的注释性描述文字，用做finger命令的输出
 
-6. **主目录(home_directory)**：用户的起始工作目录，它是**用户在登录系统后所处的目录**
+6. **主目录(home_directory)**
+
+   1. 用户的起始工作目录，它是**用户在登录系统后所处的目录**
 
    > 在大多数系统中，用户的主目录都被组织在同一个特定的目录下，而用户主目录的名称就是该用户的登录名。各用户对自己的主目录有读、写、执行（搜索）权限，其他用户对此目录的访问权限则根据具体情况设置
 
-7. **登录Shell(Shell)**：用户登录后要启动一个进程，**负责将用户的操作传给内核**，这个进程是用户登录到系统后运行的命令解释器或某个特定的程序（即Shell）
+7. **登录Shell(Shell)**
+
+   1. 用户登录后要启动一个进程，**负责将用户的操作传给内核**，这个进程是用户登录到系统后运行的命令解释器或某个特定的程序（即Shell）
 
 
 
@@ -1098,44 +1112,16 @@ egrep "or{2,}" word.txt
 
 
 
-# Anaconda
-
-**查看已经有的环境**
-
-- `conda-env list`
-
-**提示环境存放路径**
-
-- `environment location: /usr/local/anaconda3/envs/buaa_test`
-
-**添加到环境变量**
-
-- `export PATH=/root/anaconda3/bin:$PATH`
-- `source ~/.bashrc`
-
-```bash
-# 下载
-wget https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-5.2.0-Linux-x86_64.sh
-
-# 安装
-sh Anaconda3-5.2.0-Linux-x86_64.sh
-
-# 创建环境
-conda create --name env_name
-
-# 启用环境
-conda activate env_name
-```
-
-
-
 # 打包压缩
 
-linux主要有三种压缩方式：
+linux主要有三种压缩方式
 
-1. `gzip`：压缩这速度最快，压缩大文件的时候与其他的压缩方式相比更加明显，历史最久，应用最广泛的压缩方式
-2. `bzip`：压缩形成的文件小，但是可用性不如gzip
-3. `xz`：最新的压缩方式，可以自动提供最佳的压缩率
+- `gzip`
+  - 压缩这速度最快，压缩大文件的时候与其他的压缩方式相比更加明显，历史最久，应用最广泛的压缩方式
+- `bzip`
+  - 压缩形成的文件小，但是可用性不如gzip
+- `xz`
+  - 最新的压缩方式，可以自动提供最佳的压缩率
 
 > 压缩速度：gz > bz2 > xz
 > 压缩率：xz > bz2 > gz
@@ -1157,9 +1143,7 @@ Linux中
 - tar命令参数前面加不加`-`执行命令的结果是没有区别的，区别只要是在于linux风格方面
 - tar命令会自己选择跟压缩方式对应的方式去解压
 
-
-
-**常用参数**：
+### 常用参数
 
 - `-z`（--gzip）：使用gzip工具（解）压缩，后缀为`.gz`
 - `-j`（--bzip2）：使用bzip2工具（解）压缩，后缀为 `.bz2`
@@ -1175,11 +1159,11 @@ Linux中
 
   > 不和`-c`，`-x`同时出现
 
-- `p`  保留备份数据的原本权限与属性
+- `p`：保留备份数据的原本权限与属性
 
   > 常用于备份重要的配置文件
 
-- `-P`  保留绝对路径
+- `-P`：保留绝对路径
 
   > 在压缩文件的时候使用了`-P`，那么在解压的时候也要加上`-P`
 
@@ -1205,15 +1189,15 @@ tar -zxvf xxx.tar.gz dir_name
 tar -xvf xxx.tar.gz dir_name
 ```
 
+### 增量备份
 
+`-g`
 
-**增量备份**
+- 后接增量备份的快照文件（备份目录最好用相对路径）
 
-`-g`：后接增量备份的快照文件（备份目录最好用相对路径）
+## zip/unzip
 
-## zip unzip
-
-**安装**
+### 安装
 
 ```bash
 # 在 Ubuntu 和 Debian 上安装解压缩
@@ -1223,9 +1207,7 @@ sudo apt install unzip
 sudo yum install unzip
 ```
 
-
-
-**zip常用参数**：
+### zip参数
 
 - `-m`：将文件压缩后，删除原文件
 - `-o`：将压缩文件内的所有文件的最新变动时间设为压缩的时间
@@ -1233,7 +1215,7 @@ sudo yum install unzip
 - `-r`：递归压缩，将自定**目录下**的所有子文件以及文件一起处理
 - `-x`：压缩时排除指定的文件
 
-**unzip常用参数**：
+### unzip参数
 
 - `-c`：显示解压缩的结果，并没有解压压缩包
 
@@ -1271,7 +1253,7 @@ unzip filename.zip -d dir_name
 - **Windows文件传输到Linux**
 - **Linux文件传输到Linux**
 
-## rz sz
+## rz/sz
 
 **安装**
 
@@ -1594,6 +1576,29 @@ systemctl restart firewalld.service
 
 
 
+# Anaconda
+
+**查看已经有的环境**
+
+- `conda-env list`
+
+**提示环境存放路径**
+
+- `environment location: /usr/local/anaconda3/envs/buaa_test`
+
+**添加到环境变量**
+
+- `export PATH=/root/anaconda3/bin:$PATH`
+- `source ~/.bashrc`
+
+```bash
+# 下载
+wget https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-5.2.0-Linux-x86_64.sh
+
+# 安装
+sh Anaconda3-5.2.0-Linux-x86_64.sh
+```
+
 
 
 # WSL
@@ -1706,6 +1711,13 @@ su root
    # 绝对路径
    C:\Users\用户\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu20.04onWindows_79rhkp1fndgsc\LocalState
    ```
+   
+   2. 微软提供了一个默认的变量`wsl$`可以直接指向WSL的目录
+      1. 可以运行`win+R`或在资源管理器的路径里直接输入`\\wsl$`进入Ubuntu的目录
+
+
+
+# ZSH
 
 ## 安装git
 
@@ -1867,6 +1879,47 @@ vi ~/.oh-my-zsh/themes/agnoster.zsh-theme
 
 # 把 92 行修改为
 prompt_segment green black "%(!.%{%F{yellow}%}.)%n"
+```
+
+## 配置Anaconda
+
+在bash终端安装的Anocoda会自动配置，Python路径在`~/.bashrc`文件中
+
+由于已经将终端切换为zsh，因此需要重新在`~/.zshrc`文件中配置Anaconda环境
+
+> `~/.bash_profile`和`~/.zsh_profile`文件
+
+**方法一**
+
+1. 在`~/.zshrc`文件中找到`# User configuration`部分
+2. 添加`source ~/.bashrc`
+
+**方法二**
+
+1. 将`~/.bashrc`中的配置复制到`~/.zshrc`中
+2. `source ~/.zshrc`
+
+> 乱码问题：复制部分
+
+## 显示conda环境
+
+将`~/.bashrc`中的conda配置复制到`~/.zshrc`中
+
+```bash
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/home/dog/.pyenv/versions/anaconda3-5.0.1/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/home/dog/.pyenv/versions/anaconda3-5.0.1/etc/profile.d/conda.sh" ]; then
+        . "/home/dog/.pyenv/versions/anaconda3-5.0.1/etc/profile.d/conda.sh"
+    else
+        export PATH="/home/dog/.pyenv/versions/anaconda3-5.0.1/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
 ```
 
 

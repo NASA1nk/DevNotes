@@ -1291,61 +1291,66 @@ sz filename
 
 # SSH
 
-`Secure Shell`（SSH）
+`Secure Shell`
 
-目前较可靠的，专为远程登录会话和其他网络服务提供安全性的**协议**。通过 SSH Client 可以连接到安装运行了 SSH Server 的远程机器上
+- 目前较可靠的，专为远程登录会话和其他网络服务提供安全性的**协议**。通过 SSH Client 可以连接到安装运行了 SSH Server 的远程机器上
 
-SSH 的连接分为两步：
-
-- 客户端和服务端建立连接
-- 用户身份鉴权
 
 ## SSH连接
 
-**客户端和服务端建立连接**
+连接步骤
+
+1. 客户端和服务端建立连接
+2. 用户身份鉴权
+
+### 客户端和服务端建立连接
 
 1. 客户端联系服务端，双方沟通自己支持的SSH协议的版本，约定使用某个共同支持的版本
 2. 服务端将自己的`Host Key`，加密方法和其他一些参数发给客户端
 3. 客户端通过服务端发送的`Host Key`验证服务端身份，双方用服务端发来的参数和`Diffie-Hellman`算法生成`Session Key`
 4. 加密通道建立完成
 
-**Host Key**
+### Host Key
 
-Host Key由SSH自行生成，分为两种：
+- Host Key由SSH自行生成：Public Key和Private Key
 
-- Public Key
-- Private Key
+- 服务端拥有Public Key和Private Key，并将Public Key发送给客户端
 
-服务端拥有Public Key和Private Key，并将Public Key发送给客户端
 
-如果客户端通过Host Key发现从来没有连接过这台服务器，会询问用户是否要继续连接，用户同意连接后客户端会在本地的`.ssh\known_hosts`文件记录这台服务器的信息，下次连接时客户端就不会再次询问用户
+- 如果客户端通过Host Key发现从来没有连接过这台服务器，会询问用户是否要继续连接
+  - 用户同意连接后客户端会在本地的`.ssh\known_hosts`文件记录这台服务器的信息，下次连接时客户端就不会再次询问用户
 
-**证书**
+### 证书
 
-仅靠服务端发送Host Key的方法无法防范中间人攻击，后来又出现了Public Key Certificates，由一个可靠的第三方机构给服务端签发证书从而确保了安全性
+Public Key Certificates
 
-**Session Key**
+- 仅靠服务端发送Host Key的方法无法防范中间人攻击
+- 由一个可靠的第三方机构给服务端签发证书从而确保了安全性
 
-Session Key用于连接之后通讯时**对消息进行加密和解密**
+### Session Key
 
-使用Session Key加密的机制被称作**对称加密**（Symmetric Encryption），也就是两端使用的相同的Key来加密和解密信息
+Session Key用于连接之后
+
+- 通讯时**对消息进行加密和解密**
+
+使用Session Key加密的机制被称作**对称加密**（Symmetric Encryption）
+
+- 也就是服务端和客户端使用的相同的Key来加密和解密信息
 
 > SSH传输信息的加密解密时并不是用生成的Public Key或Private Key，而是用Session Key
 
+#### 生成Session Key
 
-
-**Session Key生成**
-
-1. 客户端和服务端使用沟通后确定的加密算法以及双方都知道的一个数字
-2. 客户端和服务端各自生成只有自己才知道的private密码，并用它对数字进行加密生成**新的密码**
+1. 客户端和服务端使用确定好的加密算法以及双方都知道的一个数字
+2. 客户端和服务端各自生成只有自己才知道的private key，并用它对数字进行加密生成**新的密码**
 3. 客户端和服务端交换各自加密后的密码
-4. 客户端和服务端分别将对方发来的密码再加上自己的private密码，从而得到相同的Session Key
+4. 客户端和服务端分别将对方发来的密码再加上自己的private key，从而得到相同的Session Key
 
 
 
-**用户身份鉴权**
+### 用户身份鉴权
 
-在客户端生成的Public Key和Private Key就是用来进行身份鉴权的，客户端需要将Public Key上传到服务器上（改名为`authorized_Keys`）
+在客户端生成的Public Key和Private Key就是用来进行身份鉴权的，客户端需要将Public Key上传到服务器上（可能改名为`authorized_Keys`）
 
 1. 客户端用Private Key生成签名向服务器发起登录请求
 2. 服务端验证签名（检查自己有没有和这个签名匹配的Public Key）
@@ -1384,8 +1389,6 @@ chkconfig --list sshd
 /etc/init.d/sshd start
 ```
 
-
-
 **Ubuntu**
 
 ```bash
@@ -1400,17 +1403,15 @@ sudo /etc/init.d/ssh start
 ps -e | grep ssh
 ```
 
-
-
 ## SSH Client
 
-**连接远程机器**
+### 连接远程机器
 
 - `user`：远程机器上登录的用户名，如果不指定的话默认为当前用户
-- `remotehost`：远程机器的地址，可以是 IP，域名或者是**别名**
-- `port`：SSH Server 监听的端口，如果不指定的话就为默认值22
+- `remotehost`：远程机器的地址，可以是IP，域名或者是**别名**（alias）
+- `port`：SSH Server监听的端口，如果不指定的话就为默认值22
 
-> 执行了 `ssh` 命令之后远程机器会询问密码。输入密码时屏幕上不会显示明文密码，也不会显示 `******`（隐藏密码长度）
+> 执行了`ssh`命令之后远程机器会询问密码。输入密码时屏幕上不会显示明文密码，也不会显示 `******`（隐藏密码长度）
 
 ```bash
 ssh user@remotehost -p port
@@ -1423,8 +1424,8 @@ ssh user@remotehost -p port
 使用**ssh-keygen**工具在客户端生成SSH密钥
 
 - `-t`表示类型选项，采用`rsa`加密算法
-- 要求设置私钥口令`passphrase`，不设置则为空
-- 要求设置保存位置，一般存放在默认路径，回车即可
+- 要求设置私钥口令`passphrase`，不设置则为空（回车即可）
+- 要求设置保存位置，一般存放在默认路径（回车即可）
 
 > RSA密钥对也可以在服务端生成
 
@@ -1432,17 +1433,15 @@ ssh user@remotehost -p port
 ssh-keygen -t rsa
 ```
 
-### L2L
+### Linux2Linux
 
-会在`/home/当前用户`目录下生成`.ssh`文件夹
+生成密钥会在`/home/当前用户`目录下生成`.ssh`目录
 
 - **公钥**： `~/.ssh/id_rsa.pub`
 - **私钥**： `~/.ssh/id_rsa`
 
 将**公钥**`id_rsa.pub`写入到远程服务器的`~/.ssh/authorized_keys`文件中
 
-> 默认22端口，`-p`可以省略
->
 > Linux系统里缺省都包含一个名为ssh-copy-id的工具，其实就是一个shell脚本
 
 ```bash
@@ -1451,31 +1450,27 @@ ssh-keygen -t rsa
 ssh-copy-id -i ~/.ssh/id_rsa.pub user@remotehost -p port
 ```
 
+### Windows2Linux
 
+1. 在**应用和功能**里的**管理可选功能**中**开启openss服务**
 
-### W2L
+2. 搜索**服务**，在服务里将`openssh Authentication Agent`设置为**自动启动**并启动
 
->  ssh会把你每个你访问过计算机的公钥(public key)都记录在~/.ssh/known_hosts
-
-在**应用和功能**里的**管理可选功能**中**开启openss服务**
-
-搜索**服务**，在服务里将`openssh Authentication Agent`设置为**自动启动**并启动
-
-在远程服务器上新建 `.ssh` 目录，然后把**公钥**`id_rsa.pub` **追加**到远程主机的 `.ssh/authorized_keys` 中
-
-> `mkdir -p`：递归创建目录，当上级目录不存在时会按目录层级自动创建目录
 
 ```bash
+# 在远程服务器上新建.ssh目录，然后把id_rsa.pub追加到远程主机的.ssh/authorized_keys中
+# 是登录的用户主目录
+# mkdir -p递归创建目录，当上级目录不存在时会按目录层级自动创建目录
 ssh user@remotehost -p port 'mkdir -p .ssh && cat >> .ssh/authorized_keys' < ~/.ssh/id_rsa.pub
 ```
 
 
 
-**配置别名**
+#### 配置别名alias
 
 在`.bashrc`中添加信息
 
-> 保存后即可用 `nlsde` 登录
+保存后即可用别名`nlsde`登录
 
 ```bash
 sudo vim ~/.bashrc
@@ -1504,15 +1499,24 @@ Host nlsde
 
 ### know_hosts
 
-ssh会把你每个你访问过计算机的公钥(public key)都记录在known_hosts。当下次访问相同计算机时，OpenSSH会核对公钥。如果公钥不同，OpenSSH会发出警告， 避免你受到DNS Hijack之类的攻击。
+ssh会把每个访问过计算机的public key记录在`known_hosts`
 
-从上面的图中可以看出，known_hosts中的格式是
+- 当下次访问相同计算机时，OpenSSH会核对公钥。如果公钥不同，OpenSSH会发出警告，避免受到DNS Hijack之类的攻击
 
-```
+```bash
+# known_hosts中的格式
 CopyIp或域名  主机名 host-key
 ```
 
+## SSH免密登录
 
+[配置vscode 远程开发+ 免密登录 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/222452460)
+
+- 服务器上`.ssh`目录的权限必须是700（-rwx --- ---）
+- 服务器上`.authorized_keys`文件权限必须是600（-rw- --- ---）或者644（-rw- r-- r--）
+- 服务器上用户家目录文件权限必须是700（-rwx --- ---）
+  - 比如用户名是yinke，则/home/yinke这个目录权限必须是700（-rwx --- ---）
+  - 使用`ls -l /home/yinke`查看权限
 
 
 

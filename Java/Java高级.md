@@ -45,7 +45,7 @@ public class Test {
 }
 ```
 
-![String修改](Java高级.assets/String修改.png)
+ ![String修改](Java高级.assets/String修改.png)
 
 > 如果将 `str = "ok";`改为`this. str = "ok";`就会一起改变！
 
@@ -130,7 +130,7 @@ public class Astring {
 }
 ```
 
-![String拼接](Java高级.assets/String拼接.png)
+ ![String拼接](Java高级.assets/String拼接.png)
 
 如果拼接结果调用`intern()`方法，**返回值在常量池中**
 
@@ -221,7 +221,7 @@ System.out.println(s3 == s7);
 
    无参的构造器会初始化**长度为16**的`char`数组
 
-   ![StringBuffer源码](Java高级.assets/StringBuffer源码.png)
+    ![StringBuffer源码](Java高级.assets/StringBuffer源码.png)
 
 2. **有参构造**
 
@@ -229,7 +229,7 @@ System.out.println(s3 == s7);
 
    > 如果将`null`作为构造器参数，则会抛**空指针异常**
 
-   ![StringBuffer有参构造](Java高级.assets/StringBuffer有参构造.png)
+    ![StringBuffer有参构造](Java高级.assets/StringBuffer有参构造.png)
 
 3. **字符串长度**
 
@@ -237,19 +237,19 @@ System.out.println(s3 == s7);
 
    > 调用`append()`方法长度就会就+1
 
-   ![StringBuffer.length6](Java高级.assets/StringBuffer.length.png)
+    ![StringBuffer.length6](Java高级.assets/StringBuffer.length.png)
 
 4. **数组扩容**
 
    1. 调用超类的`append()`方法
 
-      ![append()](Java高级.assets/append().png)
+       ![append()](Java高级.assets/append().png)
 
    2. 超类的`append()`方法
 
       判断已有长度和添加的长度和是否超过数组长度
 
-      ![超类append](Java高级.assets/超类append.png)
+       ![超类append](Java高级.assets/超类append.png)
 
    3. 如果超过数组长度，调用`copyOf()`方法**复制数据**
 
@@ -281,13 +281,13 @@ System.out.println(s3 == s7);
 
 > 调用`append()`和`insert()`时，如果原来的数组长度不够，**可以扩容**
 
-![StringBuffer方法](Java高级.assets/StringBuffer方法.png)
+ ![StringBuffer方法](Java高级.assets/StringBuffer方法.png)
 
 **方法链操作**
 
 - **方法链**：可以`...`一直调用（**返回this**）
 
-![方法链](Java高级.assets/方法链.png)
+ ![方法链](Java高级.assets/方法链.png)
 
 
 
@@ -358,7 +358,7 @@ public class DateTest {
 }
 ```
 
-![Date类](Java高级.assets/Date类.png)
+ ![Date类](Java高级.assets/Date类.png)
 
 
 
@@ -459,7 +459,7 @@ try {
 
   调用静态方法返回子类`GregorianCalendar`对象
 
-  ![GregorianCalendar](Java高级.assets/GregorianCalendar.png)
+   ![GregorianCalendar](Java高级.assets/GregorianCalendar.png)
 
 
 
@@ -499,7 +499,7 @@ public class CalendarTest {
 }
 ```
 
-![Calendar对象操作](Java高级.assets/Calendar对象操作.png)
+ ![Calendar对象操作](Java高级.assets/Calendar对象操作.png)
 
 
 
@@ -527,7 +527,7 @@ public class CalendarTest {
 }
 ```
 
-![Calendar和Date](Java高级.assets/Calendar和Date.png)
+ ![Calendar和Date](Java高级.assets/Calendar和Date.png)
 
 
 
@@ -582,7 +582,7 @@ public class Time {
 }
 ```
 
-![time](Java高级.assets/time.png)
+ ![time](Java高级.assets/time.png)
 
 
 
@@ -659,11 +659,9 @@ public int compareTo(String anotherString) {
 }
 ```
 
+ ![String比较](Java高级.assets/String比较.png)
 
-
-![String比较](Java高级.assets/String比较.png)
-
-![compareTo](Java高级.assets/compareTo.png)
+ ![compareTo](Java高级.assets/compareTo.png)
 
 ### 规则
 
@@ -770,7 +768,7 @@ public class Compare {
 }
 ```
 
-![自定义排序结果](Java高级.assets/自定义排序.png)
+ ![自定义排序结果](Java高级.assets/自定义排序.png)
 
 
 
@@ -785,7 +783,7 @@ public class Compare {
 
 > `<T>`：泛型
 
-![Comparator](Java高级.assets/Comparator.png)
+ ![Comparator](Java高级.assets/Comparator.png)
 
 ### 规则
 
@@ -808,7 +806,7 @@ public class Compare {
 
 > `Comparator`排序实际上就是二叉树排序：使用第一个元素作为根节点，如果之后的元素比第一个小，则放到左子树，否则放到右子树，之后按中序遍历
 
-![sort](Java高级.assets/sort.png)
+ ![sort](Java高级.assets/sort.png)
 
 ### 自定义排序
 
@@ -988,7 +986,7 @@ enum Season{
 }
 ```
 
-![enum](Java高级.assets/enum.png)
+ ![enum](Java高级.assets/enum.png)
 
 
 
@@ -1055,7 +1053,7 @@ enum Season implements Info{
 }
 ```
 
-![枚举类对象实现接口](Java高级.assets/枚举类对象实现接口.png)
+ ![枚举类对象实现接口](Java高级.assets/枚举类对象实现接口.png)
 
 
 
@@ -1063,13 +1061,13 @@ enum Season implements Info{
 
 - `values()`：返回枚举类型的**对象数组**
 
-  ![values](Java高级.assets/values.png)
+   ![values](Java高级.assets/values.png)
 
 - `valueOf(String str)`：将字符串转换为对应的枚举类对象，**要求字符串必须是枚举类对象的"名字"**
 
   > 如果找不到枚举类对象，会抛异常
 
-  ![valueOf](Java高级.assets/valueOf.png)
+   ![valueOf](Java高级.assets/valueOf.png)
 
 - `toString()`：返回当前枚举类对象**常量的名字**
 
@@ -1198,7 +1196,7 @@ JDK5.0提供了4个标准的元注解类型
 - `@Documented`
 - `@Inherited`
 
-![元注解](Java高级.assets/元注解.png)
+ ![元注解](Java高级.assets/元注解.png)
 
 > 元数据
 >
@@ -1642,7 +1640,7 @@ List接口的常用**实现类**
 
   - 底层使用`Object[] elementData`存储
 
-    ![ArrayList底层数组](Java高级.assets/ArrayList底层数组.png)
+     ![ArrayList底层数组](Java高级.assets/ArrayList底层数组.png)
 
 - `LinkedList`：
 
@@ -1691,9 +1689,9 @@ list.add(123);
 // 当添加导致容量不够时,默认扩容为原来容量的1.5倍,再将原数组数据复制到新数组中
 ````
 
-![JDK7饿汉](Java高级.assets/JDK7饿汉.png)
+ ![JDK7饿汉](Java高级.assets/JDK7饿汉.png)
 
-![JDK7扩容](Java高级.assets/JDK7扩容.png)
+ ![JDK7扩容](Java高级.assets/JDK7扩容.png)
 
 JDK8：懒汉式
 
@@ -1719,7 +1717,7 @@ list.add(123);
 
 #### LinkedList
 
-LinkedList继承自AbstractSequentialList类
+`LinkedList`继承自`AbstractSequentialList`类
 
 - 是`List`
 - 是`Queue`
@@ -1728,8 +1726,8 @@ LinkedList继承自AbstractSequentialList类
 底层使用**双向链表**存储
 
 - 分配内存空间不是必须连续
-- 插入、删除操作，时间复杂度为`O(1)`
-- 访问遍历元素，时间复杂度为`O(n)`
+- 插入、删除操作时间复杂度为`O(1)`
+- 访问遍历元素时间复杂度为`O(n)`
 
 ```java
 // 内部声明了Node(双向链表)类型的first和last属性,默认为NULL
@@ -1739,19 +1737,19 @@ LinkedList list = new LinkedList();
 list.add(123);
 ```
 
-![LinkedList底层存储](Java高级.assets/LinkedList底层存储.png)
+ ![LinkedList底层存储](Java高级.assets/LinkedList底层存储.png)
 
-![Node内部类](Java高级.assets/Node内部类.png)
+ ![Node内部类](Java高级.assets/Node内部类.png)
 
-![LinkedListadd](Java高级.assets/LinkedListadd.png)
+ ![LinkedListadd](Java高级.assets/LinkedListadd.png)
 
-![LinkedListlinklast](Java高级.assets/LinkedListlinklast.png)
+ ![LinkedListlinklast](Java高级.assets/LinkedListlinklast.png)
 
 
 
 ##### 方法
 
-添加元素
+添加元素add
 
 - `boolean add(E e)`：在链表末尾添加一个元素，成功返回`true`，否则返回`false`
 
@@ -1763,7 +1761,7 @@ list.add(123);
 
 - `boolean addAll(int index, Collection e)`：从index位置开始将e中的**所有元素**添加进来
 
-获取元素  
+获取元素get
 
 - `Object get(int index)`：获取指定index位置的元素
 - `Object getFirst()`：获取链表头部元素
@@ -1772,7 +1770,7 @@ list.add(123);
 - `int lastIndexOf(E e)`：返回e在当前集合中**最后一次**出现的位置（没有则返回`-1`）
 - `List subList(int fromIndex, int toIndex)`：返回从fromIndex到toIndex位置的**子集合**
 
-删除元素
+删除元素remove
 
 - `Object remove(int index)`：删除链表index位置的元素并返回
   - `List`中的`remove()`方法重载了`Collection`的方法，一个根据索引删除，一个根据元素删除
@@ -1883,38 +1881,13 @@ list.add(123);
 - 通过`Comparator`接口来实现，需要重写`compare()`方法
 - 比较两个对象是否相同通过`Comparator`（返回0），不再是`equals()`方法
 
-
-
-### Queue接口
-
-- 底层是一个特殊的线性表
-
-- 因为队列要经常进行增删操作，因此使用`LinkedList`链表来实现`Queue`接口更合适效率更高（而不是`ArrayList`）
-- `Queue`实现通常不允许插入`null`元素，尽管某些实现（如`LinkedList`）并不禁止插入`null`。即使在允许`null`的实现中，也不应该将`null`插入到`Queue`中，因为`null`也用作`poll()`方法的一个特殊返回值，表明队列不包含元素
-
-**方法**
-
-- `offer()`：从队尾添加元素并返回，超出容量时返回`false`
-- `poll()`：删除队首元素并返回，容量为0时会返回`false`
-- `peek()`：返回队首元素，容量为0时会返回`false`
-
-
-
-> 推荐使用`offer()`,`poll()`,`peek()`
->
-> - `element()`：返回队首元素，容量为0时会抛出异常
-> - `add()`：从队尾添加元素并返回，超出容量时会抛出异常
-> - `remove()`：删除并返回被删除的元素，容量为0时会抛出异常
-
-
-
 ### Deque接口
 
 **双端队列**（Double Ended Queue）
 
 - `Deque`扩展了`Queue`接口
   - `public interface Deque<E> extends Queue<E> {}`
-- `LinkedList`是最常用的实现类，因为要经常进行增删操作
+- 最常用的实现类是`LinkedList`，因为要经常进行增删操作
 
 **方法**
 
@@ -1945,12 +1918,12 @@ list.add(123);
   > - `getFirst()`：获取队头元素但不移除，如果队列无元素，则抛出异常
   > - `getLast()`：获取队尾元素但不移除，如果队列无元素，则抛出异常
 
-> 栈操作
->
-> - `pop()`：弹出栈中元素，也就是返回并移除队头元素，等价于`removeFirst()`，如果队列无元素，则抛出异常
-> - `push()`：向栈中压入元素，也就是向队头增加元素，等价于`addFirst()`
->   - 如果元素为`null`，则抛出异常
->   - 如果栈空间受到限制，则抛出异常
+栈操作
+
+- `pop()`：弹出栈中元素，也就是返回并移除队头元素，等价于`removeFirst()`，如果队列无元素，则抛出异常
+- `push()`：向栈中压入元素，也就是向队头增加元素，等价于`addFirst()`
+  - 如果元素为`null`，则抛出异常
+  - 如果栈空间受到限制，则抛出异常
 
 
 
@@ -1974,19 +1947,40 @@ d2.offerLast("z");
 
 底层循环数组实现
 
+### Queue接口
+
+- 底层是一个特殊的线性表
+- 因为队列要经常进行增删操作，因此使用`LinkedList`链表来实现`Queue`接口更合适效率更高（而不是`ArrayList`）
+- `Queue`实现通常不允许插入`null`元素，尽管某些实现（如`LinkedList`）并不禁止插入`null`
+  - 即使在允许`null`的实现中，也不应该将`null`插入到`Queue`中，因为`null`也用作`poll()`方法的一个特殊返回值，表明队列不包含元素
+
+**方法**
+
+- `offer()`：从队尾添加元素并返回，超出容量时返回`false`
+- `poll()`：删除队首元素并返回，容量为0时会返回`false`
+- `peek()`：返回队首元素，容量为0时会返回`false`
+
+> 推荐使用`offer()`,`poll()`,`peek()`
+>
+> - `element()`：返回队首元素，容量为0时会抛出异常
+> - `add()`：从队尾添加元素并返回，超出容量时会抛出异常
+> - `remove()`：删除并返回被删除的元素，容量为0时会抛出异常
+
 ### Stack
 
 `java.util.Stack`
 
-`Stack`是`Vector`的一个子类，它实现了一个标准的后进先出的栈，`public class Stack<E> extends Vector<E>{}`
+`Stack`是`Vector`的一个子类，它实现了一个标准的后进先出的栈
+
+- `public class Stack<E> extends Vector<E>{}`
 
 > `LinkedList`具有能够直接实现栈所有功能的方法，因此可以直接将`LinkedList`作为栈使用
 
-Java堆栈Stack类已经过时，Java官方推荐使用Deque替代Stack使用
+Java堆栈`Stack`类已经过时，官方推荐使用`Deque`替代`Stack`使用
 
-- Stack 是一个类，Deque 是一个接口
-- Java只能单继承，但Java中的类可以实现任意数量的接口。
-- 使用Deque接口消除了对具体Stack类及其祖先的依赖，并有了更大的灵活性
+- `Stack`是一个类，`Deque`是一个接口
+- Java只能单继承，但Java中的类可以实现任意数量的接口
+- 使用`Deque`接口消除了对具体`Stack`类及其祖先的依赖，有了更大的灵活性
 
 **方法**
 
@@ -2184,15 +2178,11 @@ public class MapTest {
 
 **HashMap扩容**
 
+ ![HashMap空参构造器](Java高级.assets/HashMap空参构造器.png)
 
+ ![put方法中的hash](Java高级.assets/put方法中的hash.png)
 
-![HashMap空参构造器](Java高级.assets/HashMap空参构造器.png)
-
-![put方法中的hash](Java高级.assets/put方法中的hash.png)
-
-![HashMap重要常量](Java高级.assets/HashMap重要常量.png)
-
-
+ ![HashMap重要常量](Java高级.assets/HashMap重要常量.png)
 
 ```java
 final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
@@ -3090,7 +3080,7 @@ public class FileTest {
 
 没有真正创建ink.md，所以返回null和0，创建了空的File文件目录，返回了修改时间
 
-![文件获取](Java高级.assets/文件获取.png)
+ ![文件获取](Java高级.assets/文件获取.png)
 
 
 
@@ -3123,7 +3113,7 @@ public class FileTest {
 
 File类对象输出是调用的`tostring()`方法输出的**路径字符串**
 
-![文件目录获取](Java高级.assets/文件目录获取.png)
+ ![文件目录获取](Java高级.assets/文件目录获取.png)
 
 
 
@@ -3253,7 +3243,7 @@ Java的IO流共涉及40多个类，**都是从4个抽象基类派生的**
 >
 > Java的字节是有符号类型，字符是无符号类型
 
-![流的分类](Java高级.assets/流的分类.png)
+ ![流的分类](Java高级.assets/流的分类.png)
 
 
 
@@ -3317,7 +3307,7 @@ public class FileReaderWriterTest {
 }
 ```
 
-![read方法](Java高级.assets/read方法.png)
+ ![read方法](Java高级.assets/read方法.png)
 
 **read(charbuffer)方法**
 
@@ -3371,7 +3361,7 @@ public class FileReaderWriterTest {
 }
 ```
 
-![read(cbuf)](Java高级.assets/read(cbuf).png)
+ ![read(cbuf)](Java高级.assets/read(cbuf).png)
 
 
 
@@ -3609,7 +3599,7 @@ public class FileInputOutputStreamTest {
 
 > `BufferedOutputStream`中存在`flush()`方法，用来强制刷新缓冲区（输出并清空）
 
-![缓冲流缓冲区](Java高级.assets/缓冲流缓冲区.png)
+ ![缓冲流缓冲区](Java高级.assets/缓冲流缓冲区.png)
 
 缓冲流要**包装**在相应的节点流之上
 
@@ -3701,7 +3691,7 @@ public class BufferedTest {
 
 `readLine()`方法可以一次读一行数据
 
-![readline方法](Java高级.assets/readline方法.png)
+ ![readline方法](Java高级.assets/readline方法.png)
 
 **可以使用匿名对象一次性直接创建缓冲流对象**
 
@@ -4144,9 +4134,9 @@ public class OtherStreamTest {
 
 > 序列化机制能自动补偿操作系统间的差异，不必关心数据在不同机器上如何表示，也不必关心字节的顺序或者其他任何细节
 
-![Serializable接口](Java高级.assets/Serializable接口.png)
+ ![Serializable接口](Java高级.assets/Serializable接口.png)
 
-![Serializable](Java高级.assets/Serializable.png)
+ ![Serializable](Java高级.assets/Serializable.png)
 
 **序列化版本标识符**
 
@@ -4716,7 +4706,7 @@ class WebDownload{
 }
 ```
 
-![使用子线程下载图片](Java高级.assets/使用子线程下载图片.png)
+ ![使用子线程下载图片](Java高级.assets/使用子线程下载图片.png)
 
 
 
@@ -4739,9 +4729,9 @@ class WebDownload{
 
 - `start()`方法
 
-![Runnable接口](Java高级.assets/Runnable接口.png)
+ ![Runnable接口](Java高级.assets/Runnable接口.png)
 
-![Thread实现Runnable接口](Java高级.assets/Thread实现Runnable接口.png)
+ ![Thread实现Runnable接口](Java高级.assets/Thread实现Runnable接口.png)
 
 ```java
 package com.ink.Thread;
@@ -4828,7 +4818,7 @@ public class Ticket implements Runnable{
 }
 ```
 
-![买票demo](Java高级.assets/买票demo.png)
+ ![买票demo](Java高级.assets/买票demo.png)
 
 **并发问题**
 
@@ -4884,7 +4874,7 @@ public class Race implements Runnable{
 }
 ```
 
-![跑步](Java高级.assets/跑步.png)
+ ![跑步](Java高级.assets/跑步.png)
 
 ### Callable接口
 
@@ -6454,7 +6444,7 @@ class MyThread implements Runnable{
 
 > 42亿多IPV4的地址，30亿都在北美，亚洲只有4亿
 
-![ipconfig](Java高级.assets/ipconfig.png)
+ ![ipconfig](Java高级.assets/ipconfig.png)
 
 
 
@@ -6509,7 +6499,7 @@ public class InetAddressTest {
 }
 ```
 
-![InetAddress类方法](Java高级.assets/InetAddress类方法.png)
+ ![InetAddress类方法](Java高级.assets/InetAddress类方法.png)
 
 ## 端口
 

@@ -41,19 +41,46 @@
 
 ## Java开发环境
 
-**JDK**：Java developmen kit	开发工具包
+### JDK
 
-- **卸载JDK**
-  1. 查找jdk位置：在环境变量中找到`JAVA_HOME`
-  2. 删除对应目录下文件，然后删除`JAVA_HOME`，最后删除**PATH**中关于java的目录
-  3. 验证：`java -version`
-- **安装JDK**
-  1. 下载
-  2. 配置环境变量：在path中添加`jdk\bin`路径
+Java developmen kit 开发工具包
+
+- 提供编译，运行java程序所需要的各种工具和资源，包括java编译器，java运行时环境，以及常用的java类库等
+- 包含了
+  - Java开发工具：`jdk\bin`
+  - 基础开发系统库：`jdk\jre\lib\rt.jar`
+  - 基础开发库的源码：`jdk\src.zip`
+
+### JDK组件
+
+- javac：编译器，将源程序转换成字节码
+- java：运行编译后的Java程序
+- jar：打包工具，将相关的类文件打包成一个文件
+
+- javadoc：文档生成器，从源码注释中提取文档
+
+- jdb：debugger，查错工具
+
+- appletviewer：小程序浏览器，一种执行HTML文件上的Java小程序的Java浏览器
+
+- Javah：产生可以调用Java过程的C过程，或建立能被Java程序调用的C过程的头文件
+
+- Javap：Java反汇编器，显示编译类文件中的可访问功能和数据，同时显示字节代码含义
+
+- Jconsole: Java进行系统调试和监控的工具
+  
+
+### 安装JDK
+
+1. 下载
+2. 配置环境变量
+   1. 在`PATH`中添加`jdk\bin`路径
+3. 验证
+   1. `java -version`
 
 > jdk11已经不用配置jre了
 >
-> bin目录下存放可执行程序exe，如java.exe，javac.exe
+> `bin`目录下存放可执行程序exe，如`java.exe`，`javac.exe`
 
 
 

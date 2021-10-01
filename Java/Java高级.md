@@ -1328,6 +1328,7 @@ Java集合分为`Collection`和`Map`两种体系（接口）
   - `boolean equals(Collection c)`：比较两个集合中的每一个元素（当使用`Arraylist`时需要按顺序比较）
 - **集合转成对象（Object）数组**
   - `Object[] toArray()`
+  - `list.toArray(new String[list.size()])`
 - **数组转换为集合**
   - `Arrays.asList()`：调用`Arrays`类的静态方法
     - `Arrays.asList()`方法返回的对象是Arrays的内部类，是一个固定长度的`List`集合（既不是ArrayList实例也不是Vector实例）
@@ -1802,7 +1803,7 @@ list.add(123);
 
 - `Set`的**实现类**
   - `HashSet`
-    - `Set`接口的主要（典型）实现类
+    - `Set`接口的主要实现类
     - **线程不安全的，效率高**
     - 底层用**数组储存**
     - 不能保证元素的排列顺序

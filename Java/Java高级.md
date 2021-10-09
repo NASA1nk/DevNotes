@@ -243,7 +243,7 @@ System.out.println(s3 == s7);
 
    1. 调用超类的`append()`方法
 
-       ![append()](Java高级.assets/append().png)
+        ![append()](Java高级.assets/append().png)
 
    2. 超类的`append()`方法
 
@@ -253,7 +253,7 @@ System.out.println(s3 == s7);
 
    3. 如果超过数组长度，调用`copyOf()`方法**复制数据**
 
-      ![ensureCapacityInternal](Java高级.assets/ensureCapacityInternal.png)
+       ![ensureCapacityInternal](Java高级.assets/ensureCapacityInternal.png)
 
    4. 在创建新的数组时候扩容
 
@@ -265,13 +265,13 @@ System.out.println(s3 == s7);
 
 
 
-
 ### 方法
 
 **快捷键**：`ctrl+F12`
 
 查看`StringBuffer`的所有方法
 
+- `int length()`：返回长度
 - `StringBuidler append(obj)`：字符串拼接	
   - `append(null)`会将null转换为**`null`字符串**添加进去
 - `StringBuffer delete(int start,int end)`：删除`[start,end)`的内容
@@ -285,7 +285,7 @@ System.out.println(s3 == s7);
 
 **方法链操作**
 
-- **方法链**：可以`...`一直调用（**返回this**）
+- **方法链**：可以`...`一直调用（**返回`this`**）
 
  ![方法链](Java高级.assets/方法链.png)
 
@@ -298,9 +298,7 @@ System.out.println(s3 == s7);
 - **可变的字符序列**
 - **线程不安全的，效率高**
 
-> JDK5新增
->
-> 不涉及线程的时候（不考虑线程安全时），优先使用
+> 不考虑线程安全时优先使用
 
 **效率**
 
@@ -1633,7 +1631,7 @@ public class ForTest {
 
 List接口的常用**实现类**
 
-- `ArrayList`：
+- `ArrayList`
 
   - List接口的主要（典型）实现类
 
@@ -1641,15 +1639,15 @@ List接口的常用**实现类**
 
   - 底层使用`Object[] elementData`存储
 
-     ![ArrayList底层数组](Java高级.assets/ArrayList底层数组.png)
+      ![ArrayList底层数组](Java高级.assets/ArrayList底层数组.png)
 
-- `LinkedList`：
+- `LinkedList`
 
   - 底层使用**双向链表**存储
   - **线程不安全的，效率高**
   - 对于频繁的插入，删除操作效率比`ArrayList`高
 
-- `Vector`：
+- `Vector`
 
   - List接口的古老实现类
   
@@ -1661,7 +1659,7 @@ List接口的常用**实现类**
 
 
 
-#### ArrayList 
+#### ArrayList
 
 - `ArrayList`是一个采用类型参数的**泛型类**
 - 底层使用`Object[] elementData`存储
@@ -1674,7 +1672,7 @@ List接口的常用**实现类**
 
 JDK7：饿汉式
 
-**直接创建一个初始容量为10的数组**
+- **直接创建一个初始容量为10的数组**
 
 > 搜索类快捷键：`ctrl+n`
 >
@@ -1696,7 +1694,7 @@ list.add(123);
 
 JDK8：懒汉式
 
-**一开始创建一个长度为0的数组，当添加第一个元素时再创建一个始容量为10的数组**（延迟数组的创建时间，节省内存）
+- **一开始创建一个长度为0的数组，当添加第一个元素时再创建一个始容量为10的数组**（延迟数组的创建时间，节省内存）
 
 ```java
 // 空参构造器的底层创建一个空的Object[] elementData
@@ -1710,15 +1708,15 @@ list.add(123);
 // 当添加导致容量不够时,默认扩容为原来容量的1.5倍,再将原数组数据复制到新数组中
 ```
 
-![JDK8初始化](Java高级.assets/JDK8初始化.png)
+ ![JDK8初始化](Java高级.assets/JDK8初始化.png)
 
-![JDK8懒汉式](Java高级.assets/JDK8懒汉式.png)
+ ![JDK8懒汉式](Java高级.assets/JDK8懒汉式.png)
 
 
 
 #### LinkedList
 
-`LinkedList`继承自`AbstractSequentialList`类
+`LinkedList`继承`AbstractSequentialList`类
 
 - 是`List`
 - 是`Queue`
@@ -1783,6 +1781,17 @@ list.add(123);
 更新元素
 
 - `Object set(int index, E e)`：设置链表index位置的元素为e
+
+```java
+// 数组泛型的List
+List<int[]> list = new ArrayList<>();
+
+// 获取List中元素数组的元素
+list.get(index)[0]
+    
+// 转换为数组
+list.toArray(new int[list.size()][]);
+```
 
 
 

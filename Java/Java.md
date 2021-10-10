@@ -145,11 +145,11 @@ java HelloWorld			#运行	不带class后缀
 
 1. `File`-`new`-`Empty Project`-`new`-`module`-`new`-`package`
 
-   ![Module](Java.assets/Module.png)
+    ![Module](Java.assets/Module.png)
    
 2. 查看项目结构`Project Structure`（也可以在File中查看）
 
-   ![项目结构](Java.assets/项目结构.png)
+    ![项目结构](Java.assets/项目结构.png)
 
 3. 在`Project`中修改**SDK**（对应的`Project Language Level` 也要修改）
 
@@ -177,15 +177,15 @@ java HelloWorld			#运行	不带class后缀
 
 **设置主题，菜单栏字体**
 
-`Appearance & Behavio`-`Appearance`
+`Appearance & Behavior`-`Appearance`
 
 **鼠标滚轮修改字体**
 
-![鼠标修改字体](Java.assets/鼠标修改字体.png)
+ ![鼠标修改字体](Java.assets/鼠标修改字体.png)
 
 **显示行号和方法分隔符**
 
-![方法分隔符](Java.assets/方法分隔符.png)
+ ![方法分隔符](Java.assets/方法分隔符.png)
 
 **忽略大小写，自动补全**
 
@@ -193,11 +193,11 @@ java HelloWorld			#运行	不带class后缀
 
 **设置自动导包**
 
-![导包](Java.assets/导包.png)
+ ![导包](Java.assets/导包.png)
 
 **取消单行显示taps（全部显示）**
 
-![多行显示](Java.assets/多行显示.png)
+ ![多行显示](Java.assets/多行显示.png)
 
 **修改注释样式**
 
@@ -255,7 +255,7 @@ java HelloWorld			#运行	不带class后缀
    - **Run code**：在leetcode上运行代码
    - **Submit**：提交
 
-   ![查看题目](Java.assets/查看题目.png)
+    ![查看题目](Java.assets/查看题目.png)
 
 
 
@@ -669,7 +669,7 @@ final double PI = 3.14;
 
    > 将Compact勾选掉才会自动分级
 
-   ![package](Java.assets/package.png)
+    ![package](Java.assets/package.png)
 
 2. `Package`修饰，放在最上面（idea自动生成）
 
@@ -677,7 +677,7 @@ final double PI = 3.14;
 
 3. 在`com`下建立新的包，在`com.ink`后面输入包名
 
-   ![建包](Java.assets/建包.png)
+    ![建包](Java.assets/建包.png)
 
 4. `import`导包（使用**其他包**的类）
 
@@ -691,7 +691,7 @@ final double PI = 3.14;
    
    导入其他包下的同名类会冲突，所以最好在使用类前加上完整的包名
    
-   ![import](Java.assets/import.png)
+    ![import](Java.assets/import.png)
 5. 静态导入包：
 
    可以直接使用`random()`方法（不用加类名）
@@ -769,7 +769,7 @@ public class Doc {
 
 2. 在对应目录下生成文档，进入index.html
 
-   ![index](Java.assets/index.png)
+    ![index](Java.assets/index.png)
 
 3. 查看API文档
 
@@ -953,15 +953,15 @@ char[] password = con.readPassword();
 
 2. 正常查看编译的`class`文件（乱码）
 
-   ![编译文件](Java.assets/编译文件.png)
+    ![编译文件](Java.assets/编译文件.png)
 
 3. 在idea中打开`.java`文件所在的文件夹
 
-   ![复制](Java.assets/复制.png)
+    ![复制](Java.assets/复制.png)
 
 4. 将`class`文件拖进文件夹
 
-   ![复制class](Java.assets/复制class.png)
+    ![复制class](Java.assets/复制class.png)
 
 5. 在idea中查看`class`文件
 
@@ -998,7 +998,7 @@ public class WF {
 }
 ```
 
-在命令行进入到WF.class所在的目录下，运行
+在命令行进入到`WF.class`所在的目录下，运行
 
 `javap -c fileName.class`
 
@@ -1179,7 +1179,7 @@ for (声明语句 : 表达式) {
 }
 ```
 
-![增强for循环](Java.assets/增强for循环.png)
+ ![增强for循环](Java.assets/增强for循环.png)
 
 
 
@@ -1692,7 +1692,7 @@ rarray[array[i][0]][array[l][1]] = array[i][2]
 
 6行7列8个不同的元素，第一个有效值22：第0行第3列
 
-![稀疏数组](Java.assets/稀疏数组.png)
+ ![稀疏数组](Java.assets/稀疏数组.png)
 
 
 
@@ -1751,7 +1751,7 @@ rarray[array[i][0]][array[l][1]] = array[i][2]
 
 > `tostring()`源码，底层使用`StringBuilder`
 
-![tostring](Java.assets/tostring.png)
+ ![tostring](Java.assets/tostring.png)
 
 
 
@@ -1956,11 +1956,11 @@ public class Person {
 >
 > Java有自动的垃圾回收器，不支持析构器
 
-![快捷生成](Java.assets/快捷生成.png)
+ ![快捷生成](Java.assets/快捷生成.png)
 
 选中生成对应的**有参**构造器，`Select None`生成**无参**构造器
 
-![altinsert](Java.assets/altinsert.png)
+ ![altinsert](Java.assets/altinsert.png)
 
 
 
@@ -1999,7 +1999,7 @@ public class Application {
 >
 > 堆中的对象的方法还是调用的方法区中类的方法
 
-![内存](Java.assets/内存.png)
+ ![内存](Java.assets/内存.png)
 
 
 
@@ -2020,19 +2020,19 @@ public class Application {
 
 
 
-1. 属性私有
+- 属性私有
 
    ![private](Java.assets/private.png)
 
-2. **接口方法**（驼峰命名）
+- **接口方法**（驼峰命名）
 
-   ![接口方法](Java.assets/接口方法.png)
+    ![接口方法](Java.assets/接口方法.png)
 
-   使用`set`方法设置属性值
+   使用`set`方法设置属性值 
 
    使用`get`方法获取属性值
 
-   ![get访问](Java.assets/get访问.png)
+    ![get访问](Java.assets/get访问.png)
 
    
 
@@ -2040,9 +2040,9 @@ public class Application {
 
    **Getter and Setter** 自动生成最原始的接口方法
 
-   ![getset](Java.assets/getset.png)
+    ![getset](Java.assets/getset.png)
 
-3. 可以在接口方法内增添代码实现各种功能
+- 可以在接口方法内增添代码实现各种功能
 
    ```java
    public void setAge(int age) {
@@ -2089,7 +2089,7 @@ public class Application {
 
 快捷键：ctrl+h 打开**继承树**
 
-![继承树](Java.assets/继承树.png)
+ ![继承树](Java.assets/继承树.png)
 
 
 
@@ -2199,7 +2199,7 @@ public class Student extends Person {
 >
 > 重写的方法对应的**侧边栏**会有符号箭头表示
 
-![重写](Java.assets/重写.png)
+ ![重写](Java.assets/重写.png)
 
 ```java
 package com.OOP.demo04;
@@ -2540,7 +2540,7 @@ public class A extends Action {
 >
 > 面向接口编程
 
-![interface](Java.assets/interface.png)
+ ![interface](Java.assets/interface.png)
 
 
 
@@ -2652,7 +2652,7 @@ public class UserServiceImpl implements UserService, TimeService {
 - **局部**内部类
 - **匿名**内部类
 
-![内部类](Java.assets/内部类.png)
+ ![内部类](Java.assets/内部类.png)
 
 
 
@@ -2803,7 +2803,7 @@ class A {
 >
 > `java.lang.Exception`是异常信息
 
-![Exception](Java.assets/Exception.png)
+ ![Exception](Java.assets/Exception.png)
 
 
 
@@ -2874,13 +2874,13 @@ public class Text {
 }
 ```
 
-![捕获异常](Java.assets/捕获异常.png)
+ ![捕获异常](Java.assets/捕获异常.png)
 
 
 
 快捷键：ctrl+alt+t
 
-![快捷键try](Java.assets/快捷键try.png)
+ ![快捷键try](Java.assets/快捷键try.png)
 
 
 
@@ -2930,7 +2930,7 @@ public class Test {
 }
 ```
 
-![throw](Java.assets/throw.png)
+ ![throw](Java.assets/throw.png)
 
 
 
@@ -2962,7 +2962,7 @@ public class Test {
 
 5. 如果当前方法无法处理，在方法的声明处通过`throws`指明要抛出给调用者的异常，由调用者捕获异常并处理
 
-   ![throws](Java.assets/throws.png)
+    ![throws](Java.assets/throws.png)
 
 
 
@@ -3054,11 +3054,11 @@ public class Test {
 1. 创建`lib`目录，并将jar包复制进去
 2. 右键`Add as Library`
 
-![添加jar包](Java.assets/添加jar包.png)
+ ![添加jar包](Java.assets/添加jar包.png)
 
 查看
 
-![查看Libraries](Java.assets/查看Libraries.png)
+ ![查看Libraries](Java.assets/查看Libraries.png)
 
 
 

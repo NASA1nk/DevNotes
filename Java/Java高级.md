@@ -186,7 +186,6 @@ System.out.println(s3 == s7);
 
 - `char[]`转换为`String`
   - 调用String的有参构造器：`new String(char[])`
-  
 
 #### StringBuffer/StringBuilder
 
@@ -371,7 +370,6 @@ public class DateTest {
   - 把Date对象转换为dow month day hour:minute:second zzz year格式
   - dow：day of week
     - zzz：时间标准
-  
 > `Date`类重写了`toString()`方法
 
 
@@ -6420,30 +6418,29 @@ class MyThread implements Runnable{
 
 # 网络编程
 
+套接字编程
+
 **目的**
 
-数据交换、通信
+- 数据交换、通信
+
 
 **实现**
 
-需要准确定位到网络上的一台主机（IP、端口、资源），然后进行通信
+- 需要准确定位到网络上的一台主机（IP、端口、资源），然后进行通信
+
 
 > 与Javaweb网页编程的B/S架构不同，**网络编程是C/S编程**（TCP/IP）
-
-
 
 **网络通信**
 
 - 通信双方的地址
-  - ip
-  - port
+  - ip：port
 - 通信的协议（规则）
   - TCP/IP
   - OSI
 
 > 传输层：TCP/UDP
-
-
 
 ## IP地址
 
@@ -6454,13 +6451,15 @@ class MyThread implements Runnable{
 
 > 42亿多IPV4的地址，30亿都在北美，亚洲只有4亿
 
- ![ipconfig](Java高级.assets/ipconfig.png)
+![ipconfig](Java高级.assets/ipconfig.png)
 
 
 
 ### 域名
 
-`C:\Windows\System32\drivers\etc\hosts`文件
+`host`
+
+- `C:\Windows\System32\drivers\etc\hosts`文件
 
 ![hosts文件](Java高级.assets/hosts文件.png)
 
@@ -6470,16 +6469,12 @@ class MyThread implements Runnable{
 
 `java.net.InetAddress`
 
-- **没有构造器**（无法`new`实例）
+- **没有构造器**
+  - 无法`new`类的实例
 - **没有字段**
 
-只能通过`InetAddress`类中的静态方法返回该类的对象
+- 只能通过类中的`static`**静态方法**返回该类的对象
 
-> Java类中**没有构造器的三种类型**
->
-> - 成员均为静态（`math`，`Arrays`，`Collection`）
-> - 单例设计模式（`Runtime`）
-> - 类中有静态方法返回该类的对象（`InetAddrass`）
 
 ```java
 package com.ink.Network;
@@ -6534,16 +6529,18 @@ public class InetAddressTest {
 
 - 动态端口：49152~65535
 
-> win查看端口
->
-> ```bash
-> # 查看所有端口
-> netstat -ano
-> # 查找指定端口
-> netstat -ano | findstr "8080"
-> # 查找指定端口对应的进程
-> tasklist | findste "8696"
-> ```
+**windows查看端口**
+
+```bash
+# 查看所有端口
+netstat -ano
+
+# 查找指定端口
+netstat -ano | findstr "8080"
+
+# 查找指定端口对应的进程
+tasklist | findste "8696"
+```
 
 
 
@@ -6565,7 +6562,6 @@ public class InetSocketAddressTest {
         InetSocketAddress inetSocketAddress2 = new InetSocketAddress("localhost", 12345);
         System.out.println(inetSocketAddress1);
         System.out.println(inetSocketAddress2);
-        System.out.println("方法");
         InetAddress address = inetSocketAddress1.getAddress();
         String hostName = inetSocketAddress1.getHostName();
         int port = inetSocketAddress1.getPort();
@@ -6587,13 +6583,13 @@ public class InetSocketAddressTest {
 - 代码结构
 - 传输控制
 
-**TCP / IP协议簇**
+**TCP/IP协议簇**
 
 - TCP：用户传输协议
 - UDP：用户数据报协议
 - IP：网络互连协议
 
-**TCP / UDP对比**
+### TCP/UDP
 
 - **TCP**
   - 有连接、稳定
@@ -6606,19 +6602,316 @@ public class InetSocketAddressTest {
   - 无需准备 
   - DDOS洪泛攻击
 
-## TCP实现
+## TCP实现通信
 
 **服务端**
 
-1. 提供ip:port
-2. 监听客户端的socket连接
-3. 使用字节流读取客户端发送的消息
+1. 通过`ServerSocket`建立服务的端口
+2. 通过`accept()`监听客户端的socket连接
+   1. `accept()`阻塞式监听，一直等待客户端连接
+3. 使用**字节流**读取客户端发送的消息
 
 **客户端**
 
 1. 获取服务端的ip:port
-2. 创建socket连接
-3. 使用字节流向服务端发送消息
+2. 创建`socket`连接，连接服务端
+3. 使用**字节流**向服务端发送消息
 
 ### Socket类
+
+```java
+package com.ink.Network;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
+
+public class TCPClientTest {
+//    客户端
+    public static void main(String[] args) {
+        Socket socket = null;
+        OutputStream os = null;
+        try {
+//        获取服务端的IP:PORT
+            InetAddress serverIp = InetAddress.getByName("127.0.0.1");
+            int port = 12345;
+//            创建socket连接
+            socket = new Socket(serverIp,port);
+//            使用字节流发送信息
+            os = socket.getOutputStream();
+//            String的getBytes()方法
+            os.write("客户端通过TCP连接向服务端发送消息".getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+//            关闭资源
+            if(os != null){
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(socket != null){
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
+}
+```
+
+### ServerSocket类
+
+```java
+package com.ink.Network;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class TCPServerTest {
+//    服务端
+    public static void main(String[] args) {
+        ServerSocket serversocket = null;
+        Socket accept = null;
+        InputStream is = null;
+        ByteArrayOutputStream baos = null;
+        try {
+//            服务端地址
+            serversocket = new ServerSocket(12345);
+//            监听客户端连接，accept即客户端创建的socket
+            accept = serversocket.accept();
+//            使用字节流读取客户端的消息
+            is = accept.getInputStream();
+//            直接读入数据存在问题
+//            如果读入的是中文信息，并且最后长度超过数组长度，就会乱码
+//            所以需要用管道流包装一下
+//            byte[] buffer = new byte[1024];
+//            int len;
+//            while((len = is.read(buffer)) != -1){
+//                String msg = new String(buffer, 0, len);
+//                System.out.println(msg);
+//            }
+//            管道流包装
+            baos = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int len;
+            while((len = is.read(buffer)) != -1){
+                baos.write(buffer,0,len);
+            }
+//            避免乱码
+            System.out.println(baos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+//            关闭i资源
+            if(baos != null){
+                try {
+                    baos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(is != null){
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(accept != null){
+                try {
+                    accept.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(serversocket != null){
+                try {
+                    serversocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+```
+
+通信结果
+
+![网络编程TCP实现](Java高级.assets/网络编程TCP实现.png)
+
+## TCP实现文件上传
+
+服务端
+
+```java
+package com.ink.Network;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class UploadFileServerTest {
+    public static void main(String[] args) throws IOException {
+//        创建服务端口
+        ServerSocket serverSocket = new ServerSocket(9000);
+//        监听客户端的连接
+        Socket accept = serverSocket.accept();
+//        获取输入流
+        InputStream is = accept.getInputStream();
+//        输出文件，跟src同级
+        FileOutputStream fos = new FileOutputStream(new File("receive.txt"));
+        byte[] buffer = new byte[1024];
+        int len;
+        while((len = is.read(buffer)) != -1){
+            fos.write(buffer,0,len);
+        }
+//        关闭资源
+        fos.close();
+        is.close();
+        accept.close();
+    }
+}
+```
+
+客户端
+
+```java
+package com.ink.Network;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
+
+public class UploadFileClientTest {
+    public static void main(String[] args) throws Exception {
+//        创建socket连接
+        Socket socket = new Socket(InetAddress.getByName("127.0.0.1"), 9000);
+//        创建输出流
+        OutputStream os = socket.getOutputStream();
+//        用文件流读取文件，文件的相对路径是相对项目javase下的，和src同级
+        FileInputStream fis = new FileInputStream(new File("ink.txt"));
+//        写出文件
+        byte[] buffer = new byte[1024];
+        int len;
+        while((len = fis.read(buffer))!= -1){
+            os.write(buffer,0,len);
+        }
+//        关闭资源
+        fis.close();
+        os.close();
+        socket.close();
+    }
+}
+```
+
+
+
+**通信缺陷**
+
+1. 客户端上传完毕后需要通知服务端
+2. 服务端在接收完成后通知客户端断开连接
+3. 客户端在确认服务端接收完成后断开连接
+
+服务端
+
+```java
+package com.ink.Network;
+
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class UploadFileServerTest {
+    public static void main(String[] args) throws IOException {
+//        创建服务端口
+        ServerSocket serverSocket = new ServerSocket(9000);
+//        监听客户端的连接
+        Socket accept = serverSocket.accept();
+//        获取输入流
+        InputStream is = accept.getInputStream();
+//        输出文件
+        FileOutputStream fos = new FileOutputStream(new File("receive.txt"));
+        byte[] buffer = new byte[1024];
+        int len;
+        while((len = is.read(buffer)) != -1){
+            fos.write(buffer,0,len);
+        }
+//        通知客户端接收完成
+//        创建输出流
+        OutputStream os = accept.getOutputStream();
+        os.write("接收完成，可以断开连接了".getBytes());
+//        关闭资源
+        os.close();
+        fos.close();
+        is.close();
+        accept.close();
+    }
+}
+```
+
+客户端
+
+```java
+package com.ink.Network;
+
+import java.io.*;
+import java.net.InetAddress;
+import java.net.Socket;
+
+public class UploadFileClientTest {
+    public static void main(String[] args) throws Exception {
+//        创建socket连接
+        Socket socket = new Socket(InetAddress.getByName("127.0.0.1"), 9000);
+//        创建输出流
+        OutputStream os = socket.getOutputStream();
+//        用文件流读取文件，相对路径是相对项目javase下的
+        FileInputStream fis = new FileInputStream(new File("ink.txt"));
+//        写出文件
+        byte[] buffer = new byte[1024];
+        int len;
+        while((len = fis.read(buffer))!= -1){
+            os.write(buffer,0,len);
+        }
+//        通知服务器，上传完成
+        socket.shutdownOutput();
+
+//        确定服务端接收完成，断开连接
+//        获取输入流
+        InputStream is = socket.getInputStream();
+//        创建管道流
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        写出文件
+        byte[] buffer2 = new byte[1024];
+        int len2;
+        while((len2 = is.read(buffer2))!= -1){
+            baos.write(buffer2,0,len2);
+        }
+        System.out.println(baos);
+//        关闭资源
+        baos.close();
+        is.close();
+        fis.close();
+        os.close();
+        socket.close();
+    }
+}
+```
+
+![网络编程TCP文件上传](Java高级.assets/网络编程TCP文件上传.png)
 

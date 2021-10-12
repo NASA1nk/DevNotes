@@ -68,7 +68,6 @@ Java developmen kit 开发工具包
 - Javap：Java反汇编器，显示编译类文件中的可访问功能和数据，同时显示字节代码含义
 
 - Jconsole: Java进行系统调试和监控的工具
-  
 
 ### 安装JDK
 
@@ -1946,6 +1945,17 @@ public class Person {
   ![有参构造](Java.assets/有参构造.png)
 
 
+
+### 无构造器的类
+
+Java类中**没有构造器的三种类型**
+
+- 成员均为静态
+  - `math`，`Arrays`，`Collection`
+- 单例设计模式
+  - `Runtime`
+- 类中有静态方法返回该类的对象
+  - `InetAddrass`
 
 ## this
 

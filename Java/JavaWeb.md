@@ -101,6 +101,8 @@ B/S
 
 - 在第一行`@echo off`的下面一行加上一行`SET JAVA_HOME=C:\Env\JDK17`
 
+或者在系统的环境变量中添加`JAVA_HOME`，值为`C:\Env\JDK17`
+
 > `.bat`是windows下的执行文件，`.sh`是linux下的执行文件
 
 **启动**
@@ -116,7 +118,7 @@ B/S
 
 核心配置文件是`conf`目录下的`server.xml`文件
 
-修改默认端口
+修改默认启动端口号
 
 - `conf`目录下的`server.xml`文件
 
@@ -136,6 +138,20 @@ B/S
 
 ```
 
+配置主机名称
+
+- 默认的主机名为：`localhost`（即127.0.0.1）
+- 默认应用存放的位置为：`webapps`
+
+> 修改host name后需要在主机的`C:\Windows\System32\drivers\etc\hosts`文件中添加对应的映射，否则找不到ip
+>
+> 修改完后在命令行输入`ipconfig /flushdns`刷新dns缓存
+
+```xml
+<Host name="localhost"  appBase="webapps"
+      unpackWARs="true" autoDeploy="true">
+```
+
 ## 目录结构
 
 - `bin`：存放启动和关闭tomcat脚本 
@@ -149,7 +165,39 @@ B/S
 
 ## 部署项目
 
-`http://localhost:8080/`默认访问的是tomcat的`/webapps/ROOT/`目录下的`index.jsp`文件
+tomcat的`webapps`目录下的5个默认的应用
 
-删除ROOT目录下的默认文件，将自己的文件放进去即完成发布
+ ![tomcat应用](JavaWeb.assets/tomcat应用.png)
+
+### Web应用结构
+
+- `http://localhost:8080/`默认访问的是tomcat的`/webapps/ROOT/`目录下的`index.jsp`文件
+- 将自己的应用放在tomcat服务器的`webapps`目录下即可
+  - 需要有`WEB-INF\web.xml`网站配置文件
+
+- 访问http://localhost:8080/inkapp即可访问到`index.html`
+
+```txt
+--webapps  ：tomcat服务器的web目录
+	-ROOT
+	-inkapp  ：网站的目录名
+		- WEB-INF
+			-classes  : java程序
+			-lib  ：web应用所依赖的jar包
+			-web.xml  ：网站配置文件
+		- index.html  ：默认首页
+		- static 
+            -css
+            	-style.css
+            -js
+            -img
+         -.....
+```
+
+> **访问域名**
+>
+> 1. 在浏览器输入一个域名，回车
+> 2. 查看本机的`C:\Windows\System32\drivers\etc\hosts`配置文件是否有相应域名的映射
+>    1. 若有，直接映射到对应的IP地址，进行访问
+>    2. 若无，则去DNS服务器上查找对应的IP，找到就返回相应的IP并进行访问，找不到就不返回
 

@@ -274,6 +274,7 @@ System.out.println(s3 == s7);
 - `StringBuidler append(obj)`：字符串拼接	
   - `append(null)`会将null转换为**`null`字符串**添加进去
 - `StringBuffer delete(int start,int end)`：删除`[start,end)`的内容
+- `StringBuffer deleteCharAt(int index)`：删除`index`位置的字符
 - `StringBuffer replace(int start,int end,String str)`：把`[start,end)`位置的内容替换为`str`
 - `StringBuffer insert(int offset,obj)`：字符插入
 - `StringBuffer reverse()`：反转字符串

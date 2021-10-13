@@ -69,6 +69,60 @@
   - `git checkout`
   - `git cheery-pick`
 
+
+
+# Git默认编码
+
+使用命令行提交代码的时候会出现中文乱码问题
+
+- 因为UTF-8编码在git默认的配置上不能正常显示
+
+![gitbash乱码](Git.assets/gitbash乱码.png)
+
+设置编码
+
+- 修改`core.quotepath`参数
+  - `core.quotepath`设为`false`就不会对`0×80`以上的字符进行quote，中文显示正常
+
+```bash
+# status编码
+
+git config --global core.quotepath false
+
+# gui编码
+git config --global gui.encoding utf-8
+
+# commit编码
+git config --global i18n.commit.encoding utf-8
+
+# log编码
+git config --global i18n.logoutputencoding utf-8
+```
+
+
+
+linux下
+
+- 进入git安装目录，修改配置
+
+`etc\gitconfig`
+
+```bash
+# 代码库统一使用utf-8
+[gui]
+encoding = utf-8
+
+# log编码 
+[i18n]
+commitencoding = utf-8
+
+# 支持中文路径  
+[svn]
+pathnameencoding = utf-8
+```
+
+
+
 # Git命令
 
 ## 初始化
@@ -182,6 +236,8 @@ git ls-files --stage
 ```
 
 ### 查看日志
+
+按q退出
 
 ```bash
 git log 

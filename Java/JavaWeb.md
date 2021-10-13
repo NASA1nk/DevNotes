@@ -1,0 +1,155 @@
+# JavaWeb
+
+- web即网页
+- 在Java中，动态web资源开发的技术统称为JavaWeb
+
+## Web开发
+
+- 静态web
+
+  - html,css
+  - 提供给用户查看的数据不会发生变化
+- 动态web
+
+  - 提供给用户查看的数据会发送变化（如淘宝）
+- 技术栈
+- Servlet
+- JSP
+- B/S架构
+  - 基于Java语言，本质是Servlet
+- 支持高并发，高可用，高性能
+- PHP
+  - 作为开发速度很快，功能很强大，跨平台
+  - 无法承载大访问量的情况
+
+## web应用程序
+
+Web应用程序
+
+- 可以提供浏览器访问的应用程序
+
+web资源
+
+- 如index.html，home.html等web资源，这些web资源可以被外界访问，对外界提供服务
+
+- 我们通过URL访问到的任何一个页面或者资源，都是存在于这个世界的某一个角落的一台计算机上（服务器）
+- 这些统一的web资源会被放在服务器的同一个文件夹下，即是一个web应用程序
+
+一个web应用由多部分组成（静态web，动态web)
+
+- html,css,js
+- jsp,servlet
+- Java程序
+- jar包
+
+- 配置文件Properties
+
+Web应用程序编写完成后，要想提供给外界访问，需要一个服务器来统一管理
+
+
+
+## 静态web
+
+静态web资源请求
+
+![静态web资源请求](JavaWeb.assets/静态web资源请求.png)
+
+缺点
+
+- Web页面无法动态更新，所有用户看到都是同一个页面
+  - JavaScript实现的轮播图和点击特效等都是伪动态
+- 无法和数据库交互
+  - 数据无法持久化，用户无法交互
+
+## 动态Web
+
+浏览器发送HTTP请求，Tomcat服务器接收请求，Servlet容器从磁盘加载静态资源，Servlet程序处理请求request ，处理结束返回response
+
+![动态Web资源请求](JavaWeb.assets/动态Web资源请求.png)
+
+缺点
+
+- 服务器的动态Web资源出现错误，需要重新编写后端程序，重新发布
+
+
+
+# Tomcat
+
+- 轻量级应用服务器
+- 开源的servlet容器
+- 支持JSP动态页面，也可以处理html。但是处理html的效率不如Apache，所以想处理html静态网页还是用Apache最合适
+- Apache是web服务器，Tomcat是应用服务器，它只是一个servlet容器，是Apache的扩展
+- Apache和Tomcat都可以做为独立的web服务器来运行，但是Apache不能解释java程序（jsp，servlet）
+
+B/S
+
+- 使用tomcat作为服务器
+
+- 客户端使用浏览器
+
+> 上面的实现是C/S
+
+## 安装
+
+**下载**
+
+- [Apache Tomcat® - Apache Tomcat 10 Software Downloads](https://tomcat.apache.org/download-10.cgi)
+
+**配置**
+
+分别打开`bin`目录中的`startup.bat`和`shutdown.bat`两个文件
+
+- 在第一行`@echo off`的下面一行加上一行`SET JAVA_HOME=C:\Env\JDK17`
+
+> `.bat`是windows下的执行文件，`.sh`是linux下的执行文件
+
+**启动**
+
+- 进入`bin`目录，启动`startup.bat`文件
+
+
+> `startup.bat`文件用于打开tomcat，`shutdown.bat`文件用于关闭tomcat
+
+![tomcat界面](JavaWeb.assets/tomcat界面.png)
+
+## 配置文件
+
+核心配置文件是`conf`目录下的`server.xml`文件
+
+修改默认端口
+
+- `conf`目录下的`server.xml`文件
+
+- 确保服务器安全组中开放了这个端口，设置完保存然后重启下tomcat即可
+
+```xml
+<Connector port="8080" protocol="HTTP/1.1"
+           connectionTimeout="20000"
+           redirectPort="8443" />
+```
+
+点击Manager App的时候，会要求输入用户名和密码
+
+- `conf`目录下的`tomcat-users.xml`
+
+```xml
+
+```
+
+## 目录结构
+
+- `bin`：存放启动和关闭tomcat脚本 
+- `conf`：包含不同的配置文件
+  - `server.xml`（tomcat的主要配置文件）和`web.xml` 
+- `work`：存放jsp编译后产生的`class`文件 
+- `webapp`：存放应用程序（网站）
+  - 要部署的应用程序要存放到此目录 
+- `logs`：存放日志文件 
+- `lib`：主要存放tomcat依赖的jar包
+
+## 部署项目
+
+`http://localhost:8080/`默认访问的是tomcat的`/webapps/ROOT/`目录下的`index.jsp`文件
+
+删除ROOT目录下的默认文件，将自己的文件放进去即完成发布
+

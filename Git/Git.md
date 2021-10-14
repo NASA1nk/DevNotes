@@ -173,7 +173,7 @@ git push 远程仓库
 
 ## 撤销
 
-`gitjk`工具
+gitjk工具
 
 提示命令，在想撤销的命令后一条输入`gitjk`（紧挨着）
 
@@ -212,16 +212,17 @@ git checkout -b SHA-1
 
 ### 查看git仓库
 
-这里面objects下就是存放的文件目录分级
+- `objects`下就是存放的文件目录分级
 
-61就是存在的文件的**SHA-1值的前两位**，打开后就是**剩下的SHA-1值**，拼接后才是完整的文件的SHA-1值，就可以定位到文件
+- `61`是存在的文件的**SHA-1值的前两位**，打开后就是**剩下的SHA-1值**
+  - 拼接后才是完整的文件的SHA-1值，就可以定位到文件
 
 ```bash
 cd .git && ls -la
 cd objects && ls -la
 ```
 
-![查看库内容](Git.assets/查看库内容.png)
+ ![查看库内容](Git.assets/查看库内容.png)
 
 ### 查看文件内容
 
@@ -255,10 +256,8 @@ git branch
 # 查看远程分支
 git branch -r
 
-
 # 查看本地和远程分支
 git branch -a
-
 
 # 查看远程分支和本地分支的对应关系
 git remote show origin
@@ -338,7 +337,7 @@ a分出的分支b对**原分支**a的合并会直接覆盖，不会冲突
   #3.重新提交修改后内容
   ```
 
-![合并冲突](Git.assets/合并冲突.png)
+ ![合并冲突](Git.assets/合并冲突.png)
 
 ## 暂存修改
 
@@ -370,7 +369,7 @@ git stash clear
 git config --list 
 ```
 
-![设置个人信息](Git.assets/设置个人信息.png)
+ ![设置个人信息](Git.assets/设置个人信息.png)
 
 ## SSH连接GitHub
 
@@ -379,7 +378,7 @@ git config --list
 - 使用https url，通过git提交的时候要输入用户名和密码
 - 使用ssh url，通过git提交的时候不需要繁琐的验证过程
 
-![gitconfig](Git.assets/gitconfig.png)
+ ![gitconfig](Git.assets/gitconfig.png)
 
 ### 创建密钥
 
@@ -491,22 +490,22 @@ git push -u origin main
 - U：unstage
 
 
-- M：modified
+- M：modified 
 
 
-![VSCodeGit状态](Git.assets/VSCodeGit状态.png)
+ ![VSCodeGit状态](Git.assets/VSCodeGit状态.png)
 
 3.查看历史信息
 
 可以`git checkout SHA-1`切换版本
 
-![VSCode查看信息](Git.assets/VSCode查看信息.png)
+ ![VSCode查看信息](Git.assets/VSCode查看信息.png)
 
 4.创建和切换分支
 
 点击左下角的main图标
 
-![VSCode创建分支](Git.assets/VSCode创建分支.png)
+ ![VSCode创建分支](Git.assets/VSCode创建分支.png)
 
 5.提交文件
 

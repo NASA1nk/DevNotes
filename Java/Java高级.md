@@ -6914,5 +6914,10 @@ public class UploadFileClientTest {
 }
 ```
 
-![网络编程TCP文件上传](Java高级.assets/网络编程TCP文件上传.png)
+ ![网络编程TCP文件上传](Java高级.assets/网络编程TCP文件上传.png)
 
+
+
+## UDP实现网络通信
+
+- 不用建立连接，只需要知道对方的ip地址

@@ -152,6 +152,21 @@ B/S
       unpackWARs="true" autoDeploy="true">
 ```
 
+日志配置
+
+- `conf`目录下的`logging.properties`
+- 默认是UTF-8，windows需要修改为GBK
+
+```properties
+java.util.logging.ConsoleHandler.level = FINE
+java.util.logging.ConsoleHandler.formatter = org.apache.juli.OneLineFormatter
+java.util.logging.ConsoleHandler.encoding = GBK
+```
+
+
+
+
+
 ## 目录结构
 
 - `bin`：存放启动和关闭tomcat脚本 
@@ -201,3 +216,4 @@ tomcat的`webapps`目录下的5个默认的应用
 >    1. 若有，直接映射到对应的IP地址，进行访问
 >    2. 若无，则去DNS服务器上查找对应的IP，找到就返回相应的IP并进行访问，找不到就不返回
 
+# 

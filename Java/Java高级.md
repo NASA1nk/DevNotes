@@ -6947,7 +6947,7 @@ import java.net.InetAddress;
 public class UDPClientTest {
     public static void main(String[] args) throws Exception {
 //        创建socket
-        DatagramSocket socket = new DatagramSocket;
+        DatagramSocket socket = new DatagramSocket();
 //        创建包
         String msg = "像服务器发送数据";
         InetAddress localhost = InetAddress.getByName("localhost");
@@ -6958,12 +6958,14 @@ public class UDPClientTest {
 //        发送包
         socket.send(packet);
 //        关闭资源
-        socket.close();
+        socket.close();   
     }
 }
 ```
 
 **接收端**
+
+- `receive()`：阻塞式接受数据
 
 ```java
 package com.ink.Network;
@@ -6988,4 +6990,243 @@ public class UDPServerTest {
 ```
 
  ![udp数据通信](Java高级.assets/udp数据通信.png)
+
+
+
+## UDP实现多线程通信
+
+> 循环通信
+
+**发送端**
+
+```java
+package com.ink.Network;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
+
+public class UDPChatSender {
+    public static void main(String[] args) throws Exception  {
+        DatagramSocket socket = new DatagramSocket();
+//        控制台读取System.in
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        while(true){
+            String data = reader.readLine();
+            byte[] datas = data.getBytes();
+            DatagramPacket packet = new DatagramPacket(datas,0,datas.length,new InetSocketAddress("localhost",6666));
+            socket.send(packet);
+            if("bye".equals(data)){
+                break;
+            }
+        }
+        socket.close();
+    }
+}
+```
+
+**接收端**
+
+```java
+package com.ink.Network;
+
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+
+public class UDPChatReceiver {
+    public static void main(String[] args) throws Exception {
+        DatagramSocket socket = new DatagramSocket(6666);
+        byte[] buffer = new byte[1024];
+        while(true){
+            DatagramPacket packet = new DatagramPacket(buffer,0,buffer.length);
+            socket.receive(packet);
+            byte[] datas = packet.getData();
+//            长度是packet.getLength()，而不能使用buffer.length
+            String data = new String(datas, 0, packet.getLength());
+            System.out.println(data);
+            if("bye".equals(data)){
+                break;
+            }
+        }
+        socket.close();
+
+    }
+}
+
+```
+
+多线程同时通信
+
+`TalkSend`
+
+```java
+package com.ink.Network;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
+import java.net.SocketException;
+
+public class TalkSend implements Runnable{
+    DatagramSocket socket = null;
+    BufferedReader reader = null;
+
+     private int fromPort;
+     private String toIP;
+     private int toPort;
+
+    public TalkSend(int fromPort, String toIP,int toPort) {
+        this.fromPort = fromPort;
+        this.toIP = toIP;
+        this.toPort = toPort;
+
+        try {
+            socket = new DatagramSocket(fromPort);
+            reader = new BufferedReader(new InputStreamReader(System.in));
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void run() {
+        while(true){
+            try {
+                String data = reader.readLine();
+                byte[] datas = data.getBytes();
+                DatagramPacket packet = new DatagramPacket(datas,0,datas.length,new InetSocketAddress(this.toIP,this.toPort));
+                socket.send(packet);
+                if("bye".equals(data)){
+                    break;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        socket.close();
+    }
+}
+```
+
+`TalkReceive`
+
+```java
+package com.ink.Network;
+
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketException;
+
+public class TalkReceive implements Runnable{
+    DatagramSocket socket = null;
+    private int port;
+    private String msgFrom;
+
+    public TalkReceive(int port,String msgFrom) {
+        this.port = port;
+        this.msgFrom = msgFrom;
+        try {
+            socket = new DatagramSocket(this.port);
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void run() {
+
+        while(true){
+            try {
+                byte[] buffer = new byte[1024];
+                DatagramPacket packet = new DatagramPacket(buffer,0,buffer.length);
+                socket.receive(packet);
+                byte[] datas = packet.getData();
+                String data = new String(datas, 0, packet.getLength());
+                System.out.println(msgFrom+":"+data);
+                if("bye".equals(data)){
+                    break;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        socket.close();
+    }
+}
+```
+
+老师学生分别开启两个线程用于接收和发送消息
+
+> 端口要对应好
+
+`TalkStudent`
+
+```java
+package com.ink.Network;
+
+public class TalkStudent {
+    public static void main(String[] args) {
+//        开启两个线程
+//        老师的端口是8888
+        new Thread(new TalkSend(7777,"localhost",8888)).start();
+        new Thread(new TalkReceive(9999,"老师说")).start();
+    }
+}
+```
+
+`TalkTeacher`
+
+```java
+package com.ink.Network;
+
+public class TalkTeacher {
+    public static void main(String[] args) {
+//        学生的端口是9999
+        new Thread(new TalkSend(5555,"localhost",9999)).start();
+        new Thread(new TalkReceive(8888,"学生说")).start();
+    }
+}
+```
+
+![TalkStudent](Java高级.assets/TalkStudent.png)![TalkTeacher](Java高级.assets/TalkTeacher.png)
+
+
+
+## URL下载资源
+
+- url：统一资源定位符
+- 格式：协议://ip:port/项目名/资源
+
+### URL类
+
+`java.net.URL`
+
+```java
+package com.ink.Network;
+
+import org.junit.Test;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+
+public class UrlTest {
+    @Test
+    public void test() throws MalformedURLException {
+        URL url = new URL("http://localhost:8080/hello/index.jsp?username=ink&password=123");
+        System.out.println(url.getProtocol());
+        System.out.println(url.getHost());
+        System.out.println(url.getPort());
+        System.out.println(url.getPath());
+        System.out.println(url.getQuery());
+    }
+}
+```
+
+ ![url](Java高级.assets/url.png)
 

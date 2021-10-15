@@ -143,7 +143,7 @@ System.out.println(s3 == s7);
 ### 字符串方法
 
 - `int length()`：返回字符串长度
-- `char charAt(int index)`：返回索引处的字符
+- `char charAt(int index)`：返回`index`索引处的字符
 - `boolean isEmpty()`：判断字符串是否为空
 - `String trim()`：返回字符串的副本，去除**所有前导空格和尾部空格**
 - `boolean equals(Object obj)`：比较字符串内容是否相同
@@ -242,7 +242,7 @@ System.out.println(s3 == s7);
 
    1. 调用超类的`append()`方法
 
-        ![append()](Java高级.assets/append().png)
+         ![append()](Java高级.assets/append().png)
 
    2. 超类的`append()`方法
 
@@ -252,7 +252,7 @@ System.out.println(s3 == s7);
 
    3. 如果超过数组长度，调用`copyOf()`方法**复制数据**
 
-       ![ensureCapacityInternal](Java高级.assets/ensureCapacityInternal.png)
+        ![ensureCapacityInternal](Java高级.assets/ensureCapacityInternal.png)
 
    4. 在创建新的数组时候扩容
 
@@ -271,13 +271,16 @@ System.out.println(s3 == s7);
 查看`StringBuffer`的所有方法
 
 - `int length()`：返回长度
-- `StringBuidler append(obj)`：字符串拼接	
-  - `append(null)`会将null转换为**`null`字符串**添加进去
+- `StringBuidler append(obj)`：在末尾拼接字符串	
+  - `append(null)`：会将null转换为**`null`字符串**添加进去
 - `StringBuffer delete(int start,int end)`：删除`[start,end)`的内容
+  - `sb.delete(0,sb.length())`：清空
 - `StringBuffer deleteCharAt(int index)`：删除`index`位置的字符
 - `StringBuffer replace(int start,int end,String str)`：把`[start,end)`位置的内容替换为`str`
 - `StringBuffer insert(int offset,obj)`：字符插入
 - `StringBuffer reverse()`：反转字符串
+- `char charAt(index)`：查询`index`位置的字符
+- `StringBuffer substring(int beginIndex)`：从字符串的`beginIndex`开始，返回一个新字符串
 
 > 调用`append()`和`insert()`时，如果原来的数组长度不够，**可以扩容**
 
@@ -6452,7 +6455,7 @@ class MyThread implements Runnable{
 
 > 42亿多IPV4的地址，30亿都在北美，亚洲只有4亿
 
-![ipconfig](Java高级.assets/ipconfig.png)
+ ![ipconfig](Java高级.assets/ipconfig.png)
 
 
 
@@ -6603,7 +6606,7 @@ public class InetSocketAddressTest {
   - 无需准备 
   - DDOS洪泛攻击
 
-## TCP实现通信
+## TCP实现网络通信
 
 **服务端**
 
@@ -6619,6 +6622,8 @@ public class InetSocketAddressTest {
 3. 使用**字节流**向服务端发送消息
 
 ### Socket类
+
+`java.net.Socket`
 
 ```java
 package com.ink.Network;
@@ -6668,6 +6673,8 @@ public class TCPClientTest {
 ```
 
 ### ServerSocket类
+
+`java.net.ServerSocket`
 
 ```java
 package com.ink.Network;
@@ -6921,3 +6928,64 @@ public class UploadFileClientTest {
 ## UDP实现网络通信
 
 - 不用建立连接，只需要知道对方的ip地址
+- DatagramPacket类
+  - `java.net.DatagramPacket`
+- DatagramSocket类
+  - `java.net.DatagramSocket`
+
+**发送端**
+
+- 不需要和接收端建立连接
+
+```java
+package com.ink.Network;
+
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+
+public class UDPClientTest {
+    public static void main(String[] args) throws Exception {
+//        创建socket
+        DatagramSocket socket = new DatagramSocket;
+//        创建包
+        String msg = "像服务器发送数据";
+        InetAddress localhost = InetAddress.getByName("localhost");
+        int port = 9090;
+//        String转byte[]
+//        param:数据,[start,end],发送对象
+        DatagramPacket packet = new DatagramPacket(msg.getBytes(), 0, msg.getBytes().length, localhost, port);
+//        发送包
+        socket.send(packet);
+//        关闭资源
+        socket.close();
+    }
+}
+```
+
+**接收端**
+
+```java
+package com.ink.Network;
+
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+
+public class UDPServerTest {
+    public static void main(String[] args) throws Exception {
+//        开放端口
+        DatagramSocket socket = new DatagramSocket(9090);
+//        接受包
+        byte[] buffer = new byte[1024];
+        DatagramPacket packet = new DatagramPacket(buffer, 0, buffer.length);
+        socket.receive(packet);
+        System.out.println(packet.getAddress());
+        System.out.println(new String(packet.getData(),0,packet.getLength()));
+//        关闭资源
+        socket.close();
+    }
+}
+```
+
+ ![udp数据通信](Java高级.assets/udp数据通信.png)
+

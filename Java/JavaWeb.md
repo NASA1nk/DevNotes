@@ -289,6 +289,27 @@ Remote Address:14.215.177.39:443=
 
 
 
+# JAR包
+
+`Java Archive File`
+
+- jar包是Java的一种文档格式，是一种与平台无关的文件格式，可将多个文件合成一个文件
+- jar包与zip包非常相似，准确地说，它就是一个zip包，它与zip包唯一的区别就是在jar包中包含了一个`META-INF/MANIFEST.MF`文件，该文件是在生成jar文件的时候自动创建的，作为jar里面的**详情单**，包含了该Jar包的版本、创建者和类搜索路径`Class-Path`等信息
+  - 如果是可执行jar包，还会包含`Main-Class`属性，表明`main`方法入口
+  - 实际上是可以使用zip相关的命令来对jar包进行创建或者解压缩操作
+  - JDK也自带了jar命令，通过jar命令可以实现创建，更新jar包的操作
+- 因为jar包主要是对class文件进行打包，而java编译生成的class文件是平台无关的，这就意味着jar包也是跨平台的，所以不必关心涉及具体平台的问题
+
+
+
+**为什么要打jar包**
+
+- 当我们开发了一个程序以后，程序中有很多的类。如果需要提供给别人使用，发给对方一堆源文件是非常不好的，因此通常需要把这些类以及相关的资源文件打包成一个 jar包，然后把这个jar包提供给别人使用，同时还需要提供给对方相关的文档。这样对方在拿到我们提供的jar包之后，就可以直接调用。
+
+> 因此在平时写代码的时候，注意把自己代码的通用部分抽离出来，积累一些通用的`util`类，将其逐渐模块化，最后打成jar包供自己在别的项目或者模块中使用，同时不断更新jar包里面的内容，将其做得越来越容易理解和通用。这样做的好处是除了会对你的代码重构能力以及模块抽象能力有很好的帮助之外，更是一种从长期解放你的重复工作量，让你有更多的精力去做其他事情的方式
+
+
+
 # Maven
 
 项目架构管理工具
@@ -299,4 +320,106 @@ Remote Address:14.215.177.39:443=
 
 - 有约束不要去违反
 - Maven会规定好如何去编写Java代码，必须要按照这个规范
+
+
+
+**安装**
+
+- [Maven – Introduction (apache.org)](http://maven.apache.org/what-is-maven.html)
+
+**配置环境变量**
+
+- `C:\Env\Maven\apache-maven-3.8.3\bin`
+- `M2_HOME`
+  - `C:\Env\Maven\apache-maven-3.8.3\bin`
+
+**验证**
+
+- `mvn -version`
+
+  ![mavenversion](JavaWeb.assets/mavenversion.png)
+
+## 配置镜像
+
+`conf`目录下的`setting.xml`配置文件
+
+- 配置阿里云镜像
+
+```xml
+  <mirrors>
+    <!-- mirror
+     | Specifies a repository mirror site to use instead of a given repository. The repository that
+     | this mirror serves has an ID that matches the mirrorOf element of this mirror. IDs are used
+     | for inheritance and direct lookup purposes, and must be unique across the set of mirrors.
+     |
+    <mirror>
+      <id>mirrorId</id>
+      <mirrorOf>repositoryId</mirrorOf>
+      <name>Human Readable Name for this Mirror.</name>
+      <url>http://my.repository.com/repo/path</url>
+    </mirror>
+     -->
+    <mirror>
+      <id>maven-default-http-blocker</id>
+      <mirrorOf>external:http:*</mirrorOf>
+      <name>Pseudo repository to mirror external repositories initially using HTTP.</name>
+      <url>http://0.0.0.0/</url>
+      <blocked>true</blocked>
+    </mirror>
+    <mirror> 
+      <id>alimaven</id> 
+      <mirrorOf>central</mirrorOf> 
+      <name>aliyun maven</name> 
+      <url>http://maven.aliyun.com/nexus/content/groups/public/</url> 
+    </mirror>
+  </mirrors>
+```
+
+## 配置仓库
+
+### 创建本地仓库
+
+`localRepository`
+
+- 仓库目录：C:\Env\Maven\mavenrepo
+
+```xml
+  <!-- localRepository
+   | The path to the local repository maven will use to store artifacts.
+   |
+   | Default: ${user.home}/.m2/repository
+  <localRepository>/path/to/local/repo</localRepository>
+  -->
+  <localRepository>C:\Env\Maven\mavenrepo</localRepository>
+```
+
+> `Default: ${user.home}/.m2/repository`
+>
+> - `${user.home}`：取当前用户目录，即`C:\Users\AW\.m2\repository`
+>
+> idea中自带的repo也会在`.m2`下
+
+## idea中使用maven
+
+1. new project，选择maven
+
+   1. 选择`webapp`模板
+
+   ![idea创建maven项目](JavaWeb.assets/idea创建maven项目.png)
+
+2. 配置maven
+
+   1. 选择maven安装路径
+
+   2. 选择配置文件
+
+   3. 选择本地仓库路径
+
+      > idea会自带maven，能配置的东西少
+      >
+      > `groupId`是公司域名的反写，`artifactId`是项目名或模块名，`version`就是该项目或模块所对应的版本号
+
+   ![idea配置maven](JavaWeb.assets/idea配置maven.png)
+
+3. 
 

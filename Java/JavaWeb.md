@@ -399,7 +399,21 @@ Remote Address:14.215.177.39:443=
 >
 > idea中自带的repo也会在`.m2`下
 
-## idea中使用maven
+## 在idea中创建maven项目
+
+### 创建普通的Maven项目
+
+1. new project，选择maven，不选择模板
+
+   ![idea创建普通maven项目](JavaWeb.assets/idea创建普通maven项目.png)
+
+2. 填写GAV
+
+   ![创建普通mavengav](JavaWeb.assets/创建普通mavengav.png)
+
+
+
+### 使用模板创建Maven项目
 
 1. new project，选择maven
 
@@ -407,7 +421,13 @@ Remote Address:14.215.177.39:443=
 
    ![idea创建maven项目](JavaWeb.assets/idea创建maven项目.png)
 
-2. 配置maven
+2. 填写groupid和项目名
+
+   1. `groupId`是公司域名的反写，`artifactId`是项目名或模块名，`version`就是该项目或模块所对应的版本号
+
+   ![GAV](JavaWeb.assets/GAV.png)
+
+3. 配置maven
 
    1. 选择maven安装路径
 
@@ -417,9 +437,83 @@ Remote Address:14.215.177.39:443=
 
       > idea会自带maven，能配置的东西少
       >
-      > `groupId`是公司域名的反写，`artifactId`是项目名或模块名，`version`就是该项目或模块所对应的版本号
 
    ![idea配置maven](JavaWeb.assets/idea配置maven.png)
 
-3. 
+4. 完成创建，idea开始自动下载相关jar包到本地仓库
+
+5. 显示BUILD SUCCESS，说明项目创建成功
+
+6. 查看maven配置
+
+   1. 在`Settings-Build,Execution,Deployment-Build Tools`选择Maven
+   2. 查看是否使用了正确的maven home路径
+
+   ![mavenhome](JavaWeb.assets/mavenhome.png)
+
+
+
+### 目录结构
+
+`src`
+
+- `main`
+  - `java`：Java源代码
+  - `resource`：配置文件
+  - `webapp`：web应用才有
+    - `WEB-INF`
+      - `web.xml`
+    - `index.jsp`
+- `test`
+  - `java`：测试使用
+
+> 约定大于配置
+
+在main目录下创建java目录后，需要将java目录分配为源码目录
+
+- 右键目录选择`mark`功能
+
+  ![目录标记](JavaWeb.assets/目录标记.png)
+
+- 也可以在项目结构配置`project structure`中修改
+
+  ![分配目录](JavaWeb.assets/分配目录.png)
+
+## 在idea中配置tomcat
+
+1. 点击右上角的配置
+
+    ![addconf](JavaWeb.assets/addconf.png)
+
+2. 点击➕，选择`Tomcat Server-Local`
+
+   ![选择tomcat](JavaWeb.assets/选择tomcat.png)
+
+3. 配置tomcat
+
+   ![conf配置tomcat](JavaWeb.assets/conf配置tomcat.png)
+
+4. 最下面会出现warning,点击`fix`,跳转到上面的`Deployment`配置
+
+   1. 点击➕创建`Artifacts`
+
+   ![fixtomcat](JavaWeb.assets/fixtomcat.png)
+
+5. 选择创建war
+
+   ![创建war包](JavaWeb.assets/创建war包.png)
+
+6. 配置虚拟路径映射
+
+   ![虚拟路径映射](JavaWeb.assets/虚拟路径映射.png)
+
+7. 配置成功后，warning消失，点击应用
+
+   ![配置tomcat成功](JavaWeb.assets/配置tomcat成功.png)
+
+8. 在右上角可以看到配置的tomcat
+
+    ![查看配置的tomcat](JavaWeb.assets/查看配置的tomcat.png)
+
+
 

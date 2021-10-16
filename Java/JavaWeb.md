@@ -403,7 +403,7 @@ Remote Address:14.215.177.39:443=
 
 ### 创建普通的Maven项目
 
-1. new project，选择maven，不选择模板
+1. new project，选择Maven，不选择模板
 
    ![idea创建普通maven项目](JavaWeb.assets/idea创建普通maven项目.png)
 
@@ -415,7 +415,7 @@ Remote Address:14.215.177.39:443=
 
 ### 使用模板创建Maven项目
 
-1. new project，选择maven
+1. new project，选择Maven
 
    1. 选择`webapp`模板
 
@@ -427,9 +427,9 @@ Remote Address:14.215.177.39:443=
 
    ![GAV](JavaWeb.assets/GAV.png)
 
-3. 配置maven
+3. 配置Maven
 
-   1. 选择maven安装路径
+   1. 选择Maven安装路径
 
    2. 选择配置文件
 
@@ -444,10 +444,10 @@ Remote Address:14.215.177.39:443=
 
 5. 显示BUILD SUCCESS，说明项目创建成功
 
-6. 查看maven配置
+6. 查看Maven配置
 
    1. 在`Settings-Build,Execution,Deployment-Build Tools`选择Maven
-   2. 查看是否使用了正确的maven home路径
+   2. 查看是否使用了正确的Maven home路径
 
    ![mavenhome](JavaWeb.assets/mavenhome.png)
 
@@ -471,7 +471,7 @@ Remote Address:14.215.177.39:443=
 
 在main目录下创建java目录后，需要将java目录分配为源码目录
 
-- 右键目录选择`mark`功能
+- 右键目录选择`mark as`功能
 
   ![目录标记](JavaWeb.assets/目录标记.png)
 
@@ -483,37 +483,213 @@ Remote Address:14.215.177.39:443=
 
 1. 点击右上角的配置
 
-    ![addconf](JavaWeb.assets/addconf.png)
+     ![addconf](JavaWeb.assets/addconf.png)
 
 2. 点击➕，选择`Tomcat Server-Local`
 
    ![选择tomcat](JavaWeb.assets/选择tomcat.png)
 
-3. 配置tomcat
+3. 配置Tomcat Server
 
    ![conf配置tomcat](JavaWeb.assets/conf配置tomcat.png)
 
 4. 最下面会出现warning,点击`fix`,跳转到上面的`Deployment`配置
 
-   1. 点击➕创建`Artifacts`
+   > 访问一个网站需要指定一个文件夹名字
+   >
+   > 这里是缺少项目的打包部署设置。Artifacts用于编译后的Java类，Web资源等的整合，用以测试、部署等工作。某个module有了Artifacts就可以部署到应用服务器中
+
+   1. 点击➕，创建`Artifacts`
 
    ![fixtomcat](JavaWeb.assets/fixtomcat.png)
 
-5. 选择创建war
+   2. 选择创建`war`
+   > `exploded`在这里可以理解为展开，不压缩的意思。也就是war、jar等产出物没压缩前的目录结构。
+   >
+   > 建议在开发的时候使用这种模式，便于修改了文件的效果立刻显现出来
 
    ![创建war包](JavaWeb.assets/创建war包.png)
 
-6. 配置虚拟路径映射
+5. 配置虚拟路径映射
+
+   1. 不写就默认访问路径为`localhost:8080`
+   2. 假如写了`ink`则访问路径为`localhost:8080/ink`
 
    ![虚拟路径映射](JavaWeb.assets/虚拟路径映射.png)
 
-7. 配置成功后，warning消失，点击应用
+6. 配置成功后，warning消失，点击应用
 
    ![配置tomcat成功](JavaWeb.assets/配置tomcat成功.png)
 
-8. 在右上角可以看到配置的tomcat
+7. 在右上角可以看到配置的tomcat，右边的按钮用于启动tomcat
 
-    ![查看配置的tomcat](JavaWeb.assets/查看配置的tomcat.png)
+     ![查看配置的tomcat](JavaWeb.assets/查看配置的tomcat.png)
+
+8. 启动tomcat
+
+     ![启动tomcat](JavaWeb.assets/启动tomcat.png)
+
+    对应的就是Maven项目下的`src-main-webapp-index.jsp`文件内容
+
+    ![webappindexjsp](JavaWeb.assets/webappindexjsp.png)
+
+ 
+
+## Maven侧边栏结构
+
+ ![Maven侧边栏](JavaWeb.assets/Maven侧边栏.png)
+
+## 配置文件
+
+`pom.xml`是Maven的核心配置文件
+
+- 在`dependencies`中添加`dependency`，Maven就会自动下载jar包以及这个jar包所依赖的jar包
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Maven版本和头文件-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+<!--  GAV-->
+  <groupId>com.ink</groupId>
+  <artifactId>JavaWeb-01-Maven</artifactId>
+  <version>1.0-SNAPSHOT</version>
+<!--  项目的打包方式-->
+<!--
+  jar:java应用
+  war:JavaWeb应用
+-->
+  <packaging>war</packaging>
+
+  <name>JavaWeb-01-Maven Maven Webapp</name>
+  <!-- FIXME change it to the project's website -->
+  <url>http://www.example.com</url>
+
+<!--  配置-->
+  <properties>
+<!--    项目的默认构建编码-->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+<!--    编码版本-->
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
+  </properties>
+<!--  项目依赖-->
+  <dependencies>
+<!--    具体依赖的jar包的配置文件-->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+<!--  项目构建用的东西-->
+  <build>
+    <finalName>JavaWeb-01-Maven</finalName>
+    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
+      <plugins>
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.1.0</version>
+        </plugin>
+        <!-- see http://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_war_packaging -->
+        <plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.0.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.22.1</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>3.2.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>2.5.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>2.8.2</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+</project>
+
+```
+
+### 资源导出问题
+
+- 由于Maven的约定大于配置，之后可能遇到写的配置文件无法被导出或者生效的问题
+- 解决方案：在`build`中配置`resources`来防止资源导出失败
+
+```xml
+<build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <includes>
+          <include>**/*.properties</include>
+          <include>**/*.xml</include>
+        </includes>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>src/main/java</directory>
+        <includes>
+<!--          在java目录下可以包含properties文件和xml文件-->
+          <include>**/*.properties</include>
+          <include>**/*.xml</include>
+        </includes>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+</build>
+```
+
+## 目录树
+
+查看Maven中jar包的联系
+
+![目录树](JavaWeb.assets/目录树.png)
+
+## idea查看日志
+
+ ![idea查看日志](JavaWeb.assets/idea查看日志.png)
+
+ ![idea日志](JavaWeb.assets/idea日志.png)
+
+## 在idea中全局默认配置Maven
+
+1. 关闭启动idea打开上次的项目
+
+   ![idea启动项](JavaWeb.assets/idea启动项.png)
+
+2. 重新启动idea，打开全局设置
+
+   ![全局设置](JavaWeb.assets/全局设置.png)
+
+3. 全局配置Maven
+
+   ![全局设置](JavaWeb.assets/全局设置-16343787493581.png)
 
 
+
+# Servlet
+
+- `Servlet`是Sun公司开发动态Web应用的一项技术
+  - Sun公司在这些API（Application Programming Interface应用程序接口）中提供一个接口叫做`Servlet`
+
+- 如果想开发一个Servlet程序，只需要完成两个步骤
+  - 编写一个类，实现Servlet接口
+  - 把开发好的Java类部署到web服务器中
+
+- 把实现了Servlet接口的Java程序叫做Servlet
 

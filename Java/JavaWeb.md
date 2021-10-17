@@ -436,10 +436,9 @@ Remote Address:14.215.177.39:443=
    3. 选择本地仓库路径
 
       > idea会自带maven，能配置的东西少
-      >
-
+   
    ![idea配置maven](JavaWeb.assets/idea配置maven.png)
-
+   
 4. 完成创建，idea开始自动下载相关jar包到本地仓库
 
 5. 显示BUILD SUCCESS，说明项目创建成功
@@ -692,4 +691,29 @@ Remote Address:14.215.177.39:443=
   - 把开发好的Java类部署到web服务器中
 
 - 把实现了Servlet接口的Java程序叫做Servlet
+
+
+
+## Hello Servlet
+
+1. 创建普通的Maven项目作为父项目，然后删除`src`目录
+
+2. 在`pom.xml`中添加servlet相关依赖
+
+   1. 快捷键：`alt+insert`
+
+   2. > Tomcat10版本+的导入依赖为jakarta.servlet
+
+3. 在父项目下创建Moudle，选择创建webapp模板的Maven项目作为子项目
+
+   1. Maven父子项目创建后，父项目下的`pom.xml`会有`<module>`依赖，子项目下的`pom.xml`会有`<parent>`依赖，
+   2. 父项目的jar包子项目可以直接使用，但是子项目的jar包父项目不能使用
+
+4. 在子项目的`src-main`目录下创建`java`和`resource`目录并标记为对应的文件夹
+
+5. 将`src-main-webapp-WEB-INF`目录下的`web.xml`换成最新版本
+
+   1. 可以复制tomcat中ROOT下的`web.xml`
+
+
 

@@ -71,6 +71,58 @@
 
 
 
+# Git配置
+
+执行`git init`初始化后
+
+当前本地仓库的配置文件如下
+
+![git.config](Git.assets/.git.config.png)
+
+## 配置用户信息
+
+```bash
+# 查看当前Git环境所有配置
+# 可以配置一些命令别名
+git config --list 
+```
+
+ ![设置个人信息](Git.assets/设置个人信息.png)
+
+## SSH连接GitHub
+
+在`config`文件中保存着连接的url
+
+- 使用https url，通过git提交的时候要输入用户名和密码
+- 使用ssh url，通过git提交的时候不需要繁琐的验证过程
+
+![gitconfig](Git.assets/gitconfig.png)
+
+### 创建密钥
+
+在`~/.ssh`目录下生成密钥
+
+```bash
+ssh-keygen -t rsa -C "541640794@qq.com"
+```
+
+![生成密钥](Git.assets/生成密钥.png)
+
+### 获取密钥
+
+将公钥`id_rsa.pub`作为ssh key
+
+![获取SSHKey](Git.assets/获取SSHKey.png)
+
+### 创建SSH Key
+
+1. `GitHub-Setting`
+2. `SSH and GPG keys`
+3. `New SSH key`
+4. 复制`id_rsa.pub`即可 
+
+
+
 # Git默认编码
 
 使用命令行提交代码的时候会出现中文乱码问题
@@ -171,6 +223,138 @@ git push 远程仓库
 
 
 
+## 分支
+
+在新的分支上对文件的修改**不会影响**到原来分支上的文件
+
+### 查看分支
+
+```bash
+git branch
+
+# 查看远程分支
+git branch -r
+
+# 查看本地和远程分支
+git branch -a
+
+# 查看远程分支和本地分支的对应关系
+git remote show origin
+```
+
+### 创建新分支
+
+```bash
+# 创建后不会自动切换到新的分支
+git branch branch_name
+
+# 创建新分支并切换到该分支下
+git checkout -b branch_name
+```
+
+### 重命名分支
+
+```bash
+# 重命名分支
+git branch -m oldName newName 
+
+# -M：强制重命名，即使newName分支存在
+git branch -M oldName newName
+
+#= 或者切换到要重命名的分支下执行
+git branch -M newName
+```
+
+### 切换分支
+
+```bash
+git checkout branch_name
+
+# 切换到上一个分支
+git checkout -
+```
+
+### 修改默认分支
+
+- 修改默认分支为`main`分支
+
+```bash
+git config --global init.defaultBranch main
+```
+
+### 删除分支
+
+```bash
+# 删除本地分支
+git branch -d branchName
+
+# 删除远程分支
+git branch -d -r branchname 
+```
+
+### 合并分支
+
+```bash
+#先回到master主分支
+git checkout master
+
+#合并分支
+git merge branch_name
+```
+
+### 分支冲突
+
+假设a分出b和c
+
+a分出的分支b对**原分支**a的合并会直接覆盖，不会冲突
+
+独立无关的分支b和c相互合并则会冲突
+
+- 放弃合并
+
+  ```bash
+  git merge -abort
+  ```
+
+- 手动修改冲突
+
+  ```bash
+  #1.打开冲突文件,git会自动显示冲突的内容（2者均显示）
+  #	branch1
+  #   <<<< 
+  #   file1
+  #	====
+  #   file2
+  #   >>>>
+  #   branch2
+  
+  #2.修改内容，并删除内容外的所有指示符号（<,=,>,branch_name）
+  
+  #3.重新提交修改后内容
+  ```
+
+   ![合并冲突](Git.assets/合并冲突.png)
+
+## 暂存修改
+
+假如在修改的时候需要去pull远程仓库的内容，此时可能报错。所以需要把修改暂存到一个地方
+
+```bash
+#1.执行后文件回到修改之前,先pull
+git stash
+
+#2.pull后查看之前的修改
+git stash list
+
+#3.添加之前的修改
+git stash apply
+
+#4.清除暂存的修改
+git stash clear
+```
+
+
+
 ## 撤销
 
 gitjk工具
@@ -244,167 +428,6 @@ git ls-files --stage
 git log 
 ```
 
-## 分支
-
-在新的分支上对文件的修改**不会影响**到原来分支上的文件
-
-### 查看分支
-
-```bash
-git branch
-
-# 查看远程分支
-git branch -r
-
-# 查看本地和远程分支
-git branch -a
-
-# 查看远程分支和本地分支的对应关系
-git remote show origin
-```
-
-### 创建新分支
-
-```bash
-# 创建后不会自动切换到新的分支
-git branch branch_name
-
-# 创建新分支并切换到该分支下
-git checkout -b branch_name
-```
-
-### 切换分支
-
-```bash
-git checkout branch_name
-
-# 切换到上一个分支
-git checkout -
-```
-
-### 修改默认分支
-
-> 修改默认分支为`main`分支
-
-```bash
-git config --global init.defaultBranch main
-```
-
-### 删除分支
-
-```bash
-git branch -d branch_name
-```
-
-### 合并分支
-
-```bash
-#先回到master主分支
-git checkout master
-
-#合并分支
-git merge branch_name
-```
-
-### 分支冲突
-
-假设a分出b和c
-
-a分出的分支b对**原分支**a的合并会直接覆盖，不会冲突
-
-独立无关的分支b和c相互合并则会冲突
-
-- 放弃合并
-
-  ```bash
-  git merge -abort
-  ```
-
-- 手动修改冲突
-
-  ```bash
-  #1.打开冲突文件,git会自动显示冲突的内容（2者均显示）
-  #	branch1
-  #   <<<< 
-  #   file1
-  #	====
-  #   file2
-  #   >>>>
-  #   branch2
-  
-  #2.修改内容，并删除内容外的所有指示符号（<,=,>,branch_name）
-  
-  #3.重新提交修改后内容
-  ```
-
- ![合并冲突](Git.assets/合并冲突.png)
-
-## 暂存修改
-
-假如在修改的时候需要去pull远程仓库的内容，此时可能报错。所以需要把修改暂存到一个地方
-
-```bash
-#1.执行后文件回到修改之前,先pull
-git stash
-
-#2.pull后查看之前的修改
-git stash list
-
-#3.添加之前的修改
-git stash apply
-
-#4.清除暂存的修改
-git stash clear
-```
-
-
-
-# Git配置
-
-## 配置用户信息
-
-```bash
-# 查看当前Git环境所有配置
-# 可以配置一些命令别名
-git config --list 
-```
-
- ![设置个人信息](Git.assets/设置个人信息.png)
-
-## SSH连接GitHub
-
-在`config`文件中保存着连接的url
-
-- 使用https url，通过git提交的时候要输入用户名和密码
-- 使用ssh url，通过git提交的时候不需要繁琐的验证过程
-
- ![gitconfig](Git.assets/gitconfig.png)
-
-### 创建密钥
-
-在`~/.ssh`目录下生成密钥
-
-```bash
-ssh-keygen -t rsa -C "541640794@qq.com"
-```
-
-
-
-![生成密钥](Git.assets/生成密钥.png)
-
-### 获取密钥
-
-将公钥`id_rsa.pub`作为ssh key
-
-![获取SSHKey](Git.assets/获取SSHKey.png)
-
-### 创建SSH Key
-
-1. `GitHub-Setting`
-2. `SSH and GPG keys`
-3. `New SSH key`
-4. 复制`id_rsa.pub`即可 
-
 
 
 # 远程仓库
@@ -416,17 +439,19 @@ git remote -v
 
 ## 链接远程仓库
 
-本地一般使用master做主分支，git使用main做主分支，需要修改
+- 因为使用命令行创建的存储库的默认分支名称是`master`，而在GitHub中创建的仓库默认分支是`main`，所以需要修改
 
-添加后，远程仓库的名字是`origin`（Git默认）
+  ![修改分支名](Git.assets/修改分支名.png)
 
-![github](Git.assets/github.png)
+- 远程仓库的名字默认是`origin`
+
 
 ```bash
-#1.create a new repository
+# 1.create a new repository
 git init
 git add .
 git commit -m "first commit"
+
 git branch -M main
 git remote add origin git@github.com:NASA1nk/test.git
 git push -u origin main
@@ -452,7 +477,7 @@ git remote rm name
 ## 修改远程仓库名
 
 ```bash
-git remote rename old_name new_name
+git remote rename oldName newName
 ```
 
 ## 配置其他仓库
@@ -511,3 +536,6 @@ git push -u origin main
 
 在main图标旁边的就是push按钮
 
+
+
+## IDEA

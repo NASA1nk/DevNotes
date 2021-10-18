@@ -782,7 +782,150 @@ Remote Address:14.215.177.39:443=
 
 ## 编写Servlet程序
 
-在子项目的`src-main-java`目录下创建Package：`com.ink.servlet`
+1. 在子项目的`src-main-java`目录下创建Package
 
- 
+   1. `com.ink.servlet`
+
+2. 创建`ServletTest`类继承`HttpServlet`接口
+
+   1. `HttpServlet`类继承了`GenericServlet`类
+   2. `GenericServlet`类继承了`Servlet`接口
+
+   ```java
+   public abstract class HttpServlet extends GenericServlet {
+       
+   }
+   
+   public abstract class GenericServlet implements Servlet, ServletConfig, Serializable {
+       
+   }
+   ```
+
+3. 查看Servlet源码
+
+   主要是`service()`方法
+
+   ![Servlet源码](JavaWeb.assets/Servlet源码.png)
+
+4. 查看`GenericServlet`类，没有实现`service()`方法
+
+   ```java
+   public abstract void service(ServletRequest var1, ServletResponse var2) throws ServletException, IOException;
+   ```
+
+5. 查看HttpServlet类，实现了`service()`方法
+
+   ```java
+   protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+       String method = req.getMethod();
+       long lastModified;
+       if (method.equals("GET")) {
+           lastModified = this.getLastModified(req);
+           if (lastModified == -1L) {
+               this.doGet(req, resp);
+           } else {
+               long ifModifiedSince = req.getDateHeader("If-Modified-Since");
+               if (ifModifiedSince < lastModified) {
+                   this.maybeSetLastModified(resp, lastModified);
+                   this.doGet(req, resp);
+               } else {
+                   resp.setStatus(304);
+               }
+           }
+       } else if (method.equals("HEAD")) {
+           lastModified = this.getLastModified(req);
+           this.maybeSetLastModified(resp, lastModified);
+           this.doHead(req, resp);
+       } else if (method.equals("POST")) {
+           this.doPost(req, resp);
+       } else if (method.equals("PUT")) {
+           this.doPut(req, resp);
+       } else if (method.equals("DELETE")) {
+           this.doDelete(req, resp);
+       } else if (method.equals("OPTIONS")) {
+           this.doOptions(req, resp);
+       } else if (method.equals("TRACE")) {
+           this.doTrace(req, resp);
+       } else {
+           String errMsg = lStrings.getString("http.method_not_implemented");
+           Object[] errArgs = new Object[]{method};
+           errMsg = MessageFormat.format(errMsg, errArgs);
+           resp.sendError(501, errMsg);
+       }
+   
+   }
+   ```
+
+6. 所以继承`HttpServlet`的`ServletTest`类需要重写`doGet()`和`doPost()`方法
+
+   > 快捷键：`ctrl+o`
+   >
+   > 由于get和post只是请求方式不一样，业务逻辑一样，所以可以相互调用
+
+
+
+### 重写方法
+
+`ServletTest.java`
+
+```java
+package com.ink.servlet;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+public class ServletTest extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//        super.doGet(req, resp);
+//        ServletOutputStream outputStream = resp.getOutputStream();
+        System.out.println("进入了doGet方法");
+//        响应流
+        PrintWriter writer = resp.getWriter();
+        writer.println("Hello Servlet");
+    }
+
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//        super.doPost(req, resp);
+        doGet(req,resp);
+    }
+}
+
+```
+
+### 创建映射
+
+写的是Java程序，但是要通过浏览器访问，浏览器需要连接Web服务器，所以需要在Web服务中注册写的 Servlet，还要给一个浏览器能够访问的路径
+
+- 在`webapp/WEB-INF`目录的`web.xml`中配置`<servlet>`和`<servlet-mapping>`
+
+```xml
+<!DOCTYPE web-app PUBLIC
+ "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+ "http://java.sun.com/dtd/web-app_2_3.dtd" >
+
+<web-app>
+  <display-name>Archetype Created Web Application</display-name>
+
+<!--  注册Servlet-->
+  <servlet>
+    <servlet-name>Hello</servlet-name>
+    <servlet-class>com.ink.servlet.ServletTest</servlet-class>
+  </servlet>
+
+<!--  Servlet的请求路径-->
+  <servlet-mapping>
+    <servlet-name>Hello</servlet-name>
+    <url-pattern>/Hello</url-pattern>
+  </servlet-mapping>
+</web-app>
+```
 

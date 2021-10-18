@@ -432,9 +432,17 @@ git log
 
 # 远程仓库
 
+`origin`：远程地址的别名
+
 ```bash
+# 显示远程仓库
 git remote
+
+# fetch 和 push
 git remote -v
+
+# 查看远程仓库信息
+git remote show remoteUrl
 ```
 
 ## 链接远程仓库
@@ -451,21 +459,12 @@ git remote -v
 git init
 git add .
 git commit -m "first commit"
-
+# 修改分支名
 git branch -M main
+# 将本地仓库与远端仓库建立链接
+# origin是远程仓库名
 git remote add origin git@github.com:NASA1nk/test.git
 git push -u origin main
-
-#2.push an existing repository
-git remote add origin git@github.com:NASA1nk/test.git
-git branch -M main
-git push -u origin main
-
-#3.从远程仓库拉取文件,默认origin(main)分支
-git pull
-
-#4.提交文件到远程仓库,默认origin(main)分支
-git push
 ```
 
 ## 删除远程仓库

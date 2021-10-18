@@ -684,36 +684,105 @@ Remote Address:14.215.177.39:443=
 # Servlet
 
 - `Servlet`是Sun公司开发动态Web应用的一项技术
-  - Sun公司在这些API（Application Programming Interface应用程序接口）中提供一个接口叫做`Servlet`
-
-- 如果想开发一个Servlet程序，只需要完成两个步骤
-  - 编写一个类，实现Servlet接口
+  - Sun公司在API（Application Programming Interface应用程序接口）中提供一个接口叫做`Servlet`
+  - `Serlvet`接口两个默认的实现类
+    - `HttpServlet`
+    - `GenericServlet`
+  
+- 如果想开发一个`Servlet`程序，只需要完成两个步骤
+  - 编写一个类，实现`Servlet`接口
   - 把开发好的Java类部署到web服务器中
 
-- 把实现了Servlet接口的Java程序叫做Servlet
+- 把实现了`Servlet`接口的Java程序叫做`Servlet`
 
 
 
-## Hello Servlet
+## 创建Servlet项目
 
 1. 创建普通的Maven项目作为父项目，然后删除`src`目录
 
-2. 在`pom.xml`中添加servlet相关依赖
+2. 在`pom.xml`中添加`servlet`和`jsp`的相关依赖
 
-   1. 快捷键：`alt+insert`
+   1. > 快捷键：`alt+insert`
+      >
+      > Tomcat10+版本的导入的依赖为`jakarta.servlet`，否则出现`java.lang.ClassNotFoundException: javax.servlet.http.HttpServlet`
 
-   2. > Tomcat10版本+的导入依赖为jakarta.servlet
+   2. ```xml
+          <dependencies>
+      <!--        JSP依赖-->
+              <dependency>
+                  <groupId>jakarta.servlet.jsp</groupId>
+                  <artifactId>jakarta.servlet.jsp-api</artifactId>
+                  <version>3.0.0</version>
+                  <scope>provided</scope>
+              </dependency>
+      <!--        Servlet依赖-->
+              <dependency>
+                  <groupId>jakarta.servlet</groupId>
+                  <artifactId>jakarta.servlet-api</artifactId>
+                  <version>5.0.0</version>
+                  <scope>provided</scope>
+              </dependency>
+          </dependencies>
+      
+      ```
 
-3. 在父项目下创建Moudle，选择创建webapp模板的Maven项目作为子项目
+3. 在父项目下创建Moudle，选择创建webapp模板的Maven项目作为子项目 
 
-   1. Maven父子项目创建后，父项目下的`pom.xml`会有`<module>`依赖，子项目下的`pom.xml`会有`<parent>`依赖，
-   2. 父项目的jar包子项目可以直接使用，但是子项目的jar包父项目不能使用
+   1. Maven父子项目创建后，父项目下的`pom.xml`会有`<module>`依赖
+
+       ```xml
+           <modules>
+               <module>ServletDemo</module>
+           </modules>
+       ```
+
+    2. 子项目下的`pom.xml`创建后刚开始会有`<parent>`依赖，加载完之后就没有了，所以需要手动添加
+
+       ```xml
+         <parent>
+           <groupId>com.ink</groupId>
+           <artifactId>JavaWeb</artifactId>
+           <version>1.0-SNAPSHOT</version>
+         </parent>
+       ```
+
+   3. 父项目的jar包子项目可以直接使用，但是子项目的jar包父项目不能使用
+
+   4. > 问题
+       >
+       > - 创建module时出现问题所以把它删掉了，然后又创建了一个和之前删除的同名的module名称，新创建的module中的`pom.xml`文件出现`Ignored`
+       >
+       > 解决
+       >
+       > - `Settings-Build,Execution,Deployment-Build Tools-Maven-Ignored Files`
+       > - 将勾选取消，然后刷新Maven
+       >
+       > ![ignoredfile](JavaWeb.assets/ignoredfile.png)
+
+   ![创建子模块servlet](JavaWeb.assets/创建子模块servlet.png)
+
+   
 
 4. 在子项目的`src-main`目录下创建`java`和`resource`目录并标记为对应的文件夹
 
-5. 将`src-main-webapp-WEB-INF`目录下的`web.xml`换成最新版本
+5. 将`src-main-webapp-WEB-INF`目录下的`web.xml`换成最新版本（可以复制tomcat中ROOT下的`web.xml`）
 
-   1. 可以复制tomcat中ROOT下的`web.xml`
+   ```xml
+   <!DOCTYPE web-app PUBLIC
+    "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd" >
+   
+   <web-app>
+     <display-name>Archetype Created Web Application</display-name>
+   </web-app>
+   ```
 
 
+
+## 编写Servlet程序
+
+在子项目的`src-main-java`目录下创建Package：`com.ink.servlet`
+
+ 
 

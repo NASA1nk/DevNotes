@@ -706,7 +706,9 @@ Remote Address:14.215.177.39:443=
    1. > 快捷键：`alt+insert`
       >
       > Tomcat10+版本的导入的依赖为`jakarta.servlet`，否则出现`java.lang.ClassNotFoundException: javax.servlet.http.HttpServlet`
-
+      >
+      > 去掉`<scope>`
+      
    2. ```xml
           <dependencies>
       <!--        JSP依赖-->
@@ -906,6 +908,8 @@ public class ServletTest extends HttpServlet {
 写的是Java程序，但是要通过浏览器访问，浏览器需要连接Web服务器，所以需要在Web服务中注册写的 Servlet，还要给一个浏览器能够访问的路径
 
 - 在`webapp/WEB-INF`目录的`web.xml`中配置`<servlet>`和`<servlet-mapping>`
+- `<servlet-name>`要相同
+- `<url-pattern>`最前面要有`/`
 
 ```xml
 <!DOCTYPE web-app PUBLIC
@@ -928,4 +932,28 @@ public class ServletTest extends HttpServlet {
   </servlet-mapping>
 </web-app>
 ```
+
+### 配置Tomcat
+
+[配置Tomcat](# 在idea中配置tomcat)
+
+启动后会生成`target`文件目录
+
+ ![target](JavaWeb.assets/target.png)
+
+
+
+### 测试访问
+
+- 输入映射的路径
+
+  ![访问servlet](JavaWeb.assets/访问servlet.png)
+
+- 对应的控制台打印输出
+
+  ![控制台打印输出](JavaWeb.assets/控制台打印输出.png)
+
+
+
+## Servlet原理
 

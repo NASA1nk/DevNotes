@@ -538,3 +538,57 @@ git push -u origin main
 
 
 ## IDEA
+
+1. 查看idea中的git配置
+
+   1. 在`settings-Version Control`中点击`Test`，出现git版本号则表示成功
+
+   ![idea查看git配置](Git.assets/idea查看git配置.png)
+
+2. 配置本地仓库
+
+   1. 在工具栏选择`VCS-Create Git Repository`，选择本地目录
+   2. 创建完成后会出现`.git`目录
+
+    ![idea创建本地仓库](Git.assets/idea创建本地仓库.png)
+
+3. 右键想要提交的文件，选择`Git-Add`
+
+   1. 更改或新增的文件颜色会变为红色
+   2. `Add`过后的文件颜色会变为绿色
+
+    ![ideaadd文件](Git.assets/ideaadd文件.png)
+
+4. 右键想要提交的文件，选择`Git-Commit Directory`
+
+   1. 填写commit message
+   2. 上方可以选择或取消文件
+   3. 然后点击右下方的`Commit`
+
+   ![ideacommit文件](Git.assets/ideacommit文件.png)
+
+5. 右键要提交的项目，选择`Git-push`
+
+   1. 第一次提交需要链接远程仓库
+
+      ![idea链接远程仓库](Git.assets/idea链接远程仓库.png)
+
+   2. 提交文件到远程仓库
+
+      ![ideapush文件](Git.assets/ideapush文件.png)
+
+   
+   
+
+
+
+
+
+
+
+
+
+
+
+
+

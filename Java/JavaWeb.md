@@ -864,7 +864,7 @@ Remote Address:14.215.177.39:443=
    >
    > 由于get和post只是请求方式不一样，业务逻辑一样，所以可以相互调用
 
-
+![Servlet接口](JavaWeb.assets/Servlet接口.png)
 
 ### 重写方法
 
@@ -956,4 +956,79 @@ public class ServletTest extends HttpServlet {
 
 
 ## Servlet原理
+
+Servlet由Web服务器调用，Web服务器在收到浏览器请求之后
+
+ 
+
+## Mapping映射
+
+- 一个Servlet可以指定一个映射路径
+
+  ```xml
+    <servlet-mapping>
+      <servlet-name>Hello</servlet-name>
+      <url-pattern>/Hello</url-pattern>
+    </servlet-mapping>
+  ```
+
+- 一个Servlet可以指定多个映射路径
+
+  ```xml
+    <servlet-mapping>
+      <servlet-name>Hello</servlet-name>
+      <url-pattern>/Hello</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+      <servlet-name>Hello</servlet-name>
+      <url-pattern>/Hello1</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+      <servlet-name>Hello</servlet-name>
+      <url-pattern>/Hello2</url-pattern>
+    </servlet-mapping>
+  ```
+
+- 一个Servlet可以指定通用映射路径
+
+  - 通配符`*`
+
+  ```xml
+    <servlet-mapping>
+      <servlet-name>Hello</servlet-name>
+      <url-pattern>/Hello/*</url-pattern>
+    </servlet-mapping>
+  ```
+
+- 默认请求路径
+
+  ```xml
+    <servlet-mapping>
+      <servlet-name>Hello</servlet-name>
+      <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+  ```
+
+- 指定路径后缀
+
+  - `*`前面不能加`/`
+
+  ```xml
+    <servlet-mapping>
+      <servlet-name>Hello</servlet-name>
+      <url-pattern>*.ink</url-pattern>
+    </servlet-mapping>
+  ```
+
+
+
+**映射路径优先级**
+
+- 指定了固定的映射路径优先级最高，如果找不到才会走默认的映射路径
+
+   
+
+## ServletContext
+
+Web容器在启动的时候，它会为每个Web程序都创建一个对应的`ServletContext`对象，它代表了当前的 Web应用
 

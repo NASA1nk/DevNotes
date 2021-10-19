@@ -63,7 +63,7 @@ Web应用程序编写完成后，要想提供给外界访问，需要一个服�
 
 ## 动态Web
 
-浏览器发送HTTP请求，Tomcat服务器接收请求，Servlet容器从磁盘加载静态资源，Servlet程序处理请求request ，处理结束返回response
+浏览器发送HTTP请求，Tomcat服务器接收请求，Web容器从磁盘加载静态资源，Servlet程序处理请求request ，处理结束返回response
 
 ![动态Web资源请求](JavaWeb.assets/动态Web资源请求.png)
 
@@ -75,10 +75,15 @@ Web应用程序编写完成后，要想提供给外界访问，需要一个服�
 
 # Tomcat
 
+Tomcat是
+
 - 轻量级应用服务器
-- 开源的servlet容器
-- 支持JSP动态页面，也可以处理html。但是处理html的效率不如Apache，所以想处理html静态网页还是用Apache最合适
+- 开源的Servlet**容器**
+
+Apache和Tomcat
+
 - Apache是web服务器，Tomcat是应用服务器，它只是一个servlet容器，是Apache的扩展
+- Tomcat支持JSP动态页面，也可以处理html。但是处理html的效率不如Apache，所以想处理html静态页面还是用Apache最合适
 - Apache和Tomcat都可以做为独立的web服务器来运行，但是Apache不能解释java程序（jsp，servlet）
 
 B/S
@@ -88,6 +93,28 @@ B/S
 - 客户端使用浏览器
 
 > 上面的实现是C/S
+
+## 服务器
+
+Tomcat服务器 = Web服务器 + Servlet/JSP容器（Web容器）
+
+**服务器**
+
+- 软件概念的服务器
+  - 只要是一台硬件配置正常、装有操作系统、插着电能上网，并且安装特定软件的电脑，都可以称为服务器
+- 硬件概念的服务器
+  - 服务器本质上就是一台电脑，用来提供服务
+
+**Web服务器**
+
+- 接收客户端的请求，然后给客户端作出响应
+- 服务器不止静态资源，所以客户端发起请求后，如果是动态资源，Web服务器不可能直接把它响应回去，因为浏览器只认识静态资源
+- 所以对于JavaWeb程序而言，还需要JSP/Servlet容器
+  - JSP/Servlet容器的基本功能是把动态资源转换成静态资源
+
+**Servlet容器**
+
+- 里面存放着Servlet对象
 
 ## 安装
 
@@ -116,9 +143,16 @@ B/S
 
 ## 配置文件
 
-核心配置文件是`conf`目录下的`server.xml`文件
+核心配置文件是`conf`目录下的`server.xml`文件。`server.xml`文件中的配置结构和Tomcat的架构是一一对应的
 
-修改默认启动端口号
+- 根目录是`<Server>`，代表服务器，`<Server>`下面有个`<Service>`，代表服务
+- `<Service>`下有两个`<Connector>`，代表连接（需要的话可以再加）
+  - Connector是用来监听端口的，Tomcat默认配置了两个端口，一个是HTTP/1.1协议的，一个是AJP/1.3协议，前者专门处理HTTP请求
+  - Connector并不处理实际业务，它负责把请求传送给给`<Engine>`
+- Tomcat的引擎`<Engine>`用于处理实际业务
+  - `<Engine>`下面有个`<Host>`，代表主机
+
+**配置默认启动端口号**
 
 - `conf`目录下的`server.xml`文件
 
@@ -130,15 +164,7 @@ B/S
            redirectPort="8443" />
 ```
 
-点击Manager App的时候，会要求输入用户名和密码
-
-- `conf`目录下的`tomcat-users.xml`
-
-```xml
-
-```
-
-配置主机名称
+**配置主机名称**
 
 - 默认的主机名为：`localhost`（即127.0.0.1）
 - 默认应用存放的位置为：`webapps`
@@ -152,7 +178,7 @@ B/S
       unpackWARs="true" autoDeploy="true">
 ```
 
-日志配置
+**配置日志编码格式**
 
 - `conf`目录下的`logging.properties`
 - 默认是UTF-8，windows需要修改为GBK
@@ -162,10 +188,6 @@ java.util.logging.ConsoleHandler.level = FINE
 java.util.logging.ConsoleHandler.formatter = org.apache.juli.OneLineFormatter
 java.util.logging.ConsoleHandler.encoding = GBK
 ```
-
-
-
-
 
 ## 目录结构
 
@@ -683,19 +705,14 @@ Remote Address:14.215.177.39:443=
 
 # Servlet
 
-- `Servlet`是Sun公司开发动态Web应用的一项技术
-  - Sun公司在API（Application Programming Interface应用程序接口）中提供一个接口叫做`Servlet`
-  - `Serlvet`接口两个默认的实现类
-    - `HttpServlet`
-    - `GenericServlet`
-  
+- `Servlet`是Sun公司在API（Application Programming Interface应用程序接口）中提供的一个接口
+  - `Servlet`接口定义的是一套处理网络请求的**规范**，所有实现`servlet`的类，都需要实现它的五个方法，其中最主要的是两个生命周期方法`init()`和`destroy()`，还有一个处理请求的`service()`方法
+- `Serlvet`接口的两个默认的实现类
+  - `HttpServlet`
+  - `GenericServlet`
 - 如果想开发一个`Servlet`程序，只需要完成两个步骤
   - 编写一个类，实现`Servlet`接口
   - 把开发好的Java类部署到web服务器中
-
-- 把实现了`Servlet`接口的Java程序叫做`Servlet`
-
-
 
 ## 创建Servlet项目
 
@@ -957,9 +974,12 @@ public class ServletTest extends HttpServlet {
 
 ## Servlet原理
 
-Servlet由Web服务器调用，Web服务器在收到浏览器请求之后
+- **Servlet不会直接和客户端打交道**
+- **Tomcat才是和客户端直接打交道的工具**，它监听了端口，请求过来后，根据url等信息，确定要将请求交给哪个Servlet去处理，然后调用那个Servlet的`service()`方法，`service()`方法返回一个`response`对象，Tomcat再把这个`response`返回给客户端浏览器
 
- 
+
+
+
 
 ## Mapping映射
 

@@ -875,7 +875,7 @@ Remote Address:14.215.177.39:443=
    }
    ```
 
-6. 所以继承`HttpServlet`的`ServletTest`类需要重写`doGet()`和`doPost()`方法
+6. 所以继承`HttpServlet`的`ServletTest`子类需要至少重写一个方法（`doGet()`,`doPost()`,`doPut()`,`doDelete()`）
 
    > 快捷键：`ctrl+o`
    >
@@ -975,11 +975,33 @@ public class ServletTest extends HttpServlet {
 ## Servlet原理
 
 - **Servlet不会直接和客户端打交道**
-- **Tomcat才是和客户端直接打交道的工具**，它监听了端口，请求过来后，根据url等信息，确定要将请求交给哪个Servlet去处理，然后调用那个Servlet的`service()`方法，`service()`方法返回一个`response`对象，Tomcat再把这个`response`返回给客户端浏览器
+- **Tomcat才是和客户端直接打交道的工具**，它监听了端口，请求过来后，根据url等信息，确定要将请求`request`对象交给哪个Servlet去处理，然后调用那个Servlet的`service()`方法，`service()`方法返回一个`response`对象，Tomcat再把这个`response`对象返回给客户端浏览器
+
+> 通过Web服务器映射的URL访问资源，主要3个步骤
+>
+> 1. 接收请求
+> 2. 处理请求
+> 3. 响应请求
+>
+> 任何一个应用程序都包含这三个步骤
+>
+> - 其中接收请求和响应请求是共性功能，且没有差异性，所以就把接收和响应两个步骤抽取成Web服务器
+> - **处理请求的逻辑**是不同的，抽取出来做成`Servlet`，交给程序员自己编写
+>
+> 随着互联网的发展，出现了三层架构，所以一些逻辑就从`Servlet`抽取出来，分担到`Service`和`Dao`
+
+`Servlet`接口中的五个方法，难点在于`request`对象和`response`对象
+
+- Tomcat会事先把`request`对象和`response`对象封装好传进来
+- 不需要写TCP连接数据库，也不需要解析HTTP请求，更不需要把结果转成HTTP响应
+- `request`对象和`response`对象自动解决了
 
 
 
+`request`对象和`response`对象
 
+- HTTP请求到达Tomcat后，Tomcat通过字符串解析，把各个请求头（Header），请求地址（URL），请求参数（QueryString）都封装进了`request`对象
+- Tomcat最开始传递给Servlet的`response`对象是一个空的对象。Servlet逻辑处理后得到结果，通过`response.write()`方法，将结果写入`response`对象内部的缓冲区。Tomcat会在servlet处理结束后拿到`response`对象，将其组装成HTTP响应发给客户端
 
 ## Mapping映射
 

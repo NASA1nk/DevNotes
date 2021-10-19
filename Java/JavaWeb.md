@@ -1072,5 +1072,137 @@ public class ServletTest extends HttpServlet {
 
 ## ServletContext
 
-Web容器在启动的时候，它会为每个Web程序都创建一个对应的`ServletContext`对象，它代表了当前的 Web应用
+Web容器在启动的时候，它会为每个Web程序都创建一个对应的`ServletContext`对象，它代表了当前的Web应用
+
+### 共享数据
+
+- 在一个servlet中保存的数据，可以在另一个servlet中拿到
+
+```java
+package com.ink.servletcontext;
+
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+
+public class ServletContextTest extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//        Servlet初始化参数
+//        this.getInitParameter()
+//        Servlet配置
+//        this.getServletConfig()
+//        Servlet上下文
+        ServletContext servletContext = this.getServletContext();
+        String username = "ink";
+//        将一个数据保存在了ServletContext中
+        servletContext.setAttribute("username",username);
+        System.out.println("hello");
+
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
+    }
+}
+```
+
+```java
+package com.ink.servletcontext;
+
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+public class GetServletTest extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        ServletContext servletContext = this.getServletContext();
+        String username = (String) servletContext.getAttribute("username");
+
+        resp.setContentType("text/html");
+        resp.setCharacterEncoding("utf-8");
+        PrintWriter writer = resp.getWriter();
+        writer.println("姓名"+username);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
+    }
+}
+```
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+   http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+  <display-name>Archetype Created Web Application</display-name>
+
+  <servlet>
+    <servlet-name>hello</servlet-name>
+    <servlet-class>com.ink.servletcontext.ServletContextTest</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>hello</servlet-name>
+    <url-pattern>/hello</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>getcontext</servlet-name>
+    <servlet-class>com.ink.servletcontext.GetServletTest</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>getcontext</servlet-name>
+    <url-pattern>/getcontext</url-pattern>
+  </servlet-mapping>
+
+</web-app>
+```
+需要重新配置tomcat
+
+- 在Deployment中删除之前的war，选择新的module对应的war
+
+![重新配置tomcat](JavaWeb.assets/重新配置tomcat.png)
+
+> 问题
+>
+> - 在`web.xml`中配置多个`<servlet>`和`<servlet-mapping>`的时候，在`web.xml`的开头位置`<web-app>`报错不匹配
+>
+> 原因
+>
+> - `<web-app>`内的元素使用与`web.xml`开头指定的DTD文档中定义的不一致
+>
+> - 为了限制xml文档编辑时的结构，早期通常是使用DTD文档定义xml文档中可以使用的元素，但是DTD本身并不是xml格式的，后来为了统一就发明了XMLSchema（即`.xsd）`，xsd文件本身也是符合xml格式规范的，使用xsd对xml文档的结构进行定义更加的清晰
+>
+> - 因此最新的xml结构定义基本上都是基于xsd格式的。随着新技术和配置的应用在`web.xml`中的各种配置大部分已经不符合早期的DTD的定义了，因此只要把DTD换成就XMLSchema可以了。
+>
+>   ```xml
+>   <!--<web-app>-->
+>   <!--  <display-name>Archetype Created Web Application</display-name>-->
+>         
+>   <?xml version="1.0" encoding="UTF-8"?>
+>   <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+>            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>            xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+>   	http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+>     <display-name>Archetype Created Web Application</display-name>
+>   ```
+
+### 获取初始化参数
 

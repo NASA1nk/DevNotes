@@ -648,20 +648,15 @@ Remote Address:14.215.177.39:443=
 
 ### 资源导出问题
 
-- 由于Maven的约定大于配置，之后可能遇到写的配置文件无法被导出或者生效的问题
-- 解决方案：在`build`中配置`resources`来防止资源导出失败
+- 标准的Maven项目都会有一个`resources`目录来存放所有的资源配置文件，但是在项目中也会将资源配置文件放在其他位置，那么默认的Maven项目构建编译时就不会把其他目录下的资源配置文件导出到`target-class`目录中，就会导致资源配置文件读取失败，从而导致项目报错出现异常。
+- 比如说在使用MyBatis框架时，`Mapper.xml`配置文件都会放在`dao`包中和`dao`接口类放在一起的，那么执行程序的时候，配置文件就一定会读取失败，不会生成到Maven的`target-class`目录中，所以要在项目的`pom.xml`文件中进行设置
+
+- 解决方案
+  - 在`pom.xml`文件的`<build>`中配置`<resources>`来防止导出失败
 
 ```xml
 <build>
     <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <includes>
-          <include>**/*.properties</include>
-          <include>**/*.xml</include>
-        </includes>
-        <filtering>true</filtering>
-      </resource>
       <resource>
         <directory>src/main/java</directory>
         <includes>
@@ -669,7 +664,7 @@ Remote Address:14.215.177.39:443=
           <include>**/*.properties</include>
           <include>**/*.xml</include>
         </includes>
-        <filtering>true</filtering>
+        <filtering>false</filtering>
       </resource>
     </resources>
 </build>
@@ -1074,9 +1069,26 @@ public class ServletTest extends HttpServlet {
 
 Web容器在启动的时候，它会为每个Web程序都创建一个对应的`ServletContext`对象，它代表了当前的Web应用
 
-### 共享数据
+- **共享数据**
 
-- 在一个servlet中保存的数据，可以在另一个servlet中拿到
+  - 在一个servlet中保存的数据，可以在另一个servlet中拿到
+
+- **获取初始化参数**
+
+- **请求转发**
+
+  - `getRequestDispatcher("/gp").forward(req,resp)`
+  - 转发路径url不会发生变化（区别于重定向）
+
+- **读取资源文件**
+
+  - `Properties`类
+  - `properties`文件都会被打包到了同一个路径`WEB-INF-classes`下，这个路径称为`classpath`
+
+  > - 在`resources`目录下创建`db.properties`，需要获取`properties`文件在web应用的位置
+  >   - 关闭Tomcat，然后再Maven中执行clean操作，再启动Tomcat查看`properties`文件在生成的`target`目录中的位置
+  > - [资源导出问题](# 资源导出问题)
+  >   - `java`目录下的`properties`文件不经过配置无法显示在`target-class`目录下
 
 ```java
 package com.ink.servletcontext;
@@ -1111,6 +1123,7 @@ public class ServletContextTest extends HttpServlet {
         doGet(req, resp);
     }
 }
+
 ```
 
 ```java
@@ -1133,8 +1146,46 @@ public class GetServletTest extends HttpServlet {
 
         resp.setContentType("text/html");
         resp.setCharacterEncoding("utf-8");
+//        共享数据
         PrintWriter writer = resp.getWriter();
         writer.println("姓名"+username);
+//        获取初始化参数
+        String url = servletContext.getInitParameter("url");
+        resp.getWriter().println(url);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
+    }
+}
+
+```
+
+```java
+package com.ink.servletcontext;
+
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+public class ServletForwardTest extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        ServletContext servletContext = this.getServletContext();
+
+        System.out.println("进入了ServletForwardTest");
+//        转发的请求路径
+        RequestDispatcher requestDispatcher = servletContext.getRequestDispatcher("/getcontext");
+//        调用forward实现请求转发
+        requestDispatcher.forward(req,resp);
+//        servletContext.getRequestDispatcher("/getcontext").forward(req,resp);
     }
 
     @Override
@@ -1144,13 +1195,53 @@ public class GetServletTest extends HttpServlet {
 }
 ```
 
+```java
+package com.ink.servletcontext;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+public class ServletPropTest extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        System.out.println("进入prop");
+//        第一个/代表当前项目，不可省略，获取target目录下的文件
+        InputStream is = this.getServletContext().getResourceAsStream("/WEB-INF/classes/com/ink/servletcontext/ac.properties");
+        Properties prop = new Properties();
+        prop.load(is);
+        String user = prop.getProperty("username");
+        String pwd = prop.getProperty("password");
+        resp.getWriter().print(user+":"+pwd);
+        is.close();
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
+    }
+}
+
+```
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
-   http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+	http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
   <display-name>Archetype Created Web Application</display-name>
+
+  <!--配置一些web应用初始化参数-->
+  <context-param>
+    <param-name>url</param-name>
+    <param-value>jdbc:mysql://localhost:3306/mybatis</param-value>
+  </context-param>
 
   <servlet>
     <servlet-name>hello</servlet-name>
@@ -1172,6 +1263,25 @@ public class GetServletTest extends HttpServlet {
     <url-pattern>/getcontext</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>forward</servlet-name>
+    <servlet-class>com.ink.servletcontext.ServletForwardTest</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>forward</servlet-name>
+    <url-pattern>/forward</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>prop</servlet-name>
+    <servlet-class>com.ink.servletcontext.ServletPropTest</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>prop</servlet-name>
+    <url-pattern>/prop</url-pattern>
+  </servlet-mapping>
 </web-app>
 ```
 需要重新配置tomcat
@@ -1195,7 +1305,7 @@ public class GetServletTest extends HttpServlet {
 >   ```xml
 >   <!--<web-app>-->
 >   <!--  <display-name>Archetype Created Web Application</display-name>-->
->         
+>           
 >   <?xml version="1.0" encoding="UTF-8"?>
 >   <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
 >            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1204,5 +1314,15 @@ public class GetServletTest extends HttpServlet {
 >     <display-name>Archetype Created Web Application</display-name>
 >   ```
 
-### 获取初始化参数
+![请求转发](JavaWeb.assets/请求转发.png)
+
+
+
+## HttpServletResponse
+
+Web服务器接收到客户端浏览器的HTTP请求，针对这个请求，分别创建一个代表请求的HttpServletRequest对象，一个代表响应的HttpServletResponse对象
+
+- 在HttpServletRequest对象中获取客户端请求的参数
+
+- 在HttpServletResponse对象中存放返回给客户端响应的信息 
 

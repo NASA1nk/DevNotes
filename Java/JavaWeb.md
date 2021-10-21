@@ -780,16 +780,17 @@ Remote Address:14.215.177.39:443=
 
 4. 在子项目的`src-main`目录下创建`java`和`resource`目录并标记为对应的文件夹
 
-5. 将`src-main-webapp-WEB-INF`目录下的`web.xml`换成最新版本（可以复制tomcat中ROOT下的`web.xml`）
+5. 将`src-main-webapp-WEB-INF`目录下的`web.xml`换成最新版本
 
    ```xml
-   <!DOCTYPE web-app PUBLIC
-    "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-    "http://java.sun.com/dtd/web-app_2_3.dtd" >
-   
-   <web-app>
+   <?xml version="1.0" encoding="UTF-8"?>
+   <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+   	http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
      <display-name>Archetype Created Web Application</display-name>
-   </web-app>
+    
+   </web-app>  
    ```
 
 
@@ -1078,7 +1079,7 @@ Web容器在启动的时候，它会为每个Web程序都创建一个对应的`S
 - **请求转发**
 
   - `getRequestDispatcher("/gp").forward(req,resp)`
-  - 转发路径url不会发生变化（区别于重定向）
+  - 页面跳转，但路径url不会发生变化（区别于重定向）
 
 - **读取资源文件**
 
@@ -1305,7 +1306,7 @@ public class ServletPropTest extends HttpServlet {
 >   ```xml
 >   <!--<web-app>-->
 >   <!--  <display-name>Archetype Created Web Application</display-name>-->
->           
+>             
 >   <?xml version="1.0" encoding="UTF-8"?>
 >   <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
 >            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1318,11 +1319,219 @@ public class ServletPropTest extends HttpServlet {
 
 
 
-## HttpServletResponse
+## HTTP响应
 
-Web服务器接收到客户端浏览器的HTTP请求，针对这个请求，分别创建一个代表请求的HttpServletRequest对象，一个代表响应的HttpServletResponse对象
+`HttpServletResponse`
 
-- 在HttpServletRequest对象中获取客户端请求的参数
+Web服务器接收到客户端浏览器的HTTP请求后，会针对这个请求分别创建一个代表请求的`HttpServletRequest`对象，一个代表响应的`HttpServletResponse`对象
 
-- 在HttpServletResponse对象中存放返回给客户端响应的信息 
+- 在`HttpServletRequest`对象中获取客户端请求的参数
+
+- 在`HttpServletResponse`对象中存放返回给客户端响应的信息 
+
+### 方法
+
+- 向浏览器发送数据
+
+  - ```java
+    // ServletResponse接口
+    ServletOutputStream getOutputStream() throws IOException;
+    
+    PrintWriter getWriter() throws IOException;
+    ```
+
+- 向浏览器发送响应头
+
+  - ```java
+    // ServletResponse接口
+    void setCharacterEncoding(String var1);
+    
+    void setContentLength(int var1);
+    
+    void setContentLengthLong(long var1);
+    
+    void setContentType(String var1);
+    
+    // HttpServletResponse类
+    void setDateHeader(String var1, long var2);
+    
+    void addDateHeader(String var1, long var2);
+    
+    void setHeader(String var1, String var2);
+    
+    void addHeader(String var1, String var2);
+    
+    void setIntHeader(String var1, int var2);
+    
+    void addIntHeader(String var1, int var2);
+    
+    ```
+
+- 响应的状态码
+
+  - ```java
+    int SC_OK = 200;
+    
+    int SC_MOVED_PERMANENTLY = 301;
+    int SC_MOVED_TEMPORARILY = 302;
+    int SC_FOUND = 302;
+    int SC_TEMPORARY_REDIRECT = 307;
+    
+    int SC_BAD_REQUEST = 400;
+    int SC_FORBIDDEN = 403;
+    int SC_NOT_FOUND = 404;
+    int SC_METHOD_NOT_ALLOWED = 405;
+    
+    int SC_INTERNAL_SERVER_ERROR = 500;
+    int SC_BAD_GATEWAY = 502;
+    ```
+
+### 应用
+
+#### **下载文件**
+
+1. 获取下载的文件的路径url
+   1. 相对于`target`目录
+2. 获取下载文件名fileName
+3. 设置响应头的信息使得浏览器能下载文件
+4. 获取下载的文件的输入流
+5. 创建buffer缓冲区
+6. 获取`OutputStream`对象
+7. 将`FileInputStream`写入`buffer`缓冲区
+8. 使用`OutputStream`将`buffer`缓冲区中的数据返回到客户端
+
+> `resp.setHeader()`
+
+```java
+package com.ink.servlet;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.awt.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URLEncoder;
+
+public class FileServletTest extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//        获取下载文件的路径
+        String realPath = "C:\\Users\\AW\\Desktop\\JavaWeb\\ResponseDemo\\target\\classes\\1.png";
+        System.out.println("下载文件的路径："+realPath);
+
+//        获取下载文件的文件名，需要转义（从最后一个\\开始）
+        String fileName = realPath.substring(realPath.lastIndexOf("\\") + 1);
+
+//        设置响应头，使得浏览器能够支持下载文件，Content-Disposition指明响应的配置信息，attachment指明包含附件
+        resp.setHeader("Content-Disposition","attachment; filename="+fileName);
+//        文件名有中文则要使用URLEncoder.encode编码，否则有可能乱码
+//        resp.setHeader("Content-Disposition","attachment;filename="+ URLEncoder.encode(fileName,"UTF-8"));
+
+//        获取下载文件的输入流（将文件变成流）
+        FileInputStream in = new FileInputStream(realPath);
+//        获取outputStream对象，用于输出字符流数据或者二进制的字节流数据
+        ServletOutputStream out = resp.getOutputStream();
+//        创建缓冲区
+        byte[] buffer = new byte[1024];
+        int len = 0;
+//        将FileInputStream流写入到buffer缓冲区,使用OutputStream将缓冲区中的数据输出到客户端
+        while((len = in.read(buffer)) != -1){
+            out.write(buffer,0,len);
+        }
+        in.close();
+        out.close();
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
+    }
+}
+```
+
+![下载响应头](JavaWeb.assets/下载响应头.png)
+
+
+
+#### 验证码
+
+- 生成数字验证码图片
+
+```java
+package com.ink.servlet;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.Random;
+
+public class ImageServletTest extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//        让浏览器3秒自动刷新一次;
+        resp.setHeader("refresh","3");
+
+//        使用图片类在内存中创建一个图片
+        BufferedImage image = new BufferedImage(80,40,BufferedImage.TYPE_INT_RGB);
+//        创建一个笔
+        Graphics2D g = (Graphics2D) image.getGraphics();
+//        用笔设置图片的背景颜色
+        g.setColor(Color.white);
+        g.fillRect(0,0,80,20);
+//        用笔给图片写数据
+        g.setColor(Color.BLUE);
+        g.setFont(new Font(null,Font.BOLD,20));
+        g.drawString(makeNum(),0,20);
+
+//        告诉浏览器，这个响应以图片的方式打开
+        resp.setContentType("image/png");
+//        不让浏览器缓存
+        resp.setDateHeader("expires",-1);
+        resp.setHeader("Cache-Control","no-cache");
+        resp.setHeader("Pragma","no-cache");
+
+//        将图片响应给浏览器
+        ImageIO.write(image,"png", resp.getOutputStream());
+    }
+
+//    生成随机数
+    private String makeNum(){
+        Random random = new Random();
+//        生成7位的随机数
+        String num = random.nextInt(9999999) + "";
+        StringBuffer sb = new StringBuffer();
+//        如果不足7位，用0填充
+        for (int i = 0; i < 7-num.length() ; i++) {
+            sb.append("0");
+        }
+        num = sb.toString() + num;
+        return num;
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
+    }
+}
+```
+
+![验证码图片](JavaWeb.assets/验证码图片.png)
+
+#### 重定向
+
+- 用户登录
+
+![重定向状态码](JavaWeb.assets/重定向状态码.png)
+
+![重定向响应头](JavaWeb.assets/重定向响应头.png)
 

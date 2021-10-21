@@ -19,7 +19,7 @@
 
 在目录文件路径前输入`cmd`，快速打开命令行
 
-![cmd](Java.assets/cmd.png)
+ ![cmd](Java.assets/cmd.png)
 
 
 
@@ -144,15 +144,15 @@ java HelloWorld			#运行	不带class后缀
 
 1. `File`-`new`-`Empty Project`-`new`-`module`-`new`-`package`
 
-    ![Module](Java.assets/Module.png)
+     ![Module](Java.assets/Module.png)
    
 2. 查看项目结构`Project Structure`（也可以在File中查看）
 
-    ![项目结构](Java.assets/项目结构.png)
+     ![项目结构](Java.assets/项目结构.png)
 
 3. 在`Project`中修改**SDK**（对应的`Project Language Level` 也要修改）
 
-   ![修改sdk](Java.assets/修改sdk.png)
+    ![修改sdk](Java.assets/修改sdk.png)
 
 4. 在`src`目录下的`package`下新建类编写代码
 

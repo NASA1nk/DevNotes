@@ -333,24 +333,46 @@ HTTP响应报文
 
 
 
-# JAR包
+# Jar包和War包
+
+## jar包
 
 `Java Archive File`
 
-- jar包是Java的一种文档格式，是一种与平台无关的文件格式，可将多个文件合成一个文件
-- jar包与zip包非常相似，准确地说，它就是一个zip包，它与zip包唯一的区别就是在jar包中包含了一个`META-INF/MANIFEST.MF`文件，该文件是在生成jar文件的时候自动创建的，作为jar里面的**详情单**，包含了该Jar包的版本、创建者和类搜索路径`Class-Path`等信息
+- jar包是Java的一种文档格式
+  - 是一种与平台无关的文件格式
+    - 因为jar包主要是对`class`文件进行打包，而java编译生成的`class`文件是平台无关的，这就意味着jar包也是跨平台的，所以不必关心涉及具体平台的问题
+  - 可将多个文件合成一个文件
+- jar包与zip包非常相似，准确地说，它就是一个zip包，它与zip包唯一的区别就是在jar包中包含了一个`META-INF/MANIFEST.MF`文件
+  - 该文件是在生成jar文件的时候自动创建的，作为jar里面的**详情单**，包含了该Jar包的版本、创建者和类搜索路径`classPath`等信息
   - 如果是可执行jar包，还会包含`Main-Class`属性，表明`main`方法入口
-  - 实际上是可以使用zip相关的命令来对jar包进行创建或者解压缩操作
-  - JDK也自带了jar命令，通过jar命令可以实现创建，更新jar包的操作
-- 因为jar包主要是对class文件进行打包，而java编译生成的class文件是平台无关的，这就意味着jar包也是跨平台的，所以不必关心涉及具体平台的问题
+    - 一个jar包里面可能存在多个`.class`文件都有`main()`函数，通过`MANIFEST.MF`里面的`Main-Class`属性，会指定具体的`main()`函数作为入口
+- 实际上可以使用zip相关的命令来对jar包进行创建或者解压缩操作，JDK也自带了jar命令，通过jar命令可以实现创建，更新jar包的操作
+
+> jar也能打包静态资源文件如`.html`，`.css`以及`.js`等项目所需的一切，也就意味着能将整个项目打成jar包，不管是Web应用还是底层框架
 
 
 
 **为什么要打jar包**
 
-- 当我们开发了一个程序以后，程序中有很多的类。如果需要提供给别人使用，发给对方一堆源文件是非常不好的，因此通常需要把这些类以及相关的资源文件打包成一个 jar包，然后把这个jar包提供给别人使用，同时还需要提供给对方相关的文档。这样对方在拿到我们提供的jar包之后，就可以直接调用。
+- 当我们开发了一个程序以后，程序中有很多的类。如果需要提供给别人使用，发给对方一堆源文件是非常不好的，因此通常需要把这些类以及相关的资源文件打包成一个 jar包，然后把这个jar包提供给别人使用
+- 同时还需要提供给对方相关的文档。这样对方在拿到我们提供的jar包之后，就可以直接调用
 
 > 因此在平时写代码的时候，注意把自己代码的通用部分抽离出来，积累一些通用的`util`类，将其逐渐模块化，最后打成jar包供自己在别的项目或者模块中使用，同时不断更新jar包里面的内容，将其做得越来越容易理解和通用。这样做的好处是除了会对你的代码重构能力以及模块抽象能力有很好的帮助之外，更是一种从长期解放你的重复工作量，让你有更多的精力去做其他事情的方式
+
+## war包
+
+- war包是Sun公司提出的一种web应用程序格式，与jar包类似，是很多文件的压缩包
+
+- war包中的文件按照一定目录结构来组织
+  - 根目录下包含有`html`和`jsp`文件，或者包含有这两种文件的目录
+  - `WEB-INF`目录
+    - 通常在`WEB-INF`目录下含有一个`web.xml`文件和一个`classes`目录
+    - `web.xml`是这个应用的配置文件
+    - `classes`目录下则包含编译好的`servlet`类和`jsp`，或者servlet所依赖的其他类（如JavaBean）
+    - 这些所依赖的类也可以打成jar包放在`WEB-INF-lib`目录下
+- war包能打包的内容jar包也都可以，现在的应用主流都是用jar包来替代war包了
+- 因为war包仅服务于Web应用，而jar包的涵盖范围更广。目前war包相较于jar包的唯一优势在于，以Tomcat为例，当Tomcat的进程启动之后，将符合规范的war包放在Tomcat的webapps目录下的时候，Tomcat会自动将war包解压并对外提供web服务，而jar包则不行
 
 
 
@@ -1328,7 +1350,7 @@ public class ServletPropTest extends HttpServlet {
 >   ```xml
 >   <!--<web-app>-->
 >   <!--  <display-name>Archetype Created Web Application</display-name>-->
->               
+>                 
 >   <?xml version="1.0" encoding="UTF-8"?>
 >   <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
 >            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1475,7 +1497,7 @@ public class FileServletTest extends HttpServlet {
 }
 ```
 
-![下载响应头](JavaWeb.assets/下载响应头.png)
+ ![下载响应头](JavaWeb.assets/下载响应头.png)
 
 
 
@@ -1547,13 +1569,83 @@ public class ImageServletTest extends HttpServlet {
 }
 ```
 
-![验证码图片](JavaWeb.assets/验证码图片.png)
+ ![验证码图片](JavaWeb.assets/验证码图片.png)
 
 #### 重定向
 
-- 用户登录
+```java
+package com.ink.servlet;
 
-![重定向状态码](JavaWeb.assets/重定向状态码.png)
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-![重定向响应头](JavaWeb.assets/重定向响应头.png)
+import java.io.IOException;
+
+public class RedirectServletTest extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//        重定向地址需要包含完整的项目路径url
+        resp.sendRedirect("/image");
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
+    }
+}
+```
+
+ ![重定向状态码](JavaWeb.assets/重定向状态码.png)
+
+重定向就是设置响应头的`Status`和`Location`
+
+ ![重定向响应头](JavaWeb.assets/重定向响应头.png)
+
+
+
+## HTTP请求
+
+`HttpServletRequest`
+
+用户通过HTTP协议访问服务器，Web服务器会将HTTP请求中的所有信息封装到`HttpServletRequest`对象中
+
+### 方法
+
+```java
+// ServletRequest接口
+String getParameter(String var1);
+
+String[] getParameterValues(String var1);
+
+// HttpServletRequest类
+String getAuthType();
+
+Cookie[] getCookies();
+
+long getDateHeader(String var1);
+
+String getHeader(String var1);
+
+String getMethod();
+
+String getPathInfo();
+
+String getPathTranslated();
+
+String getContextPath();
+
+String getQueryString();
+
+String getRemoteUser();
+
+HttpSession getSession();
+```
+
+### 应用
+
+#### 获取请求参数
+
+#### 请求转发
 

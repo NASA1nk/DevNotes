@@ -247,44 +247,54 @@ tomcat的`webapps`目录下的5个默认的应用
 - 请求响应协议
 - 运行在TCP上
 - 端口：80
+- 无状态（stateless）协议
+  - 对于请求和响应都不做持久化处理
+- 
 
 > 超文本：图片，音乐，视频，定位，地图......
 
 ## 版本
 
-HTTP/1.0
+HTTP初始版本
 
-- 客户端与Web服务器一次连接只能获取一个Web资源，然后就会断开连接
-  - 如果某个页面有多个图片资源需要加载，那么需要连接多次，影响服务器和客户端的性能
+- 客户端与Web服务器每进行一次HTTP通信就要断开一次，一次连接只能获取一个Web资源，如果某个页面有多个图片资源需要加载，那么需要TCP连接和断开多次，影响服务器和客户端的性能
 
-HTTP/1.1
+HTTP/1.1和部分HTTP/1.0
 
-- 客户端可以与web服务器一次连接后可以获取多个web资源
+- 持久化连接
+  - 只要任意一端没有明确提出断开连接，就保持TCP连接状态
+  - 客户端可以与web服务器一次连接后可以获取多个web资源
+  - 管线化（pipelining）
+    - 不用等待连接即可直接发送下一个请求
 
 ## HTTP请求
 
 客户端 -> 发送请求（request） -> 服务器
 
-### 请求行
+HTTP请求报文
 
-```http
-Request URL:https://www.baidu.com/  
-Request Method:GET    
-Status Code:200 OK    
-Remote Address:14.215.177.39:443=
-```
+- 报文首部
+  - 请求行
+    - 请求方法
+    - 请求url
+    - HTTP版本
+  - 请求首部字段
+  - 通用首部字段
+  - 实体首部字段
+- 空行CRLF
+- 报文主体
 
-- 请求方式：`GET`，`POST`，HEAD，DELETE，PUT，TRACT…
-  - `GET`
-    - 一次请求能够携带的参数比较少
-    - 大小有限制
-    - 会在浏览器的URL地址栏显示数据内容，高效，不安全
-  - `POST`
-    - 一次请求能够携带的参数没有限制
-    - 大小没有限制
-    - 不会在浏览器的URL地址栏显示数据内容，安全，不高效
+请求方式：`GET`，`POST`，HEAD，DELETE，PUT，TRACT…
+- `GET`
+  - 一次请求能够携带的参数比较少
+  - 大小有限制
+  - 会在浏览器的URL地址栏显示数据内容，高效，不安全
+- `POST`
+  - 一次请求能够携带的参数没有限制
+  - 大小没有限制
+  - 不会在浏览器的URL地址栏显示数据内容，安全，不高效
 
-### 消息头
+首部字段
 
 - `Accept`：支持的数据类型
 - `Accept-Encoding`：支持的编码格式（GBK，UTF-8）
@@ -293,18 +303,30 @@ Remote Address:14.215.177.39:443=
 - `Connection`：请求完成是断开还是保持连接
 - `HOST`：主机
 
-
-
 ## HTTP响应
 
 服务器 -> 响应（response）-> 客户端
 
-### 响应状态码
+HTTP响应报文
+
+- 报文首部
+  - 状态行
+    - 响应结果状态码
+    - 原因短语
+    - HTTP版本
+  - 响应首部字段
+  - 通用首部字段
+  - 实体首部字段
+- 空行CRLF
+- 报文主体
+
+响应状态码
 
 - `200`：请求响应成功
 - `3xx`：请求重定向
-- `4xx`：找不到资源
-  - `404` 
+- `4xx`：客户端错误
+  - `400`：请求报文错误
+  - `404`：服务器上找不到资源
 - `5xx`：服务器错误
   - `500`
   - `502`
@@ -1306,7 +1328,7 @@ public class ServletPropTest extends HttpServlet {
 >   ```xml
 >   <!--<web-app>-->
 >   <!--  <display-name>Archetype Created Web Application</display-name>-->
->             
+>               
 >   <?xml version="1.0" encoding="UTF-8"?>
 >   <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
 >            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

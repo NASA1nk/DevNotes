@@ -2090,3 +2090,158 @@ public class SessionGetTest extends HttpServlet {
 
 
 
+# JavaVBean
+
+> Java：咖啡
+>
+> Bean：豆子
+
+**实体类**
+
+JavaBean的特定写法
+
+- 必须有一个无参构造器
+- 属性必须私有化
+- 必须有对应的`get()`和`set()`方法
+
+**用途**
+
+- 和数据库的字段做映射
+
+## ORM
+
+对象关系映射
+
+- 数据库中的一张表对应Java中的一个类
+- 表中的字段对应类中的属性
+- 表中的行记录对应类的对象
+
+`People`表
+
+| id   | name | age  | address |
+| ---- | ---- | ---- | ------- |
+| 1    | ink1 | 20   | 北京    |
+| 2    | ink2 | 22   | 安徽    |
+| 3    | ink3 | 25   | 青岛    |
+
+`People`类
+
+```java
+package com.ink.pojo;
+
+public class People {
+    private int id;
+    private String name;
+    private int age;
+    private String address;
+
+    public People() {
+    }
+
+    public People(int id, String name, int age, String address) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
+        this.address = address;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    @Override
+    public String toString() {
+        return "People{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", age=" + age +
+                ", address='" + address + '\'' +
+                '}';
+    }
+}
+
+```
+
+数据库表记录对应类对象
+
+```java
+class A{
+    new People(1,"ink1",20,"北京")；
+    new People(2,"ink2",22,"安徽")；
+    new People(3,"ink3",25,"青岛")；
+}
+```
+
+## 使用idea连接数据库
+
+![idea连接数据库](JavaWeb.assets/idea连接数据库.png)
+
+
+
+
+
+# MVC架构
+
+MVC
+
+- Model：模型
+- View：视图
+- Controller：控制器
+
+
+
+Model
+
+- 业务处理：业务逻辑（Service）
+- 数据持久层：CRUD
+
+View
+
+- 展示数据
+- 提供链接发起Servlet请求
+  - a
+  - form
+  - img
+
+Controller（Servlet）
+
+- 接收用户的请求
+  - req请求参数
+  - Session
+- 交给业务层处理对应的代码
+- 控制视图的跳转
+
+> 1. 用户登录，服务器接收用户的登录请求
+> 2. 处理用户请求
+>    1. 获取用户登录的参数：username，password
+> 3. 交给业务层处理登录业务
+>    1. 判断用户名密码是否正确：事务
+> 4. Dao层通过数据库查询用户名和密码是否正确

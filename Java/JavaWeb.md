@@ -1763,6 +1763,34 @@ HttpSession getSession();
 
 `jakarta.servlet.http.Cookie`
 
+- cookie一般会保存在本地的用户目录下
+  - `C:\Users\AW\AppData\Local\Microsoft\Windows\INetCookies\deprecated.cookie`
+
+- 浏览器对cookie数量和大小有限制的，如果超过了这个限制，会丢失信息
+- 浏览器一般只允许存放300个cookie, 每个Web站点最多存放20个cookie
+- cookie大小有限制：一般是4kb
+
+> Cookie的格式实际上是一段纯文本信息, 由服务器发送到客户端, 并保存在客户端硬盘中指定的目录
+>
+> 服务器读取Cookie的时候只能够读取到这个服务器相关的信息
+
+### 方法
+
+```java
+// 获得Cookie
+Cookie[] cookies = req.getCookies();
+// 获得cookie中的key
+cookie.getName(); 
+// 获得cookie中的vlaue
+cookie.getValue(); 
+// 新建一个cookie
+new Cookie("lastLoginTime", System.currentTimeMillis()+""); 
+// 设置cookie的有效期
+cookie.setMaxAge(24*60*60); 
+// 响应给客户端一个cookie
+resp.addCookie(cookie); 
+```
+
  ![cookie类](JavaWeb.assets/cookie类.png)
 
 ```java
@@ -1843,17 +1871,31 @@ public class CookieDemo extends HttpServlet {
 </web-app>
 ```
 
-第一次访问，此时浏览器的请求中没有cookie
+1. 第一次访问，此时浏览器没有服务器的cookie，所以请求中也没有cookie
 
-![cookie为空](JavaWeb.assets/cookie为空.png)
+   ![cookie为空](JavaWeb.assets/cookie为空.png)
 
-服务器会为当前用户设置一个cookie，在响应报文中返回给客户端，浏览器会保存这个cookie
+2. 服务器第一次收到请求后会为当前用户设置一个cookie，在响应报文中返回给客户端，客户端浏览器会保存这个cookie
 
-![第一次访问，获取cookie](JavaWeb.assets/第一次访问，获取cookie.png)
+   ![第一次访问，获取cookie](JavaWeb.assets/第一次访问，获取cookie.png)
 
-下次客户端再次请求时，就会在请求报文中带上cookie
+3. 下次客户端再次请求时，就会在请求报文中带上cookie
 
-![请求附带cookie](JavaWeb.assets/请求附带cookie.png)
+   ![请求附带cookie](JavaWeb.assets/请求附带cookie.png)
 
-![获取客户端的cookie](JavaWeb.assets/获取客户端的cookie.png)
+   ![获取客户端的cookie](JavaWeb.assets/获取客户端的cookie.png)
+
+4. 如果关闭浏览器，则相当于本次会话结束。重新打开浏览器访问服务器，请求中就没有cookie，需要重新获取和设置cookie
+
+   > `cookie.getMaxAge() = -1`：设置当浏览器关闭时cookie过期
+   >
+   > 将cookie的有效期设置为0，即可实现删除cookie的功能
+
+   ![重新开始会话](JavaWeb.assets/重新开始会话.png)
+
+
+
+
+
+## Session
 

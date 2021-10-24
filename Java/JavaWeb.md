@@ -1350,7 +1350,7 @@ public class ServletPropTest extends HttpServlet {
 >   ```xml
 >   <!--<web-app>-->
 >   <!--  <display-name>Archetype Created Web Application</display-name>-->
->                       
+>                         
 >   <?xml version="1.0" encoding="UTF-8"?>
 >   <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
 >            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1898,4 +1898,195 @@ public class CookieDemo extends HttpServlet {
 
 
 ## Session
+
+服务器会给每个浏览器创建一个Session对象
+
+只要浏览器没有关闭，Session对象就一直存在
+
+### Session和cookie的区别
+
+- Cookie将用户的数据写给用户的浏览器，由浏览器（或本地）保存 
+- Session将用户的数据写到用户独占的Session中，由服务器保存
+- cookie数据存放在客户端本地，session数据是存放在服务器的，但是服务端的session的实现对客户端的cookie有依赖关系的
+- cookie不安全，外人可以分析存放在本地的cookie并进行cookie欺骗
+  - 考虑安全应该使用session
+- session会在一段时间内存放在服务器上，如果session过多会导致服务器压力过大，性能降低
+  - 考虑服务器性能方面应该使用cookie
+- 一个用户在一个Web站点上可以有多个cookie，但是只有一个session
+
+
+
+### 方法
+
+```java
+// 获取客户端的Session
+req.getSession();
+// 获取SessionID
+session.getId();
+// 判断是否是新的Session
+session.isNew()
+```
+
+ ![Session方法](JavaWeb.assets/Session方法.png)
+
+```java
+package com.ink.servlet;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+import java.io.IOException;
+
+public class SessionTest extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("utf-8");
+        resp.setCharacterEncoding("utf-8");
+        resp.setHeader("content-type", "text/html; charset=UTF-8");
+//        获取Session
+        HttpSession session = req.getSession();
+//        在Session中存储信息
+        session.setAttribute("name","郑吒");
+//        获取Session ID
+        String id = session.getId();
+        if(session.isNew()){
+            resp.getWriter().write("Session创建成功 "+ id);
+        }
+        else{
+            resp.getWriter().write("Session已经存在 "+ id);
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
+    }
+}
+```
+
+```java
+package com.ink.servlet;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+import java.io.IOException;
+
+public class SessionGetTest extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("utf-8");
+        resp.setCharacterEncoding("utf-8");
+        resp.setHeader("content-type", "text/html; charset=UTF-8");
+//        获取Session
+        HttpSession session = req.getSession();
+        String name = (String)session.getAttribute("name");
+        System.out.println(name);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
+    }
+}
+```
+
+```xml
+<!DOCTYPE web-app PUBLIC
+ "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+ "http://java.sun.com/dtd/web-app_2_3.dtd" >
+
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+	http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+  <display-name>Archetype Created Web Application</display-name>
+
+
+  <servlet>
+    <servlet-name>cookie</servlet-name>
+    <servlet-class>com.ink.servlet.CookieTest</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>cookie</servlet-name>
+    <url-pattern>/cookie</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>session</servlet-name>
+    <servlet-class>com.ink.servlet.SessionTest</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>session</servlet-name>
+    <url-pattern>/session</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>name</servlet-name>
+    <servlet-class>com.ink.servlet.SessionGetTest</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>name</servlet-name>
+    <url-pattern>/name</url-pattern>
+  </servlet-mapping>
+
+</web-app>
+
+```
+
+步骤
+
+1. 服务器从`request`对象获取客户端的session对象
+
+2. 如果没有，服务器创建一个session对象，将相关数据保存到session中
+
+3. 服务器将SessionID以cookie的形式发送给客户端
+
+   ```java
+   // Session创建
+   Cookie cookie = new Cookie("JSESSIONID",sessionId);
+   resp.addCookie(cookie);
+   ```
+
+4. 客户端下次发送请求时会附加包含SessionID的cookie，服务器可以通过该cookie的SessionID获取session，再通过session获取数据
+
+5. 如果将该cookie在客户端被移除，那么服务器就拿不到对应的session，所以服务器的session对客户端的cookie是有依赖关系的
+
+![SessionID](JavaWeb.assets/SessionID.png)
+
+![cookie传递sessionid](JavaWeb.assets/cookie传递sessionid.png)
+
+### 注销Session
+
+- 手动注销
+
+  ```java
+  // 获取Session
+  HttpSession session = req.getSession();
+  // 注销Session
+  session.invalidate();
+  ```
+
+- 通过`web.xml`配置Session失效时间
+
+  > 以分钟为单位
+
+  ```xml
+  <session-config>
+      <session-timeout>1</session-timeout>
+  </session-config>
+  ```
+
+
+
+
 

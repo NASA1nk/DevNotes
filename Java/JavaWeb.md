@@ -1,6 +1,6 @@
 # JavaWeb
 
-- web即网页
+- Web即网页
 - 在Java中，动态web资源开发的技术统称为JavaWeb
 
 ## Web开发
@@ -1350,7 +1350,7 @@ public class ServletPropTest extends HttpServlet {
 >   ```xml
 >   <!--<web-app>-->
 >   <!--  <display-name>Archetype Created Web Application</display-name>-->
->                 
+>                       
 >   <?xml version="1.0" encoding="UTF-8"?>
 >   <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
 >            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1645,7 +1645,215 @@ HttpSession getSession();
 
 ### 应用
 
-#### 获取请求参数
+#### 获取请求参数和请求转发
 
-#### 请求转发
+1. 删除自带的`index.jsp`，重新创建`index.jsp`作为登录页面
+
+    ```jsp
+    <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+    <html>
+    <head>
+        <title>Title</title>
+    </head>
+    <body>
+    <%--    获取项目路径--%>
+    <%--    以post的方式提交表单--%>
+        <form action="${pageContext.request.contextPath}/login" method="post">
+            username <input name="username" type="text"> <br>
+            password: <input name="password" type="password"> <br>
+            hobbies:
+            <input name="hobbies" type="checkbox" value="女孩">女孩
+            <input name="hobbies" type="checkbox" value="代码">代码
+            <input name="hobbies" type="checkbox" value="电影">电影
+            <input name="hobbies" type="checkbox" value="爬山">爬山
+            <input type="submit">
+        </form>
+    </body>
+    </html>
+    ```
+    
+2. 创建`success.jsp`作为登录成功后的跳转页面
+
+    ```jsp
+    <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+    <html>
+    <head>
+        <h1>登陆成功</h1>
+    </head>
+    <body>
+    
+    </body>
+    </html>
+    ```
+
+3. 在后端获取请求参数
+
+    > 内部转发是服务器内部操作，不需要加上项目路径
+
+    ```java
+    package com.ink.servlet;
+    
+    import jakarta.servlet.ServletException;
+    import jakarta.servlet.http.HttpServlet;
+    import jakarta.servlet.http.HttpServletRequest;
+    import jakarta.servlet.http.HttpServletResponse;
+    
+    import java.io.IOException;
+    import java.util.Arrays;
+    
+    public class RequestTest extends HttpServlet {
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    //        后台接收中文乱码问题，设置编码
+            req.setCharacterEncoding("utf-8");
+            resp.setCharacterEncoding("utf-8");
+    //        获取单个请求参数
+            String username = req.getParameter("username");
+            String password = req.getParameter("password");
+    //        获取多个请求参数
+            String[] hobbies = req.getParameterValues("hobbies");
+            System.out.println("=============================");
+            System.out.println(username);
+            System.out.println(password);
+            System.out.println(Arrays.toString(hobbies));
+            System.out.println("=============================");
+    
+            System.out.println(req.getContextPath());
+    //        通过请求转发
+    //        /代表当前的web应用，不加/也可以
+            req.getRequestDispatcher("/success.jsp").forward(req,resp);
+        }
+    
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            doGet(req, resp);
+        }
+    }
+    ```
+
+ ![登录页面](JavaWeb.assets/登录页面.png)
+
+ ![跳转页面](JavaWeb.assets/跳转页面.png)
+
+ ![后端获取请求参数](JavaWeb.assets/后端获取请求参数.png)
+
+
+
+# Cookieh和Session
+
+> Cookie：饼干
+>
+> Session：会话
+
+- HTTP是无状态协议，之前已经认证成功的用户状态无法通过协议层保留下来，即无法实现状态管理
+- 一般使用Cookie来管理Session
+- Cookie的工作机制是用户识别和状态管理，Web网站为了管理用户状态，会通过浏览器把一些数据写入用户的主机。当用户访问Web网站时，可以通过通信的方式取回之前存放的Cookie
+
+## 状态管理步骤
+
+1. 客户端将ID和密码等登录信息放在请求报文的实体部分，以POST方式发送给服务器
+2. 服务器发放用于识别用户的Session ID，通过验证请求报文中的登录信息进行身份验证，然后把用户的认证状态和Session ID绑定，然后记录在服务器端
+3. 服务器在向客户端返回响应时，会在响应报文的首部的Set-Cookie字段内写入Session ID
+4. 客户端收到响应报文后，将Session ID作为Cookie保存在本地。下次再向服务器发送请求时，浏览器会自动发送Cookie，即发送了Session ID。
+5. 服务器就可以通过Session ID来识别用户即认证状态
+
+ 
+
+## Cookie
+
+`jakarta.servlet.http.Cookie`
+
+ ![cookie类](JavaWeb.assets/cookie类.png)
+
+```java
+package com.ink.servlet;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class CookieDemo extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//        中文乱码问题，设置编码
+        req.setCharacterEncoding("utf-8");
+        resp.setCharacterEncoding("gbk");
+        resp.setHeader("content-type", "text/html; charset=UTF-8");
+//        获取请求中携带的cookie
+        Cookie[] cookies = req.getCookies();
+        if(cookies == null){
+            resp.getWriter().write("这是第一次访问！");
+        }
+        else{
+            PrintWriter writer = resp.getWriter();
+            for (int i = 0; i < cookies.length; i++) {
+                if("lastTime".equals(cookies[i].getName())){
+                    String value = cookies[i].getValue();
+//                格式化时间
+                    long timevalue = Long.parseLong(value);
+                    Date date = new Date(timevalue);
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
+                    String format = simpleDateFormat.format(date);
+                    writer.println("上次登录时间为："+format);
+                }
+            }
+        }
+
+//        服务器响应给客户端一个cookie
+        Cookie cookie = new Cookie("lastTime",System.currentTimeMillis()+"");
+        resp.addCookie(cookie);
+
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
+    }
+}
+```
+
+```xml
+<!DOCTYPE web-app PUBLIC
+ "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+ "http://java.sun.com/dtd/web-app_2_3.dtd" >
+
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+   http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+  <display-name>Archetype Created Web Application</display-name>
+
+
+  <servlet>
+    <servlet-name>cookie</servlet-name>
+    <servlet-class>com.ink.servlet.CookieDemo</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>cookie</servlet-name>
+    <url-pattern>/cookie</url-pattern>
+  </servlet-mapping>
+</web-app>
+```
+
+第一次访问，此时浏览器的请求中没有cookie
+
+![cookie为空](JavaWeb.assets/cookie为空.png)
+
+服务器会为当前用户设置一个cookie，在响应报文中返回给客户端，浏览器会保存这个cookie
+
+![第一次访问，获取cookie](JavaWeb.assets/第一次访问，获取cookie.png)
+
+下次客户端再次请求时，就会在请求报文中带上cookie
+
+![请求附带cookie](JavaWeb.assets/请求附带cookie.png)
+
+![获取客户端的cookie](JavaWeb.assets/获取客户端的cookie.png)
 

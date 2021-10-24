@@ -2126,6 +2126,8 @@ JavaBean的特定写法
 
 `People`类
 
+> pojp、entity
+
 ```java
 package com.ink.pojo;
 
@@ -2206,42 +2208,60 @@ class A{
 
 
 
+# MVC三层架构
 
+以前
 
-# MVC架构
+- 用户直接访问控制器层，控制器层可以直接操作数据库，即servlet的代码中包含了处理请求、响应、视图跳转、处理JDBC、处理业务代码、处理逻辑代码
+- servlet-crud-database
 
-MVC
+缺点
 
-- Model：模型
-- View：视图
-- Controller：控制器
+- 太臃肿，不利于维护
 
+解决方法
 
+- 在架构的思想中，加层
+  - jdbc其实就是在用户和数据库中间加了一层
+- 抽取出视图层专门负责展示数据，提供用户操作
+- 抽取出业务层专业负责响应请求
 
-Model
+## MVC
 
-- 业务处理：业务逻辑（Service）
-- 数据持久层：CRUD
+- Model：模型层
+- View：视图层
+- Controller：控制器层
 
-View
+**Model**
+
+- 业务处理：业务逻辑**（Service）**
+- 数据持久层：负责数据库CRUD**（DAO）**
+
+**View**
 
 - 展示数据
 - 提供链接发起Servlet请求
-  - a
-  - form
-  - img
+  - `a`，`form`，`img`
 
-Controller（Servlet）
+**Controller**
 
 - 接收用户的请求
-  - req请求参数
-  - Session
-- 交给业务层处理对应的代码
-- 控制视图的跳转
+  - `req`请求参数，Session
+- 交给业务处理层处理
+  - 响应给客户端
+- 控制视图跳转
+  - 重定向，内部转发
 
+> 过程
+>
 > 1. 用户登录，服务器接收用户的登录请求
 > 2. 处理用户请求
->    1. 获取用户登录的参数：username，password
-> 3. 交给业务层处理登录业务
+>    1. 获取用户登录的参数：username，password...
+> 3. Controller层交给Service层处理登录业务
 >    1. 判断用户名密码是否正确：事务
 > 4. Dao层通过数据库查询用户名和密码是否正确
+
+![mvc架构](JavaWeb.assets/mvc架构.png)
+
+# 过滤器Filter
+

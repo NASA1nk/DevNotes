@@ -15,11 +15,11 @@ docker images | grep mysql
 docker run --name=mysql -p 3307:3306 -d -e MYSQL_ROOT_PASSWORD=1 mysql:5.7
 ```
 
-![mysql配置文件](MySQL.assets/mysql配置文件.png)
+ ![mysql配置文件](MySQL.assets/mysql配置文件.png)
 
 ![mysql数据文件](MySQL.assets/mysql数据文件.png)
 
-![mysql日志文件](MySQL.assets/mysql日志文件.png)
+ ![mysql日志文件](MySQL.assets/mysql日志文件.png)
 
 
 
@@ -223,15 +223,25 @@ mysqldump test -uroot -p1 Customer > /root/dump/Customer.sql
 
 输入MySQL服务器的url，用户和密码
 
-![datagrip连接](MySQL.assets/datagrip连接.png)
+ ![datagrip连接](MySQL.assets/datagrip连接.png)
 
 ## 打开控制台
 
 右键数据库或表，打开控制台，就可以写sql
 
-![datagripconsole](MySQL.assets/datagripconsole.png)
+ ![datagripconsole](MySQL.assets/datagripconsole.png)
 
+## 创建数据库
 
+右键数据库-`New-Schema`
+
+## 导入sql文件
+
+1. 将sql文件使用Datagrip打开 
+2. 右键选择`Run`
+3.  选择创建的数据库运行
+
+![使用sql文件创建数据库](MySQL.assets/使用sql文件创建数据库.png)
 
 ## 执行sql
 

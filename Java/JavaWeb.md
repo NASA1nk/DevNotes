@@ -1350,7 +1350,7 @@ public class ServletPropTest extends HttpServlet {
 >   ```xml
 >   <!--<web-app>-->
 >   <!--  <display-name>Archetype Created Web Application</display-name>-->
->                         
+>                                           
 >   <?xml version="1.0" encoding="UTF-8"?>
 >   <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
 >            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -2264,4 +2264,203 @@ class A{
 ![mvc架构](JavaWeb.assets/mvc架构.png)
 
 # 过滤器Filter
+
+`Filter`
+
+- 用于过滤网站的数据
+
+  - 垃圾请求
+  - 登录验证
+  - 乱码问题
+  
+> 本质也是一个处理的Servlet
+
+## 乱码问题
+
+1. 创建普通Maven项目
+
+2. 右键项目，`Add Framework`
+
+   ![addframework](JavaWeb.assets/addframework.png)
+
+3. 选择`Web Application`
+
+   ![webframework](JavaWeb.assets/webframework.png)
+
+4. 在`pom.xml`中导入依赖
+
+   ```xml
+       <dependencies>
+   <!--        JSP依赖-->
+           <dependency>
+               <groupId>jakarta.servlet.jsp</groupId>
+               <artifactId>jakarta.servlet.jsp-api</artifactId>
+               <version>3.0.0</version>
+           </dependency>
+   <!--        Servlet依赖-->
+           <dependency>
+               <groupId>jakarta.servlet</groupId>
+               <artifactId>jakarta.servlet-api</artifactId>
+               <version>5.0.0</version>
+           </dependency>
+   <!--        连接数据库-->
+           <dependency>
+               <groupId>mysql</groupId>
+               <artifactId>mysql-connector-java</artifactId>
+               <version>5.1.47</version>
+           </dependency>
+       </dependencies>
+   ```
+   
+5. 正常解决乱码的方法
+
+   1. 如果有多个servlet，就需要多次重复设置
+
+    ```java
+    package com.ink.servlet;
+   
+    import jakarta.servlet.ServletException;
+    import jakarta.servlet.http.HttpServlet;
+    import jakarta.servlet.http.HttpServletRequest;
+    import jakarta.servlet.http.HttpServletResponse;
+   
+    import java.io.IOException;
+   
+    public class ShowServletTest extends HttpServlet {
+   
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    //        让servlet用uft-8转码，而不是用默认的ISO8859
+    //        resp.setCharacterEncoding("utf-8");
+    //        让浏览器用utf-8来解析返回的数据
+            resp.setHeader("Content-type", "text/html;charset=UTF-8");
+            resp.getWriter().write("中文直接展示，会乱码");
+        }
+   
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            doGet(req, resp);
+        }
+    }
+    ```
+
+    > 1. response响应返回有两种
+    >    1. 字节流`outputstream`
+    >       1. 要输出中文，给输出流的必须是转换为utf-8的中文
+    >       2. 告诉浏览器用utf8来解析数据
+    >    2. 字符流`printwrite`
+    >       1. 要输出中文，要设置`resp.setCharacterEncoding("UTF-8");`
+    > 2. 如果中文出现`？`字符，应该是没有加`resp.setCharacterEncoding("UTF-8");`
+    > 3. 如果中文是`烇湫锛屼細涔辩爜`乱码，说明是浏览器的解析问题，应该是否没有加`resp.setHeader("Content-type", "text/html;charset=UTF-8");`这句话。
+
+8. 创建`Filter`实现类，实现`jakarta.servlet.Filter`接口（还有别的`Filter`接口，不能实现错了）
+
+6. 重写方法
+
+   1. `Chain`：链
+   2. 有可能有多个不同功能的过滤器
+   3. `Filter`中的所有代码，在过滤特定请求的时候都会执行
+   4. 在过滤器中处理代码后要执行`filterChain.doFilter(servletRequest,servletResponse);`把请求转交下去 
+   
+   ```java
+   package com.ink.filter;
+   
+   import jakarta.servlet.*;
+   
+   import java.io.IOException;
+   
+   public class CharacterEncodingFilterTest implements Filter {
+   //    初始化
+       @Override
+       public void init(FilterConfig filterConfig) throws ServletException {
+           System.out.println("filter初始化");
+       }
+   
+       @Override
+       public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+           servletRequest.setCharacterEncoding("utf-8");
+           servletResponse.setCharacterEncoding("utf-8");
+           servletResponse.setContentType("text/html;charset=UTF-8");
+           System.out.println("CharacterEncodingFilterTest执行前");
+   //        Chain：链
+   //        执行doFilter让请求继续走，否则请求就会停在filter这里
+           filterChain.doFilter(servletRequest,servletResponse);
+           System.out.println("CharacterEncodingFilterTest执行后");
+       }
+   
+   
+   //    销毁
+       @Override
+       public void destroy() {
+           System.out.println("filter销毁");
+       }
+   }
+   
+   ```
+   
+8. 配置
+
+   1. 走`/servlet/show`的请求会经过过滤器，处理乱码问题
+   2. 走`/show`的请求不会
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+            version="5.0">
+   
+   
+       <servlet>
+           <servlet-name>show</servlet-name>
+           <servlet-class>com.ink.servlet.ShowServletTest</servlet-class>
+       </servlet>
+   <!--    配置两个路径-->
+       <servlet-mapping>
+           <servlet-name>show</servlet-name>
+           <url-pattern>/servlet/show</url-pattern>
+       </servlet-mapping>
+       <servlet-mapping>
+           <servlet-name>show</servlet-name>
+           <url-pattern>/show</url-pattern>
+       </servlet-mapping>
+   
+       <filter>
+           <filter-name>CharacterEncodingFilter</filter-name>
+           <filter-class>com.ink.filter.CharacterEncodingFilterTest</filter-class>
+       </filter>
+       <filter-mapping>
+           <filter-name>CharacterEncodingFilter</filter-name>
+   <!--        只要是 /servlet的任何请求，会经过这个过滤器-->
+           <url-pattern>/servlet/*</url-pattern>
+   <!--        整个网站都会经过过滤器-->
+           <!--<url-pattern>/*</url-pattern>-->
+       </filter-mapping>
+   
+   </web-app>
+   ```
+
+
+
+![过滤器解决乱码问题](JavaWeb.assets/过滤器解决乱码问题.png)
+
+## FFilter生命周期
+
+- `Filter`初始化
+  - web服务器启动时初始化过滤器，等待过滤请求出现
+
+- `Filter`销毁
+  - web服务器关闭的时候，销毁过滤器
+
+![filter初始化和销毁](JavaWeb.assets/filter初始化和销毁.png)
+
+
+
+# 监听器Listener
+
+## 统计Session
+
+
+
+
 

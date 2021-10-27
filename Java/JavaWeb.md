@@ -1350,7 +1350,7 @@ public class ServletPropTest extends HttpServlet {
 >   ```xml
 >   <!--<web-app>-->
 >   <!--  <display-name>Archetype Created Web Application</display-name>-->
->                                           
+>                                                   
 >   <?xml version="1.0" encoding="UTF-8"?>
 >   <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
 >            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -2410,7 +2410,6 @@ class A{
             xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
             version="5.0">
    
-   
        <servlet>
            <servlet-name>show</servlet-name>
            <servlet-class>com.ink.servlet.ShowServletTest</servlet-class>
@@ -2444,7 +2443,7 @@ class A{
 
 ![过滤器解决乱码问题](JavaWeb.assets/过滤器解决乱码问题.png)
 
-## FFilter生命周期
+## Filter生命周期
 
 - `Filter`初始化
   - web服务器启动时初始化过滤器，等待过滤请求出现
@@ -2460,7 +2459,86 @@ class A{
 
 ## 统计Session
 
+1. 实现监听器的接口，监听Session
+
+   > Session销毁
+   >
+   > - 手动销毁  
+   >   - `getSession().invalidate();`  
+   > - 自动销毁 
+   >   - `web.xml`中配置
+
+   ```java
+   package com.ink.listener;
+   
+   import jakarta.servlet.ServletContext;
+   import jakarta.servlet.http.HttpSessionEvent;
+   import jakarta.servlet.http.HttpSessionListener;
+   
+   public class ListenerTest implements HttpSessionListener {
+   //    一旦创建Session就会触发一次这个事件
+       @Override
+       public void sessionCreated(HttpSessionEvent se) {
+   //        获取ServletContex
+           ServletContext ctx = se.getSession().getServletContext();
+           System.out.println(se.getSession().getId());
+           Integer onlineCount = (Integer) ctx.getAttribute("OnlineCount");
+   
+           if(onlineCount == null){
+               onlineCount = 1;
+           }
+           else{
+               onlineCount++;
+           }
+           ctx.setAttribute("OnlineCount",onlineCount);
+       }
+   
+   //    一旦销毁Session就会触发一次这个事件
+       @Override
+       public void sessionDestroyed(HttpSessionEvent se) {
+           ServletContext ctx = se.getSession().getServletContext();
+           Integer onlineCount = (Integer) ctx.getAttribute("OnlineCount");
+           if(onlineCount==null){
+               onlineCount = 0;
+           }
+           else{
+               onlineCount--;
+           }
+           ctx.setAttribute("OnlineCount",onlineCount);
+       }
+   }
+   
+   ```
+
+2. 注册监听器
+
+   ```xml
+   <!--  注册监听器-->
+     <listener>
+       <listener-class>com.ink.listener.ListenerTest</listener-class>
+     </listener>
+   ```
+
+3. 在index.jsp中展示
+
+   ```jsp
+   <%@ page contentType="text/html;charset=utf-8" language="java" %>
+   <html>
+   <body>
+       <h1>当前有<span><%=request.getServletContext().getAttribute("OnlineCount")%></span>人在线</h1>
+   </body>
+   </html>
+   ```
+
+![监听session](JavaWeb.assets/监听session.png)
 
 
 
+# JDBC
+
+Java连接数据库
+
+jar包
+
+- mysql-conneter-java连接驱动（必须要导入）
 

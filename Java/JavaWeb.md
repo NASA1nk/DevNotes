@@ -2453,6 +2453,158 @@ class A{
 
 ![filter初始化和销毁](JavaWeb.assets/filter初始化和销毁.png)
 
+## 权限拦截
+
+用户登录后才能进入主页，用户注销后不能进入主页
+
+1. 用户登录之后，在Session中放入用户信息
+2. 进入主页的时候要判断用户是否已经登录
+   1. 过滤器中实现
+3. 用户注销后，删除Session中的用户信息
+   1. 不要销毁Session
+
+`login.jsp`
+
+```jsp
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+<h1>登录</h1>
+<form action="/login" method="post">
+    <input type="text" name="username">
+    <input type="submit">
+</form>
+</body>
+</html>
+```
+
+`success.jsp`
+
+```jsp
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>success</title>
+</head>
+<body>
+<h1>登录成功，进入主页</h1>
+<a href="/loginout">注销</a>
+</body>
+</html>
+```
+
+`error.jsp`
+
+```jsp
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>error</title>
+</head>
+<body>
+<h1>错误</h1>
+<h2>用户名错误</h2>
+<a href="/loginout">返回登录页面</a>
+</body>
+</html>
+```
+
+`loginTest.java`
+
+```java
+package com.ink.filter;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+
+public class LoginTest extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String username = req.getParameter("username");
+        if("admin".equals(username)){
+//            登陆成功，存入session
+            req.getSession().setAttribute("USER_SESSION", req.getSession().getId());
+//            重定向到主页
+            resp.sendRedirect("/success.jsp");
+        }
+        else{
+//            登陆失败
+            resp.sendRedirect("/error.jsp");
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
+    }
+}
+```
+
+`LoginOutTest.java`
+
+```java
+package com.ink.filter;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+
+public class LoginOutTest extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.getSession().removeAttribute("USER_SESSION");
+        resp.sendRedirect("/login.jsp");
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
+    }
+
+
+}
+```
+
+`web.xml`
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+         version="5.0">
+
+  <servlet>
+    <servlet-name>login</servlet-name>
+    <servlet-class>com.ink.filter.LoginTest</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>login</servlet-name>
+    <url-pattern>/login</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>loginout</servlet-name>
+    <servlet-class>com.ink.filter.LoginOutTest</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>loginout</servlet-name>
+    <url-pattern>/loginout</url-pattern>
+  </servlet-mapping>
+
+</web-app>
+```
+
 
 
 # 监听器Listener
@@ -2537,6 +2689,8 @@ class A{
 # JDBC
 
 Java连接数据库
+
+## 数据库依赖
 
 jar包
 

@@ -896,7 +896,7 @@ lsof -i:port
 - 9：kill杀死进程
 
 ```bash
-kii -9 pid
+kill -9 pid
 ```
 
 

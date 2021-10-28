@@ -11,16 +11,16 @@
   - 提供给用户查看的数据不会发生变化
 - 动态web
 
-  - 提供给用户查看的数据会发送变化（如淘宝）
+  - 提供给用户查看的数据会发送变化
+    - 淘宝对不同的用户提供不同的推荐
 - 技术栈
-- Servlet
-- JSP
-- B/S架构
-  - 基于Java语言，本质是Servlet
-- 支持高并发，高可用，高性能
-- PHP
-  - 作为开发速度很快，功能很强大，跨平台
-  - 无法承载大访问量的情况
+  - Servlet，JSP
+    - B/S架构
+    - 基于Java语言
+    - 支持高并发，高可用，高性能
+  - PHP
+    - 作为开发速度很快，功能很强大，跨平台
+    - 无法承载大访问量的情况
 
 ## web应用程序
 
@@ -1350,7 +1350,7 @@ public class ServletPropTest extends HttpServlet {
 >   ```xml
 >   <!--<web-app>-->
 >   <!--  <display-name>Archetype Created Web Application</display-name>-->
->                                                   
+>                                                               
 >   <?xml version="1.0" encoding="UTF-8"?>
 >   <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
 >            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -2202,18 +2202,19 @@ class A{
 }
 ```
 
-## 使用idea连接数据库
-
-![idea连接数据库](JavaWeb.assets/idea连接数据库.png)
-
 
 
 # MVC三层架构
 
 以前
 
-- 用户直接访问控制器层，控制器层可以直接操作数据库，即servlet的代码中包含了处理请求、响应、视图跳转、处理JDBC、处理业务代码、处理逻辑代码
-- servlet-crud-database
+- 用户直接访问控制器层，控制器层可以直接操作数据库
+- servlet的代码中包含了
+  - 处理请求、响应、视图跳转
+  - 处理JDBC
+  - 处理业务代码
+  - 处理逻辑代码
+- servlet->crud->database
 
 缺点
 
@@ -2221,8 +2222,8 @@ class A{
 
 解决方法
 
-- 在架构的思想中，加层
-  - jdbc其实就是在用户和数据库中间加了一层
+- 在架构的思想中，加一层
+  - JDBC其实就是在用户和数据库中间加了一层
 - 抽取出视图层专门负责展示数据，提供用户操作
 - 抽取出业务层专业负责响应请求
 
@@ -2460,150 +2461,232 @@ class A{
 1. 用户登录之后，在Session中放入用户信息
 2. 进入主页的时候要判断用户是否已经登录
    1. 过滤器中实现
-3. 用户注销后，删除Session中的用户信息
+3. 用户注销后，删除Session中用于判断的用户信息
    1. 不要销毁Session
 
-`login.jsp`
+**实现**
 
-```jsp
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
-<head>
-    <title>Login</title>
-</head>
-<body>
-<h1>登录</h1>
-<form action="/login" method="post">
-    <input type="text" name="username">
-    <input type="submit">
-</form>
-</body>
-</html>
-```
+1. 在`webapp`目录下创建`login.jsp`登陆页面
 
-`success.jsp`
+    ```jsp
+    <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+    <html>
+    <head>
+        <title>Login</title>
+    </head>
+    <body>
+    <h1>登录</h1>
+    <form action="/login" method="post">
+        <input type="text" name="username">
+        <input type="submit">
+    </form>
+    </body>
+    </html>
+    ```
+    
+2. 实现`/login`对应的Servlet并在`web.xml`中配置
 
-```jsp
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
-<head>
-    <title>success</title>
-</head>
-<body>
-<h1>登录成功，进入主页</h1>
-<a href="/loginout">注销</a>
-</body>
-</html>
-```
+    ```java
+    package com.ink.filter;
+    
+    import jakarta.servlet.ServletException;
+    import jakarta.servlet.http.HttpServlet;
+    import jakarta.servlet.http.HttpServletRequest;
+    import jakarta.servlet.http.HttpServletResponse;
+    
+    import java.io.IOException;
+    
+    public class LoginTest extends HttpServlet {
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    //        获取参数
+            String username = req.getParameter("username");
+            if("admin".equals(username)){
+    //            登陆成功，存入用户信息到session，用于判断
+                req.getSession().setAttribute("USER_SESSION", req.getSession().getId());
+    //            重定向到主页
+                resp.sendRedirect("/sys/success.jsp");
+            }
+            else{
+    //            登陆失败
+                resp.sendRedirect("/error.jsp");
+            }
+        }
+    
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            doGet(req, resp);
+        }
+    }
+    ```
 
-`error.jsp`
+    ```xml
+    <servlet>
+      <servlet-name>login</servlet-name>
+      <servlet-class>com.ink.filter.LoginTest</servlet-class>
+    </servlet>
+    <servlet-mapping>
+      <servlet-name>login</servlet-name>
+      <url-pattern>/login</url-pattern>
+    </servlet-mapping>
+    ```
 
-```jsp
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
-<head>
+3. 在`webapp`目录下创建`sys`目录，创建`success.jsp`作为登录成功进入的页面
+
+    ```jsp
+    <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+    <html>
+    <head>
+        <title>success</title>
+    </head>
+    <body>
+    <h1>登录成功，进入主页</h1>
+    <a href="/loginout">注销</a>
+    </body>
+    </html>
+    ```
+    
+4. 在`webapp`目录下创建`error.jsp`作为登录失败进入的错误页面
+
+    ```jsp
+    <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+    <html>
+    <head>
     <title>error</title>
-</head>
-<body>
-<h1>错误</h1>
-<h2>用户名错误</h2>
-<a href="/loginout">返回登录页面</a>
-</body>
-</html>
-```
+    </head>
+    <body>
+    <h1>错误</h1>
+    <h2>用户名错误</h2>
+    <a href="/loginout">返回登录页面</a>
+    </body>
+    </html>
+    ```
 
-`loginTest.java`
+5. 实现`/loginout`对应的注销功能的Servlet并在`web.xml`中配置
 
-```java
-package com.ink.filter;
+    > 不要去销毁Session，将Session中的用户信息删除即可
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
-import java.io.IOException;
-
-public class LoginTest extends HttpServlet {
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String username = req.getParameter("username");
-        if("admin".equals(username)){
-//            登陆成功，存入session
-            req.getSession().setAttribute("USER_SESSION", req.getSession().getId());
-//            重定向到主页
-            resp.sendRedirect("/success.jsp");
+    ```java
+    package com.ink.filter;
+    
+    import jakarta.servlet.ServletException;
+    import jakarta.servlet.http.HttpServlet;
+    import jakarta.servlet.http.HttpServletRequest;
+    import jakarta.servlet.http.HttpServletResponse;
+    
+    import java.io.IOException;
+    
+    public class LoginOutTest extends HttpServlet {
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            req.getSession().removeAttribute("USER_SESSION");
+            resp.sendRedirect("/login.jsp");
         }
-        else{
-//            登陆失败
-            resp.sendRedirect("/error.jsp");
+    
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            doGet(req, resp);
         }
     }
+    ```
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        doGet(req, resp);
-    }
-}
-```
-
-`LoginOutTest.java`
-
-```java
-package com.ink.filter;
-
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
-import java.io.IOException;
-
-public class LoginOutTest extends HttpServlet {
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.getSession().removeAttribute("USER_SESSION");
-        resp.sendRedirect("/login.jsp");
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        doGet(req, resp);
-    }
+    ```xml
+    <servlet>
+      <servlet-name>loginout</servlet-name>
+      <servlet-class>com.ink.filter.LoginOutTest</servlet-class>
+    </servlet>
+    <servlet-mapping>
+      <servlet-name>loginout</servlet-name>
+      <url-pattern>/loginout</url-pattern>
+    </servlet-mapping>
+    ```
 
 
-}
-```
 
-`web.xml`
+**存在问题**
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
-         version="5.0">
+- 不登陆，直接访问http://localhost:8080/sys/success.jsp也可以进入
+- 需要设置权限
 
-  <servlet>
-    <servlet-name>login</servlet-name>
-    <servlet-class>com.ink.filter.LoginTest</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>login</servlet-name>
-    <url-pattern>/login</url-pattern>
-  </servlet-mapping>
+**解决方法**
 
-  <servlet>
-    <servlet-name>loginout</servlet-name>
-    <servlet-class>com.ink.filter.LoginOutTest</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>loginout</servlet-name>
-    <url-pattern>/loginout</url-pattern>
-  </servlet-mapping>
+1. 在`success.jsp`中添加判断
 
-</web-app>
-```
+   如果Session中没有对应的用户信息，就会自动跳转到`login.jsp`登录页面
+
+   ```jsp
+   <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+   <html>
+   <head>
+       <title>success</title>
+   </head>
+   <body>
+   
+   <%
+   
+       Object userSession = request.getSession().getAttribute("USER_SESSION");
+       if(userSession == null){
+           response.sendRedirect("/login.jsp");
+       }
+   
+   %>
+   <h1>登录成功，进入主页</h1>
+   <a href="/loginout">注销</a>
+   </body>
+   </html>
+   ```
+
+2. 由过滤器Filter判断
+
+   ```java
+   package com.ink.filter;
+   
+   import jakarta.servlet.*;
+   import jakarta.servlet.http.HttpServletRequest;
+   import jakarta.servlet.http.HttpServletResponse;
+   
+   import java.io.IOException;
+   
+   public class SysFilterTest implements Filter {
+       @Override
+       public void init(FilterConfig filterConfig) throws ServletException {
+       }
+   
+       @Override
+       public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+   
+   //        servletRequest不是HttpServletRequest，没有getSession()方法，需要转换
+           HttpServletRequest req = (HttpServletRequest) servletRequest;
+           HttpServletResponse resp = (HttpServletResponse) servletResponse;
+           Object userSession = req.getSession().getAttribute("USER_SESSION");
+           if(userSession == null){
+               resp.sendRedirect("/error.jsp");
+           }
+   
+   //        继续转发请求
+           filterChain.doFilter(servletRequest,servletResponse);
+       }
+   
+       @Override
+       public void destroy() {
+       }
+   }
+   ```
+
+3. 在web.xml中配置filter
+
+   > 过滤`/sys`下的所有请求
+
+   ```xml
+   <filter>
+     <filter-name>sysfilter</filter-name>
+     <filter-class>com.ink.filter.SysFilterTest</filter-class>
+   </filter>
+   <filter-mapping>
+     <filter-name>sysfilter</filter-name>
+     <url-pattern>/sys/*</url-pattern>
+   </filter-mapping>
+   ```
 
 
 
@@ -2688,11 +2771,49 @@ public class LoginOutTest extends HttpServlet {
 
 # JDBC
 
-Java连接数据库
+Java Data Base Connectivity：Java连接数据库
 
-## 数据库依赖
+- Java编程语言和广泛的数据库之间**独立于数据库的连接标准**的Java API
+- JDBC是一种规范，它提供一套完整的的接口，允许便捷式访问底层数据库
+- 用Java写的不同类型的可执行文件都能通过JDBC访问数据库，又兼备存储的优势
+- Java与数据库的连接的桥梁，用Java代码就能操作数据库的增删改查、存储过程、事务等
+
+> 数据库是由不同生产产商决定的（如Mysql、Oracle、SQL Server），Java具备天生跨平台的优势，它提供了JDBC的接口API，具体的实现由不同的生产产商决定。数据库产商都根据Java API去实现各自的应用驱动
+
+![JDBC层](JavaWeb.assets/JDBC层.png)
+
+## 配置环境
+
+### 数据库依赖
 
 jar包
 
 - mysql-conneter-java连接驱动（必须要导入）
+
+### 创建数据库
+
+```sql
+CREATE TABLE users(
+    id INT PRIMARY KEY,
+    `name` VARCHAR(40),
+    `password` VARCHAR(40),
+    email VARCHAR(60),
+    birthday DATE
+);
+
+INSERT INTO users(id,`name`,`password`,email,birthday)
+VALUES(1,张三,123456,zs@qq.com,2000-01-01);
+
+INSERT INTO users(id,`name`,`password`,email,birthday)
+VALUES(2,李四,123456,ls@qq.com,2000-01-01);
+
+INSERT INTO users(id,`name`,`password`,email,birthday)
+VALUES(3,王五,123456,ww@qq.com,2000-01-01);
+```
+
+### 使用idea连接数据库
+
+Data Source-MySQL-com.mysql.jdbc.Driver
+
+![idea连接数据库](JavaWeb.assets/idea连接数据库.png)
 

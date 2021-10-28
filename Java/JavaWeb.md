@@ -1350,7 +1350,7 @@ public class ServletPropTest extends HttpServlet {
 >   ```xml
 >   <!--<web-app>-->
 >   <!--  <display-name>Archetype Created Web Application</display-name>-->
->                                                               
+>                                                                 
 >   <?xml version="1.0" encoding="UTF-8"?>
 >   <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
 >            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -2792,6 +2792,8 @@ jar包
 
 ### 创建数据库
 
+- varchar数据和date数据都需要加`' '`
+
 ```sql
 CREATE TABLE users(
     id INT PRIMARY KEY,
@@ -2802,18 +2804,22 @@ CREATE TABLE users(
 );
 
 INSERT INTO users(id,`name`,`password`,email,birthday)
-VALUES(1,张三,123456,zs@qq.com,2000-01-01);
+VALUES(1,'张三','123456','zs@qq.com','2000-01-01');
 
 INSERT INTO users(id,`name`,`password`,email,birthday)
-VALUES(2,李四,123456,ls@qq.com,2000-01-01);
+VALUES(2,'李四','123456','ls@qq.com','2000-01-01');
 
 INSERT INTO users(id,`name`,`password`,email,birthday)
-VALUES(3,王五,123456,ww@qq.com,2000-01-01);
+VALUES(3,'王五','123456','ww@qq.com','2000-01-01');
 ```
+
+![创建数据库](JavaWeb.assets/创建数据库.png)
 
 ### 使用idea连接数据库
 
 Data Source-MySQL-com.mysql.jdbc.Driver
+
+> url：jdbc:mysql://10.2.14.105:3305
 
 ![idea连接数据库](JavaWeb.assets/idea连接数据库.png)
 

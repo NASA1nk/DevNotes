@@ -1350,7 +1350,7 @@ public class ServletPropTest extends HttpServlet {
 >   ```xml
 >   <!--<web-app>-->
 >   <!--  <display-name>Archetype Created Web Application</display-name>-->
->                                                                 
+>                                                                   
 >   <?xml version="1.0" encoding="UTF-8"?>
 >   <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
 >            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -2790,6 +2790,21 @@ jar包
 
 - mysql-conneter-java连接驱动（必须要导入）
 
+`pom.xml`
+
+```xml
+    <dependencies>
+<!--        mysql驱动-->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.47</version>
+        </dependency>
+    </dependencies>
+```
+
+
+
 ### 创建数据库
 
 - varchar数据和date数据都需要加`' '`
@@ -2817,9 +2832,102 @@ VALUES(3,'王五','123456','ww@qq.com','2000-01-01');
 
 ### 使用idea连接数据库
 
-Data Source-MySQL-com.mysql.jdbc.Driver
+Data Source-MySQL
 
-> url：jdbc:mysql://10.2.14.105:3305
+
 
 ![idea连接数据库](JavaWeb.assets/idea连接数据库.png)
+
+![选择数据库](JavaWeb.assets/选择数据库.png)
+
+
+
+## jdbc url
+
+协议名 + 子协议名 + 数据源名
+
+- 协议名：`jdbc`	
+- 子协议名：数据库类型协议
+  - oracle
+  - mysql
+
+- 数据源名：数据库名，用户等信息
+
+> `url：jdbc:mysql://10.2.14.105:3305`
+>
+> `jdbc:mysql://[host:port],[host:port].../[database][?key1][=value1][&key2][=value2]...`
+>
+> MySQL8.0+版本需要设置时区
+
+##  jdbc连接数据库
+
+**步骤**
+
+1. 加载驱动
+   1. 在右侧`External Libraries`中的`mysql`包中`com.mysql.jdbc`中的`Driver.class`
+2. 连接数据库，获取数据库对象
+   1. `connection`代表数据库
+3. 向数据库发送SQL的对象
+   1. `statement`不安全，可能会发生sql注入
+   2. `prepareStatement`是安全的对象
+4. 编写SQL
+   1. `statement.executeQuery(sql)`用于查
+      1. 返回ResultSet结果集
+   2. `statement.executeUpdate()`用于增删改
+      1. 返回int，是表中受影响的行数
+5. 执行SQL
+6. 关闭连接
+
+> 前2个都是默认统一的步骤，可以被抽取出来
+
+```java
+package com.ink.jdbc;
+
+import java.sql.*;
+
+public class JdbcTest {
+    public static void main(String[] args) throws ClassNotFoundException, SQLException {
+//        配置信息
+//        解决乱码问题
+        String url = "jdbc:mysql://10.2.14.105:3305/test?useUnicode=true&characterEncoding=utf-8&useSSL=false";
+        String username = "root";
+        String password = "1";
+
+//        加载驱动
+//        驱动通过反射获取
+        Class.forName("com.mysql.jdbc.Driver");
+//        连接数据库，connection就代表数据库
+        Connection connection = DriverManager.getConnection(url, username, password);
+//       statement是向数据库发送sql的对象，用于crud
+//       不安全，可能会发生sql注入
+        Statement statement = connection.createStatement();
+//        编写sql
+        String sql = "select * from users;";
+//        执行sql，返回结果集
+        ResultSet rs = statement.executeQuery(sql);
+        while(rs.next()){
+            System.out.println("id=" + rs.getObject("id"));
+            System.out.println("name=" + rs.getObject("name"));
+            System.out.println("password=" + rs.getObject("password"));
+            System.out.println("email=" + rs.getObject("email"));
+            System.out.println("birthday=" + rs.getObject("birthday"));
+        }
+//        关闭连接，先开的后关
+        rs.close();
+        statement.close();
+        connection.close();
+    }
+}
+```
+
+ ![获得数据库信息](JavaWeb.assets/获得数据库信息.png)
+
+> 出现问题
+>
+> - `Thu Oct 28 20:52:04 CST 2021 WARN: Establishing SSL connection without server's identity verification is not recommended. According to MySQL 5.5.45+, 5.6.26+ and 5.7.6+ requirements SSL connection must be established by default if explicit option isn't set. For compliance with existing applications not using SSL the verifyServerCertificate property is set to 'false'. You need either to explicitly disable SSL by setting useSSL=false, or set useSSL=true and provide truststore for server certificate verification.`
+>   `Exception in thread "main" com.mysql.jdbc.exceptions.jdbc4.CommunicationsException: Communications link failure`
+>
+> 解决方法
+>
+> - 在url后加上`&useSSL=false`
 

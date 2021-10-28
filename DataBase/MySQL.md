@@ -1,4 +1,24 @@
-# 部署MySQL
+# Ubuntu部署MySQL
+
+```bash
+# 安装mysql，需为默认root用户指定密码
+# 安装完mysql-server后自带mysql-client
+sudo apt install mysql-server
+
+# 检查下数据库当前状态，running表示正在运行中
+sudo service mysql status
+
+# 登录MySQL
+mysql -uroot -p
+
+
+# 重启mysql服务
+sudo systemctl restart mysql.service
+```
+
+
+
+# docker部署MySQL
 
 ## 获取配置目录
 
@@ -61,12 +81,8 @@ default-character-set=utf8
 docker kill 21b7a7edd083
 docker rm 21b7a7edd083
 
--v /home/mysql/conf.d:/etc/mysql/conf.d 
--v /home/mysql/my.cnf:/etc/mysql/my.cnf -p 33306:3306 --name my-mysql -e MYSQL_ROOT_PASSWORD=123456 mysql:5.7
-
-
 # 运行mysql容器
-docker run --restart=always --privileged=true -d -p 3306:3306 --name inkmysql -v /home/dog/yinke/mysql/conf/my.cnf:/etc/mysql/my.cnf -v /home/dog/yinke/mysql/data:/var/lib/mysql -v /home/dog/yinke/mysql/log:/var/log/mysql -e MYSQL_ROOT_PASSWORD=1 mysql:5.7
+docker run --restart=always --privileged=true -d -p 3305:3306 --name inkmysql -v /home/dog/yinke/mysql/conf/my.cnf:/etc/mysql/my.cnf -v /home/dog/yinke/mysql/data:/var/lib/mysql -v /home/dog/yinke/mysql/log:/var/log/mysql -e MYSQL_ROOT_PASSWORD=1 mysql:5.7
 ```
 
 

@@ -1350,7 +1350,7 @@ public class ServletPropTest extends HttpServlet {
 >   ```xml
 >   <!--<web-app>-->
 >   <!--  <display-name>Archetype Created Web Application</display-name>-->
->                                                                   
+>                                                                     
 >   <?xml version="1.0" encoding="UTF-8"?>
 >   <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
 >            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -2832,9 +2832,7 @@ VALUES(3,'王五','123456','ww@qq.com','2000-01-01');
 
 ### 使用idea连接数据库
 
-Data Source-MySQL
-
-
+![jdbc连接数据库](JavaWeb.assets/jdbc连接数据库.png)
 
 ![idea连接数据库](JavaWeb.assets/idea连接数据库.png)
 
@@ -2879,6 +2877,8 @@ Data Source-MySQL
 6. 关闭连接
 
 > 前2个都是默认统一的步骤，可以被抽取出来
+
+`statement`
 
 ```java
 package com.ink.jdbc;
@@ -2930,4 +2930,290 @@ public class JdbcTest {
 > 解决方法
 >
 > - 在url后加上`&useSSL=false`
+
+`prepareStatement`
+
+```java
+package com.ink.jdbc;
+
+import java.sql.*;
+
+public class PrepareTest {
+    public static void main(String[] args) throws ClassNotFoundException, SQLException {
+//        配置信息
+//        解决乱码问题
+        String url = "jdbc:mysql://10.2.14.105:3305/test?useUnicode=true&characterEncoding=utf-8&useSSL=false";
+        String username = "root";
+        String password = "1";
+
+//        加载驱动
+//        驱动通过反射获取
+        Class.forName("com.mysql.jdbc.Driver");
+//        连接数据库，connection就代表数据库
+        Connection connection = DriverManager.getConnection(url, username, password);
+//        先编写sql
+        String sql = "insert into users (id,name,password,email,birthday) values (?,?,?,?,?);";
+//        预编译sql
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+//        编译完后对具体字段赋值
+//        第一个占位符
+        preparedStatement.setInt(1,5);
+//        第二个占位符
+        preparedStatement.setString(2,"赵信");
+        preparedStatement.setString(3,"123456");
+        preparedStatement.setString(4,"111@qq.com");
+//        外面的Date是sql包下的,里面的Date是util包下的
+        preparedStatement.setDate(5,new Date(new java.util.Date().getTime()));
+
+//        执行sql，返回表中被影响的行数
+        int i = preparedStatement.executeUpdate();
+        System.out.println(i);
+        if(i > 0){
+            System.out.println("插入成功");
+        }
+//        关闭连接
+        preparedStatement.close();
+        connection.close();
+    }
+}
+```
+
+![插入成功](JavaWeb.assets/插入成功.png)
+
+
+
+## 事务
+
+> 没commit前可以使用rollback回滚，commit提交后则无法回滚
+
+```sql
+# 开启事务
+start transaction;
+
+update account set money=money-100 where name = 'A';
+update account set money=money+100 where name = 'B';
+
+commit;
+```
+
+### 添加junit依赖
+
+```xml
+<dependency>
+    <groupId>junit</groupId>
+    <artifactId>junit</artifactId>
+    <version>4.12</version>
+</dependency>
+```
+
+存在错误时
+
+```java
+package com.ink.jdbc;
+
+import org.junit.Test;
+
+import java.sql.*;
+
+public class TransactionTest {
+    @Test
+    public void test(){
+        String url = "jdbc:mysql://10.2.14.105:3305/test?useUnicode=true&characterEncoding=utf-8&useSSL=false";
+        String username = "root";
+        String password = "1";
+
+        Connection connection = null;
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection(url, username, password);
+
+//            通知数据库,开启事务,false是开启,true是关闭
+            connection.setAutoCommit(false);
+
+            String sql1 = "update account set money=money-100 where name = 'A';";
+            connection.prepareStatement(sql1).executeUpdate();
+
+//            制造错误,让后续不能执行
+            int i = 1/0;
+
+            String sql2 = "update account set money=money+100 where name = 'B';";
+            connection.prepareStatement(sql2).executeUpdate();
+
+//            两条sql都执行成功就提交事务
+            connection.commit();
+            System.out.println("提交成功");
+        } catch (Exception e) {
+//            如果有异常,通知数据库回滚
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+```
+
+正确执行
+
+```java
+package com.ink.jdbc;
+
+import org.junit.Test;
+
+import java.sql.*;
+
+public class TransactionTest {
+    @Test
+    public void test(){
+        String url = "jdbc:mysql://10.2.14.105:3305/test?useUnicode=true&characterEncoding=utf-8&useSSL=false";
+        String username = "root";
+        String password = "1";
+
+        Connection connection = null;
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection(url, username, password);
+
+//            通知数据库,开启事务,false是开启,true是关闭
+            connection.setAutoCommit(false);
+
+            String sql1 = "update account set money=money-100 where name = 'A';";
+            connection.prepareStatement(sql1).executeUpdate();
+
+
+            String sql2 = "update account set money=money+100 where name = 'B';";
+            connection.prepareStatement(sql2).executeUpdate();
+
+//            两条sql都执行成功就提交事务
+            connection.commit();
+            System.out.println("提交成功");
+        } catch (Exception e) {
+//            如果有异常,通知数据库回滚
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+```
+
+
+
+# SMBMS
+
+## 搭建项目
+
+1. 创建Maven模板项目
+
+2. 删除`pom.xml`无用信息，只保留gav和打包方式
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   
+   <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+     <modelVersion>4.0.0</modelVersion>
+   
+     <groupId>com.ink</groupId>
+     <artifactId>smbms</artifactId>
+     <version>1.0-SNAPSHOT</version>
+     <packaging>war</packaging>
+   </project>
+   ```
+
+3. 修改`web.xml`
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+            version="5.0">
+   
+   </web-app>
+   ```
+
+4. 创建`java`目录和`resource`目录并标记为对应文件夹
+
+5. 配置tomcat，路径设置为`/smbms`
+
+6. 测试是否正常运行
+
+7. 导入项目中需要的jar包
+
+   1. jsp
+   2. Servlet
+   3. mysql驱动
+
+   ```xml
+   <dependencies>
+     <dependency>
+       <groupId>jakarta.servlet.jsp</groupId>
+       <artifactId>jakarta.servlet.jsp-api</artifactId>
+       <version>3.0.0</version>
+       <scope>provided</scope>
+     </dependency>
+     <dependency>
+       <groupId>jakarta.servlet</groupId>
+       <artifactId>jakarta.servlet-api</artifactId>
+       <version>5.0.0</version>
+       <scope>provided</scope>
+     </dependency>
+     <dependency>
+       <groupId>mysql</groupId>
+       <artifactId>mysql-connector-java</artifactId>
+       <version>5.1.47</version>
+     </dependency>
+   </dependencies>
+   ```
+
+## 创建项目结构
+
+创建package：`com.ink`
+
+1. 创建实体类层：`com.ink.pojo`
+2. 创建DAO层：`com.ink.dao`
+3. 创建Service层：`com.ink.service`
+4. 创建Servlet层：`com.ink.servlet`
+5. 创建过滤器层：`com.ink.filter`
+6. 创建工具类层：`com.ink.util`
+
+![init项目结构](JavaWeb.assets/init项目结构.png)
+
+## 连接数据库
+
+在`pojo`目录下创建对应数据库表的实体类
+
+使用idea一键生成
+
+1. `File-Project Structure-Modules`，点击加号，选择JPA
+
+   ![选择创建实体类](JavaWeb.assets/选择创建实体类.png)
+
+2. `View-Tool Windows`，点击`Persistence`
+
+   ![persistence](JavaWeb.assets/persistence.png)
+
+3. 选择`Generate Persistence Mapping-By Database Schema`
+
+   ![persistencemapping](JavaWeb.assets/persistencemapping.png)
+
+4. 选择数据库，选择实体类生成的项目路径（包），勾选要生成实体的表和字段
+
+   ![生成实体类](JavaWeb.assets/生成实体类.png)
 

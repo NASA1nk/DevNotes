@@ -66,7 +66,7 @@
    </dependencies>
    ```
 
-## 创建项目结构
+### 创建项目结构
 
 创建package：`com.ink`
 
@@ -79,7 +79,7 @@
 
 ![init项目结构](smbms.assets/init项目结构.png)
 
-## 连接数据库
+### 创建数据库实体类
 
 在`pojo`目录下创建对应数据库表的实体类
 
@@ -105,7 +105,7 @@
 
 
 
-## 创建基础公共类
+### 创建基础公共类
 
 1. 在`resource`目录下创建数据库配置文件`db.properties`
 
@@ -236,7 +236,161 @@
        </filter-mapping>
    ```
 
-4. 
+
+### 导入静态资源
+
+存放在webapp目录下
+
+> 不是`resource`目录
 
 
+
+## 登录功能
+
+![登录功能流程图](smbms.assets/登录功能流程图.png)
+
+### 设置欢迎页
+
+```xml
+<!--    设置欢迎页-->
+    <welcome-file-list>
+        <welcome-file>login.jsp</welcome-file>
+    </welcome-file-list>
+```
+
+### DAO层
+
+在`com.ink.dao`目录下创建`user`目录
+
+在`user`目录下创建`UserDao.java`作为获取登录用户信息的接口
+
+```java
+package com.ink.dao.user;
+
+import com.ink.pojo.User;
+
+import java.sql.Connection;
+
+public interface UserDao {
+//    得到登录的用户
+    public User getLoginUser(Connection connection, String userCode) throws Exception;
+}
+```
+
+在`user`目录下创建`UserDaoImpl.java`作为获取登录用户信息接口的实现类
+
+```java
+package com.ink.dao.user;
+
+import com.ink.dao.BaseDao;
+import com.ink.pojo.User;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+//UserDao实现类
+public class UserDaoiml implements UserDao{
+    @Override
+    public User getLoginUser(Connection connection, String userCode) throws Exception {
+//        BaseDao中写好了查询的方法
+        PreparedStatement pstm = null;
+        ResultSet rs = null;
+        User user = null;
+        if(connection != null){
+            String sql = "select * from smbms_user where userCode=?";
+            Object[] params = {userCode};
+            rs = BaseDao.execute(connection,pstm,rs,sql,params);
+            if(rs.next()){
+                user = new User();
+                user.setId(rs.getInt("id"));
+                user.setUserCode(rs.getString("userCode"));
+                user.setUserName(rs.getString("userName"));
+                user.setUserPassword(rs.getString("userPassword"));
+                user.setGender(rs.getInt("gender"));
+                user.setBirthday(rs.getDate("birthday"));
+                user.setPhone(rs.getString("phone"));
+                user.setAddress(rs.getString("address"));
+                user.setUserRole(rs.getInt("userRole"));
+                user.setCreatedBy(rs.getInt("createdBy"));
+                user.setCreationDate(rs.getTimestamp("creationDate"));
+                user.setModifyBy(rs.getInt("modifyBy"));
+                user.setModifyDate(rs.getTimestamp("modifyDate"));
+            }
+//                connection不用关
+            BaseDao.closeResource(null, pstm, rs);
+        }
+        return user;
+    }
+}
+```
+
+### Service层
+
+在`com.ink.Service`目录下创建`user`目录
+
+> 业务层都会调用DAO层，所以要引入DAO层
+
+在`user`目录下创建`UserService.java`作为处理用户登录的接口
+
+```java
+package com.ink.service.user;
+
+import com.ink.pojo.User;
+
+public interface UserService {
+//    处理用户登录
+    public User login(String userCode,String password);
+}
+```
+
+在`user`目录下创建`UserServiceImpl.java`作为处理用户登录接口的实现类
+
+```java
+package com.ink.service.user;
+
+import com.ink.dao.BaseDao;
+import com.ink.dao.user.UserDao;
+import com.ink.dao.user.UserDaoImpl;
+import com.ink.pojo.User;
+import org.junit.Test;
+
+import java.sql.Connection;
+
+public class UserServiceImpl implements UserService{
+//    引入DAO层，用于调用
+    private UserDao userDao;
+    public UserServiceImpl(){
+        userDao = new UserDaoImpl();
+    }
+
+    @Override
+    public User login(String userCode, String password) {
+        Connection connection = null;
+        User user = null;
+        try {
+//            通过业务层调用对应的DAO层操作
+            connection = BaseDao.getConnection();
+            user = userDao.getLoginUser(connection,userCode);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+//          关闭connection
+            BaseDao.closeResource(connection,null,null);
+        }
+        return user;
+    }
+
+//    直接测试
+    @Test
+   public void test() {
+      UserServiceImpl userService = new UserServiceImpl();
+      String userCode = "admin";
+      String userPassword = "12345678";
+      User admin = userService.login(userCode, userPassword);
+      System.out.println(admin.getUserPassword());
+
+   }
+}
+```
 

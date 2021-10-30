@@ -41,29 +41,49 @@
 7. 导入项目中需要的jar包
 
    1. jsp
-   2. Servlet
-   3. mysql驱动
-
+   2. jstl
+   3. standard
+   4. Servlet
+   5. mysql驱动
+   
+   > Tomcat10对应的jstl和standard包不一样
+   
    ```xml
-   <dependencies>
-     <dependency>
-       <groupId>jakarta.servlet.jsp</groupId>
-       <artifactId>jakarta.servlet.jsp-api</artifactId>
-       <version>3.0.0</version>
-       <scope>provided</scope>
-     </dependency>
-     <dependency>
-       <groupId>jakarta.servlet</groupId>
-       <artifactId>jakarta.servlet-api</artifactId>
-       <version>5.0.0</version>
-       <scope>provided</scope>
-     </dependency>
-     <dependency>
-       <groupId>mysql</groupId>
-       <artifactId>mysql-connector-java</artifactId>
-       <version>5.1.47</version>
-     </dependency>
-   </dependencies>
+     <dependencies>
+       <dependency>
+         <groupId>jakarta.servlet.jsp</groupId>
+         <artifactId>jakarta.servlet.jsp-api</artifactId>
+         <version>3.0.0</version>
+         <scope>provided</scope>
+       </dependency>
+       <dependency>
+         <groupId>jakarta.servlet</groupId>
+         <artifactId>jakarta.servlet-api</artifactId>
+         <version>5.0.0</version>
+         <scope>provided</scope>
+       </dependency>
+       <dependency>
+         <groupId>javax.servlet.jsp.jstl</groupId>
+         <artifactId>jstl</artifactId>
+         <version>1.2</version>
+       </dependency>
+       <dependency>
+         <groupId>taglibs</groupId>
+         <artifactId>standard</artifactId>
+         <version>1.1.2</version>
+       </dependency>
+       <dependency>
+         <groupId>mysql</groupId>
+         <artifactId>mysql-connector-java</artifactId>
+         <version>5.1.47</version>
+       </dependency>
+       <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <version>4.12</version>
+       </dependency>
+     </dependencies>
+   
    ```
 
 ### 创建项目结构
@@ -214,7 +234,7 @@
    }
    ```
 
-3. 在filter目录下创建字符编码过滤器`CharacterEncodingFilter.java`并在`web.xml`中注册
+3. 在`com.ink.filter`目录下创建`CharacterEncodingFilter.java`实现字符编码过滤功能
 
    ```java
    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -243,12 +263,6 @@
 
 > 不是`resource`目录
 
-
-
-## 登录功能
-
-![登录功能流程图](smbms.assets/登录功能流程图.png)
-
 ### 设置欢迎页
 
 ```xml
@@ -258,7 +272,19 @@
     </welcome-file-list>
 ```
 
+## 登录
+
+项目编写逻辑：从底层向上写
+
+1. DAO层
+2. Service层
+3. Servlet层
+
+![登录功能流程图](smbms.assets/登录功能流程图.png)
+
 ### DAO层
+
+数据访问层：封装对数据库的访问
 
 在`com.ink.dao`目录下创建`user`目录
 
@@ -327,7 +353,9 @@ public class UserDaoiml implements UserDao{
 
 ### Service层
 
-在`com.ink.Service`目录下创建`user`目录
+业务层：调用数据访问层代码
+
+在`com.ink.service`目录下创建`user`目录
 
 > 业务层都会调用DAO层，所以要引入DAO层
 
@@ -345,6 +373,8 @@ public interface UserService {
 ```
 
 在`user`目录下创建`UserServiceImpl.java`作为处理用户登录接口的实现类
+
+- 父类引用指向子类对象：`userDao = new UserDaoImpl();`
 
 ```java
 package com.ink.service.user;
@@ -393,4 +423,194 @@ public class UserServiceImpl implements UserService{
    }
 }
 ```
+
+### Servlet层
+
+控制层：调用业务层代码
+
+在`com.ink.servlet`目录下创建`user`目录
+
+在`user`目录下创建`LoginServlet.java`控制用户登录功能
+
+```java
+package com.ink.servlet.user;
+
+import com.ink.pojo.User;
+import com.ink.service.user.UserService;
+import com.ink.service.user.UserServiceImpl;
+import com.ink.util.Constants;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+
+//控制层，调用业务层代码
+public class LoginServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//        获取前端请求的用户名和密码
+        String userCode = req.getParameter("userCode");
+        String password = req.getParameter("password");
+//        调用业务层，和数据库中的数据进行对比
+        UserService userService = new UserServiceImpl();
+        User user = userService.login(userCode, password);
+        if(user != null){
+//            用户存在，将用户信息存入Session，然后跳转首页
+//            常量抽取出来放在工具包util的类中
+            req.getSession().setAttribute(Constants.USER_SESSION,user);
+            resp.sendRedirect("jsp/frame.jsp");
+        }
+        else{
+//            用户不存在，转发到登录页，并提示错误
+//            设置error信息
+            req.setAttribute("error","用户名或密码错误");
+            req.getRequestDispatcher("login.jsp").forward(req,resp);
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
+    }
+}
+```
+
+在`user`目录下创建`LogoutServlet.java`控制用户登录的注销功能
+
+```java
+package com.ink.servlet.user;
+
+import com.ink.util.Constants;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+
+public class LogoutServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//        清除session的用户数据
+        req.getSession().removeAttribute(Constants.USER_SESSION);
+//        返回登录页面
+        resp.sendRedirect(req.getContextPath()+"/login.jsp");
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
+    }
+}
+```
+
+```xml
+<servlet>
+    <servlet-name>LoginServlet</servlet-name>
+    <servlet-class>com.ink.servlet.user.LoginServlet</servlet-class>
+</servlet>
+<servlet-mapping>
+    <servlet-name>LoginServlet</servlet-name>
+    <url-pattern>/login.do</url-pattern>
+</servlet-mapping>
+<servlet>
+    <servlet-name>LogoutServlet</servlet-name>
+    <servlet-class>com.ink.servlet.user.LogoutServlet</servlet-class>
+</servlet>
+<servlet-mapping>
+    <servlet-name>LogoutServlet</servlet-name>
+    <url-pattern>/jsp/logout.do</url-pattern>
+</servlet-mapping>
+```
+
+### 权限验证
+
+使用拦截器防止未登录用户访问主页
+
+在com.ink.filter目录下创建`LoginFilter.java`实现权限验证功能
+
+```java
+package com.ink.filter;
+
+import com.ink.pojo.User;
+import com.ink.util.Constants;
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+
+public class LoginFilter implements Filter {
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        Filter.super.init(filterConfig);
+    }
+
+    @Override
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        HttpServletRequest req = (HttpServletRequest) servletRequest;
+        HttpServletResponse resp = (HttpServletResponse) servletResponse;
+//        从session中获取用户
+        User user = (User) req.getSession().getAttribute(Constants.USER_SESSION);
+        if(user == null){
+//            用户未登录或者已经注销了
+            resp.sendRedirect(req.getContextPath()+"error.jsp");
+        }
+        else{
+            filterChain.doFilter(servletRequest,servletResponse);
+        }
+    }
+
+    @Override
+    public void destroy() {
+        Filter.super.destroy();
+    }
+}
+```
+
+```xml
+<filter>
+    <filter-name>LoginFilter</filter-name>
+    <filter-class>com.ink.filter.LoginFilter</filter-class>
+</filter>
+<filter-mapping>
+    <filter-name>LoginFilter</filter-name>
+    <url-pattern>/jsp/*</url-pattern>
+</filter-mapping>
+```
+
+## 密码修改
+
+### DAO层
+
+修改`com.ink.dao.user`下的`UserDao`接口
+
+```java
+//    修改当前用户密码
+    public int updatePwd(Connection connection, int id, int password)throws SQLException, Exception;
+```
+
+修改`com.ink.dao.user`下的`UserDaoImpl`实现类
+
+```java
+@Override
+public int updatePwd(Connection connection, int id, int password) throws SQLException, Exception {
+    PreparedStatement pstm = null;
+    int execute =0;
+    if(connection != null){
+        String sql = "update smbms_user set = userPassword = ? where id = ?";
+        Object[] param = {password, id};
+        execute = BaseDao.execute(connection,pstm,sql,param);
+        BaseDao.closeResource(null,pstm,null);
+    }
+    return execute;
+}
+```
+
+#### Service层
+
+### Servlet层
 

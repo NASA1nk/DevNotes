@@ -586,7 +586,7 @@ public class LoginFilter implements Filter {
 
 ### DAO层
 
-修改`com.ink.dao.user`目录下的`UserDao`接口
+修改`com.ink.dao.user`目录下的`UserDao.java`接口
 
 - 增加修改密码功能对应的方法
 
@@ -595,7 +595,7 @@ public class LoginFilter implements Filter {
     public int updatePwd(Connection connection, int id, int password)throws SQLException, Exception;
 ```
 
-修改`com.ink.dao.user`目录下的`UserDaoImpl`实现类
+修改`com.ink.dao.user`目录下的`UserDaoImpl.java`实现类
 
 - 重写对应的方法
 
@@ -617,7 +617,7 @@ public class LoginFilter implements Filter {
 
 ### Service层
 
-修改`com.ink.service.user`目录下的`Userservice`接口
+修改`com.ink.service.user`目录下的`Userservice.java`接口
 
 - 增加修改密码功能对应的方法
 
@@ -626,7 +626,9 @@ public class LoginFilter implements Filter {
     public boolean updatePwd(int id,String password) throws SQLException;
 ```
 
-修改`com.ink.service.user`目录下的`UserServiceImpl`实现类
+修改`com.ink.service.user`目录下的`UserServiceImpl.java`实现类
+
+- 重写对应的方法
 
 ```java
 =    @Override
@@ -736,79 +738,79 @@ public class UserServlet extends HttpServlet {
 
 如何实现Servlet复用？
 
-根据前端页面不同的操作，将对应的操作的值当成参数传给后端
+- 根据前端页面不同的操作，将对应的操作的值当成参数传给后端
 
-```javascript
-<input type="hidden" name="method" value="savepwd">
-```
+  ```javascript
+  <input type="hidden" name="method" value="savepwd">
+  ```
 
-不同的业务抽取出不同的方法，然后根据值调用不同的方法
+- 不同的业务抽取出不同的方法，然后根据值调用不同的方法
 
-```java
-package com.ink.servlet.user;
-
-import com.ink.pojo.User;
-import com.ink.service.user.UserService;
-import com.ink.service.user.UserServiceImpl;
-import com.ink.util.Constants;
-import com.mysql.jdbc.StringUtils;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
-import java.io.IOException;
-import java.sql.SQLException;
-
-public class UserServlet extends HttpServlet {
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//        实现Servlet复用
-        String method = req.getParameter("method");
-        if(method != null && ("savepwd").equals(method)){
-            this.updatePwd(req,resp);
-        }
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        doGet(req, resp);
-    }
-
-//    具体的修改密码的方法
-    public void updatePwd(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//        先不要强制类型转换，等用的时候再转换
-        Object o = req.getSession().getAttribute(Constants.USER_SESSION);
-        String newpassword = req.getParameter("newpassword");
-
-        boolean flag = false;
-//        如果用户存在且新密码不为空
-//        o != null && newpassword != null && newpassword.length() != 0
-//        StringUtils，jdbc的工具类
-        if(o != null && !StringUtils.isNullOrEmpty(newpassword)){
-//            调用service层代码
-            UserService userService = new UserServiceImpl();
-            try {
-                flag = userService.updatePwd(((User)o).getId(),newpassword);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            if(flag){
-                req.setAttribute("message","密码修改成功，请重新登录");
-//                移除当前Session，重新登录
-                req.getSession().removeAttribute(Constants.USER_SESSION);
-            }
-            else{
-                req.setAttribute("message","密码修改失败");
-            }
-        }
-        else{
-            req.setAttribute("message","新密码存在问题");
-        }
-        req.getRequestDispatcher("/error.jsp").forward(req,resp);
-    }
-}
-```
+  ```java
+  package com.ink.servlet.user;
+  
+  import com.ink.pojo.User;
+  import com.ink.service.user.UserService;
+  import com.ink.service.user.UserServiceImpl;
+  import com.ink.util.Constants;
+  import com.mysql.jdbc.StringUtils;
+  import jakarta.servlet.ServletException;
+  import jakarta.servlet.http.HttpServlet;
+  import jakarta.servlet.http.HttpServletRequest;
+  import jakarta.servlet.http.HttpServletResponse;
+  
+  import java.io.IOException;
+  import java.sql.SQLException;
+  
+  public class UserServlet extends HttpServlet {
+      @Override
+      protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  //        实现Servlet复用
+          String method = req.getParameter("method");
+          if(method != null && ("savepwd").equals(method)){
+              this.updatePwd(req,resp);
+          }
+      }
+  
+      @Override
+      protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+          doGet(req, resp);
+      }
+  
+  //    具体的修改密码的方法
+      public void updatePwd(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  //        先不要强制类型转换，等用的时候再转换
+          Object o = req.getSession().getAttribute(Constants.USER_SESSION);
+          String newpassword = req.getParameter("newpassword");
+  
+          boolean flag = false;
+  //        如果用户存在且新密码不为空
+  //        o != null && newpassword != null && newpassword.length() != 0
+  //        StringUtils，jdbc的工具类
+          if(o != null && !StringUtils.isNullOrEmpty(newpassword)){
+  //            调用service层代码
+              UserService userService = new UserServiceImpl();
+              try {
+                  flag = userService.updatePwd(((User)o).getId(),newpassword);
+              } catch (SQLException e) {
+                  e.printStackTrace();
+              }
+              if(flag){
+                  req.setAttribute("message","密码修改成功，请重新登录");
+  //                移除当前Session，重新登录
+                  req.getSession().removeAttribute(Constants.USER_SESSION);
+              }
+              else{
+                  req.setAttribute("message","密码修改失败");
+              }
+          }
+          else{
+              req.setAttribute("message","新密码存在问题");
+          }
+          req.getRequestDispatcher("/error.jsp").forward(req,resp);
+      }
+  }
+  ```
 
 #### 验证旧密码
 
@@ -976,4 +978,254 @@ public class UserServlet extends HttpServlet {
 ```
 
 ## 用户管理
+
+![用户管理流程](smbms.assets/用户管理流程.png)
+
+### 查询用户
+
+使用拼接sql实现
+
+- 根据用户名查询用户
+- 根据用户角色查询用户
+- 根据用户名和用户角色查询用户
+
+#### DAO层
+
+修改`com.ink.dao.user`目录下的`UserDao.java`接口
+
+- 增加查询用户功能对应的方法
+
+```java
+//    根据用户名或者角色查询用户总数
+    public int getUserCount(Connection connection,String userName ,int userRole)throws SQLException, Exception;
+```
+
+修改`com.ink.dao.user`目录下的`UserDaoImpl.java`实现类
+
+- 重写对应的方法
+
+```java
+    @Override
+    public int getUserCount(Connection connection, String userName, int userRole) throws SQLException, Exception {
+        PreparedStatement pstm = null;
+        ResultSet rs = null;
+        int count = 0;
+        if(connection != null){
+            StringBuilder sql = new StringBuilder();
+            sql.append("select count(1) as count from smbms_user u,smbms_role r where u.userRole = r.id");
+//            因为不确定2个参数的情况，要用list存放参数
+            ArrayList<Object> list = new ArrayList<>();
+//            用用户名查询
+            if(!StringUtils.isNullOrEmpty(userName)){
+//                like模糊查询
+                sql.append("and u.userName like ?");
+//                传递的用户名需要有占位符
+                list.add("%"+userName+"%");
+            }
+            if(userRole > 0){
+                sql.append("and u.userRole = ?");
+                list.add(userRole);
+            }
+//            将list转换为数组
+            Object[] params = list.toArray();
+
+//            调试
+            System.out.println("UserDao->getUserCount："+sql.toString());
+            rs = BaseDao.execute(connection, pstm, rs, sql.toString(), params);
+            if(rs.next()){
+                count = rs.getInt("count");
+            }
+            BaseDao.closeResource(null,pstm,rs);
+        }
+        return count;
+    }
+```
+
+#### Service层
+
+修改`com.ink.service.user`目录下的`Userservice.java`接口
+
+- 增加查询用户功能对应的方法
+
+```java
+//    查询用户数量
+    public int getUserCount(String userName, int userRole);
+```
+
+修改`com.ink.service.user`目录下的`UserServiceImpl.java`实现类
+
+- 重写对应的方法
+
+```java
+@Override
+public int getUserCount(String userName, int userRole) {
+    Connection connection = null;
+    int count = 0;
+    try {
+        connection = BaseDao.getConnection();
+        count = userDao.getUserCount(connection, userName, userRole);
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        BaseDao.closeResource(connection,null,null);
+    }
+    return count;
+}
+```
+
+**测试**
+
+- 直接在`UserServiceImpl.java`中测试
+
+```java
+   //    直接测试
+   @Test
+public void test() {
+   UserServiceImpl userService = new UserServiceImpl();
+       int userCount = userService.getUserCount(null, 1);
+       int userCount2 = userService.getUserCount("张", 3);
+       System.out.println(userCount);
+       System.out.println(userCount2);
+   }
+```
+
+### 分页
+
+在`com.ink.util`目录下创建分页的工具类`PageSupport.java`
+
+```java
+package com.ink.util;
+
+public class PageSupport {
+// 当前页码（来自于用户输入）
+   private int currentPageNo = 1;
+   
+// 总数量（表）
+   private int totalCount = 0;
+   
+// 页面大小
+   private int pageSize = 0;
+   
+// 总页数（totalCount/pageSize（+1））
+   private int totalPageCount = 1;
+
+   public int getCurrentPageNo() {
+      return currentPageNo;
+   }
+
+// 面向对象：封装
+// 在set()方法中检测设置的值的合法性
+// 减少业务代码
+   public void setCurrentPageNo(int currentPageNo) {
+      if(currentPageNo > 0){
+         this.currentPageNo = currentPageNo;
+      }
+   }
+
+   public int getTotalCount() {
+      return totalCount;
+   }
+
+   public void setTotalCount(int totalCount) {
+      if(totalCount > 0){
+         this.totalCount = totalCount;
+//       设置总页数
+         this.setTotalPageCountByRs();
+      }
+   }
+   public int getPageSize() {
+      return pageSize;
+   }
+
+   public void setPageSize(int pageSize) {
+      if(pageSize > 0){
+         this.pageSize = pageSize;
+      }
+   }
+
+   public int getTotalPageCount() {
+      return totalPageCount;
+   }
+
+   public void setTotalPageCount(int totalPageCount) {
+      this.totalPageCount = totalPageCount;
+   }
+   
+   public void setTotalPageCountByRs(){
+      if(this.totalCount % this.pageSize == 0){
+         this.totalPageCount = this.totalCount / this.pageSize;
+      }else if(this.totalCount % this.pageSize > 0){
+         this.totalPageCount = this.totalCount / this.pageSize + 1;
+      }else{
+         this.totalPageCount = 0;
+      }
+   } 
+}
+```
+
+### 获取用户列表
+
+修改`com.ink.dao.user`目录下的`UserDao.java`接口
+
+- 增加查询用户列表功能对应的方法
+
+```java
+//    通过条件查询用户列表（分页）
+    public List<User> getUserList(Connection connection, String userName, int userRole, int currentPageNo, int pageSize)throws Exception;
+```
+
+修改`com.ink.dao.user`目录下的`UserDaoImpl.java`实现类
+
+- 重写对应的方法
+
+> 分页功能
+>
+> - 当前页 = (当前页-1) * 页面大小
+
+```java
+    @Override
+    public List<User> getUserList(Connection connection, String userName, int userRole, int currentPageNo, int pageSize) throws Exception {
+        PreparedStatement pstm = null;
+        ResultSet rs = null;
+//        查询返回的用户列表
+        List<User> userList = new ArrayList<User>();
+
+        if(connection != null){
+            StringBuffer sql = new StringBuffer();
+            sql.append("select u.*, r.roleName as userRoleName from smbms_user u,smbms_role r where u.userRole = r.id");
+//            用list存放查询参数
+            List<Object> list = new ArrayList<Object>();
+            if(!StringUtils.isNullOrEmpty(userName)){
+                sql.append(" and u.userName like ?");
+                list.add("%"+userName+"%");
+            }
+            if(userRole > 0){
+                sql.append(" and u.userRole = ?");
+                list.add(userRole);
+            }
+//            在数据库中，分页显示limit startIndex，pageSize；总数
+            sql.append(" order by creationDate DESC limit ?,?");
+            currentPageNo = (currentPageNo - 1) * pageSize;
+            list.add(currentPageNo);
+            list.add(pageSize);
+            Object[] params = list.toArray();
+            System.out.println("sql：" + sql.toString());
+            rs = BaseDao.execute(connection, pstm, rs, sql.toString(), params);
+            while(rs.next()){
+                User _user = new User();
+                _user.setId(rs.getInt("id"));
+                _user.setUserCode(rs.getString("userCode"));
+                _user.setUserName(rs.getString("userName"));
+                _user.setGender(rs.getInt("gender"));
+                _user.setBirthday(rs.getDate("birthday"));
+                _user.setPhone(rs.getString("phone"));
+                _user.setUserRole(rs.getInt("userRole"));
+                _user.setUserRoleName(rs.getString("userRoleName"));
+                userList.add(_user);
+            }
+            BaseDao.closeResource(null, pstm, rs);
+        }
+        return userList;
+    }
+```
 

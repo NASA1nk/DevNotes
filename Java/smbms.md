@@ -288,7 +288,7 @@
 
 在`com.ink.dao`目录下创建`user`目录
 
-在`user`目录下创建`UserDao.java`作为获取登录用户信息的接口
+在`com.ink.dao.user`目录下创建`UserDao.java`作为获取登录用户信息的接口
 
 ```java
 package com.ink.dao.user;
@@ -303,7 +303,7 @@ public interface UserDao {
 }
 ```
 
-在`user`目录下创建`UserDaoImpl.java`作为获取登录用户信息接口的实现类
+在`com.ink.dao.user`目录下创建`UserDaoImpl.java`作为获取登录用户信息接口的实现类
 
 ```java
 package com.ink.dao.user;
@@ -359,7 +359,7 @@ public class UserDaoiml implements UserDao{
 
 > 业务层都会调用DAO层，所以要引入DAO层
 
-在`user`目录下创建`UserService.java`作为处理用户登录的接口
+在`com.ink.service.user`目录下创建`UserService.java`作为处理用户登录的接口
 
 ```java
 package com.ink.service.user;
@@ -372,7 +372,7 @@ public interface UserService {
 }
 ```
 
-在`user`目录下创建`UserServiceImpl.java`作为处理用户登录接口的实现类
+在`com.ink.service.user`目录下创建`UserServiceImpl.java`作为处理用户登录接口的实现类
 
 - 父类引用指向子类对象：`userDao = new UserDaoImpl();`
 
@@ -430,7 +430,7 @@ public class UserServiceImpl implements UserService{
 
 在`com.ink.servlet`目录下创建`user`目录
 
-在`user`目录下创建`LoginServlet.java`控制用户登录功能
+在`com.ink.servlet.user`目录下创建`LoginServlet.java`控制用户登录功能
 
 ```java
 package com.ink.servlet.user;
@@ -477,7 +477,7 @@ public class LoginServlet extends HttpServlet {
 }
 ```
 
-在`user`目录下创建`LogoutServlet.java`控制用户登录的注销功能
+在`com.ink.servlet.user`目录下创建`LogoutServlet.java`控制用户登录的注销功能
 
 ```java
 package com.ink.servlet.user;
@@ -529,7 +529,7 @@ public class LogoutServlet extends HttpServlet {
 
 使用拦截器防止未登录用户访问主页
 
-在com.ink.filter目录下创建`LoginFilter.java`实现权限验证功能
+在`com.ink.filter`目录下创建`LoginFilter.java`实现权限验证功能
 
 ```java
 package com.ink.filter;
@@ -586,31 +586,149 @@ public class LoginFilter implements Filter {
 
 ### DAO层
 
-修改`com.ink.dao.user`下的`UserDao`接口
+修改`com.ink.dao.user`目录下的`UserDao`接口
+
+- 增加修改密码功能对应的方法
 
 ```java
 //    修改当前用户密码
     public int updatePwd(Connection connection, int id, int password)throws SQLException, Exception;
 ```
 
-修改`com.ink.dao.user`下的`UserDaoImpl`实现类
+修改`com.ink.dao.user`目录下的`UserDaoImpl`实现类
+
+- 重写对应的方法
 
 ```java
-@Override
-public int updatePwd(Connection connection, int id, int password) throws SQLException, Exception {
-    PreparedStatement pstm = null;
-    int execute =0;
-    if(connection != null){
-        String sql = "update smbms_user set = userPassword = ? where id = ?";
-        Object[] param = {password, id};
-        execute = BaseDao.execute(connection,pstm,sql,param);
-        BaseDao.closeResource(null,pstm,null);
+    @Override
+    public int updatePwd(Connection connection, int id, String password) throws SQLException, Exception {
+        System.out.println("UserDao" + password);
+        PreparedStatement pstm = null;
+        int execute = 0;
+        if(connection != null){
+            String sql = "update smbms_user set userPassword = ? where id = ?";
+            Object[] param = {password, id};
+            execute = BaseDao.execute(connection,pstm,sql,param);
+            BaseDao.closeResource(null,pstm,null);
+        }
+        return execute;
     }
-    return execute;
+```
+
+### Service层
+
+修改`com.ink.service.user`目录下的`Userservice`接口
+
+- 增加修改密码功能对应的方法
+
+```java
+//    修改当前用户密码
+    public boolean updatePwd(int id,String password) throws SQLException;
+```
+
+修改`com.ink.service.user`目录下的`UserServiceImpl`实现类
+
+```java
+=    @Override
+    public boolean updatePwd(int id, String password) throws SQLException {
+        System.out.println("UserService" + password);
+
+        Connection connection = BaseDao.getConnection();
+        boolean flag = false;
+        try {
+            int execute = userDao.updatePwd(connection, id, password);
+            if(execute > 0){
+                flag = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            BaseDao.closeResource(connection,null,null);
+        }
+        return flag;
+    }
+```
+
+### Servlet层
+
+业务实现
+
+1. 在用户登录时，已经将用户的信息存入了Session
+   1. `req.getSession().setAttribute(Constants.USER_SESSION,user);`
+2. 可以使用Session中的`Constants.USER_SESSION`获取user信息
+3. 去数据库中修改密码
+
+在`com.ink.servlet.user`目录下创建`UserServlet.java`控制修改密码功能
+
+```java
+package com.ink.servlet.user;
+
+import com.ink.pojo.User;
+import com.ink.service.user.UserService;
+import com.ink.service.user.UserServiceImpl;
+import com.ink.util.Constants;
+import com.mysql.jdbc.StringUtils;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.sql.SQLException;
+
+public class UserServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//        先不要强制类型转换，等用的时候再转换
+        Object o = req.getSession().getAttribute(Constants.USER_SESSION);
+        String newpassword = req.getParameter("newpassword");
+
+        System.out.println("UserServlet" + newpassword);
+
+        boolean flag = false;
+//        如果用户存在且新密码不为空
+//        o != null && newpassword != null && newpassword.length() != 0
+//        StringUtils，jdbc的工具类
+        if(o != null && !StringUtils.isNullOrEmpty(newpassword)){
+//            调用service层代码
+            UserService userService = new UserServiceImpl();
+            try {
+                flag = userService.updatePwd(((User)o).getId() , newpassword);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            if(flag){
+                req.setAttribute("message","密码修改成功，请重新登录");
+//                移除当前Session，重新登录
+                req.getSession().removeAttribute(Constants.USER_SESSION);
+            }
+            else{
+                req.setAttribute("message","密码修改失败");
+            }
+        }
+        else{
+            req.setAttribute("message","新密码存在问题");
+        }
+        req.getRequestDispatcher("pwdmodify.jsp").forward(req,resp);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
+    }
 }
 ```
 
-#### Service层
+```xml
+<servlet>
+    <servlet-name>UserServlet</servlet-name>
+    <servlet-class>com.ink.servlet.user.UserServlet</servlet-class>
+</servlet>
+<servlet-mapping>
+    <servlet-name>UserServlet</servlet-name>
+    <url-pattern>/jsp/user.do</url-pattern>
+</servlet-mapping>
+```
 
-### Servlet层
+如何实现Servlet复用？
 

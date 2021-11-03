@@ -651,6 +651,8 @@ public class LoginFilter implements Filter {
 
 ### Servlet层
 
+#### 修改新密码
+
 业务实现
 
 1. 在用户登录时，已经将用户的信息存入了Session
@@ -709,7 +711,7 @@ public class UserServlet extends HttpServlet {
         else{
             req.setAttribute("message","新密码存在问题");
         }
-        req.getRequestDispatcher("pwdmodify.jsp").forward(req,resp);
+        resp.sendRedirect(req.getContextPath()+"/error.jsp");
     }
 
     @Override
@@ -730,5 +732,248 @@ public class UserServlet extends HttpServlet {
 </servlet-mapping>
 ```
 
+#### Servlet复用
+
 如何实现Servlet复用？
+
+根据前端页面不同的操作，将对应的操作的值当成参数传给后端
+
+```javascript
+<input type="hidden" name="method" value="savepwd">
+```
+
+不同的业务抽取出不同的方法，然后根据值调用不同的方法
+
+```java
+package com.ink.servlet.user;
+
+import com.ink.pojo.User;
+import com.ink.service.user.UserService;
+import com.ink.service.user.UserServiceImpl;
+import com.ink.util.Constants;
+import com.mysql.jdbc.StringUtils;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.sql.SQLException;
+
+public class UserServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//        实现Servlet复用
+        String method = req.getParameter("method");
+        if(method != null && ("savepwd").equals(method)){
+            this.updatePwd(req,resp);
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
+    }
+
+//    具体的修改密码的方法
+    public void updatePwd(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//        先不要强制类型转换，等用的时候再转换
+        Object o = req.getSession().getAttribute(Constants.USER_SESSION);
+        String newpassword = req.getParameter("newpassword");
+
+        boolean flag = false;
+//        如果用户存在且新密码不为空
+//        o != null && newpassword != null && newpassword.length() != 0
+//        StringUtils，jdbc的工具类
+        if(o != null && !StringUtils.isNullOrEmpty(newpassword)){
+//            调用service层代码
+            UserService userService = new UserServiceImpl();
+            try {
+                flag = userService.updatePwd(((User)o).getId(),newpassword);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            if(flag){
+                req.setAttribute("message","密码修改成功，请重新登录");
+//                移除当前Session，重新登录
+                req.getSession().removeAttribute(Constants.USER_SESSION);
+            }
+            else{
+                req.setAttribute("message","密码修改失败");
+            }
+        }
+        else{
+            req.setAttribute("message","新密码存在问题");
+        }
+        req.getRequestDispatcher("/error.jsp").forward(req,resp);
+    }
+}
+```
+
+#### 验证旧密码
+
+当旧密码输入框失去焦点时（即输入旧密码结束，开始输入新密码），使用Ajax向后端发送请求验证，通过回调函数对应处理
+
+> 旧密码一般还是要验证数据库的。因为还有app等多端，或者多台设备登录同一个账号，只要有一处修改了密码，其他端的Session和数据库中的密码肯定都不一致了
+
+```javascript
+oldpassword.on("blur",function(){
+   $.ajax({
+      type:"GET",
+      url:path+"/jsp/user.do",
+      data:{method:"pwdmodify",oldpassword:oldpassword.val()},
+         success:function(data){
+         if(data.result == "true"){//旧密码正确
+            validateTip(oldpassword.next(),{"color":"green"},imgYes,true);
+         }else if(data.result == "false"){//旧密码输入不正确
+            validateTip(oldpassword.next(),{"color":"red"},imgNo + " 原密码输入不正确",false);
+         }else if(data.result == "sessionerror"){//当前用户session过期，请重新登录
+            validateTip(oldpassword.next(),{"color":"red"},imgNo + " 当前用户session过期，请重新登录",false);
+         }else if(data.result == "error"){//旧密码输入为空
+            validateTip(oldpassword.next(),{"color":"red"},imgNo + " 请输入旧密码",false);
+         }
+      },
+      error:function(data){
+         //请求出错
+         validateTip(oldpassword.next(),{"color":"red"},imgNo + " 请求错误",false);
+      }
+   });
+```
+
+在`pom.xml`中导入fastjson依赖
+
+```xml
+<!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>fastjson</artifactId>
+    <version>1.2.78</version>
+</dependency>
+```
+
+在`web.xml`中设置Session过期时间
+
+```xml
+<!--    设置Session过期时间-->
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
+```
+
+在`com.ink.servlet.user`目录下的`UserServlet.java`增加验证旧密码的复用功能
+
+- 返回数据需要转化为json格式
+
+```java
+package com.ink.servlet.user;
+
+import com.alibaba.fastjson.JSONArray;
+import com.ink.pojo.User;
+import com.ink.service.user.UserService;
+import com.ink.service.user.UserServiceImpl;
+import com.ink.util.Constants;
+import com.mysql.jdbc.StringUtils;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import javax.jms.Session;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.SQLException;
+import java.util.HashMap;
+
+public class UserServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//        实现Servlet复用
+        String method = req.getParameter("method");
+        if(method != null && ("savepwd").equals(method)){
+            this.updatePwd(req,resp);
+        }
+        else if(method != null && ("pwdmodify").equals(method)){
+            this.pwdModify(req,resp);
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
+    }
+
+//    具体的修改密码的方法
+    public void updatePwd(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//        先不要强制类型转换，等用的时候再转换
+        Object o = req.getSession().getAttribute(Constants.USER_SESSION);
+        String newpassword = req.getParameter("newpassword");
+
+        boolean flag = false;
+//        如果用户存在且新密码不为空
+//        o != null && newpassword != null && newpassword.length() != 0
+//        StringUtils，jdbc的工具类
+        if(o != null && !StringUtils.isNullOrEmpty(newpassword)){
+//            调用service层代码
+            UserService userService = new UserServiceImpl();
+            try {
+                flag = userService.updatePwd(((User)o).getId(),newpassword);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            if(flag){
+                req.setAttribute("message","密码修改成功，请重新登录");
+//                移除当前Session，重新登录
+                req.getSession().removeAttribute(Constants.USER_SESSION);
+            }
+            else{
+                req.setAttribute("message","密码修改失败");
+            }
+        }
+        else{
+            req.setAttribute("message","新密码存在问题");
+        }
+        resp.sendRedirect(req.getContextPath()+"/error.jsp");
+    }
+
+//    具体的验证旧密码的方法
+    public void pwdModify(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Object o = req.getSession().getAttribute(Constants.USER_SESSION);
+        String oldpassword = req.getParameter("oldpassword");
+
+        HashMap<String,String> resultMap = new HashMap<>();
+//        session失效
+        if(o == null){
+//            Session过期或失效
+            resultMap.put("result","sessionerror");
+        }
+        else if(StringUtils.isNullOrEmpty(oldpassword)){
+            resultMap.put("result","error");
+        }
+        else{
+//            从Session中获取密码并比较
+            String userPassword = ((User)o).getUserPassword();
+            if(oldpassword.equals(userPassword)){
+                resultMap.put("result","true");
+            }
+            else{
+                resultMap.put("result","false");
+            }
+        }
+        try {
+//        设置响应json数据
+            resp.setContentType("application/json");
+//        获取输出流
+            PrintWriter writer = resp.getWriter();
+//        JSONArray，阿里巴巴的json工具类，用于转换格式
+            writer.write(JSONArray.toJSONString(resultMap));
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+## 用户管理
 

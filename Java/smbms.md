@@ -40,11 +40,12 @@
 
 7. 导入项目中需要的jar包
 
-   1. jsp
-   2. jstl
-   3. standard
-   4. Servlet
+   1. `jsp`
+   2. `jstl`
+   3. `standard`
+   4. `Servlet`
    5. mysql驱动
+      1. `mysql-connector-java`
    
    > Tomcat10对应的jstl和standard包不一样
    
@@ -95,9 +96,9 @@
 3. 创建Service层：`com.ink.service`
 4. 创建Servlet层：`com.ink.servlet`
 5. 创建过滤器层：`com.ink.filter`
-6. 创建工具类层：`com.ink.util`
+6. 创建工具类：`com.ink.util`
 
-![init项目结构](smbms.assets/init项目结构.png)
+ ![init项目结构](smbms.assets/init项目结构.png)
 
 ### 创建数据库实体类
 
@@ -113,15 +114,15 @@
 
 2. `View-Tool Windows`，点击`Persistence`
 
-   ![persistence](smbms.assets/persistence.png)
+    ![persistence](smbms.assets/persistence.png)
 
 3. 选择`Generate Persistence Mapping-By Database Schema`
 
-   ![persistencemapping](smbms.assets/persistencemapping.png)
+    ![persistencemapping](smbms.assets/persistencemapping.png)
 
 4. 选择数据库，选择实体类生成的项目路径（包），勾选要生成实体的表和字段
 
-   ![生成实体类](smbms.assets/生成实体类.png)
+    ![生成实体类](smbms.assets/生成实体类.png)
 
 
 
@@ -129,7 +130,12 @@
 
 1. 在`resource`目录下创建数据库配置文件`db.properties`
 
-2. 在`dao`目录下创建操作数据库的公共类`BaseDao.java`
+2. 在`com.ink.dao`目录下创建操作数据库的公共类`BaseDao.java`
+
+   1. 封装复用的数据库操作
+      1. 数据库连接
+      2. 数据库查询
+      3. 数据库关闭
 
    ```java
    package com.ink.dao;
@@ -244,6 +250,8 @@
    }
    ```
 
+   在`web.xml`中注册
+
    ```xml
    <!--    字符编码过滤器-->
        <filter>
@@ -256,14 +264,15 @@
        </filter-mapping>
    ```
 
-
 ### 导入静态资源
 
-存放在webapp目录下
+存放在`webapp`目录下
 
 > 不是`resource`目录
 
 ### 设置欢迎页
+
+`web.xml`
 
 ```xml
 <!--    设置欢迎页-->
@@ -274,7 +283,7 @@
 
 ## 登录
 
-项目编写逻辑：从底层向上写
+**项目编写逻辑：从底层向上写**
 
 1. DAO层
 2. Service层
@@ -357,8 +366,6 @@ public class UserDaoiml implements UserDao{
 
 在`com.ink.service`目录下创建`user`目录
 
-> 业务层都会调用DAO层，所以要引入DAO层
-
 在`com.ink.service.user`目录下创建`UserService.java`作为处理用户登录的接口
 
 ```java
@@ -374,7 +381,9 @@ public interface UserService {
 
 在`com.ink.service.user`目录下创建`UserServiceImpl.java`作为处理用户登录接口的实现类
 
+- 业务层都会调用DAO层，所以要引入DAO层（创建对象）
 - 父类引用指向子类对象：`userDao = new UserDaoImpl();`
+- 使用`userDao`对象来调用DAO层的方法
 
 ```java
 package com.ink.service.user;
@@ -426,11 +435,13 @@ public class UserServiceImpl implements UserService{
 
 ### Servlet层
 
-控制层：调用业务层代码
+控制层：调用Service层代码
 
 在`com.ink.servlet`目录下创建`user`目录
 
-在`com.ink.servlet.user`目录下创建`LoginServlet.java`控制用户登录功能
+在`com.ink.servlet.user`目录下创建`LoginServlet.java`实现用户登录功能
+
+- `UserService userService = new UserServiceImpl();`
 
 ```java
 package com.ink.servlet.user;
@@ -506,6 +517,8 @@ public class LogoutServlet extends HttpServlet {
 }
 ```
 
+在`web.xml`中注册
+
 ```xml
 <servlet>
     <servlet-name>LoginServlet</servlet-name>
@@ -530,6 +543,8 @@ public class LogoutServlet extends HttpServlet {
 使用拦截器防止未登录用户访问主页
 
 在`com.ink.filter`目录下创建`LoginFilter.java`实现权限验证功能
+
+- 传递请求：`filterChain.doFilter(servletRequest,servletResponse);`
 
 ```java
 package com.ink.filter;
@@ -570,6 +585,8 @@ public class LoginFilter implements Filter {
     }
 }
 ```
+
+在`web.xml`中注册
 
 ```xml
 <filter>
@@ -631,7 +648,7 @@ public class LoginFilter implements Filter {
 - 重写对应的方法
 
 ```java
-=    @Override
+    @Override
     public boolean updatePwd(int id, String password) throws SQLException {
         System.out.println("UserService" + password);
 
@@ -662,7 +679,7 @@ public class LoginFilter implements Filter {
 2. 可以使用Session中的`Constants.USER_SESSION`获取user信息
 3. 去数据库中修改密码
 
-在`com.ink.servlet.user`目录下创建`UserServlet.java`控制修改密码功能
+在`com.ink.servlet.user`目录下创建`UserServlet.java`实现修改密码功能
 
 ```java
 package com.ink.servlet.user;
@@ -722,6 +739,8 @@ public class UserServlet extends HttpServlet {
     }
 }
 ```
+
+在`web.xml`中注册
 
 ```xml
 <servlet>
@@ -866,6 +885,8 @@ oldpassword.on("blur",function(){
 
 - 返回数据需要转化为json格式
 
+> 返回数据为json键值对格式，所以使用map可以很方便的对应起来
+
 ```java
 package com.ink.servlet.user;
 
@@ -1004,6 +1025,11 @@ public class UserServlet extends HttpServlet {
 
 - 重写对应的方法
 
+> SQL参数问题
+>
+> 1. 使用`list`根据判断依次存放参数
+> 2. 最后将`list`转换为`Object`数组传递给SQL
+
 ```java
     @Override
     public int getUserCount(Connection connection, String userName, int userRole) throws SQLException, Exception {
@@ -1091,7 +1117,9 @@ public void test() {
 
 ### 分页
 
-在`com.ink.util`目录下创建分页的工具类`PageSupport.java`
+在`com.ink.util`目录下创建用于分页的工具类`PageSupport.java`
+
+- 一系列的`set()`方法用于设置内部值，需要在内部判断参数是否合理
 
 ```java
 package com.ink.util;
@@ -1165,12 +1193,14 @@ public class PageSupport {
 
 ### 获取用户列表
 
+#### DAO层
+
 修改`com.ink.dao.user`目录下的`UserDao.java`接口
 
 - 增加查询用户列表功能对应的方法
 
 ```java
-//    通过条件查询用户列表（分页）
+//    通过条件查询用户列表（分页功能）
     public List<User> getUserList(Connection connection, String userName, int userRole, int currentPageNo, int pageSize)throws Exception;
 ```
 
@@ -1181,13 +1211,17 @@ public class PageSupport {
 > 分页功能
 >
 > - 当前页 = (当前页-1) * 页面大小
+>
+> `limit n,m`
+>
+> - 指定返回从n开始的m col（闭区间[n,n+m]）
 
 ```java
     @Override
     public List<User> getUserList(Connection connection, String userName, int userRole, int currentPageNo, int pageSize) throws Exception {
         PreparedStatement pstm = null;
         ResultSet rs = null;
-//        查询返回的用户列表
+//        接收查询返回的用户列表
         List<User> userList = new ArrayList<User>();
 
         if(connection != null){
@@ -1203,8 +1237,9 @@ public class PageSupport {
                 sql.append(" and u.userRole = ?");
                 list.add(userRole);
             }
-//            在数据库中，分页显示limit startIndex，pageSize；总数
+//            实现分页查询
             sql.append(" order by creationDate DESC limit ?,?");
+//            当前页
             currentPageNo = (currentPageNo - 1) * pageSize;
             list.add(currentPageNo);
             list.add(pageSize);
@@ -1228,4 +1263,182 @@ public class PageSupport {
         return userList;
     }
 ```
+
+#### Service层
+
+修改`com.ink.service.user`目录下的`UserService.java`接口
+
+- 增加查询用户列表功能对应的方法
+
+```java
+//    根据条件查询用户列表（分页）
+    public List<User> getUserList(String queryUserName, int queryUserRole, int currentPageNo, int pageSize);
+```
+
+修改`com.ink.service.user`目录下的`UserServiceImpl.java`实现类
+
+- 重写对应的方法
+
+```java
+@Override
+public List<User> getUserList(String queryUserName, int queryUserRole, int currentPageNo, int pageSize) {
+    Connection connection = null;
+    List<User> userList = null;
+
+        System.out.println("queryUserName：" + queryUserName);
+        System.out.println("queryUserRole：" + queryUserRole);
+        System.out.println("currentPageNo：" + currentPageNo);
+        System.out.println("pageSize：" + pageSize);
+    
+    try {
+        connection = BaseDao.getConnection();
+        userList = userDao.getUserList(connection,queryUserName,queryUserRole,currentPageNo,pageSize);
+    } catch (Exception e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }finally{
+        BaseDao.closeResource(connection, null, null);
+    }
+    return userList;
+}
+```
+
+
+
+### 获取角色列表
+
+#### 建包规范
+
+1. 一般pojo目录下的实体类对应数据库的表
+2. 然后在DAO包，Service包，Servlet包下应该分别对pojo目录下的实体类建立对应的包来，也正好对应实体类对应的表
+
+前面的功能是针对用户，基本上都是操作`User`表，所以在`user`包下。所以针对角色就应该在`DAO`包，`Service`包，`Servlet`包下建立`role`包
+
+#### DAO层
+
+在`com.ink.dao.role`目录下创建`RoleDao.java`做为获取角色列表的接口
+
+```java
+package com.ink.dao.role;
+
+import com.ink.pojo.Role;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
+
+import java.util.List;
+
+public interface RoleDao {
+//    获取角色列表
+    public List<Role> getRoleList(Connection connection) throws SQLException;
+}
+```
+
+在`com.ink.dao.role`目录下创建`RoleDaoImpl.java`做为获取角色列表的接口的实现类
+
+```java
+package com.ink.dao.role;
+
+import com.ink.dao.BaseDao;
+import com.ink.pojo.Role;
+import org.junit.Test;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class RoleDaoImpl implements RoleDao{
+    @Override
+    public List<Role> getRoleList(Connection connection) throws Exception {
+        PreparedStatement pstm = null;
+        ResultSet rs = null;
+        List<Role> roleList = new ArrayList<Role>();
+        if (connection != null) {
+            String sql = "select * from smbms_role";
+            Object[] params = {};
+            rs = BaseDao.execute(connection, pstm, rs, sql, params);
+            while (rs.next()) {
+                Role _role = new Role();
+                _role.setId(rs.getInt("id"));
+                _role.setRoleCode(rs.getString("roleCode"));
+                _role.setRoleName(rs.getString("roleName"));
+                roleList.add(_role);
+            }
+            BaseDao.closeResource(null, pstm, rs);
+        }
+        return roleList;
+    }
+
+    @Test
+    public void test() throws Exception {
+        RoleDao roleDao = new RoleDaoImpl();
+        Connection connection = BaseDao.getConnection();
+        List<Role> roleList = roleDao.getRoleList(connection);
+        for(Role t: roleList){
+            System.out.println(t.toString());
+        }
+    }
+}
+```
+
+#### Service层
+
+在`com.ink.service.role`目录下创建`RoleService.java`作为获取角色列表的接口
+
+```java
+package com.ink.service.role;
+
+import com.ink.pojo.Role;
+
+import java.sql.Connection;
+import java.util.List;
+
+public interface RoleService {
+    //    获取角色列表
+    public List<Role> getRoleList();
+}
+```
+
+在`com.ink.service.role`目录下创建`RoleServiceImpl.java`做为获取角色列表的接口的实现类
+
+```java
+package com.ink.service.role;
+
+import com.ink.dao.BaseDao;
+import com.ink.dao.role.RoleDao;
+import com.ink.dao.role.RoleDaoImpl;
+import com.ink.pojo.Role;
+
+import java.sql.Connection;
+import java.util.List;
+
+public class RoleServiceImpl implements RoleService{
+
+//    引入DAO
+    private RoleDao roleDao;
+    public RoleServiceImpl() {
+        roleDao = new RoleDaoImpl();
+    }
+
+    @Override
+    public List<Role> getRoleList() {
+        Connection connection = null;
+        List<Role> roleList = null;
+        try {
+            connection = BaseDao.getConnection();
+            roleList = roleDao.getRoleList(connection);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            BaseDao.closeResource(connection,null,null);
+        }
+        return roleList;
+    }
+}
+```
+
+## Servlet层
 

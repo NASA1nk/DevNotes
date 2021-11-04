@@ -433,7 +433,7 @@ col之间用逗号`,`隔开
 `limit`
 
 - 限制返回不多于n col
-- 指定返回从n到m的col（闭区间[n,m]）
+- 指定返回从n开始的m col（闭区间[n,n+m])
 - 必须在`order by`子句之后
 
 `select prod_name from products limit 10;`
@@ -442,7 +442,6 @@ col之间用逗号`,`隔开
 
 > 检索结果从col 0开始
 >
-> 返回特定行使用`limit n,n`
 
 ## 完全限制
 

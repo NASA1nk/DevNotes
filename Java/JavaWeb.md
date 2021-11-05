@@ -1350,7 +1350,7 @@ public class ServletPropTest extends HttpServlet {
 >   ```xml
 >   <!--<web-app>-->
 >   <!--  <display-name>Archetype Created Web Application</display-name>-->
->                                                                     
+>                                                                         
 >   <?xml version="1.0" encoding="UTF-8"?>
 >   <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
 >            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -3111,4 +3111,148 @@ public class TransactionTest {
     }
 }
 ```
+
+
+
+
+
+# 上传文件
+
+## 导包
+
+### 普通导包
+
+1. 下载jar包
+
+   1. [commons-io](https://mvnrepository.com/artifact/commons-io/commons-io/2.11.0)
+   2. [commons-fileupload](https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload/1.4)
+
+2. 在project下创建`lib`目录，然后将jar包粘贴到目录下
+
+3. 右键`lib`目录`Add as Library` 
+
+   ![导jar包](JavaWeb.assets/导jar包.png)
+
+### Maven导包
+
+在`pom.xml`中导入包的依赖
+
+```xml
+<dependency>
+  <groupId>jakarta.servlet</groupId>
+  <artifactId>jakarta.servlet-api</artifactId>
+  <version>5.0.0</version>
+</dependency>
+```
+
+## 注意事项
+
+**调优**
+
+- 为了保证服务器安全，上传文件应该放在外界无法直接访问的目录下（比如`WEB-INF`目录）
+- 为了防止文件覆盖的现象发生，要为上传文件产生—个唯一的文件名
+  - 时间戳
+  - UUID
+  - md5
+- 要限制上传文件的最大值
+- 要限制上传文件的类型
+  - 在收到上传时，判断文件名后缀是否合法
+
+## 相关类
+
+`ServletFileUpload`类
+
+- 负责处理上传的文件数据，使用parseRequser(HttpServletRequest)方法将表单中每个输入项封装成一个`Fileltem`对象，然后以list的形式返回
+- 使用`ServletFileUpload`对象解析请求时需要`DiskFileltemFactory`对象，所以要在进行解析工作前要构造好`DiskFileltemFactory`对象
+- 通过`ServletFileUpload`对象的构造方法或`setFileltemFactory()`方法设置`ServletFileUpload`对象的`fileltemFactory`属性
+
+> 工厂模式
+
+`FileItem`类
+
+- `boolean isFormField()`：判断`FileItem`类对象封装的数据是否为一个普通文本表单。是普通表单返回`true`，否则返回`false`
+  - 没有附带上传文件的就是普通文本表单
+- `String getFieldName()`：返回表单标签name属性的值
+- `String getstring()`：将`FileItem`对象中保存的数据流内容以一个字符串返回
+- `String getName()`：返回文件上传字段中的文件名
+- `InputStream getInputstream()`：以流的形式返回上传文件的数据内容
+- `void delete()`：清空`FileItem`类对象中存放的内容，如果内容被保存在临时文件中，则删除该临时文件
+
+## form表单
+
+- 在HTML中使用input上传文件（需要设定`name`）
+
+- `form`表单如果包含文件上传输入项，`form`表单的`enctype`属性就必须设置为`mulipart/form-data`
+
+- 表单的类型为`mulipart/form-data`，在服务端需要通过流来获取上传的文件数据
+- 必须使用post方法
+
+```html
+<html>
+<body>
+    <form action="" method="post" enctype="multipart/form-data">
+        <p> <input type="file" name="file1"> </p>
+        <input type="submit">
+    </form>
+</body>
+</html>
+```
+
+
+
+## 步骤
+
+1. 判断提交的是普通表单还是带文件的表单
+
+   1. 如果是普通表单直接返回
+
+2. 创建上传文件的保存路径
+
+   1. 第一次一定不存在，需要创建
+   2. 保存的路径要让外界无法直接访问到：`WEB-INF`
+
+3. 缓存临时文件
+
+   1. 如果文件太大就存储为临时文件
+
+   > 临时文件需要提醒用户转存为永久文件，否则过期自动删除
+
+4. 处理上传的文件
+
+   1. 使用Apache的文件上传组件：`common-fileupload`（依赖`common-io`）
+
+   > 使用原生的`request.getInputStream()`流获取非常麻烦
+
+5. 创建`DiskFileItemFactory`对象，设置缓冲区
+
+   1. 判断文件大小是否超过缓冲区大小来设置文件存放路径（临时文件）
+
+6. 创建`ServletFileUpload`对象
+
+   1. 监听文件上传进度
+   2. 处理文件乱码问题
+   3. 设置单个文件的最大值
+
+7. 通过`ServletFileUpload`对象解析前端请求，将表单封装为`Fileltem`对象
+
+   1. `List<FileItem> fileItems = upload.parseRequest(request);`
+
+8. 遍历`Fileltem`对象，逐个处理表单项
+
+   1. 判断是否是普通表单
+   2. 获取文件名
+      1. `String fileName = uploadFileName. substring(uploadFileName.lastIndexOf("/") + 1);`
+   3. 判断文件名是否合法
+      1. `if(("").equals(uploadFileName.trim()) || uploadFileName == null)`
+   4. 获取文件名后缀
+      1. `String fileExtName = uploadFileName. substring(uploadFileName.lastIndexOf(".") + 1);`
+   5. 生成UUID保证保存的文件唯一 
+      1. `java.util.UUID`类
+   6. 使用流传输文件
+      1. 获得文件上传的流
+      2. 创建文件输出流保存文件
+
+
+
+
 

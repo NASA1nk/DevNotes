@@ -1125,69 +1125,73 @@ public void test() {
 package com.ink.util;
 
 public class PageSupport {
-// 当前页码（来自于用户输入）
-   private int currentPageNo = 1;
-   
-// 总数量（表）
-   private int totalCount = 0;
-   
-// 页面大小
-   private int pageSize = 0;
-   
-// 总页数（totalCount/pageSize（+1））
-   private int totalPageCount = 1;
+//	当前页码
+	private int currentPageNo = 1;
+	
+//	记录总数量
+	private int totalCount = 0;
+	
+//	页面大小
+	private int pageSize = 0;
+	
+//	记录的总页数（totalCount/pageSize）
+//	非整除则+1
+	private int totalPageCount = 1;
 
-   public int getCurrentPageNo() {
-      return currentPageNo;
-   }
+	public int getCurrentPageNo() {
+		return currentPageNo;
+	}
 
-// 面向对象：封装
-// 在set()方法中检测设置的值的合法性
-// 减少业务代码
-   public void setCurrentPageNo(int currentPageNo) {
-      if(currentPageNo > 0){
-         this.currentPageNo = currentPageNo;
-      }
-   }
+//	面向对象：封装
+//	在set()方法中检测设置的值的合法性
+//	减少业务代码
+	public void setCurrentPageNo(int currentPageNo) {
+		if(currentPageNo > 0){
+			this.currentPageNo = currentPageNo;
+		}
+	}
 
-   public int getTotalCount() {
-      return totalCount;
-   }
+	public int getTotalCount() {
+		return totalCount;
+	}
 
-   public void setTotalCount(int totalCount) {
-      if(totalCount > 0){
-         this.totalCount = totalCount;
-//       设置总页数
-         this.setTotalPageCountByRs();
-      }
-   }
-   public int getPageSize() {
-      return pageSize;
-   }
+	public void setTotalCount(int totalCount) {
+		if(totalCount > 0){
+			this.totalCount = totalCount;
+//			设置总页数
+			this.setTotalPageCountByRs();
+		}
+	}
+	public int getPageSize() {
+		return pageSize;
+	}
 
-   public void setPageSize(int pageSize) {
-      if(pageSize > 0){
-         this.pageSize = pageSize;
-      }
-   }
+	public void setPageSize(int pageSize) {
+		if(pageSize > 0){
+			this.pageSize = pageSize;
+		}
+	}
 
-   public int getTotalPageCount() {
-      return totalPageCount;
-   }
+	public int getTotalPageCount() {
+		return totalPageCount;
+	}
 
-   public void setTotalPageCount(int totalPageCount) {
-      this.totalPageCount = totalPageCount;
-   }
-   
-   public void setTotalPageCountByRs(){
-      if(this.totalCount % this.pageSize == 0){
-         this.totalPageCount = this.totalCount / this.pageSize;
-      }else if(this.totalCount % this.pageSize > 0){
-         this.totalPageCount = this.totalCount / this.pageSize + 1;
-      }else{
-         this.totalPageCount = 0;
-      }
-   } 
+	public void setTotalPageCount(int totalPageCount) {
+		this.totalPageCount = totalPageCount;
+	}
+	
+	public void setTotalPageCountByRs(){
+//		整除
+		if(this.totalCount % this.pageSize == 0){
+			this.totalPageCount = this.totalCount / this.pageSize;
+		}
+		else if(this.totalCount % this.pageSize > 0){
+//			非整除，多一页
+			this.totalPageCount = this.totalCount / this.pageSize + 1;
+		}else{
+			this.totalPageCount = 0;
+		}
+	}
 }
 ```
 
@@ -1208,10 +1212,6 @@ public class PageSupport {
 
 - 重写对应的方法
 
-> 分页功能
->
-> - 当前页 = (当前页-1) * 页面大小
->
 > `limit n,m`
 >
 > - 指定返回从n开始的m col（闭区间[n,n+m]）
@@ -1441,4 +1441,99 @@ public class RoleServiceImpl implements RoleService{
 ```
 
 ## Servlet层
+
+1. 获取前端的数据（查询参数）
+2. 根据参数的值判断请求是否需要执行
+3. 为了实现分页，需要计算出当前页面，总页面和页面大小
+4. 返回查询数据，前端展示列表
+
+> 分页功能
+>
+> - 其实是用户点击下一页时，重新传递当前的页面数去数据库中查询，使用limit取出对应的用户
+
+```java
+    public void query(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//        模糊查询用户名
+        String queryUserName = req.getParameter("queryUserName");
+//        查询用户角色
+        String temp = req.getParameter("queryUserRole");
+//        可能没有角色参数，需要设置
+        int queryUserRole = 0;
+//        跳转页面
+        String pageIndex = req.getParameter("pageIndex");
+
+//        设置分页
+//        第一此请求肯定是进入第一页，且页面大小是固定的
+//        当前页码
+        int currentPageNo = 1;
+//        设置页面大小，应该写在配置文件中
+        int pageSize = 5;
+
+//        处理前端参数
+        if(queryUserName == null){
+            queryUserName = "";
+        }
+        if(temp != null && !("").equals(temp)){
+            queryUserRole = Integer.parseInt(temp);
+        }
+        if(pageIndex != null) {
+            currentPageNo = Integer.parseInt(pageIndex);
+        }
+
+//        调用service层
+        UserServiceImpl userService = new UserServiceImpl();
+//        获取总记录数
+        int totalCount = userService.getUserCount(queryUserName,queryUserRole);
+
+//        分页工具类
+        PageSupport pageSupport = new PageSupport();
+        pageSupport.setCurrentPageNo(currentPageNo);
+        pageSupport.setPageSize(pageSize);
+        pageSupport.setTotalCount(totalCount);
+
+//        获得页数
+        int totalPageCount = pageSupport.getTotalPageCount();
+//        控制页数跳转，如果是第一页，则只能点击下一页，如果是最后一页，则只能点击上一页
+        if(currentPageNo < 1) {
+//            如果页数小于1，也是显示第一页
+            currentPageNo = 1;
+        }
+        else if(currentPageNo > totalPageCount) {
+//            如果页数大于最后一页，也是显示最后一页
+            currentPageNo = totalPageCount;
+        }
+
+        System.out.println("totalCount："+totalCount);
+        System.out.println("pageSize："+pageSize);
+        System.out.println("totalPageCount："+totalPageCount);
+
+//        查询具体的用户信息
+        List<User> userList = null;
+        userList = userService.getUserList(queryUserName, queryUserRole, currentPageNo, pageSize);
+
+        RoleServiceImpl roleService = new RoleServiceImpl();
+        List<Role> roleList = roleService.getRoleList();
+
+//        返回前端数据
+        req.setAttribute("userList", userList);
+        req.setAttribute("roleList", roleList);
+
+//        总记录数totalCount
+        req.setAttribute("totalCount", totalCount);
+//        当前页
+        req.setAttribute("currentPageNo", currentPageNo);
+//        列表总页数totalPageCount
+        req.setAttribute("totalPageCount", totalPageCount);
+        req.setAttribute("queryUserName", queryUserName);
+        req.setAttribute("queryUserRole", queryUserRole);
+
+        try {
+            req.getRequestDispatcher("userlist.jsp").forward(req, resp);
+        } catch (ServletException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+```
 

@@ -1350,7 +1350,7 @@ public class ServletPropTest extends HttpServlet {
 >   ```xml
 >   <!--<web-app>-->
 >   <!--  <display-name>Archetype Created Web Application</display-name>-->
->                                                                         
+>                                                                               
 >   <?xml version="1.0" encoding="UTF-8"?>
 >   <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
 >            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -2788,9 +2788,11 @@ Java Data Base Connectivity：Java连接数据库
 
 jar包
 
-- mysql-conneter-java连接驱动（必须要导入）
+- mysql-conneter-java连接驱动
 
 `pom.xml`
+
+> 根据MySQL的版本
 
 ```xml
     <dependencies>
@@ -2802,8 +2804,6 @@ jar包
         </dependency>
     </dependencies>
 ```
-
-
 
 ### 创建数据库
 
@@ -2832,8 +2832,6 @@ VALUES(3,'王五','123456','ww@qq.com','2000-01-01');
 
 ### 使用idea连接数据库
 
-![jdbc连接数据库](JavaWeb.assets/jdbc连接数据库.png)
-
 ![idea连接数据库](JavaWeb.assets/idea连接数据库.png)
 
 ![选择数据库](JavaWeb.assets/选择数据库.png)
@@ -2848,12 +2846,13 @@ VALUES(3,'王五','123456','ww@qq.com','2000-01-01');
 - 子协议名：数据库类型协议
   - oracle
   - mysql
+- 数据源名：数据库名，用户信息等
+  - `?`和`&`连接参数
 
-- 数据源名：数据库名，用户等信息
 
-> `url：jdbc:mysql://10.2.14.105:3305`
+> `jdbc:mysql://host:port/database?key1=value1&key2=value2...`
 >
-> `jdbc:mysql://[host:port],[host:port].../[database][?key1][=value1][&key2][=value2]...`
+> `jdbc:mysql://10.2.14.105:3305`
 >
 > MySQL8.0+版本需要设置时区
 
@@ -2862,21 +2861,31 @@ VALUES(3,'王五','123456','ww@qq.com','2000-01-01');
 **步骤**
 
 1. 加载驱动
-   1. 在右侧`External Libraries`中的`mysql`包中`com.mysql.jdbc`中的`Driver.class`
-2. 连接数据库，获取数据库对象
-   1. `connection`代表数据库
-3. 向数据库发送SQL的对象
+   
+   > 驱动类：`External Libraries`中的`mysql`包中的`com.mysql.jdbc.Driver.class`
+   
+2. 通过url连接数据库，获取数据库对象
+   1. `DriverManager.getConnection`
+      1. 事务提交
+      1. 事务回滚
+   
+3. 由数据库对象创建用于执行SQL的对象（执行类）
    1. `statement`不安全，可能会发生sql注入
-   2. `prepareStatement`是安全的对象
-4. 编写SQL
-   1. `statement.executeQuery(sql)`用于查
-      1. 返回ResultSet结果集
-   2. `statement.executeUpdate()`用于增删改
-      1. 返回int，是表中受影响的行数
-5. 执行SQL
+   2. `prepareStatement`安全
+   
+4. 执行SQL
+   1. `statement.executeQuery(sql)`用于查询
+      1. 返回`ResultSet`结果集
+         1. `rs.getObject()`获取结果
+         2. `rs.next()`遍历
+   2. `statement.executeUpdate(sql)`用于更新（插入，删除，修改）
+      1. 返回`int`，是表中受影响的行数
+   
+5. 获取想要的结果（通过列名）
+
 6. 关闭连接
 
-> 前2个都是默认统一的步骤，可以被抽取出来
+> 步骤1，2，6都是默认统一的步骤，可以被抽取出来
 
 `statement`
 
@@ -2896,9 +2905,9 @@ public class JdbcTest {
 //        加载驱动
 //        驱动通过反射获取
         Class.forName("com.mysql.jdbc.Driver");
-//        连接数据库，connection就代表数据库
+//        连接数据库，connection就代表数据库对象
         Connection connection = DriverManager.getConnection(url, username, password);
-//       statement是向数据库发送sql的对象，用于crud
+//       statement是执行sql的对象
 //       不安全，可能会发生sql注入
         Statement statement = connection.createStatement();
 //        编写sql
@@ -2984,7 +2993,7 @@ public class PrepareTest {
 
 ## 事务
 
-> 没commit前可以使用rollback回滚，commit提交后则无法回滚
+没`commit`前可以使用`rollback`回滚，`commit`提交后则无法回滚
 
 ```sql
 # 开启事务
@@ -2999,11 +3008,11 @@ commit;
 ### 添加junit依赖
 
 ```xml
-<dependency>
-    <groupId>junit</groupId>
-    <artifactId>junit</artifactId>
-    <version>4.12</version>
-</dependency>
+    <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.12</version>
+    </dependency>
 ```
 
 存在错误时
@@ -3255,4 +3264,33 @@ public class TransactionTest {
 
 
 
+
+# 发送邮件
+
+## 邮件系统
+
+电子邮件系统最主要的组成
+
+- 用户代理
+
+  - qq邮箱等电子邮件系统程序
+
+- 邮件服务器
+
+- 电子邮件使用的协议 
+
+  - smtp（simple mail transfer protocol）
+  - pop3（post office protocol）
+
+  > smtp协议用于发送（push）邮件，pop3协议用于拉（pull）邮件
+
+## 步骤
+
+1. 发信人调用用户代理来撰写和编辑要发送的邮件
+2. 用户代理使用SMTP协议将邮件传送给发送方的邮件服务器
+3. 发送方邮件服务器将邮件放入邮件缓存队列中，等待发送
+4. 运行在发送方邮件服务器的SMTP进程发现邮件缓存队列中有待发送的邮件，就向运行在接收方邮件服务器的SMTP进程发起请求，建立TCP连接
+5. TCP连接建立后，SMTP客户进程开始向SMTP服务器进程发送邮件，当所有待发送邮件发完后，SMTP客户进程就关闭TCP连接
+6. 运行在接收方邮件服务器中的SMTP进程收到邮件后，将邮件放入收信人的用户邮箱，等待收信人进行读取
+7. 收信人调用用户代理，使用POP3（或IMAP）协议将自己的邮件从接收方邮件服务器的中取回
 

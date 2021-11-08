@@ -1,4 +1,4 @@
-# `Ubuntu`部署MySQL
+# Ubuntu部署MySQL
 
 ```bash
 # 安装mysql，需为默认root用户指定密码
@@ -284,7 +284,7 @@ mysqldump test -uroot -p1 Customer > /root/dump/Customer.sql
 
 
 
-# MySQL基本概念
+# 基本概念
 
 ## DBMS数据库管理系统
 
@@ -1691,6 +1691,8 @@ DBMS有一个具体管理和处理数据的内部引擎
 
 `RENAME TABLE TO`
 
+
+
 # 视图
 
 `VIEW`
@@ -1808,45 +1810,221 @@ from vendorlocation;
 
 # 存储过程
 
+`CALL`
+
+- 一条或多条的SQL语句的集合
+- MySQL称存储过程的执行为**调用**，`CALL`接受存储过程的名字以及传递给它的参数
+
+**优点**
+
+- 简单：把处理封装在容易处理的单元中
+- 高效：使用存储过程比使用单独的SQL语句快
+- 安全：限制了对基础数据的访问
+
 > MySQL5添加了对存储过程的支持
 
+## 使用存储过程
 
+### 创建存储过程
+
+- 过程名为`productpricing`
+- `()`中用于接受参数
+- `begin`和`end`用于限制存储过程体
+
+```sql
+create procedure productpricing()
+begin 
+    select avg(prod_price) as priceavg
+    from products;
+end;
+```
+
+### 调用存储过程
+
+存储过程实际上是一种函数，所以调用时要加上`()`
+
+`call productpricing()`
+
+### 删除存储过程
+
+`drop procedure productpricing`
+
+## 存储过程参数
 
 
 
 # 游标
 
+`CURSOR`
+
+- 需要在检索的结果行中前进或后退一行或多行
+- 是一个存储在MySQL服务器上的数据库查询
+- 是`select`语句查询出来的结果集
+
 > MySQL5添加了对游标的支持
-
-
+>
+> MySQL游标只能用于存储过程和函数
 
 
 
 # 触发器
 
+`TRIGGER`
+
+- 在某个表发生改动时自动处理（自动执行语句）
+
+- 只有表才支持触发器，视图和临时表都不支持
+
 > MySQL5添加了对触发器的支持
 
+## 使用触发器
+
+**规则**
+
+- 触发器按每个表每个事件每次地定义，每个表每个事件每次只允许一个触发器
+  - 每个表最多支持6个触发器（`INSERT`，`UPDATE`，`DELETE`三个操作的之前和之后）
+- 单一的触发器不能和多个事件或多个表关联
+- 如果`BEFORE`触发器失败，MySQL将不执行请求的操作
+- 如果`BEFORE`触发器或语句本身失败，MySQL将不执行`AFTER`触发器（如果有的话）
+
+### 创建触发器
+
+1. 触发器名唯一
+2. 触发器相关联的表
+3. 触发器应该响应的操作
+   1. `DELETE`
+   2. `INSERT`
+   3. `UPDATE`
+4. 触发器应该执行的时间（之前或之后）
+   1. `AFTER INSERT ON table_name`：在插入成功后执行
+   2. `BEFORE INSERT ON table_name`：在插入成功之前执行
+
+> `FOR EACH ROW`：对每个插入的行执行
+
+```sql
+create trigger newproduct
+    after insert
+    on products
+    for each row select 'product added'
+```
+
+> 报错
+>
+> - `ERROR 1415 (0A000)：Not allowed to return a result set from a trigger`
+>
+> 原因
+>
+> - 这是基于MySQL版本5的写法，之后的版本触发器不能使用`select`来设置变量结果（这样会返回结果集）
+>
+> 解决
+>
+> - 使用 `into`将结果存储在临时变量中
+>
+> - `select 'product added';`改为`select 'product added' into @ret;`
+
+### 删除触发器
+
+触发器不能更新或覆盖，如果要修改触发器，必须先删除再创建
+
+`DROP TRIGGER newproduct;`
+
+## INSERT触发器
+
+在`INSERT`语句执行之前或之后触发
+
+- 在`INSERT`触发器代码内，可引用一个名为`NEW`的虚拟表，访问被插入的行
+- 在`BEFORE INSERT`触发器中，`NEW`中的值也可以被更新（允许更改被插入的值）
+  - 一般用于数据验证或者数据清洗
+- 对于`AUTO_INCREMENT`列
+  - `NEW`在`INSERT`执行之前包含0，
+  - 在`INSERT`执行之后包含新的自动生成值
+
+> 1. 创建一个名为neworder的触发器，按照`AFTER INSERT`执行
+> 2. 在插入一个新订单到`orders`表之后，MySQL生成一个新的订单号并保存到`order_num`中。触发器从`NEW.order_num`取得这个值并存储在变量中
+>
+> 必须是`AFTER INSERT`执行，因为在`BEFORE INSERT`语句执行之前，新的`order_num还`没生成
+
+```sql
+CREATE TRIGGER neworder
+    AFTER INSERT
+    ON orders
+    FOR EACH ROW SELECT NEW.order_num
+                 into @ret;
+
+INSERT INTO orders(order_date, cust_id)
+VALUES (Now(), 10001);
+
+# 触发器把结果存储在变量中，所以插入时不显示
+SELECT @ret;
+```
+
+## DELETE触发器
+
+- 在`DELETE`触发器代码内，可以引用一个名为`OLD`的虚拟表，访问被删除的行
+- `OLD`中的值全都是只读的，不能更新
+
+## UPDATE触发器
+
+- 在`UPDATE`触发器代码内
+  - 可以引用一个名为`OLD`的虚拟表，访问更新前的值
+  - 可以引用一个名为`NEW`的虚拟表，访问更新后的值
+- 在`BEFORE UPDATE`触发器中，NEW中的值可能也被更新（允许更改`UPDATE`语句中的值）
+- `OLD`中的值全都是只读的，不能更新
 
 
 
+# 事务
 
+`TRANSACTION`
 
+事务处理（transaction processing）是一种机制
 
+- 可以用来维护数据库的完整性
+- 它保证成批的MySQL操作要么完全执行，要么完全不执行
+  - 执行出现错误时，就整体回退（rollback）
 
+## 控制事务处理
 
+- 事务（`transaction`）：一组SQL语句
+- 回退（`rollback`）：撤销指定SQL语句的过程
+- 提交（`commit`）：将未存储的SQL语句的结果写入数据库表中
+- 保留点（`savepoint`）：事务处理中设置的临时占位符（place-holder），可以对它发布回退（与回退整个事务处理不同）
 
+> 控制事务处理的关键在于将SQL语句组分解为逻辑块，并明确规定数据何时应该回退，何时不应该回退
 
+### 开启事务
 
+`START TRANSACTION`
 
+### 事务回滚
 
+`ROLLBACK`
 
+- 只能在一个事务处理内使用
+- 可以回退`DELETE`，`UPDATE`，`INSERT`操作
+- 不能回退`SELECT`（没有意义），
+- 不能回退`CREATE`，`DROP`操作（可以使用，但不会被撤销）
 
+### 事务提交
 
+`COMMIT`
 
+- MySQL默认自动提交（未开启事务时）
+- 在事务处理中（开启事务后），必须使用`commit`语句来提交
 
+> 隐含事务关闭：在`commit`或`rollback`执行后，事务会自动关闭。后续的操作则默认自动提交
 
+### 事务保留点
 
+`SAVEPOINT`
 
+复杂的事务处理需要部分提交或者部分回退，这就需要在事务处理中合适的位置放置占位符，这样回退的时候就可以回退到占位符处
+
+- 保留点的命令唯一
+- 保留点越多，回退越灵活
+- 保留点在事务处理完成后自动释放
+
+> MySQL5以后，也可以使用`RELEASE SAVEPOINT`明确释放
 
 
 
@@ -1860,7 +2038,7 @@ from vendorlocation;
 
 - 返回余额最多的北京的用户，如果余额相同，按名字排序
 
-> ```
+> ```sql
 > create table Card
 > (
 >     id  int    not null
@@ -1883,7 +2061,7 @@ from vendorlocation;
 
 对cid进行聚集，返回最高的bal
 
-```mysql
+```sql
 select cu.name as CustomerName, t.m
 from Customer as cu,
      (select cid, sum(bal) as m
@@ -1899,7 +2077,7 @@ order by t.m desc, cu.name;
 
 如果存在相同的余额，未能按照name排序依次输出
 
-```mysql
+```sql
 select cid, sum(bal) as m
 from Card
 group by cid

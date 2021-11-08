@@ -813,7 +813,7 @@ col之间用逗号`,`隔开
 
 ## 字段别名
 
-拼接后的col并没有名字，所以应用程序无法引用它
+拼接后的`col`并没有名字，所以应用程序无法引用它
 
 alias
 
@@ -822,7 +822,7 @@ alias
 
 > `as`可以省略
 >
-> `as`指示SQL创建一个指定名字的计算字段的col，就像一个实际的col一样
+> `as`指示SQL创建一个指定名字的计算字段的`col`，就像一个实际的`col`一样
 >
 > 别名也称为导出列（derived col）
 >
@@ -1691,19 +1691,140 @@ DBMS有一个具体管理和处理数据的内部引擎
 
 `RENAME TABLE TO`
 
-
-
 # 视图
 
+`VIEW`
+
+- 视图是虚拟的表，不包含任何的col和数据，而是使用时动态检索数据的SQL查询语句
+
+- 视图只是用来查看储存在别处的数据的一种工具，它本身不包含数据，所以它返回的数据是从其他表中检索得到的
+
+> MySQL5添加了对视图的支持
+>
+> 相当于给SQL起了个别名
+
+**用途**
+
+- 简化复杂SQL，重用SQL语句
+- 使用表的部分
+- 保护数据，授予用户表的部分权限
+- 更改数据格式和表示
+
+**规则**
+
+1. 视图必须唯一命名
+2. 创建视图必须有足够的权限
+3. 视图可以嵌套
+   1. 利用视图中数据的SQL查询构造另一个视图
+4. 视图可以使用`order by`子句
+   1. 如果视图中的`select`语句包含`order by`子句，那么视图的`order by`子句会被覆盖
+5. 视图不能索引
+6. 视图可以和表一起使用
+7. 视图被创建后可以像表一样的使用
+   1. `select`视图
+   2. 联结其他视图或表
+   3. 过滤和排序数据
+
+## 视图的使用
+
+- 创建视图
+  - `CREATE VIEW`
+- 查看创建视图
+  - `SHOW CREATE VIEW viewname`
+- 删除视图
+  - `DROP VIEW`
+- 更新视图
+  - 先`DROP`，再CREATE
+  - 直接`CREATE OR REPLACE VIEW`
+
+## 简化复杂联结
+
+```sql
+select cust_name, cust_contact
+from customers,
+     orders,
+     orderitems
+where customers.cust_id = orders.cust_id
+  and orderitems.order_num = orders.order_num
+  and prod_id = 'TNT2';
+```
+
+使用视图
+
+```sql
+create view productcustomer as
+select cust_name, cust_contact, prod_id
+from customers,
+     orders,
+     orderitems
+where customers.cust_id = orders.cust_id
+  and orderitems.order_item = orders.order_num;
+  
+select cust_name, cust_contact
+from productcustomer
+where prod_id = 'TNT2';
+```
+
+![创建视图](MySQL.assets/创建视图.png)
+
+
+
+## 格式化检索数据
+
+```sql
+select Concat(vend_name, '(', vend_country, ')') as vend_title
+from vendors
+order by vend_name;
+```
+
+使用视图
+
+```sql
+create view vendorlocation as
+select Concat(vend_name, '(', vend_country, ')') as vend_title
+from vendors
+order by vend_name;
+
+select *
+from vendorlocation;
+```
+
+## 更新视图
+
+- 更新视图其实就是更新视图的基表
+
+- 并非所有视图都是可以更新的，如果视图定义中有如下操作，则不可更新
+  - 分组
+    - `GROUP BY`
+    - `HAVING`
+  - 联结
+  - 子查询
+  - 并
+  - 聚集函数
+  - `DISTINCT`
+  - 导出列
+
+
+
+# 存储过程
+
+> MySQL5添加了对存储过程的支持
 
 
 
 
 
+# 游标
+
+> MySQL5添加了对游标的支持
 
 
 
 
+
+# 触发器
+
+> MySQL5添加了对触发器的支持
 
 
 

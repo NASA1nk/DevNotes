@@ -1,4 +1,4 @@
-# Ubuntu部署MySQL
+# `Ubuntu`部署MySQL
 
 ```bash
 # 安装mysql，需为默认root用户指定密码
@@ -1316,83 +1316,408 @@ subquery
 
 ### union规则
 
-- `union`必须由两条或者两条以上的`select`语句组成，每条`select`语句之间都要用union分隔
-- union中的每个查询都必须包含相同的col，表达式或聚集函数
-  - col之间不要求顺序
-  - col数据类型必须兼容
+- `union`必须由两条或者两条以上的`select`语句组成
+  - 每条`select`语句之间都要用`union`分隔
+
+- `union`中的每个查询都必须包含相同的`col`，表达式或聚集函数
+  - `col`之间不要求顺序
+  - `col`数据类型必须兼容
 
 ### 包含重复行
 
-`union`会自动去除重复行
+- `union`会自动去除重复行
 
-使用`union all`可以保留重复行
+- 使用`union all`可以保留重复行
+
 
 `select vend_id,prod_id,prod_price from products where prod_price<=5 union all select vend_id,prod_id,prod_price from products where vend_id in (1001,1002);`
 
-
-
-## 组合查询结果排序
+## 组合查询排序
 
 - 使用`union`组合查询只能使用一条`order by`子句
-- `order by`子句必须在最后一条select语句后面
+- `order by`子句必须在最后一条`select`语句后面
 
 `select vend_id,prod_id,prod_price from products where prod_price<=5 union all select vend_id,prod_id,prod_price from products where vend_id in (1001,1002) order by vend_id,prod_price;`
 
 > 无法部分排序
->
 
 
 
 # 全文本搜索
 
-并非所有的引擎都支持全文本搜索
+并非所有的引擎都支持全文本搜索，需要支持全文本搜索的`table`就需要设置对应的引擎
 
 - MyISAM支持
 - InnoDB不支持
 
-> 正则表达式匹配的进阶
->
-
-要进行全文本搜索必须索引被搜索的`col`
+要进行全文本搜索必须**索引**被搜索的`col`
 
 - 数据改变后要重新索引
-- 在对表列适当设计后，MySQL会自动进行所有的索引和重新索引
+- 在对表`col`适当设计后，MySQL会自动进行所有的索引和重新索引
+
+> `like`和正则表达式匹配
+>
+> - 需要检索表中的每一行
+> - 明确限制是否匹配
+>
+> 索引全文本数据时，短词会被忽略且从索引中排除
+>
+> 忽略词中的引号（don't = dont）
 
 ## FULLTEXT
 
-- 在`create table`中使用`fulltext`子句，MySQL会根据`fulltext`指定的`col`对它进行索引
-- 不要在导入数据的时候使用fulltext子句
+- 在创建表`create table`时使用`fulltext`子句
+- MySQL会根据`fulltext`子句指定的一个或多个`col`对它进行索引
+- 不要在导入数据的时候使用`fulltext`子句
+  - 应该先导入所有数据，再修改表
 
 
+```sql
+create table productnotes(
+    note_id int NOT NULL  AUTO_INCREMENT,
+    note_text text NULL,
+    PRIMARY KEY(note_id),
+    FULLTEXT(note_text)
+) ENGINE = MyISAM
+```
 
 ## 搜索函数
 
 - `Match()`
-  - 指定被搜索的col
+  - 指定被搜索的`col`，必须被`fulltext`子句指定
 - `Against()`
   - 指定使用的搜索表达式
 
 `select note_text from productnotes where match(note_text) against('rabbit');`
 
-> `match(col)`指定的`col`必须是和`fulltext`中定义的相同，如果指定多个`col`，则顺序也要完全相同
->
-> 除非使用binary方式，否则全文本搜索不区分大小写
-
 等价于
 
 `select note_text from productnotes where note_text like '%rabbit%';`
+
+> 如果指定多个`col`，则顺序也要完全相同
+>
+> 除非使用`binary`方式，否则全文本搜索不区分大小写
 
 ## 搜索等级
 
 全文本搜索会对结果进行排序，具有较高等级的行先返回
 
-`select note_text,match(note_text) against('rabbit') as rank from productnotes;`
+- 不含搜索文本的行的`rank=0`，这也是全文本搜索排除行以及排序的方法
 
-> 不含搜索文本的行的`rank=0`，这也是全文本搜索排除行以及排序的方法
+`select note_text,match(note_text) against('rabbit') as rank from productnotes;`
 
 ![全文本搜索rank](MySQL.assets/全文本搜索rank.png)
 
 ## 查询拓展
+
+`query expansion`
+
+查询和`Against()`中相关的文本的行（可以不包含指定的文本）
+
+> MySQL4.1.1引入
+
+MySQL对数据和索引进行两次扫描
+
+1. 正常的全文本搜索，找出和搜索条件匹配的所有行
+2. MySQL检索匹配的行中的有用的词
+3. 再次全文本搜索，找出和搜索条件以及有用的词匹配的所有行
+
+`select note_text from productnotes where match(note_text) against('anvils' with query expansion);`
+
+## 布尔文本搜索
+
+全文本搜索的另一种形式，可以不定义`fulltext`索引使用
+
+- 要匹配的词
+- 不要匹配的词
+
+### 布尔操作符
+
+- `+`：包含（词必须存在）
+- `-`：排除（词必须不存在）
+- `*`：词尾的通配符
+- `""`：定义一个短语，而不是单词列表
+
+`select note_text from productnotes where match(note_text) against('heavy -rope*' in boolean mode);`
+
+
+
+# 操作数据
+
+## 插入数据
+
+`INSERT`
+
+### 插入完整行
+
+不安全的`INSERT`
+
+1. 对表中每个`col`必须提供一个值
+   1. 某一`col`没有值，应该使用`NULL`
+2. 各个`col`必须以它们在表定义中的顺序填充值
+
+```sql
+INSERT INTO customers
+VALUES (NULL,
+        'PEP',
+        '100 MAIN',
+        'SHANGHAI',
+        'CA',
+        '90046',
+        'CN',
+        NULL,
+        NULL)
+```
+
+**缺点**
+
+1. SQL语句高度依赖`col`的定义次序
+2. 无法保证表的结构改动后的`col`次序
+
+安全的`INSERT`
+
+1. 在表名后明确给出`col`，根据指定的`col`顺序填充值
+2. 给出的`col`不用和表定义中的顺序一致
+3. 不用给出表中所有的`col`，但给出的`col`，必须填充对应值
+   1. 省略的`col`在表定义时允许为`NULL`
+   2. 省略的`col`在表定义时存在默认值
+
+```sql
+INSERT INTO customers(cust_name, cust_contact, cust_email, cust_address, cust_city, cust_state, cust_zip, cust_country)
+VALUES ('ink',
+        NULL,
+        NULL,
+        '101 MAIN',
+        'BEIJING',
+        'CA',
+        '90047',
+        'CN')
+```
+
+### 插入多个行
+
+- 多条`INSERT`语句使用`;`隔开
+- 如果多条`INSERT`语句中的col名和次序相同，可以合并成一条`INSERT`，插入值用`()`隔开
+
+```sql
+INSERT INTO customers(cust_name, cust_address, cust_city, cust_state, cust_zip, cust_country)
+VALUES ('ink1',
+        '1011 MAIN',
+        'BEIJING',
+        'CA',
+        '91047',
+        'CN'),
+       ('yinke',
+        '102 MAIN',
+        'BEIJING',
+        'CA',
+        '90049',
+        'CN')
+```
+
+### 插入检索结果
+
+`INSERT SELECT`
+
+- 一般用于合并两个表
+- 可以用where子句过滤查询结果
+- 不要求`col`名相同，只要`col`数相同，就可以对应插入
+
+
+
+## 更新数据
+
+`UPDATE SET`
+
+- 没有过滤条件则更新表中所有行的`col`
+- 使用`where`子句过滤更新表中指定行
+
+> 可以设置某一`col`的值为`NULL`来达到删除这一`col`的效果
+
+**组成**
+
+1. 要更新的表名
+2. 要更新的`col`的新的`value`
+3. 确定要更新的行的过滤条件
+
+### 更新单列
+
+`update customers set cust_name = 'ink1234' where cust_name = 'ink';`
+
+### 更新多个列
+
+- 多个`col`和`value`之间用`,`隔开
+
+- 更新多行时，如果有一行更新出现错误，则所有行都会被恢复到更新前的状态
+  - 使用`ignore`，出现错误也可以继续更新
+
+```sql
+update customers
+set cust_name = 'ink1234666',
+    cust_email = '111@.com'
+where cust_id = 10008;
+```
+
+ 
+
+## 删除数据
+
+`DELETE`
+
+- 使用`where`子句过滤从表中删除指定行
+
+> `DELETE`用于删除行，如果要删除`col`，需要使用`UPDATE`
+
+`delete from customers where cust_id = 10009;`
+
+**删除表中的所有行**
+
+使用`TRUNCATE TABLE`，比`DELETE`快
+
+- 直接删除表然后新建表，而不是逐一删除表中行
+
+
+
+# 操作表
+
+## 创建表
+
+`CREATE TABLE`
+
+1. 表名
+   1. 不存在
+2. 列名
+   1. 不重复
+3. 数据类型
+4. 表主键
+
+> 处理现有的表
+>
+> 1. 为了防止覆盖已有表，SQL要求先手动删除该表，再重新创建
+> 2. 使用`if not exits`实现仅在表不存在的时候创建
+>    1. 只是检查表名
+
+```sql
+CREATE TABLE customers
+(
+  cust_id      int       NOT NULL AUTO_INCREMENT,
+  cust_name    char(50)  NOT NULL ,
+  cust_address char(50)  NULL ,
+  cust_city    char(50)  NULL ,
+  cust_state   char(5)   NULL ,
+  cust_zip     char(10)  NULL ,
+  cust_country char(50)  NULL ,
+  cust_contact char(50)  NULL ,
+  cust_email   char(255) NULL ,
+  PRIMARY KEY (cust_id)
+) ENGINE=InnoDB;
+```
+
+### `NULL`值
+
+`NULL`值是没有值，不是空串
+
+- 允许`NULL`值的`col`可以在插入时不给出值
+- 创建每个表的`col`时定义是`NULL`还是`NOT NULL` 
+
+### 主键
+
+`PRIMARY KEY`必须唯一
+
+- 表中的每一行必须有唯一的主键
+- 主键唯一标识每一行，所以只能使用`NOT NULL`的`col`
+- 如果主键使用单个`col`，`col`值必须唯一
+- 如果主键使用多个`col`，多个`col`的组合值必须唯一
+
+> 主键可以在创建表时定义，也可以在创建表之后定义
+
+```sql
+PRIMARY KEY (cust_id)
+PRIMARY KEY (cust_id,cust_name)
+```
+
+### `AUTO_INCREMENT`
+
+- 每个表只允许一个`AUTO_INCREMENT`的`col`，而且它必须被索引
+  - 通常使这个`col`作为主键
+
+- `last_insert_id()`函数可以 获取`AUTO_INCREMENT`生成的值
+
+### 指定默认值
+
+`DEFAULT`
+
+- 创建表时指定`col`的默认值，如果插入时没有指定值，则使用默认值
+- MySQL不支持使用函数作为默认值，只能使用常量
+
+### 引擎类型
+
+`ENGINE`
+
+DBMS有一个具体管理和处理数据的内部引擎
+
+- 使用`CREATE TABLE`语句时，内部引擎具体创建表
+- 使用`SELECT`语句时，内部引擎处理请求
+
+不同的引擎有不同的功能和特性
+
+- InnoDB：支持事务处理，不支持全文本搜索
+- MEMORY：功能等同于MyISAM，数据存储在内存而不是磁盘
+- MyISAM：支持全文不搜索，不支持事务处理，性能高
+
+不同的表可以使用不同的引擎，但外键不能跨引擎
+
+- 用一个引擎的表不能引用使用不同引擎的表的外键
+
+
+
+## 更新表
+
+` ALTER TABLE`
+
+1. 表名
+   1. 必须存在
+2. 要更改的操作列表
+
+> 表中存储数据后，该表就不该被更新
+
+## 删除表
+
+`DROP TABLE`
+
+删除操作，没有确认，也没有撤销
+
+## 重命名表
+
+`RENAME TABLE TO`
+
+
+
+# 视图
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

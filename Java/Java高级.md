@@ -1267,7 +1267,7 @@ JDK8后：注解可以应用在**任何地方**
 
 # 集合
 
-为了方便对多个对象的操作，就要使用**容器**对对象进行**存储**（**内存**层面）。集合可以**动态**地把多个**对象的引用**放入容器中
+为了方便对多个对象的操作，使用**容器**对对象进行**存储**（**内存**层面），集合可以**动态**地把多个**对象的引用**放入容器中
 
 数组在存储方面的**弊端**
 
@@ -1278,12 +1278,10 @@ JDK8后：注解可以应用在**任何地方**
 
 
 
-**Java集合类**可以用于存储数量不等的多个对象，还可用于保存具有**映射关系**的关联数组
-
-Java集合分为`Collection`和`Map`两种体系（接口）
+**Java集合类**可以用于存储数量不等的多个对象，还可用于保存具有**映射关系**的关联数组。Java集合分为`Collection`和`Map`两种体系（接口）
 
 - `Collection`接口：**单列集合**，存储一个个对象
-  - `List`接口：元素**有序**、**可重复**的集合（动态数组）
+  - `List`接口：元素**有序**、**可重复**的集合
     - `Vector`
     - `Arraylist`
     - `LinkedList`
@@ -1291,7 +1289,7 @@ Java集合分为`Collection`和`Map`两种体系（接口）
     - `HashSet`
     - `LinkedHashSet`
     - `TreeSet`
-- `Map`接口：**双列集合**，存储具有**映射**关系key-value对
+- `Map`接口：**双列集合**，存储具有**映射**关系的key-value对
   - `HashMap`
   - `LinkedHashMap`
 
@@ -1303,7 +1301,7 @@ Java集合分为`Collection`和`Map`两种体系（接口）
 - JDK不提供`Collection`接口的任何**直接实现**，而是提供更具体的子接口实现（`Set`和`List`）
 - JDK5之前Java集合会丢失容器中对象的**数据类型**，把所有对象都当成`Object`类型处理
 
-> JDK5增加了**泛型**以后Java集合可以记住容器中对象的数据类型
+> JDK5增加了泛型以后Java集合可以记住容器中对象的数据类型
 
 ### 方法
 
@@ -1317,10 +1315,12 @@ Java集合分为`Collection`和`Map`两种体系（接口）
 - **判断集合是否为空**
   - `boolean isEmpty()`
 - **判断集合是否包含某个元素**
-  - `boolean contains(Object obj)`：调用对象所在类的`equals`方法来判断集合中每一个元素是否是目标元素（**obj对象需要重写`equals`方法**）
-  - `boolean containsAll(Collection c)`：调用对象所在类的`equals`方法来比较集合的每一个元素是否被包含
+  - `boolean contains(Object obj)`：调用对象所在类的`equals()`方法来判断集合中每一个元素是否是目标元素
+    - obj对象需要重写`equals()`方法
+  - `boolean containsAll(Collection c)`：调用对象所在类的`equals()`方法来比较集合的每一个元素是否被包含
 - **删除**
-  - `boolean remove(Object obj)` ：调用对象所在类的`equals`方法判断是否是要删除的那个元素，只会删除匹配的第一个元素（**obj对象需要重写`equals`方法**）
+  - `boolean remove(Object obj)` ：调用对象所在类的`equals()`方法判断是否是要删除的那个元素，只会删除匹配的第一个元素
+    - obj对象需要重写`equals()`方法
   - `boolean removeAll(Collection c)`：删除当前集合内两个集合的交集（取当前两个集合的差集）
 - **取两个集合的交集**
   - `boolean retainAll(Collection c)`：把交集的结果存在当前集合中，不影响c
@@ -1331,7 +1331,7 @@ Java集合分为`Collection`和`Map`两种体系（接口）
   - `list.toArray(new String[list.size()])`
 - **数组转换为集合**
   - `Arrays.asList()`：调用`Arrays`类的静态方法
-    - `Arrays.asList()`方法返回的对象是Arrays的内部类，是一个固定长度的`List`集合（既不是ArrayList实例也不是Vector实例）
+    - `Arrays.asList()`方法返回的对象是`Arrays`的内部类，是一个固定长度的`List`集合（既不是`ArrayList`实例也不是`Vector`实例）
     - 不支持`add()`,`remove()`操作
     - 不能用于基本类型
 - **获取集合对象的哈希值**
@@ -1623,25 +1623,25 @@ public class ForTest {
 
 ### List接口
 
-- List容器中的元素**有序、可重复**
-
-- List容器中的元素都对应一个整数型的**索引**，可以根据索引存取容器中的元素
+- `List`容器中的元素**有序、可重复**
+- `List`容器中的元素都对应一个整数型的**索引**
+  - 可以根据索引存取容器中的元素
 
 - `List`集合除了从`Collection`集合继承的方法外，还添加了一些**根据索引来操作集合元素**的方法
 
 > List有索引所以使用普通的for循环遍历（`list.size()`）
 
-List接口的常用**实现类**
+`List`接口的常用**实现类**
 
 - `ArrayList`
 
-  - List接口的主要（典型）实现类
+  - `List`接口的主要（典型）实现类
 
   - **线程不安全的，效率高**
 
   - 底层使用`Object[] elementData`存储
 
-      ![ArrayList底层数组](Java高级.assets/ArrayList底层数组.png)
+       ![ArrayList底层数组](Java高级.assets/ArrayList底层数组.png)
 
 - `LinkedList`
 
@@ -1651,7 +1651,7 @@ List接口的常用**实现类**
 
 - `Vector`
 
-  - List接口的古老实现类
+  - `List`接口的古老实现类
   
   - **线程安全的，效率低**
   
@@ -1659,7 +1659,13 @@ List接口的常用**实现类**
   
     > `Vector`由于效率问题已经被弃用
 
-
+> `Arraylist`底层使用的是数组
+>
+> - 存读数据效率高，插入删除特定位置效率低
+>
+> `LinkedList`底层使用的是双向链表
+>
+> - 插入，删除效率特别高
 
 #### ArrayList
 
@@ -1718,17 +1724,16 @@ list.add(123);
 
 #### LinkedList
 
-`LinkedList`继承`AbstractSequentialList`类
+`LinkedList`
 
-- 是`List`
-- 是`Queue`
-- 是`Deque`
+- 继承`AbstractSequentialList`类
+- 实现了`List`接口，`Queue`接口，`Deque`接口
 
-底层使用**双向链表**存储
+- 底层使用**双向链表**存储
+
 
 - 分配内存空间不是必须连续
-- 插入、删除操作时间复杂度为`O(1)`
-- 访问遍历元素时间复杂度为`O(n)`
+- 插入、删除操作时间复杂度为`O(1)`，访问遍历元素时间复杂度为`O(n)`
 
 ```java
 // 内部声明了Node(双向链表)类型的first和last属性,默认为NULL
@@ -1750,7 +1755,7 @@ list.add(123);
 
 ##### 方法
 
-添加元素add
+添加元素
 
 - `boolean add(E e)`：在链表末尾添加一个元素，成功返回`true`，否则返回`false`
 
@@ -1762,7 +1767,7 @@ list.add(123);
 
 - `boolean addAll(int index, Collection e)`：从index位置开始将e中的**所有元素**添加进来
 
-获取元素get
+获取元素
 
 - `Object get(int index)`：获取指定index位置的元素
 - `Object getFirst()`：获取链表头部元素
@@ -1771,7 +1776,7 @@ list.add(123);
 - `int lastIndexOf(E e)`：返回e在当前集合中**最后一次**出现的位置（没有则返回`-1`）
 - `List subList(int fromIndex, int toIndex)`：返回从fromIndex到toIndex位置的**子集合**
 
-删除元素remove
+删除元素
 
 - `Object remove(int index)`：删除链表index位置的元素并返回
   - `List`中的`remove()`方法重载了`Collection`的方法，一个根据索引删除，一个根据元素删除
@@ -1799,32 +1804,32 @@ list.toArray(new int[list.size()][]);
 
 ### set接口
 
-- Set容器中的**无序**、**不可重复**
-- Set接口没有提供额外的方法
-- Set判断两个对象是否相同是根据`equals()`方法，而不是使用`==`运算符
-- 存放在Set容器中的对象所在类一定要重写`equals()`和`hashCode()`方法，以实现**对象相等规则**
+- `Set`容器中的元素**无序**、**不可重复**
+- `Set`接口不提供额外的方法
+- `Set`判断两个对象是否相同是根据`equals()`方法，而不是使用`==`运算符
+- 存放在`Set`容器中的对象所在类一定要重写`equals()`和`hashCode()`方法，以实现**对象相等规则**
+  - 对象相等规则：相等的对象必须具有相等的散列码
+
 
 > 无序性：不是随机性。只是存储的数据在底层并非按照数组索引顺序添加
 >
 > 不可重复性：相同元素只能添加一个（调用`equals()`方法判断）
 >
-> 对象相等规则：相等的对象必须具有相等的散列码
 
+`Set`的**实现类**
 
-
-- `Set`的**实现类**
-  - `HashSet`
-    - `Set`接口的主要实现类
-    - **线程不安全的，效率高**
-    - 底层用**数组储存**
-    - 不能保证元素的排列顺序
-    - 可以存储`null`值
-    - 通过`hashCode()`方法比较相等
-  - `LinkedHashSet`
-    - `HashSet`的一个子类
-    - **可以按照添加的顺序遍历内部数据**
-  - `TreeSet`
-    - 可以按照添加的对象的指定属性进行**排序**
+- `HashSet`
+  - `Set`接口的主要实现类
+  - **线程不安全的，效率高**
+  - 底层用**数组储存**
+  - 不能保证元素的排列顺序
+  - 可以存储`null`值
+  - 通过`hashCode()`方法比较相等
+- `LinkedHashSet`
+  - `HashSet`的一个子类
+  - **可以按照添加的顺序遍历内部数据**
+- `TreeSet`
+  - 可以按照添加的对象的指定属性进行**排序**
 
 #### HashSet
 
@@ -1833,29 +1838,27 @@ list.toArray(new int[list.size()][]);
 1. **HashMap**
 2. **数组+链表**：初始容量为16，当使用率超过75%就会扩大为原来的2倍
 
-
-
 **添加对象过程**（数组+链表）
 
-**hashcode()找位置，equals()判断**
+1. `HashSet`调用要添加**对象所在类**的`hashCode()`方法来得到该对象的hashCode值
+2. 散列函数根据对象的hashCode值决定它在`HashSet`底层数组中的**存储位置**
+   1. 散列函数会利用**底层数组的长度**计算得到对象在数组中的下标
+   2. **散列函数计算会尽可能保证能均匀存储**，越是散列分布，该散列函数设计的越好
 
-1. `HashSet`调用要添加对象**所在类**的`hashCode()`方法来得到该对象的hashCode值
-2. 散列函数根据hashCode值决定该对象在`HashSet`底层数组中的**存储位置**（散列函数会利用**底层数组的长度**计算得到对象在数组中的下标，**散列函数计算会尽可能保证能均匀存储**。越是散列分布，该散列函数设计的越好）
 3. 如果该存储位置上**没有其他对象，则添加该对象**
 4. 如果该存储位置上有其他对象，则需要比较两个对象的hashCode值
    1. 如果两个对象的**hashCode值不相等，则通过链表的方式添加该对象**
-   2. 如果两个对象的hashCode值相等，HashSet再调用`equals()`方法
-      1. 如果`equals()`方法结果为true，则添加失败
-      2. 如果`equals()`方法结果为false，则添加该对象。但是由于该位置已经有元素了（可能已经链接了多个元素），就会**通过链表的方式添加该对象**
+   2. 如果两个对象的hashCode值相等，再调用`equals()`方法
+      1. 如果`equals()`方法结果为`true`，则添加失败
+      2. 如果`equals()`方法结果为`false`，**则通过链表的方式添加该对象**
 
+> `hashcode()`找位置，`equals()`判断
 
+**重写`hashCode()`方法**
 
-**hashCode**
-
-重写`hashCode()`方法
-
-- 同一个对象多次调用`hashCode()`方法应该返回相同的值
-- 当两个对象的`equals()`方法比较返回true 时，两个对象的`hashCode()`方法的返回值也应相等
+- 对同一个对象多次调用`hashCode()`方法应该返回相同的值
+- 如果两个对象的`equals()`方法返回true，两个对象的`hashCode()`方法的返回值也应相等
+- 如果两个对象`equals()`方法返回false，两个对象的`hashCode()`返回值也必须不同
 - 对象中用作`equals()`方法比较的属性，都应该用来计算hashCode值
 
 > IDEA中在自定义类调用工具自动重写`equals()`和`hashCode()`方法时默认使用31
@@ -1869,17 +1872,22 @@ list.toArray(new int[list.size()][]);
 
 #### LinkedHashSet
 
-- `LinkedHashSet`根据对象的hashCode值来决定对象的存储位置，但它同时使用**双向链表维护元素的次序**，这使得元素看起来是以插入顺序保存的
+- `LinkedHashSet`根据对象的hashCode值来决定对象的存储位置，它同时使用**双向链表维护元素的次序**，这使得元素看起来是以插入顺序保存的
 - `LinkedHashSet`插入性能略低于`HashSet`，但在迭代访问`Set`里的全部元素时有很好的性能
 
 
 
 #### TreeSet
 
-- `TreeSet`是`SortedSet`接口的实现类，可以确保集合中元素处于排序状态
-- `TreeSet`底层**使用红黑树结构存储数据**
-- `TreeSet`可以按照添加的对象的指定属性进行**排序**，所以要求添加的都是相同类的对象（有相同属性）
-- `TreeSet`有自然排序和定制排序两种排序方法，默认情况下采用自然排序
+底层**使用红黑树结构存储数据**
+
+- `TreeSet`是`SortedSet`接口的实现类，可以确保集合中元素处于**排序状态**
+- `TreeSet`可以按照添加的对象的**指定属性进行排序**
+  - 要求添加的都是相同类的对象（有相同属性）
+
+- `TreeSet`有自然排序和定制排序两种排序方法
+  - 默认情况下采用自然排序
+
 
 **自然排序**
 
@@ -2123,7 +2131,21 @@ public class MapTest {
 - 可以存储`null`值的`key`或者`value`
 - 与`HashSet`一样，不保证映射的顺序
 
-
+> `HashTable`
+>
+> - 操作几乎和`HashMap`一致，主要的区别在于`HashTable`为了实现多线程安全，在几乎所有的方法上都加上了`synchronized`锁，而加锁的结果就是`HashTable`操作的效率十分低下
+> - 现在基本已被淘汰，单线程转为使用`HashMap`，多线程使用`ConcurrentHashMap`
+>
+> JDK1.5中引入了`concurrent`包，`ConcurrentHashMap`是线程安全的
+>
+> - `ConCurrentHashMap`不允许存储`null`值的`key`或者`value`
+>
+> `ConcurrentHashMap`引入了**分段锁**的概念
+>
+> - 把一个大的`HashMap`拆分成n个小的`Segment`，根据`key.hashCode()`来决定把`key`放到哪个`Segment`中
+>   - 部分锁，只锁对应的`Segment`
+> - 默认把`segments`初始化为长度为16的数组
+> - JDK1.8之后`ConcurrentHashMap`启用了一种全新的方式实现（CAS算法）
 
 **底层原理**
 

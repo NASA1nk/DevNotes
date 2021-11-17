@@ -1841,38 +1841,7 @@ list.toArray(new int[list.size()][]);
 
 **底层原理**
 
-1. **HashMap**
-2. **数组+链表**：初始容量为16，当使用率超过75%就会扩大为原来的2倍
-
-**添加对象过程**（数组+链表）
-
-1. `HashSet`调用要添加**对象所在类**的`hashCode()`方法来得到该对象的hashCode值
-2. 散列函数根据对象的hashCode值决定它在`HashSet`底层数组中的**存储位置**
-   1. 散列函数会利用**底层数组的长度**计算得到对象在数组中的下标
-   2. **散列函数计算会尽可能保证能均匀存储**，越是散列分布，该散列函数设计的越好
-
-3. 如果该存储位置上**没有其他对象，则添加该对象**
-4. 如果该存储位置上有其他对象，则需要比较两个对象的hashCode值
-   1. 如果两个对象的**hashCode值不相等，则通过链表的方式添加该对象**
-   2. 如果两个对象的hashCode值相等，再调用`equals()`方法
-      1. 如果`equals()`方法结果为`true`，则添加失败
-      2. 如果`equals()`方法结果为`false`，**则通过链表的方式添加该对象**
-
-> `hashcode()`找位置，`equals()`判断
-
-**重写`hashCode()`方法**
-
-- 对同一个对象多次调用`hashCode()`方法应该返回相同的值
-- 如果两个对象的`equals()`方法返回true，两个对象的`hashCode()`方法的返回值也应相等
-- 如果两个对象`equals()`方法返回false，两个对象的`hashCode()`返回值也必须不同
-- 对象中用作`equals()`方法比较的属性，都应该用来计算hashCode值
-
-> IDEA中在自定义类调用工具自动重写`equals()`和`hashCode()`方法时默认使用31
->
-> - 31只占用5bits，相乘造成数据溢出的概率较小
-> - 31可以由`i*31 == (i<<5)-1`来表示，现在很多虚拟机里面都有做相关优化（提高算法效率）
-> - 31是一个素数，一个数字乘以素数的最终结果只能被素数本身和被乘数还有1来整除（减少冲突）
-> - 选择系数的时候要选择尽量大的系数，因为计算出来的hash地址越大，冲突就越少，查找起来效率也会提高
+- **数组+链表**：初始容量为16，当使用率超过75%就会扩大为原来的2倍
 
 
 
@@ -2019,12 +1988,16 @@ Java堆栈`Stack`类已经过时，官方推荐使用`Deque`替代`Stack`使用
 - `Map`用于存储**具有映射关系的双列数据**：`key:value`键值对
 - `Map`中的`key`和`value`可以是**任何引用类型的数据**
 - `key`和`value`之间存在**单向一对一**映射关系，通过指定的`key`总能找到**唯一确定**的`value`
-- `Map`中的`key`使用`Set`存储，所以`key`所在类必须重写`hashCode()`和`equals()`方法
-- `Map`中的的`value`使用`Collection`存储，所以`value`所在类要重写`equals()`方法
-- 一个`key:value`构成一个`Entry`对象，`Entry`使用`Set`存储
+- `Map`中的`key`使用`Set`存储
+  - 所以`key`所在类必须重写`hashCode()`和`equals()`方法
 
-> `Entry`对象表示一个映射项，映射项有两个属性：`key`和`value`
->
+- `Map`中的的`value`使用`Collection`存储
+  - 所以`value`所在类要重写`equals()`方法
+
+- 一个`key:value`构成一个`Entry`对象，`Entry`使用`Set`存储
+  - `Entry`对象表示一个映射项，映射项有两个属性：`key`和`value`
+
+
 > Map中一个`key`有且只有一个`value`，但是一个`value`可以对应多个`key`值
 
 
@@ -2033,7 +2006,7 @@ Java堆栈`Stack`类已经过时，官方推荐使用`Deque`替代`Stack`使用
 
 - `HashMap`
   - `LinkedHashMap`
-- `Hashtable`
+- `HashTable`
   - `Properties`
 - `SortedMap`接口
   - `TreeMap`
@@ -2044,7 +2017,7 @@ Java堆栈`Stack`类已经过时，官方推荐使用`Deque`替代`Stack`使用
 
 ### 方法
 
-- `int size()`：返回map中`key:value`对的个数
+- `int size()`：返回`map`中`key:value`对的个数
 - `boolean isEmpty()`：判断当前map是否为空
 - `Object put(Object key,Object value)`：将指定`key:value`添加（或修改）到当前map中
 - `void putAll(Map m)`：将m中的所有`key:value`对存放到当前map中
@@ -2388,7 +2361,7 @@ TreeMap实现的是 `NavigableMap`， 而不是直接实现 `Map`
 
 ### Properties
 
-- `Properties`类是`Hashtable`的子类，用于**处理属性文件**
+- `Properties`类是`HashTable`的子类，用于**处理属性文件**
 - 因为属性文件里的`key`和`value` 都是字符串类型，所以`Properties`里的`key`和`value`都是**字符串类型**
 - 创建文件：`New`-`File`（手动添加`properties`后缀）或者`Resource Bundle`（自动添加）
 - 存取数据时使用`setProperty()`方法和`getProperty()`方法
@@ -2410,15 +2383,17 @@ System.out.println(user);
 
 ## Collections工具类
 
-`Collections`是一个操作`Set`、`List`和`Map`等集合的工具类
+- `Collections`是一个操作`Set`、`List`和`Map`等集合的工具类
 
-`Collections`中提供了一系列**静态方法**，用来对集合元素进行排序、查询和修改等操作，还提供了对集合对象设置不可变、对集合对象实现同步控制等方法
+- `Collections`中提供了一系列**静态方法**
+  - 对集合元素进行排序、查询和修改等操作
+  - 对集合元素设置不可变、对集合对象实现同步控制等方法
 
 > 操作数组的工具类：`Arrays`
 
 
 
-**排序(静态方法)**
+**排序（静态方法）**
 
 - `reverse(List)`：反转`List`中元素的顺序（修改`list`）
 - `shuffle(List)`：对`List`中元素进行随机排序
@@ -2431,7 +2406,7 @@ System.out.println(user);
 
 **同步控制**
 
-**Collections**类中提供了多个`synchronizedXxx()`方法，可以**将指定集合包装成线程同步的集合**，从而可以解决多线程并发访问集合时的**线程安全问题**
+- **Collections**类中提供了多个`synchronizedXxx()`方法，可以**将指定集合包装成线程同步的集合**，从而可以解决多线程并发访问集合时的**线程安全问题**
 
 ### 自定义排序
 
@@ -2456,6 +2431,74 @@ Collections.sort(dictionary,new Comparator<String>(){
     }
 });
 ```
+
+## 重写`hashcode()`和`equals()`
+
+超类`Object`类中定义的`equals()`方法：用来比较两个引用所指向的对象的**内存地址是否一致**
+
+- `String`类重写了`Object`中的`equals()`方法 ，比较的是字符串内容
+
+超类`Object`类中定义的`hashCode()`方法：是`native`方法，由JVM根据某种策略为`Object`对象分配的一个`int`类型的哈希码（散列码）
+
+- 如果两个对象通过`equals()`比较不相等，那么两对象的hashCode值一定不同
+- 如果两个对象的hashCode值相同，两个对象不一定相同，还需要通过`equals()`再次判断
+
+> 所以当`equals()`方法被重写时，通常有必要重写`hashCode()`方法
+
+```java
+// 判断调用equals的对象和形参obj所引用的对象是否是同一对象
+public boolean equals(Object obj) {
+    return (this == obj);
+}
+
+// native方法
+public native int hashCode();
+```
+
+
+
+**hashcode在集合中的作用**
+
+- 添加元素时如果不通过hashcode值，随意存放在集合中，那么查找元素时就需要依次遍历集合中每个元素
+
+- 如果使用hashcode值，则直接通过计算得到索引，查找到元素
+
+> 即hashCode主要用于确定在散列结构中对象的存储地址，提高查询效率从而提高哈希表性能
+
+
+
+**`HashSet`和`HashMap`添加对象过程**
+
+1. 调用要添加**对象所在类**的`hashCode()`方法来得到该对象的hashCode值
+2. 散列函数根据对象的hashCode值决定它在`HashSet`底层数组中的**存储位置**
+   1. 散列函数会利用**底层数组的长度**计算得到对象在数组中的下标
+   2. **散列函数计算会尽可能保证能均匀存储**，越是散列分布，该散列函数设计的越好
+3. 如果该存储位置上**没有其他对象，则添加该对象**
+4. 如果该存储位置上有其他对象，则需要比较两个对象的hashCode值
+   1. 如果两个对象的**hashCode值不相等，则通过链表的方式添加该对象**
+      1. hashcode值不相等，`equals()`一定返回`false`
+   2. 如果两个对象的hashCode值相等，再调用`equals()`方法
+      1. 如果`equals()`方法结果为`true`，则添加失败
+      2. 如果`equals()`方法结果为`false`，**则通过链表的方式添加该对象**
+
+> `hashcode()`用于定位，`equals()`用于判断重复
+
+
+
+**重写`hashCode()`方法**
+
+要求
+
+- 对同一个对象多次调用`hashCode()`方法返回相同的值
+- 如果两个对象的`equals()`方法返回true，两个对象的`hashCode()`方法的返回值也应相等
+- 对象中用作`equals()`方法比较的属性，都应该用来计算hashCode值
+
+> IDEA中在自定义类调用工具自动重写`equals()`和`hashCode()`方法时默认使用31
+>
+> - 31只占用5bits，相乘造成数据溢出的概率较小
+> - 31可以由`i*31 == (i<<5)-1`来表示，现在很多虚拟机里面都有做相关优化（提高算法效率）
+> - 31是一个素数，一个数字乘以素数的最终结果只能被素数本身和被乘数还有1来整除（减少冲突）
+> - 选择系数的时候要选择尽量大的系数，因为计算出来的hash地址越大，冲突就越少，查找起来效率也会提高
 
 
 

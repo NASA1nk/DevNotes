@@ -1,100 +1,4 @@
-<!-- TOC -->
-
-- [JavaScript](#javascript)
-  - [JavaScript框架](#javascript框架)
-  - [UI框架](#ui框架)
-  - [JavaScript构建工具](#javascript构建工具)
-- [控制台调试](#控制台调试)
-- [引入JavaScript](#引入javascript)
-  - [内部标签](#内部标签)
-  - [外部引入](#外部引入)
-- [基本语法](#基本语法)
-  - [定义变量](#定义变量)
-  - [条件控制](#条件控制)
-  - [alert](#alert)
-  - [console.log](#consolelog)
-  - [注释](#注释)
-- [数据类型](#数据类型)
-  - [number](#number)
-  - [字符串](#字符串)
-  - [数组[ ]](#数组-)
-  - [对象{ }](#对象-)
-  - [布尔值](#布尔值)
-  - [逻辑运算](#逻辑运算)
-  - [比较运算符](#比较运算符)
-  - [Null和undefined](#null和undefined)
-- [strict模式](#strict模式)
-- [字符串](#字符串-1)
-  - [转义字符](#转义字符)
-  - [多行字符串](#多行字符串)
-  - [模板字符串](#模板字符串)
-- [数组](#数组)
-  - [数组长度](#数组长度)
-  - [数组遍历](#数组遍历)
-  - [方法](#方法)
-- [对象](#对象)
-  - [动态增删属性](#动态增删属性)
-  - [属性判断](#属性判断)
-- [流程控制](#流程控制)
-  - [if判断](#if判断)
-  - [while循环](#while循环)
-  - [for循环](#for循环)
-- [Map，Set](#mapset)
-  - [Map](#map)
-  - [Set](#set)
-  - [iterator遍历](#iterator遍历)
-- [函数](#函数)
-  - [函数定义](#函数定义)
-  - [调用函数](#调用函数)
-    - [不传参数](#不传参数)
-    - [多个参数](#多个参数)
-- [变量作用域](#变量作用域)
-  - [变量作用域提升](#变量作用域提升)
-  - [全局变量](#全局变量)
-  - [局部变量](#局部变量)
-  - [常量const](#常量const)
-- [解构赋值](#解构赋值)
-- [方法](#方法-1)
-  - [定义方法](#定义方法)
-  - [this](#this)
-  - [that](#that)
-  - [apply](#apply)
-- [内部对象](#内部对象)
-  - [标准对象](#标准对象)
-  - [Date](#date)
-  - [JSON](#json)
-    - [数据类型](#数据类型-1)
-    - [格式](#格式)
-    - [转换](#转换)
-- [面向对象](#面向对象)
-- [BOM](#bom)
-  - [浏览器内核](#浏览器内核)
-  - [BOM对象](#bom对象)
-- [DOM](#dom)
-  - [获得DOM节点](#获得dom节点)
-  - [更新DOM节点](#更新dom节点)
-    - [操作文本](#操作文本)
-    - [操作CSS](#操作css)
-  - [删除DOM节点](#删除dom节点)
-  - [插入DOM节点](#插入dom节点)
-- [表单](#表单)
-  - [操作表单](#操作表单)
-  - [表单提交和验证](#表单提交和验证)
-- [jQuery](#jquery)
-  - [获取jQuery](#获取jquery)
-  - [jQuery公式](#jquery公式)
-  - [jQuery选择器](#jquery选择器)
-  - [jQuery事件](#jquery事件)
-    - [页面载入](#页面载入)
-    - [鼠标事件](#鼠标事件)
-  - [jQuery操作DOM](#jquery操作dom)
-    - [DOM节点文本操作](#dom节点文本操作)
-    - [DOM节点CSS操作](#dom节点css操作)
-    - [DOM元素操作](#dom元素操作)
-    - [Ajax](#ajax)
-
-<!-- /TOC -->
-# JavaScript
+# `JavaScript`
 
 弱类型**脚本语言**，源代码不需要编译，由**浏览器解释**运行。用于控制网页行为
 
@@ -157,7 +61,7 @@
 
 ![新建JavaScript项目](JavaScript.assets/新建JavaScript项目.png)
 
-![JavaScript目录](JavaScript.assets/JavaScript目录.png)
+ ![JavaScript目录](JavaScript.assets/JavaScript目录.png)
 
 ## 内部标签
 
@@ -231,15 +135,18 @@ else{
 
 弹出（在控制台弹出变量时需要代码中有定义）
 
-![alert](JavaScript.assets/alert.png)
+> `windows.alert`
+
+ ![alert](JavaScript.assets/alert.png)
 
 ## console.log
 
 在浏览器的控制台打印变量（代码中需有定义）
 
-相当于`System.out.println()`
+> 相当于Java的`System.out.println()`
+>
 
-![console.log](JavaScript.assets/console.log.png)
+ ![console.log](JavaScript.assets/console.log.png)
 
 ## 注释
 
@@ -297,9 +204,9 @@ var person = {
 }
 ```
 
-取对象值：
+取对象值
 
-![对象](JavaScript.assets/%E5%AF%B9%E8%B1%A1.png)
+ ![对象](JavaScript.assets/%E5%AF%B9%E8%B1%A1.png)
 
 ## 布尔值
 
@@ -337,14 +244,14 @@ true
 
 - 只能通过`isNaN`方法判断这个数是否是NaN
 
-![NaN](JavaScript.assets/NaN.png)
+ ![NaN](JavaScript.assets/NaN.png)
 
 **浮点数比较**
 
 - 尽量避免使用浮点数进行运算，会有精度问题
 - 做差判断
 
-![浮点数比较](JavaScript.assets/%E6%B5%AE%E7%82%B9%E6%95%B0%E6%AF%94%E8%BE%83.png)
+ ![浮点数比较](JavaScript.assets/%E6%B5%AE%E7%82%B9%E6%95%B0%E6%AF%94%E8%BE%83.png)
 
 ## Null和undefined
 
@@ -386,7 +293,7 @@ console.log('a\'');
 console.log("a");
 ```
 
-![转义字符](JavaScript.assets/%E8%BD%AC%E4%B9%89%E5%AD%97%E7%AC%A6.png)
+ ![转义字符](JavaScript.assets/%E8%BD%AC%E4%B9%89%E5%AD%97%E7%AC%A6.png)
 
 
 
@@ -394,7 +301,7 @@ console.log("a");
 
 在**反引号``**之中即可（ESC下方）
 
-![多行字符串](JavaScript.assets/%E5%A4%9A%E8%A1%8C%E5%AD%97%E7%AC%A6%E4%B8%B2.png)
+ ![多行字符串](JavaScript.assets/%E5%A4%9A%E8%A1%8C%E5%AD%97%E7%AC%A6%E4%B8%B2.png)
 
 ```javascript
 'use strict';
@@ -420,7 +327,7 @@ let msg = `你好,${name}`
 console.log(msg)
 ```
 
-![模板字符串](JavaScript.assets/%E6%A8%A1%E6%9D%BF%E5%AD%97%E7%AC%A6%E4%B8%B2.png)
+ ![模板字符串](JavaScript.assets/%E6%A8%A1%E6%9D%BF%E5%AD%97%E7%AC%A6%E4%B8%B2.png)
 
 # 数组
 
@@ -446,7 +353,7 @@ var array = [ [1,2],[3,4],["5","6"] ]
 
 通过索引赋值时，索引超过了范围，同样会引起Array大小的变化：
 
-![数组](JavaScript.assets/%E6%95%B0%E7%BB%84.png)
+ ![数组](JavaScript.assets/%E6%95%B0%E7%BB%84.png)
 
 ## 数组遍历
 
@@ -505,7 +412,7 @@ person.name = "inkk"
 
 使用不存在的对象属性，不会报错，会提示undefined
 
-![对象未定义属性](JavaScript.assets/%E5%AF%B9%E8%B1%A1%E6%9C%AA%E5%AE%9A%E4%B9%89%E5%B1%9E%E6%80%A7.png)
+ ![对象未定义属性](JavaScript.assets/%E5%AF%B9%E8%B1%A1%E6%9C%AA%E5%AE%9A%E4%B9%89%E5%B1%9E%E6%80%A7.png)
 
 ## 动态增删属性
 
@@ -514,7 +421,7 @@ JavaScript的对象是**动态类型**
 - `delete`：删除一个属性
 - 直接定义一个属性(即添加)
 
-![动态改变属性](JavaScript.assets/%E5%8A%A8%E6%80%81%E6%94%B9%E5%8F%98%E5%B1%9E%E6%80%A7.png)
+ ![动态改变属性](JavaScript.assets/%E5%8A%A8%E6%80%81%E6%94%B9%E5%8F%98%E5%B1%9E%E6%80%A7.png)
 
 ## 属性判断
 
@@ -534,7 +441,7 @@ JavaScript的对象是**动态类型**
 
 
 
-![属性判断](JavaScript.assets/%E5%B1%9E%E6%80%A7%E5%88%A4%E6%96%AD.png)
+ ![属性判断](JavaScript.assets/%E5%B1%9E%E6%80%A7%E5%88%A4%E6%96%AD.png)
 
 # 流程控制
 
@@ -601,7 +508,7 @@ map.delete("tom")
 console.log(stu);
 ```
 
-![map](JavaScript.assets/map.png)
+ ![map](JavaScript.assets/map.png)
 
 ## Set
 
@@ -619,7 +526,7 @@ console.log(stu);
 var set = new Set([1,1,1,3]);
 ```
 
-![set](JavaScript.assets/set.png)
+ ![set](JavaScript.assets/set.png)
 
 ## iterator遍历
 
@@ -734,7 +641,7 @@ function abs(x){
 }
 ```
 
-![多个参数](JavaScript.assets/%E5%A4%9A%E4%B8%AA%E5%8F%82%E6%95%B0.png)
+ ![多个参数](JavaScript.assets/%E5%A4%9A%E4%B8%AA%E5%8F%82%E6%95%B0.png)
 
 `rest`
 
@@ -751,7 +658,7 @@ function test(a,b,...rest){
 }
 ```
 
-![rest](JavaScript.assets/rest.png)
+ ![rest](JavaScript.assets/rest.png)
 
 # 变量作用域
 
@@ -1089,13 +996,13 @@ var person = {
 };
 ```
 
-![apply](JavaScript.assets/apply.png)
+ ![apply](JavaScript.assets/apply.png)
 
 # 内部对象
 
 ## 标准对象
 
-![标准对象](JavaScript.assets/%E6%A0%87%E5%87%86%E5%AF%B9%E8%B1%A1.png)
+ ![标准对象](JavaScript.assets/%E6%A0%87%E5%87%86%E5%AF%B9%E8%B1%A1.png)
 
 ## Date
 
@@ -1117,13 +1024,15 @@ now.toLocalString()
 
 ## JSON
 
-**JavaScript Object Notation**
+`JavaScript Object Notation`
 
-json是一种轻量级的**数据交换格式**，**层次结构**简洁清晰，易于阅读编写，易于机器解析和生成，可以有效提升网络传输效率。
+- json是一种轻量级的**数据交换格式**，**层次结构**简洁清晰，易于阅读编写，易于机器解析和生成，可以有效提升网络传输效率
 
-JavaScript中一切皆对象（定义一个函数function，它也是一个对象），**任何JavaScript支持的类型都可以用JSON表示**
 
-> 早期数据传输习惯使用xml文件（重量级）,XML标记比数据多，增加了交换产生的流量
+- JavaScript中一切皆对象（定义一个函数function，它也是一个对象），**任何JavaScript支持的类型都可以用JSON表示**
+
+
+> 早期数据传输习惯使用xml文件（重量级），xml文件标记比数据多，增加了交换产生的流量
 >
 > BSON（Binary JSON）也是一种计算机数据交换格式，主要用于MongDB数据库，是一种二进制表示形式
 >
@@ -1136,7 +1045,7 @@ JavaScript中一切皆对象（定义一个函数function，它也是一个对�
 - `string`：JavaScript的`string`
 - `null`：JavaScript的`null`
 - `array`：JavaScript的`array`
-- `object`：JavaScript的`{ ... }`
+- `object`：JavaScript的`{}`
 
 > JSON的字符串必须用双引号`""`，object中的键也必须用双引号`""`
 
@@ -1185,7 +1094,7 @@ var jsonuser = JSON.stringify(person)
 var obj = JSON.parse('{"name": "ink", "age": 23, "school": "buaa"}')
 ```
 
-![json](JavaScript.assets/json.png)
+ ![json](JavaScript.assets/json.png)
 
 # 面向对象
 
@@ -1236,7 +1145,7 @@ var obj = JSON.parse('{"name": "ink", "age": 23, "school": "buaa"}')
   var youyu = new miniuser("ink",23);
   ```
 
-![class](JavaScript.assets/class.png)
+ ![class](JavaScript.assets/class.png)
 
 > 原型链：
 >
@@ -1246,7 +1155,7 @@ var obj = JSON.parse('{"name": "ink", "age": 23, "school": "buaa"}')
 
 # BOM
 
-浏览器对象模型BrowserObjectModel
+浏览器对象模型：`BrowserObjectModel`
 
 > JavaScript就是为了让它在浏览器中运行（操作浏览器）
 
@@ -1287,7 +1196,7 @@ var obj = JSON.parse('{"name": "ink", "age": 23, "school": "buaa"}')
 >
 > `getElementById`返回一个dom对象，可以直接操作。`getElementsByClassName`返回一个dom数组，就要通过索引操作dom对象。
 
-![doc](JavaScript.assets/doc.png)
+ ![doc](JavaScript.assets/doc.png)
 
 原生代码，后面使用`JQuery`
 
@@ -1311,7 +1220,7 @@ var p2 = document.getElementById("p2");
 var dc = div.children;
 ```
 
-![获取dom](JavaScript.assets/获取dom.png)
+ ![获取dom](JavaScript.assets/获取dom.png)
 
 ## 更新DOM节点
 
@@ -1319,22 +1228,22 @@ var dc = div.children;
 
 - 修改Text文本值`innerText `
 
-![修改Text文本值](JavaScript.assets/修改Text文本值.png)
+ ![修改Text文本值](JavaScript.assets/修改Text文本值.png)
 
 - 解析HTML文本标签`innerHTML`
 
-![解析HTML文本标签](JavaScript.assets/解析HTML文本标签.png)
+ ![解析HTML文本标签](JavaScript.assets/解析HTML文本标签.png)
 
 ### 操作CSS
 
 - 属性使用字符串（"red"）
 - 驼峰命名（fontSize）
 
-![修改CSS](JavaScript.assets/修改CSS.png)
+ ![修改CSS](JavaScript.assets/修改CSS.png)
 
 ## 删除DOM节点
 
-步骤：
+步骤
 
 1. 获取删除目标节点的**父节点**`parentElement`
 2. 通过父节点删除目标节点
@@ -1345,23 +1254,25 @@ var father = self.parentElement;
 father.removeChild(self)
 ```
 
-注意：
+**注意**
 
-- `removeChild`要求是dom对象，所以id选择的可以直接操作,如果是class数组,就要写成p1[0]形式
-- 删除多个数组节点的时候，dom对象数组是在动态变化的，下标一定要注意（比如3个节点，删了一个后，再用索引2就会报错）
+- `removeChild`要求是dom对象，所以id选择的可以直接操作，如果是class数组，就要写成`p1[0]`形式
+- 删除多个数组节点的时候，dom对象数组是在动态变化的，要注意下标（比如3个节点，删了一个后，再用索引2就会报错）
 
-![删除dom](JavaScript.assets/删除dom.png)
+ ![删除dom](JavaScript.assets/删除dom.png)
 
 ## 插入DOM节点
 
 `innerText` 和`innerHTML`只适用于向**空**的dom节点中添加元素，**如果节点中存在元素，就会被覆盖**
 
-- 创建节点：`createElement(tagName)`
-- **追加**节点：
+- 创建节点
+  - `createElement(tagName)`
+- **追加**节点
   - `append()`
   - `appendChild()`
   - `insertBefore(newNode,targetNode)`
-- 设置属性：`setAttribute('key','value')`
+- 设置属性
+  - `setAttribute('key','value')`
 
 ```html
 <body>
@@ -1406,13 +1317,13 @@ body.style.backgroundColor = '#319981';
 
 表单`form`也是DOM树中的一个节点，用来**提交信息**
 
-常见表单：
+常见表单
 
-1. 文本框：input（text）
-2. 下拉框：select
-3. 多选框：input（checkbox）
-4. 隐藏域：hidden
-5. 密码框：input（password）
+- 文本框：`input（text）`
+- 下拉框：`select`
+- 多选框：`input（checkbox）`
+- 隐藏域：`hidden`
+- 密码框：`input（password）`
 
 ## 操作表单
 
@@ -1443,7 +1354,7 @@ username.value = 'inkeee';
 var sex = document.getElementsByTagName('input')[2]
 ```
 
-![获取表单内容](JavaScript.assets/获取表单内容.png)
+ ![获取表单内容](JavaScript.assets/获取表单内容.png)
 
 
 
@@ -1532,8 +1443,6 @@ function f() {
 
 ![md5加密](JavaScript.assets/md5加密.png)
 
-
-
 **表单优化，隐藏原始密码**
 
 ```html
@@ -1572,11 +1481,13 @@ function f() {
 
 # jQuery
 
-**jQuery库**：里面有大量封装好的JavaScript函数
+**jQuery库**
 
-`$`：代表jQuery
+- 里面有大量封装好的JavaScript函数
 
-> 浏览器本身处理DOM也是有性能瓶颈的，尤其是在传统开发中，用JQuery或者原生的JavaScript DOM操作函数对DOM进行频繁操作的时候，**浏览器要不停的渲染新的DOM树**，导致页面看起来非常卡顿。
+- `$`：代表jQuery
+
+> 浏览器本身处理DOM也是有性能瓶颈的，尤其是在传统开发中，用JQuery或者原生的JavaScript DOM操作函数对DOM进行频繁操作的时候，**浏览器要不停的渲染新的DOM树**，导致页面看起来非常卡顿
 
 ## 获取jQuery
 
@@ -1619,8 +1530,6 @@ function f() {
 
 > selector：CSS中的选择器
 
-
-
 ```html
 <body>
 <a href="", id="test-jQuery">点击</a>
@@ -1641,7 +1550,7 @@ $('#test-jQuery').click(function (){
 })
 ```
 
-![第一个jQuery程序](JavaScript.assets/第一个jQuery程序.png)
+ ![第一个jQuery程序](JavaScript.assets/第一个jQuery程序.png)
 
 
 
@@ -1661,9 +1570,9 @@ $('#test-jQuery').click(function (){
 
 > jQuery API文档：https://jquery.cuishifeng.cn/
 
-![jQuery选择器](JavaScript.assets/jQuery选择器.png)
+ ![jQuery选择器](JavaScript.assets/jQuery选择器.png)
 
-![jQuery选择器例](JavaScript.assets/jQuery选择器例.png)
+ ![jQuery选择器例](JavaScript.assets/jQuery选择器例.png)
 
 
 
@@ -1673,7 +1582,7 @@ $('#test-jQuery').click(function (){
 - 键盘事件
 - 其他事件
 
-![常用事件](JavaScript.assets/常用事件.png)
+ ![常用事件](JavaScript.assets/常用事件.png)
 
 
 
@@ -1735,7 +1644,7 @@ $(function (){
 })
 ```
 
-![鼠标事件](JavaScript.assets/鼠标事件.png)
+ ![鼠标事件](JavaScript.assets/鼠标事件.png)
 
 
 
@@ -1753,7 +1662,7 @@ $('#test-ul li[name = python]').text('设置内容');
 $('#test-ul li[class = JavaScript]').html('<strong>JavaScript</strong>');
 ```
 
-![操作dom](JavaScript.assets/操作dom.png)
+ ![操作dom](JavaScript.assets/操作dom.png)
 
 
 
@@ -1763,13 +1672,13 @@ $('#test-ul li[class = JavaScript]').html('<strong>JavaScript</strong>');
 
 > API文档
 
-![jQuery操作css](JavaScript.assets/jQuery操作css.png)
+ ![jQuery操作css](JavaScript.assets/jQuery操作css.png)
 
 ```javascript
 $('#test-ul li[name = python]').css({ "color": "#ff0011", "background": "blue" });
 ```
 
-![jQuery操作CSS](JavaScript.assets/jQuery操作CSS-1618588254793.png)
+ ![jQuery操作CSS](JavaScript.assets/jQuery操作CSS-1618588254793.png)
 
 
 
@@ -1790,4 +1699,26 @@ $('#test-ul li[name = python]').hide();
 
 
 
-### Ajax
+# Ajax
+
+`Asynchronous JavaScript And XML`：异步的JavaScript和xml
+
+> 现在一般是JavaScript+JSON
+
+AJAX不是一门编程语言，只是一种技术。它和JavaScript有关，它的代码运行在客户端（因为JavaScript运行在浏览器），而不是服务端。
+
+## 异步请求
+
+JavaScript的同步请求
+
+- JavaScript的请求由JavaScript引擎负责，同步请求依赖JavaScript引擎
+  - 当JS发起一个请求后，如果没有收到服务端响应，它是不能做任何事的，处于等待状态，效率很低
+
+JavaScript的异步请求
+
+异步请求是由异步请求委托AJAX引擎（XMLHttpRequest对象）发起的。请求交给AJAX引擎后，异步请求引擎就可以做别的事情，等到AJAX引擎拿到响应给它后，它再渲染数据显示
+
+> 用于表单数据校验
+>
+> 填完账号，点击填写密码时，页面就讲填写的账号信息发送到服务器上校验并返回。在填写密码时就可以拿到校验数据，判断刚才填写的账号是不是正确的
+

@@ -1350,7 +1350,7 @@ public class ServletPropTest extends HttpServlet {
 >   ```xml
 >   <!--<web-app>-->
 >   <!--  <display-name>Archetype Created Web Application</display-name>-->
->                                                                               
+>                                                                                 
 >   <?xml version="1.0" encoding="UTF-8"?>
 >   <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
 >            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -2090,7 +2090,7 @@ public class SessionGetTest extends HttpServlet {
 
 
 
-# JavaVBean
+# JavaBean
 
 > Java：咖啡
 >
@@ -2110,7 +2110,7 @@ JavaBean的特定写法
 
 ## ORM
 
-对象关系映射
+**对象关系映射**
 
 - 数据库中的一张表对应Java中的一个类
 - 表中的字段对应类中的属性
@@ -2204,6 +2204,48 @@ class A{
 
 
 
+## 序列化
+
+对象序列化：将对象状态转化为可保持或传输的过程，一般的格式是与平台无关的二进制流
+
+**作用**
+
+- 持久化存储
+  - 可以将这种二进制流保存在磁盘上（作为文件）
+- 传输数据
+  - 可以通过网络将这种二进制流传输到另一个网络节点
+
+> 对象在内存中，断电即消失
+
+### 传输数据
+
+在分布式系统或者远程调用中，pojo对象必须可以被序列化（实现`Serializable`接口）
+
+- 在一个系统中将对象序列化后，经过网络传输到达另一个系统时，通过反序列化重构对象，使得在这个系统也可以使用这个对象
+
+> 单系统，单服务器则不用，对象的相互调用都在同一片内存中
+
+## JSON
+
+JSON作为一种轻量级的**数据交换格式**，采用完全**独立于编程语言的文本格式**来存储和表示数据，易于人阅读和编写，同时也易于机器解析和生成，并有效地提升网络传输效率
+
+- JavaScript本身对JSON支持很好，在前端比xml在解析方面更有优势
+- 格式与语言无关，所以不同语言编写的后端都可以使用JSON交互
+- JSON是一种文本格式，载体是字符串，任何语言都有字符串类型
+
+> xml也可以用来表示对象的，所以最开始Ajax选择xml作为数据交换格式
+>
+> JSON对象：是指符合JSON格式的JavaScript对象
+>
+> JSON字符串：是指符合JSON格式的字符串
+
+**JSON规范**
+
+- 键必须加双引号
+- 值不能是方法函数，不能是`undefined`或者`NaN`
+
+
+
 # MVC三层架构
 
 以前
@@ -2273,7 +2315,6 @@ class A{
   - 垃圾请求
   - 登录验证
   - 乱码问题
-  
 > 本质也是一个处理的Servlet
 
 ## 乱码问题

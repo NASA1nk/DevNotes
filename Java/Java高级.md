@@ -633,7 +633,7 @@ public class Time {
 
 - `compareTo()`方法并没有在`Object`类中声明，它是`Comparable`接口的唯一方法
 - `compareTo()`是一个泛型
-- 类实现了`Comparable`接口，就表明它的实例具有内在的排序关系
+- 类实现了`Comparable`接口，就表明它的实例具有**内在的排序关系**
 
 ### String和包装类
 
@@ -659,9 +659,9 @@ public int compareTo(String anotherString) {
 }
 ```
 
- ![String比较](Java高级.assets/String比较.png)
+![String比较](Java高级.assets/String比较.png)
 
- ![compareTo](Java高级.assets/compareTo.png)
+![compareTo](Java高级.assets/compareTo.png)
 
 ### 规则
 
@@ -768,7 +768,7 @@ public class Compare {
 }
 ```
 
- ![自定义排序结果](Java高级.assets/自定义排序.png)
+![自定义排序结果](Java高级.assets/自定义排序.png)
 
 
 
@@ -1735,6 +1735,8 @@ list.add(123);
 - 分配内存空间不是必须连续
 - 插入、删除操作时间复杂度为`O(1)`，访问遍历元素时间复杂度为`O(n)`
 
+> 想让`LinkedList`变成线程安全的，可以调用`Collections`静态类中的`synchronizedList`方法
+
 ```java
 // 内部声明了Node(双向链表)类型的first和last属性,默认为NULL
 LinkedList list = new LinkedList();
@@ -1758,14 +1760,18 @@ list.add(123);
 添加元素
 
 - `boolean add(E e)`：在链表末尾添加一个元素，成功返回`true`，否则返回`false`
-
 - `void add(int index, E e)`：在链表的index位置添加元素e
-
 - `void addFirst(E e)`：在链表头部插入元素e
-
 - `void addLast(E e)`：在链表尾部添加元素e
-
 - `boolean addAll(int index, Collection e)`：从index位置开始将e中的**所有元素**添加进来
+- `boolean addAll(Collection  e)`：将e中的所有元素添加到集合尾部
+
+> `addAll()`方法
+>
+> 1. 检查index范围是否在集合的size内
+> 2. 使用`toArray()`方法把要添加的集合数据存到对象数组中
+> 3. 查出插入位置index的前驱和后继节点
+> 4. 遍历数据，将数据插入到指定位置
 
 获取元素
 
@@ -1879,11 +1885,11 @@ list.toArray(new int[list.size()][]);
 
 #### TreeSet
 
-底层**使用红黑树结构存储数据**
+底层使用**红黑树**结构存储数据
 
 - `TreeSet`是`SortedSet`接口的实现类，可以确保集合中元素处于**排序状态**
 - `TreeSet`可以按照添加的对象的**指定属性进行排序**
-  - 要求添加的都是相同类的对象（有相同属性）
+  - 要求添加的都是相同类的对象（保证有相同属性）
 
 - `TreeSet`有自然排序和定制排序两种排序方法
   - 默认情况下采用自然排序
@@ -1901,6 +1907,8 @@ list.toArray(new int[list.size()][]);
 - 通过`Comparator`接口来实现，需要重写`compare()`方法
 - 比较两个对象是否相同通过`Comparator`（返回0），不再是`equals()`方法
 
+
+
 ### Deque接口
 
 **双端队列**（Double Ended Queue）
@@ -1909,9 +1917,9 @@ list.toArray(new int[list.size()][]);
   - `public interface Deque<E> extends Queue<E> {}`
 - 最常用的实现类是`LinkedList`，因为要经常进行增删操作
 
-**方法**
+#### 方法
 
-插入元素offer
+插入元素
 
 - `offerFirst()`：向队首插入元素，如果插入成功返回`true`，否则返回`false`
 
@@ -1920,7 +1928,7 @@ list.toArray(new int[list.size()][]);
   > - `addFirst()`：向队首插入元素，如果元素为空，则抛出异常
   > - `addLast()`： 向队尾插入元素，如果为空，则抛出异常
 
-移除元素poll
+移除元素
 
 - `pollFirst()`：返回并移除队首元素，如果队列无元素，则返回`null`
 
@@ -1929,7 +1937,7 @@ list.toArray(new int[list.size()][]);
   > - `removeFirst()`： 返回并移除队头元素，如果该元素是`null`，则抛出异常
   > - `removeLast()`：返回并移除队尾元素，如果该元素是`null`，则抛出异常
 
-获取元素peek
+获取元素
 
 - `peekFirst()`：获取队头元素但不移除，如果队列无元素，则返回`null`
 
@@ -1940,8 +1948,8 @@ list.toArray(new int[list.size()][]);
 
 栈操作
 
-- `pop()`：弹出栈中元素，也就是返回并移除队头元素，等价于`removeFirst()`，如果队列无元素，则抛出异常
-- `push()`：向栈中压入元素，也就是向队头增加元素，等价于`addFirst()`
+- `pop()`：等价于`removeFirst()`，如果队列无元素，则抛出异常
+- `push()`：等价于`addFirst()`
   - 如果元素为`null`，则抛出异常
   - 如果栈空间受到限制，则抛出异常
 
@@ -1949,7 +1957,9 @@ list.toArray(new int[list.size()][]);
 
 #### LinkedList实现
 
-在使用`LinkedList`的时候，总是用特定的接口来引用它，因为持有接口说明代码的抽象层次更高，而且接口本身定义的方法代表了特定的用途
+在使用`LinkedList`的时候，总是用特定的接口来引用它
+
+- 因为持有接口说明代码的抽象层次更高，而且接口本身定义的方法代表了特定的用途
 
 > 抽象编程的一个原则：尽量持有接口，而不是具体的实现类
 
@@ -1969,21 +1979,21 @@ d2.offerLast("z");
 
 ### Queue接口
 
-- 底层是一个特殊的线性表
+- 底层是一个特殊的**线性表**
 - 因为队列要经常进行增删操作，因此使用`LinkedList`链表来实现`Queue`接口更合适效率更高（而不是`ArrayList`）
 - `Queue`实现通常不允许插入`null`元素，尽管某些实现（如`LinkedList`）并不禁止插入`null`
   - 即使在允许`null`的实现中，也不应该将`null`插入到`Queue`中，因为`null`也用作`poll()`方法的一个特殊返回值，表明队列不包含元素
 
-**方法**
+#### 方法
+
+推荐使用`offer()`,`poll()`,`peek()`
 
 - `offer()`：从队尾添加元素并返回，超出容量时返回`false`
 - `poll()`：删除队首元素并返回，容量为0时会返回`false`
 - `peek()`：返回队首元素，容量为0时会返回`false`
 
-> 推荐使用`offer()`,`poll()`,`peek()`
->
 > - `element()`：返回队首元素，容量为0时会抛出异常
-> - `add()`：从队尾添加元素并返回，超出容量时会抛出异常
+>- `add()`：从队尾添加元素并返回，超出容量时会抛出异常
 > - `remove()`：删除并返回被删除的元素，容量为0时会抛出异常
 
 ### Stack
@@ -1994,23 +2004,13 @@ d2.offerLast("z");
 
 - `public class Stack<E> extends Vector<E>{}`
 
-> `LinkedList`具有能够直接实现栈所有功能的方法，因此可以直接将`LinkedList`作为栈使用
-
 Java堆栈`Stack`类已经过时，官方推荐使用`Deque`替代`Stack`使用
 
 - `Stack`是一个类，`Deque`是一个接口
 - Java只能单继承，但Java中的类可以实现任意数量的接口
 - 使用`Deque`接口消除了对具体`Stack`类及其祖先的依赖，有了更大的灵活性
 
-**方法**
-
-- `boolean empty()`：判断堆栈是否为空
-- `Object peek()`：获取堆栈顶部的对象
-- `Object pop()`：移除堆栈顶部的对象并返回
-- `Object push(Object element)`：将元素压入堆栈顶部
-- `int search(Object element)`：返回元素在堆栈中的位置，以1为基数
-
-> 一般还是使用`isEmpty()`方法
+> `LinkedList`具有能够直接实现栈所有功能的方法，因此可以直接将`LinkedList`作为栈使用
 
 
 

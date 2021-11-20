@@ -35,11 +35,11 @@ docker images | grep mysql
 docker run --name=mysql -p 3307:3306 -d -e MYSQL_ROOT_PASSWORD=1 mysql:5.7
 ```
 
- ![mysql配置文件](MySQL.assets/mysql配置文件.png)
+ ![mysql配置文件](MySQL必知必会.assets/mysql配置文件.png)
 
-![mysql数据文件](MySQL.assets/mysql数据文件.png)
+![mysql数据文件](MySQL必知必会.assets/mysql数据文件.png)
 
- ![mysql日志文件](MySQL.assets/mysql日志文件.png)
+ ![mysql日志文件](MySQL必知必会.assets/mysql日志文件.png)
 
 
 
@@ -239,13 +239,13 @@ mysqldump test -uroot -p1 Customer > /root/dump/Customer.sql
 
 输入MySQL服务器的url，用户和密码
 
- ![datagrip连接](MySQL.assets/datagrip连接.png)
+ ![datagrip连接](MySQL必知必会.assets/datagrip连接.png)
 
 ## 打开控制台
 
 右键数据库或表，打开控制台，就可以写sql
 
- ![datagripconsole](MySQL.assets/datagripconsole.png)
+ ![datagripconsole](MySQL必知必会.assets/datagripconsole.png)
 
 ## 创建数据库
 
@@ -257,7 +257,7 @@ mysqldump test -uroot -p1 Customer > /root/dump/Customer.sql
 2. 右键选择`Run`
 3.  选择创建的数据库运行
 
-![使用sql文件创建数据库](MySQL.assets/使用sql文件创建数据库.png)
+![使用sql文件创建数据库](MySQL必知必会.assets/使用sql文件创建数据库.png)
 
 ## 执行sql
 
@@ -280,7 +280,7 @@ mysqldump test -uroot -p1 Customer > /root/dump/Customer.sql
 
 > `Export data to Files`是导出各种单个文件，比如，SQL，HTML，TSV，CSV等文件，是在对某个表进行操作的时候使用的
 
-![导出表和数据](MySQL.assets/导出表和数据.png)
+ ![导出表和数据](MySQL必知必会.assets/导出表和数据.png)
 
 
 
@@ -403,7 +403,7 @@ col之间用逗号`,`隔开
 
 `select prod_id,prod_name,prod_price from products;`
 
-![检索多列](MySQL.assets/检索多列.png)
+![检索多列](MySQL必知必会.assets/检索多列.png)
 
 ## 检索所有列
 
@@ -764,7 +764,7 @@ col之间用逗号`,`隔开
 > - `s?`用于匹配0个或者1个`s`，这样可以匹配出`stick`和`sticks`
 > - `[[:digit:]]{4}`：也可以表示为`[0-9][0-9][0-9][0-9]`
 
-![正则匹配多个实例](MySQL.assets/正则匹配多个实例.png)
+ ![正则匹配多个实例](MySQL必知必会.assets/正则匹配多个实例.png)
 
 ## 位置匹配
 
@@ -809,7 +809,7 @@ col之间用逗号`,`隔开
 
 > - `trim()`：去掉串左右两边的空格
 
-![Concat拼接函数](MySQL.assets/Concat拼接函数.png)
+ ![Concat拼接函数](MySQL必知必会.assets/Concat拼接函数.png)
 
 ## 字段别名
 
@@ -830,7 +830,7 @@ alias
 
 `select Concat(rtrim(vend_name),'(',rtrim(vend_country),')') as vend_titile from vendors order by vend_name;`
 
-![别名alias](MySQL.assets/别名alias.png)
+ ![别名alias](MySQL必知必会.assets/别名alias.png)
 
 ## 算术计算
 
@@ -840,7 +840,7 @@ alias
 
 > `expanded_price` col是一个计算字段
 
-![算术运算](MySQL.assets/算术运算.png)
+![算术运算](MySQL必知必会.assets/算术运算.png)
 
 
 
@@ -1282,7 +1282,7 @@ subquery
 >
 > 即使`customers`中`cust_id=10002`的行没有在`orders`表中出现，也会作为结果被返回
 
-![外部联结](MySQL.assets/外部联结.png)
+ ![外部联结](MySQL必知必会.assets/外部联结.png)
 
 
 
@@ -1406,7 +1406,7 @@ create table productnotes(
 
 `select note_text,match(note_text) against('rabbit') as rank from productnotes;`
 
-![全文本搜索rank](MySQL.assets/全文本搜索rank.png)
+![全文本搜索rank](MySQL必知必会.assets/全文本搜索rank.png)
 
 ## 查询拓展
 
@@ -1767,7 +1767,7 @@ from productcustomer
 where prod_id = 'TNT2';
 ```
 
-![创建视图](MySQL.assets/创建视图.png)
+![创建视图](MySQL必知必会.assets/创建视图.png)
 
 
 

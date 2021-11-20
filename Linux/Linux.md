@@ -7,24 +7,24 @@
 ## 目录结构
 
 /  			   根目录
-├── bin   		存放用户二进制文件
+├── bin   		  存放用户二进制文件
 ├── boot  		存放内核引导配置文件
-├── dev  		 存放设备文件
-├── etc   		**存放系统配置文件**
-├── home  		**用户主目录**
-├── lib  		 动态共享库
+├── dev  		  存放设备文件
+├── etc   		  存放系统配置文件
+├── home  	  用户主目录
+├── lib  		    动态共享库
 ├── lost+found    文件系统恢复时的恢复文件
-├── media  	   可卸载存储介质挂载点
-├── mnt   	   **文件系统临时挂载点**
-├── opt   		附加的应用程序包
+├── media  	 可卸载存储介质挂载点
+├── mnt   	    文件系统临时挂载点
+├── opt   		 附加的应用程序包
 ├── proc  		系统内存的映射目录，提供内核与进程信息
-├── root  		root用户主目录
-├── sbin  		存放系统二进制文件
-├── srv   		存放服务相关数据
-├── sys   		sys虚拟文件系统挂载点
+├── root  		 root用户主目录
+├── sbin  		 存放系统二进制文件
+├── srv   		  存放服务相关数据
+├── sys   		  sys虚拟文件系统挂载点
 ├── tmp   		存放临时文件
-├── usr  	 	存放用户应用程序
-└── var  	 	存放邮件、系统日志等变化文件
+├── usr  	 	  存放用户应用程序
+└── var  	 	  存放邮件、系统日志等变化文件
 
 
 
@@ -1301,6 +1301,39 @@ sz filename
 ![文件传输](Linux.assets/文件传输.png)
 
 
+
+## scp
+
+secure copy：相当于`cp` + SSH
+
+- 底层是SSH 协议，默认端口是22
+- 相当于先使用`ssh`命令登录远程主机，然后再执行拷贝操作
+- 使用`scp`传输数据时，文件和密码都是加密的，不会泄漏敏感信息
+
+`scp source destination`
+
+- `source`是文件当前的位置，`destination`是文件所要复制到的位置
+  - 都可以包含用户名和主机名，用户名的默认值是本机的当前用户名，主机名默认为当前主机
+  - `scp`会使用SSH客户端的配置文件`.ssh/config`，如果配置文件里面定义了主机的别名，也可以使用别名
+- 支持一次复制多个文件
+- 如果要复制的文件在目标位置已经存在同名文件，`scp`会在没有警告的情况下覆盖同名文件
+
+```bash
+# 复制本机文件到远程系统
+scp SourceFile user@host:directory/TargetFile
+
+# 将远程主机（user@host）用户主目录下的foo.txt复制为本机当前目录的bar.txt
+scp user@host:foo.txt bar.txt
+
+# 将本机的doc目录拷贝到远程主机，会在远程主机创建doc目录
+# -r参数表示是否以递归方式复制目录
+scp -r doc user@host:path
+
+# 从远程主机A拷贝文件到远程主机B
+scp user1@host1:files/file.txt user2@host2:files
+
+scp .\redis-6.2.6.tar.gz dog@10.2.14.105:yinke/redis
+```
 
 
 

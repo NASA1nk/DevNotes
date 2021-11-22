@@ -55,7 +55,7 @@ list.add(123);
 
 - 提高容量以便至少满足最少`minCapacity`大小的容量
 
-> `oldCapacity`为旧容量，`newCapacity`为新容量，`minCapaciyt`为这次扩容最小需要的容量，`MAX_ARRAY_SIZE`是int的最大值-8
+> `oldCapacity`为旧容量，`newCapacity`为新容量，`minCapaciyt`为这次扩容最小需要的容量，`MAX_ARRAY_SIZE`是`Integer.MAX_VALUE - 8`
 
 **步骤**
 
@@ -80,15 +80,32 @@ private static int hugeCapacity(int minCapacity) {
 }
 ```
 
+### 更新
 
+1. 插入操作需要先检查**是否需要扩容**
+2. 插入和删除操作的移位操作都是利用**复制数组**完成
+
+`public static void arraycopy(Object src, int srcPos, Object dest, int destPos, int length)`
+
+```java
+// 将index及其之后的所有元素都向后移一位
+System.arraycopy(elementData, index, elementData, index + 1, size - index);
+
+// 将index+1及之后的元素向前移动一位，覆盖被删除值
+System.arraycopy(elementData, index+1, elementData, index, numMoved);
+```
 
 ## LinkedList
 
+底层使用**双向链表**存储
+
+- 存储元素过程中无需像`ArrayList`那样进行扩容
+
 ```java
-// 内部声明了Node(双向链表)类型的first和last属性,默认为NULL
+// 内部声明了Node（双向链表）类型的first和last属性，默认为NULL
 LinkedList list = new LinkedList();
 
-// 将123封装到Node中(相当于创建了Node对象)
+// 将123封装到Node中（相当于创建了Node对象）
 list.add(123);
 ```
 
@@ -96,9 +113,38 @@ list.add(123);
 
  ![Node内部类](JDK源码.assets/Node内部类.png)
 
+### 插入
+
+**在链表尾部插入元素**
+
+1. 创建节点，并指定节点前驱为链表尾节点`last`，后继引用为`null`
+2. 将`last`引用指向新节点
+3. 判断尾节点是否为空
+   1. 尾节点为空表示当前链表还没有节点
+4. 让原尾节点后继引用`next`指向新的尾节点`newNode`
+
  ![LinkedListadd](JDK源码.assets/LinkedListadd.png)
 
  ![LinkedListlinklast](JDK源码.assets/LinkedListlinklast.png)
+
+
+
+**在指定位置插入元素**
+
+1. 判断index是否是链表尾部位置，如果是，直接将元素节点插入链表尾部即可
+2. 如果不是，调用`linkBefore(E e, Node<E> succ)`将元素节点插入到`succ`之前的位置
+   1. 初始化节点`newNode`，并指明前驱`pred`和后继`succ`
+      1. `pred`是`succ`之前的前驱
+   2. 将`succ`的前驱引用`prev`指向新节点`newNode`
+   3. 判断尾节点是否为空
+      1. 尾节点为空表示当前链表还没有节点
+   4. 将`pred`的后继引用指向新节点`newNode`
+
+> 就是链表插入操作
+
+ ![LinkedList指定插入](JDK源码.assets/LinkedList指定插入.png)
+
+![linkBefore](JDK源码.assets/linkBefore.png)
 
 
 
@@ -106,70 +152,107 @@ list.add(123);
 
 ### JDK7
 
+底层结构：**数组+链表**
+
 1. 底层数组是`Entry[]`
-2. 底层结构：**数组+链表**
-3. 实例化对象后，底层创建了**长度为16**的一维数组`Entry[]`
+   1. 实例化对象后，底层创建了**长度为16**的一维数组`Entry[]`
+2. 使用链表解决哈希冲突
 
 ### JDK8
 
+底层结构：**数组+链表+红黑树**
+
 1. 底层数组是`Node[]`（`Node<K,V>[] table`）
-2. 底层结构：**数组+链表+红黑树**
-3. 当数组的某个位置上以链表形式存在的**数据个数>8**且当前**数组长度>64**时，此位置上所有的**数据改为使用红黑树存储**（方便查找）
-4. 实例化对象后，底层**并不直接创建**了长度为16的一维数组
-5. 调用`put()`方法后，底层才创建**长度为16**的一维数组`Node[]`
-6. 调用`key`所在类的`hascode()`方法计算`key`的hashcode值，通过**散列函数**找到`key`在`Entry`数组中的存放位置
-   - 如果此位置没有数据，则添加`key:value`
-   - 如果此位置有数据（一个或多个数据（链表形式）），逐一比较`key`和已经存在数据的hashcode值
-     - 如果`key`和已经存在数据的hashcode值都不同，则**以链表的方式**添加存储`key:value`
-     - 如果`key`和已经存在的某个数据的hashcode值相同，则调用equals()方法比较
-       - 如果返回false，则**以链表的方式**添加存储`key:value`
-       - 如果返回true，将要添加的`value`**替换已经存在的相同数据**的`value`值（覆盖）
+   1. 实例化对象后，底层**并不直接创建**了长度为16的一维数组
+   2. 调用`put()`方法后，底层才创建**长度为16**的一维数组`Node[]`
 
+#### 红黑树
 
+当满足两个条件时，执行**链表转红黑树**操作（树化）
 
-#### 重要常量
+1. 数组的某个位置上以链表形式存在的**数据个数 > 8**（默认阈值为 8）
+2. 当前**数组长度 > 64**
+
+> 此位置上所有的**数据改为使用红黑树存储**，以此来加快搜索速度
+>
+> 如果不满足条件，则对数据扩容
+
+#### 存储过程
+
+调用`key`所在类的`hascode()`方法计算`key`的hashcode值，通过**散列函数**找到`key`在`Entry`数组中的存放位置
+
+- 如果此位置没有数据，直接添加`key:value`
+- 如果此位置有数据，逐一比较`key`和已经存在的数据的hashcode值
+  - 如果`key`和已经存在数据的hashcode值都不同，则**以链表的方式**添加`key:value`
+  - 如果`key`和已经存在的某个数据的hashcode值相同，则再调用`equals()`方法比较
+    - 如果返回`false`，则**以链表的方式**添加`key:value`
+    - 如果返回`true`，则执行覆盖操作
+      - 将要添加的`value`**替换已经存在的相同数据**的`value`值
+
+#### 常量
 
 - `DEFAULT_INITIAL_CAPACITY`：HashMap的默认容量（16）
 - `MAXIMUM_CAPACITY`：HashMap支持的最大容量（2<sup>30</sup>）
 - `DEFAULT_LOAD_FACTOR`：HashMap的默认负载因子（0.75）
-- `TREEIFY_THRESHOLD`：Bucket中存储的Node个数大于该默认值时转化为红黑树（8）
-- `UNTREEIFY_THRESHOLD`：Bucket中红黑树存储的Node个数小于该默认值时转化为链表（6）
-- `MIN_TREEIFY_CAPACITY`：Bucket中的Node被树化时最小的hash表容量（64）
+- `TREEIFY_THRESHOLD`：Bucket中存储的`Node`个数大于该默认值时转化为红黑树（8）
+- `UNTREEIFY_THRESHOLD`：Bucket中红黑树存储的`Node`个数小于该默认值时转化为链表（6）
+- `MIN_TREEIFY_CAPACITY`：Bucket中的`Node`被树化时最小的hash表容量（64）
 - `entrySet`：HashMap存储具体元素的集合
 - `size`：HashMap存储的键值对的数量
 - `modCount`：HashMap扩容和结构改变的次数
 - `loadFactor`：填充因子`DEFAULT_LOAD_FACTOR`
-- `threshold`：HashMap扩容的临界值（**容量*负载因子** 16*0.75 = 12）
+- `threshold`：HashMap扩容的临界值（**容量*负载因子**：16*0.75 = 12）
+
+##### Bucket
+
+`Node`数组中可以**存放元素的位置**称之为桶（Bucket）
+
+- 每个Bucket都有一个对应的索引
+  - 可以根据索引快速的查找到Bucket中存储的元素
+
+- 每个Bucket中存储一个`Node`对象，每一个`Node`对象可以带一个引用变量（用于指向下一个元素）
+  - 所以在一个Bucket中可能是一个`Node`链
+
+
+- 当Bucket中存储的`Node`个数大到需要转化红黑树存储时，如果HashMap的容量小于`MIN_TREEIFY_CAPACITY`，执行`resize()`扩容而不转化为红黑树
+
+> `MIN_TREEIFY_CAPACITY`的值至少是`TREEIFY_THRESHOLD`的4倍
+
+##### 负载因子
+
+`threshold`
+
+- 按照其他语言的参考及研究经验，会考虑将负载因子设置为0.7~0.75，此时**平均检索长度接近于常数**
+
+负载因子的大小决定了HashMap的**数据密度**
+
+- 负载因子越大，密度越大，**发生碰撞的几率越高**，数组中的链表越容易长，造成查询或插入时的比较次数增多，性能会下降
+
+- 负载因子越小，**越容易触发扩容**，数据密度也越小，意味着发生碰撞的几率越小，数组中的链表也就越短，查询和插入时比较的次数也越小，性能会更高
+  - 但是会浪费一定的内存空间。而且**经常扩容也会影响性能**，建议初始化预设大一点的空间
+
+> 当超出`threshold`值时，如果要存放的位置非空，则默认扩容为原来容量的2倍
+>
 
  ![HashMap重要常量](JDK源码.assets/HashMap重要常量.png)
-
-#### 负载因子
-
-- 负载因子的大小决定了HashMap的数据密度
-- 负载因子越大，密度越大，发生碰撞的几率越高，数组中的链表越容易长，造成查询或插入时的比较次数增多，性能会下降
-- 负载因子越小，就越容易触发扩容，数据密度也越小，意味着发生碰撞的几率越小，数组中的链表也就越短，查询和插入时比较的次数也越小，性能会更高。但是会浪费一定的内容空间。而且经常扩容也会影响性能，建议初始化预设大一点的空间
-- 按照其他语言的参考及研究经验，会考虑将负载因子设置为0.7~0.75，此时平均检索长度接近于常数
-
-> 当超出threshold临界值时，若要存放的位置非空，则默认扩容为原来容量的2倍
->
-> 扩容后需要重新计算所有元素存放的位置
->
-> Node数组中可以存放元素的位置称之为bucket（桶）
->
-> - 每个bucket都有一个对应的索引，可以根据索引快速的查找到bucket中存储的元素
-> - 每个bucket中存储一个Node对象，每一个Node对象可以带一个引用变量（用于指向下一个元素）所以在一个bucket中可能是一个Node链
->
-> 当Bucket中存储的Node个数大到需要转化红黑树存储时，若hash表容量小于`MIN_TREEIFY_CAPACITY`，执行`resize()`扩容而不转化为红黑树
->
-> `MIN_TREEIFY_CAPACITY`的值至少是`TREEIFY_THRESHOLD`的4倍
 
 
 
 #### 扩容
 
+扩容后需要重新计算所有元素存放的位置
+
  ![HashMap空参构造器](JDK源码.assets/HashMap空参构造器.png)
 
+HashMap索引计算
+
  ![put方法中的hash](JDK源码.assets/put方法中的hash.png)
+
+`tab[i = (n - 1) & hash]`
+
+- 当HashMap长度为$2^n$时，模运算`%`可以变换为按位与`&`运算：`X % length = X & (length - 1)`
+  - 位运算`&`是要比模运算`%`效率高出很多
+  - 所以要求HashMap的容量必须为$2^n$
 
 ```java
 final V putVal(int hash, K key, V value, boolean onlyIfAbsent,

@@ -150,6 +150,18 @@ list.add(123);
 
 ## HashMap
 
+HashMap继承了`AbstractMap`，实现了`Map`、`Cloneable`和`Serializable`接口
+
+- `public class HashMap<K,V> extends AbstractMap<K,V> implements Map<K,V>, Cloneable, Serializable` 
+
+> HashMap继承`AbstractMap`的作用是：`AbstractMap`提供Map接口的骨干实现，以最大限度地减少实现此接口所需的工作
+>
+> Hashtable继承的是`Dictionary`抽象类，实现了`Map`、`Cloneable`和`Serializable`接口
+>
+> Hashtable直接使用`key`的hashcode值，HashMap的key的hashcode值是另外计算的，HashMap独立了hash算法，并且算法是通过key，value多次算出来的，减少了重复性
+
+
+
 ### JDK7
 
 底层结构：**数组+链表**
@@ -189,6 +201,19 @@ list.add(123);
     - 如果返回`true`，则执行覆盖操作
       - 将要添加的`value`**替换已经存在的相同数据**的`value`值
 
+**索引计算**
+
+`tab[i = (n - 1) & hash]`
+
+当HashMap长度为$2^n$时，模运算`%`可以变换为按位与`&`运算：`X % length = X & (length - 1)`
+
+- 位运算`&`是要比模运算`%`效率高出很多
+- 所以要求HashMap的容量必须为$2^n$
+
+ ![put方法中的hash](JDK源码.assets/put方法中的hash.png)
+
+
+
 #### 常量
 
 - `DEFAULT_INITIAL_CAPACITY`：HashMap的默认容量（16）
@@ -200,7 +225,7 @@ list.add(123);
 - `entrySet`：HashMap存储具体元素的集合
 - `size`：HashMap存储的键值对的数量
 - `modCount`：HashMap扩容和结构改变的次数
-- `loadFactor`：填充因子`DEFAULT_LOAD_FACTOR`
+- `loadFactor`：填充因子，默认为`DEFAULT_LOAD_FACTOR`
 - `threshold`：HashMap扩容的临界值（**容量*负载因子**：16*0.75 = 12）
 
 ##### Bucket
@@ -238,81 +263,114 @@ list.add(123);
 
 
 
-#### 扩容
+#### 构造函数
 
-扩容后需要重新计算所有元素存放的位置
+- `tableSizeFor`函数：将输入的任意值转化为大于等于此值的$2^n$
 
- ![HashMap空参构造器](JDK源码.assets/HashMap空参构造器.png)
+- HashMap没有在构造函数中进行数组空间的分配，而是在第一次使用`put`函数存储数据时分配空间
 
-HashMap索引计算
+![HashMap构造函数](JDK源码.assets/HashMap构造函数.png) 
 
- ![put方法中的hash](JDK源码.assets/put方法中的hash.png)
 
-`tab[i = (n - 1) & hash]`
 
-- 当HashMap长度为$2^n$时，模运算`%`可以变换为按位与`&`运算：`X % length = X & (length - 1)`
-  - 位运算`&`是要比模运算`%`效率高出很多
-  - 所以要求HashMap的容量必须为$2^n$
+#### 查找
+
+1. 根据键（key）定位所在的桶（Bucket）的位置
+   1. `(first = tab[(n - 1) & hash]) != null`
+2. 再对链表或红黑树进行查找
+   1. 如果`first`是`TreeNode`，调用红黑树的查找方法
+      1. `first instanceof TreeNode`
+   2. 否则对链表查找
+
+![HashMapget](JDK源码.assets/HashMapget.png)
+
+
+
+#### 插入
 
 ```java
 final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
                boolean evict) {
     Node<K,V>[] tab; Node<K,V> p; int n, i;
-    // 把当前的table赋值给tab
+    // 把当前的底层Node数组table赋给tab，判断HashMap的Node数组是否为空
     if ((tab = table) == null || (n = tab.length) == 0)
-        // 首次进入,使用resize()创建数组
+        // 如果是首次put，使用resize()创建一个Node<K,V>数组
         n = (tab = resize()).length;
-    // 找到对应位置,查看是否有数据
+    // 根据key的hashcode值找到要存储的位置，查看是否有数据
     if ((p = tab[i = (n - 1) & hash]) == null)
-        // 为空直接添加
+        // 如果没有数据直接插入一个数据节点
         tab[i] = newNode(hash, key, value, null);
     else {
-        // p是现有数据(第一个)的值
+        // 如果有数据，链表数据的头节点已经被赋给p
         Node<K,V> e; K k;
-        // 先判断hashcode值
+        // 先判断插入key的hashcode值和头节点p的hashcode值是否一样
         if (p.hash == hash &&
             ((k = p.key) == key || (key != null && key.equals(k))))
-            // 相同的话，把p添加到e中
+            // hashcode值相等且equals()返回true，则直接覆盖
             e = p;
+        // 判断当前Node是否为红黑树的TreeNode
         else if (p instanceof TreeNode)
+            // 存入红黑树中
             e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
+        // 判断当前Node是否为单向链表的Node
         else {
-            // 和第一个数据的hashcode值不相等
-            // 依次和所有的数据比较
+            // 如果和头节点的hashcode值不相等，再依次和所有节点数据比较
             for (int binCount = 0; ; ++binCount) {
-                // 只有一个元素
+                // 链表只有一个节点
                 if ((e = p.next) == null) {
-                    
                     p.next = newNode(hash, key, value, null);
                     if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
+                        // 将单向链表转换为红黑树
                         treeifyBin(tab, hash);
                     break;
                 }
-                // 还有元素，继续比较
-                // 上面判断已经赋值了e = p.next
+                // 比较链表其余节点，上面判断已经赋给了e = p.next
                 if (e.hash == hash &&
                     ((k = e.key) == key || (key != null && key.equals(k))))
                     break;
                 p = e;
             }
         }
+        // e不为空说明key存在，替换value即可
         if (e != null) { 
             // existing mapping for key
             V oldValue = e.value;
             if (!onlyIfAbsent || oldValue == null)
-                // key相等时替换对应的value
                 e.value = value;
             afterNodeAccess(e);
             return oldValue;
         }
     }
     ++modCount;
+    // 检查是否需要扩容
     if (++size > threshold)
         resize();
     afterNodeInsertion(evict);
     return null;
 }
 ```
+
+#### 扩容
+
+在HashMap中
+
+- `Node<K,V>[] table`的长度都是$2^n$
+- 阈值`threshold` =  HashMap容量`capacity` * 负载因子`loadFactor`
+- 当HashMap中的键值对数量`size`超过阈值时，进行扩容
+
+HashMap的扩容机制与其他变长集合的机制不太一样HashMap按当前`capacity`的2倍进行扩容，阈值`threshold`也变为原来的2倍
+
+- 如果计算过程中，阈值溢出归零，则按阈值公式重新计算
+
+- 扩容之后，要重新计算键值对的位置，并把它们移动到合适的位置上去
+
+`resize()`
+
+- 原`table`为`null`，开辟默认大小的空间
+- 原`table`不为null，开辟原来空间的2倍
+  - `newCap = oldCap << 1` 可能会大于HashMap支持的最大容量`MAXIMUM_CAPACITY`，此时将容量直接设为`Integer.MAX_VALUE`
+
+> 分配空间之后将原数组中的元素拷贝到新数组中
 
 ```java
 final Node<K,V>[] resize() {
@@ -321,6 +379,7 @@ final Node<K,V>[] resize() {
     int oldCap = (oldTab == null) ? 0 : oldTab.length;
     int oldThr = threshold;
     int newCap, newThr = 0;
+    // table数组是有长度的，则进行扩容处理
     if (oldCap > 0) {
         if (oldCap >= MAXIMUM_CAPACITY) {
             threshold = Integer.MAX_VALUE;

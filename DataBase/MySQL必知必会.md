@@ -1341,6 +1341,30 @@ subquery
 
 > 无法部分排序
 
+# 索引
+
+## 创建索引
+
+三种方式
+
+- `CREATE INDEX`
+  - `CREATE INDEX indexName ON tableName (columnName(length));`
+
+- `ALTER`
+  - `ALTER TABLE tableName ADD INDEX indexName(columnName);`
+
+- 创建表时创建索引
+
+## 查看索引
+
+`SHOW INDEX FROM tableName;`
+
+## 删除索引
+
+使用`ALTER`删除索引
+
+- `ALTER TABLE tableName DROP INDEX indexName;`
+
 
 
 # 全文本搜索

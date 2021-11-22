@@ -228,6 +228,8 @@ HashMap继承了`AbstractMap`，实现了`Map`、`Cloneable`和`Serializable`接
 - `loadFactor`：填充因子，默认为`DEFAULT_LOAD_FACTOR`
 - `threshold`：HashMap扩容的临界值（**容量*负载因子**：16*0.75 = 12）
 
+> 根据统计学的结果，hash冲突是符合泊松分布的，而冲突概率最小的是在7-8之间，都小于百万分之一了，所以`HashMap.loadFactor`选取只要在7-8之间的任意值即可
+
 ##### Bucket
 
 `Node`数组中可以**存放元素的位置**称之为桶（Bucket）
@@ -366,11 +368,15 @@ HashMap的扩容机制与其他变长集合的机制不太一样HashMap按当前
 
 `resize()`
 
-- 原`table`为`null`，开辟默认大小的空间
-- 原`table`不为null，开辟原来空间的2倍
-  - `newCap = oldCap << 1` 可能会大于HashMap支持的最大容量`MAXIMUM_CAPACITY`，此时将容量直接设为`Integer.MAX_VALUE`
+- 原`table`为`null`
+  - 开辟默认大小`DEFAULT_INITIAL_CAPACITY = 16`的空间
+  - 设置默认阈值`threshold`：16*0.75 = 12
+- 原`table`不为null
+  - 如果原本长度`oldCap`已经等于HashMap支持的最大容量`MAXIMUM_CAPACITY`，则直接返回
+  - 否则开辟原来空间的2倍空间：`newCap = oldCap << 1`，阈值也设置为2倍
+    -  可能会大于HashMap支持的最大容量`MAXIMUM_CAPACITY`
 
-> 分配空间之后将原数组中的元素拷贝到新数组中
+> 分配空间之后将原数组中的元素拷贝到新数组中，然后将table的引用指向新数组，原数组则等待GC进行处理
 
 ```java
 final Node<K,V>[] resize() {
@@ -390,10 +396,11 @@ final Node<K,V>[] resize() {
             newThr = oldThr << 1; // double threshold
     }
     else if (oldThr > 0) // initial capacity was placed in threshold
+        // 初始化时指定了threshold
         newCap = oldThr;
     else {               
         // zero initial threshold signifies using defaults
-        // 首次进入执行,newCap = 16
+        // 使用默认threshold，首次进入执行，newCap = 16
         newCap = DEFAULT_INITIAL_CAPACITY;
         // newThr = 16*0.75 = 12
         newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
@@ -409,6 +416,7 @@ final Node<K,V>[] resize() {
     // newCap = 16,创建好了长度为16的数组
     Node<K,V>[] newTab = (Node<K,V>[])new Node[newCap];
     table = newTab;
+    // 拷贝
     if (oldTab != null) {
         for (int j = 0; j < oldCap; ++j) {
             Node<K,V> e;
@@ -455,3 +463,41 @@ final Node<K,V>[] resize() {
 }
 ```
 
+#### 创建
+
+使用已存在的Map对象`map1`来构建一个新的Map对象`map2`时会进行的操作
+
+`Map<Integer,Integer> map2 = new HashMap<Integer,Integer>(map1);`
+
+1. 首先对table进行检查
+   1. 如果table为`null`，则算出`threshold`，为第一次调用`putVal`方法时为table分配空间
+   2. 如果table不为`null`，检查是否需要扩容
+2. 最后将需要添加的数据集合使用`putVal`方法的加入到数组table中
+
+```java
+public HashMap(Map<? extends K, ? extends V> m) {
+    this.loadFactor = DEFAULT_LOAD_FACTOR;
+    putMapEntries(m, false);
+}
+
+final void putMapEntries(Map<? extends K, ? extends V> m, boolean evict) {
+    int s = m.size();
+    if (s > 0) {
+        if (table == null) { // pre-size
+            float ft = ((float)s / loadFactor) + 1.0F;
+            int t = ((ft < (float)MAXIMUM_CAPACITY) ?
+                     (int)ft : MAXIMUM_CAPACITY);
+            if (t > threshold)
+                threshold = tableSizeFor(t);
+        }
+        else if (s > threshold)
+            // 如果table不为空，且添加的map的长度大于阈值，则进行扩容
+            resize();
+        for (Map.Entry<? extends K, ? extends V> e : m.entrySet()) {
+            K key = e.getKey();
+            V value = e.getValue();
+            putVal(hash(key), key, value, false, evict);
+        }
+    }
+}
+```

@@ -2,6 +2,8 @@
 
 ## ArrayList
 
+底层基于数组`Object[] elementData`实现
+
 ### JDK7
 
 饿汉式
@@ -13,7 +15,7 @@
 > 搜索类中方法快捷键：`ctrl+F12`
 
 ````java
-// 空参构造器的底层创建一个初始容量为10的Object数组elementData
+// 空参构造器：创建一个初始容量为10的Object数组
 ArrayList list = new Arraylist();
 
 // elementData[0] = new Integer(123)
@@ -24,8 +26,6 @@ list.add(123);
 
  ![JDK7饿汉](JDK源码.assets/JDK7饿汉.png)
 
- ![JDK7扩容](JDK源码.assets/JDK7扩容.png)
-
 ### JDK8
 
 懒汉式
@@ -34,7 +34,7 @@ list.add(123);
 - 延迟数组的创建时间，节省内存
 
 ```java
-// 空参构造器的底层创建一个空的Object[] elementData
+// 空参构造器：创建一个空的Object[] elementData
 // 并没有创建一个长度为10的Object[] elementData
 ArrayList list = new Arraylist();
 
@@ -48,6 +48,37 @@ list.add(123);
  ![JDK8初始化](JDK源码.assets/JDK8初始化.png)
 
  ![JDK8懒汉式](JDK源码.assets/JDK8懒汉式.png)
+
+### 扩容
+
+**目的**
+
+- 提高容量以便至少满足最少`minCapacity`大小的容量
+
+> `oldCapacity`为旧容量，`newCapacity`为新容量，`minCapaciyt`为这次扩容最小需要的容量，`MAX_ARRAY_SIZE`是int的最大值-8
+
+**步骤**
+
+1. 将新容量更新为旧容量的1.5倍（预计要扩容到的容量）
+   1. 并不是扩容到`minCapacity + 1`，这是为了避免频繁扩容，所以预先申请1.5倍的容量，采用了空间换时间的思想
+2. 检查新容量是否大于最小需要容量，如果小于最小需要容量，那么就把最小需要容量当作数组的新容量
+3. 检查新容量是否大于`MAX_ARRAY_SIZE`
+   1. 如果大于`MAX_ARRAY_SIZE`，就扩容到int的最大值`Integer.MAX_VALUE`
+
+> 因为数组理论上的最大长度就是`Integer.MAX_VALUE`，`MAX_ARRAY_SIZE`是个别JVM设计上的问题，但并不是说一定因为个别JVM就一定不让扩容到最大长度
+
+ ![JDK7扩容](JDK源码.assets/JDK7扩容.png)
+
+```java
+// 减8是因为有些JVM需要用数组中的8个字节空间去保存header words，如果分配超过MAX_ARRAY_SIZE，可能会OOM
+private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
+
+private static int hugeCapacity(int minCapacity) {
+    if (minCapacity < 0)
+        throw new OutOfMemoryError();
+    return (minCapacity > MAX_ARRAY_SIZE) ? Integer.MAX_VALUE : MAX_ARRAY_SIZE;
+}
+```
 
 
 

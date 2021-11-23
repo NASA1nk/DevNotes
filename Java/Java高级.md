@@ -2045,16 +2045,6 @@ public class MapTest {
 > - 操作几乎和`HashMap`一致，主要的区别在于`HashTable`为了实现多线程安全，在几乎所有的方法上都加上了`synchronized`锁，而加锁的结果就是`HashTable`操作的效率十分低下
 > - 现在基本已被淘汰，单线程转为使用`HashMap`，多线程使用`ConcurrentHashMap`
 >
-> JDK1.5中引入了`concurrent`包，`ConcurrentHashMap`是线程安全的
->
-> - `ConCurrentHashMap`不允许存储`null`值的`key`或者`value`
->
-> `ConcurrentHashMap`引入了**分段锁**的概念
->
-> - 把一个大的`HashMap`拆分成n个小的`Segment`，根据`key.hashCode()`来决定把`key`放到哪个`Segment`中
->   - 部分锁，只锁对应的`Segment`
-> - 默认把`segments`初始化为长度为16的数组
-> - JDK1.8之后`ConcurrentHashMap`启用了一种全新的方式实现（CAS算法）
 
 
 

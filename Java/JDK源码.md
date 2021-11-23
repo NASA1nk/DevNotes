@@ -167,8 +167,12 @@ HashMap继承了`AbstractMap`，实现了`Map`、`Cloneable`和`Serializable`接
 底层结构：**数组+链表**
 
 1. 底层数组是`Entry[]`
-   1. 实例化对象后，底层创建了**长度为16**的一维数组`Entry[]`
+   1. `Entry`是HashMap中的一个**内部类**
+   2. 实例化对象后，底层创建了**长度为16**的一维数组`Entry[]`
+   
 2. 使用链表解决哈希冲突
+
+> 当hash冲突严重时，在桶上形成的链表会变的越来越长，这样在查询时的效率就会越来越低（时间复杂度为 `o(n)`）
 
 ### JDK8
 
@@ -294,7 +298,7 @@ HashMap继承了`AbstractMap`，实现了`Map`、`Cloneable`和`Serializable`接
 final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
                boolean evict) {
     Node<K,V>[] tab; Node<K,V> p; int n, i;
-    // 把当前的底层Node数组table赋给tab，判断HashMap的Node数组是否为空
+    // 把当前的底层Node数组table赋给tab，判断HashMap的Node数组table是否为空
     if ((tab = table) == null || (n = tab.length) == 0)
         // 如果是首次put，使用resize()创建一个Node<K,V>数组
         n = (tab = resize()).length;
@@ -321,12 +325,13 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
                 // 链表只有一个节点
                 if ((e = p.next) == null) {
                     p.next = newNode(hash, key, value, null);
+                    // 判断当前链表的大小是否大于预设的阈值，大于就要转换为红黑树
                     if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
-                        // 将单向链表转换为红黑树
                         treeifyBin(tab, hash);
                     break;
                 }
                 // 比较链表其余节点，上面判断已经赋给了e = p.next
+                // 找到key相同时直接退出遍历
                 if (e.hash == hash &&
                     ((k = e.key) == key || (key != null && key.equals(k))))
                     break;
@@ -501,3 +506,107 @@ final void putMapEntries(Map<? extends K, ? extends V> m, boolean evict) {
     }
 }
 ```
+
+
+
+## ConcurrentHashMap
+
+JDK1.5中引入了`concurrent`包，`ConcurrentHashMap`是线程安全的
+
+- `ConCurrentHashMap`不允许存储`null`值的`key`或者`value`
+
+### Segment
+
+`ConcurrentHashMap`引入了**分段锁**的概念
+
+- 把一个大的`HashMap`拆分成n个小的`Segment`，根据`key.hashCode()`来决定把`key`放到哪个`Segment`中
+  - 部分锁，只锁对应的`Segment`
+- 默认把`segments`初始化为长度为16的数组
+- JDK1.8之后`ConcurrentHashMap`启用了一种全新的方式实现（CAS算法）
+
+### JDK7
+
+底层结构：**数组+链表**
+
+- `Segment`是ConcurrentHashMap的一个内部类
+  - 和HashMap中的`Entry`作用一样，是存放数据的桶Bucket
+
+```java
+final Segment<K,V>[] segments;
+transient Set<K> keySet;
+transient Set<Map.Entry<K,V>> entrySet;
+```
+
+`Segment`
+
+- `value`，链表都是`volatile`关键词修饰的，保证了获取时的可见性
+  - 虽然`value`是用`volatile`关键词修饰的，但是并不能保证并发的原子性，所以`put`操作时仍然需要加锁
+- ConcurrentHashMap支持`Segment`数组数量的线程并发
+  - 每当一个线程占用锁访问一个`Segment`时，不会影响到其他的`Segment`
+
+```java
+static final class Segment<K,V> extends ReentrantLock implements Serializable {
+    
+private static final long serialVersionUID = 2249069246763182397L;
+
+transient volatile HashEntry<K,V>[] table;
+
+transient int count;
+
+transient int modCount;
+
+transient int threshold;
+
+final float loadFactor;
+}
+```
+
+#### 插入
+
+1. 通过key定位到`Segment`
+2. 在对应的`Segment`中进行具体的`put`
+   1. 尝试获取锁，如果获取失败说明有其他线程存在竞争，利用 `scanAndLockForPut()` **自旋获取锁**
+   2. 如果重试的次数达到了`MAX_SCAN_RETRIES` 则改为**阻塞锁获取**，保证能获取成功
+   3. 最后会解除在1中所获取当前`Segment`的锁
+
+### JDK8
+
+> JDK7的查询遍历链表效率太低
+
+抛弃了原有的`Segment`分段锁
+
+- 改用`CAS + synchronized`来保证并发安全性
+- 引入红黑树
+
+#### 插入
+
+1. 根据`key`计算hash值
+2. 判断是否需要进行初始化
+3. 根据hash值定位`Node`，如果为空表示当前位置可以写入数据
+   1. 利用CAS尝试写入，**失败则自旋保证成功**
+4. 判断是否需要进行扩容
+5. 如果都不满足，利用`synchronized`锁写入数据
+6. 如果元素数量大于 `TREEIFY_THRESHOLD` 则要转换为红黑树
+
+
+
+#### CAS
+
+`Compare And Swap`
+
+- 属于原子操作的一种，能够保证**一次读写操作是原子的**
+- CAS 通过**将内存中的值与期望值进行比较**，只有在两者相等时才会对内存中的值进行修改
+
+> CAS是支撑JUC的基础，能够在保证性能的同时提供并发场景下的线程安全性
+
+CAS机制虽然无需加锁、安全且高效，但也存在一些缺点
+
+- 循环检查的时间可能较长
+  - 但可以限制循环检查的次数
+- 只能对一个共享变量执行原子操作
+- 存在ABA问题
+
+> ABA问题：指在CAS两次检查操作期间，目标变量的值由A变为B，又变回A，但是CAS看不到这中间的变换，对它来说目标变量的值并没有发生变化，一直是A，所以CAS操作会继续更新目标变量的值
+>
+> 大部分时候该问题并不会对结果产生实质性影响
+

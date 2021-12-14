@@ -1360,12 +1360,12 @@ scp .\redis-6.2.6.tar.gz dog@10.2.14.105:yinke/redis
 
 ### Host Key
 
-- Host Key由SSH自行生成：Public Key和Private Key
+- `Host Key`由SSH自行生成：`Public Key`和`Private Key`
 
-- 服务端拥有Public Key和Private Key，并将Public Key发送给客户端
+- 服务端拥有`Public Key`和`Private Key`，并将`Public Key`发送给客户端
 
 
-- 如果客户端通过Host Key发现从来没有连接过这台服务器，会询问用户是否要继续连接
+- 如果客户端通过`Host Key`发现从来没有连接过这台服务器，会询问用户是否要继续连接
   - 用户同意连接后客户端会在本地的`.ssh\known_hosts`文件记录这台服务器的信息，下次连接时客户端就不会再次询问用户
 
 ### 证书

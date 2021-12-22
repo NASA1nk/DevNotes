@@ -30,7 +30,7 @@ https://docs.docker.com/engine/install/
 
 宿主机->docker引擎->容器
 
-- 通过namespaces隔离了进程树，网络接口和挂载点，实现进程之间的通信。
+- 通过namespaces隔离了进程树，网络接口和挂载点，实现进程之间的通信
 - 通过CGroups隔离了CPU，内存，磁盘I/O和网络带宽
 - 通过联合文件系统构成docker文件，镜像等
 

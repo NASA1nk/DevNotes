@@ -155,7 +155,29 @@ location / {
 nginx镜像中的**默认配置**
 
 - 日志位置：`/var/log/nginx/`
-- 配置文件：`/etc/nginx/nginx.conf`，`/etc/nginx/conf.d/`
+
+  - `access.log`
+  - `error.log`
+
+- 配置文件：`/etc/nginx/nginx.conf`，`/etc/nginx/conf.d/default.conf`
+
 - 文件位置：`/usr/share/nginx/html`
-  - nginx静态目录，不用修改，不用挂载
+
+  - `index.html`
+  - `50x.html`
+
+  > nginx静态目录，不用修改，不用挂载
+
+```bash
+# 必须后台启动 -d
+docker run -d -p 1010:80 --name inknginx nginx
+```
+
+挂载配置文件
+
+- 将打包好的前端目录`dist`直接放到对应的copfront.admin文件夹内
+
+```bash
+docker run --name inknginx -p 1010:80 -d -v /home/dog/yinke/nginx/nginx.conf:/etc/nginx/nginx.conf -v /home/dog/yinke/nginx/logs:/var/log/nginx -v /home/dog/yinke/nginx/dist/:/usr/share/html/frontend/ nginxcd d
+```
 

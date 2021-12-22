@@ -1335,7 +1335,13 @@ scp user1@host1:files/file.txt user2@host2:files
 scp .\redis-6.2.6.tar.gz dog@10.2.14.105:yinke/redis
 ```
 
-
+> scp传文件时提示错误`not a regular file`不能成功传送
+>
+> **解决方案**
+>
+> - 有可能没权限`chmod 777`
+> - 在使用`scp`时加上`-r`参数
+>   - `scp -r SourceFile user@host:directory/TargetFile`
 
 # SSH
 

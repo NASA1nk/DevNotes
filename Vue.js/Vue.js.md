@@ -698,7 +698,7 @@ Mustache语法不能作用在HTML标签的属性`attribute`上
 - 动态绑定的`class`属性可以与普通的`class`属性共存
 - 可以绑定计算属性（返回对象）
 
-​```html
+```html
 <!DOCTYPE html>
 <html lang="en" xmlns:v-bind="">
 <head>

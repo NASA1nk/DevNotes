@@ -570,22 +570,6 @@ docker inspect -f ='{{.NetworkSettings.IPAddress}}' 容器id
 docker commit -m = "描述信息" -a = "作者" 容器id 目标镜像名:[TAG]
 ```
 
-### docker build
-
-使用Dockerfile构建成镜像
-
-- `-f`：指定要使用的Dockerfile路径，使用当前目录的Dockerfile时可以省略 
-- `-t/--tag`: 镜像名及标签，可以在一次构建中为一个镜像设置多个标签（也可以省略标签）
-
-```shell
-docker build -f 文件路径 -t 用户名/image:Tag
-# .表示当前目录
-docker build -t 用户名/image:Tag .
-
-#使用URL github.com/creack/docker-firefox的Dockerfile创建镜像
-docker build github.com/creack/docker-firefox
-```
-
 ### docker prune
 
 ```bash
@@ -702,6 +686,23 @@ docker run --name inkGrafana -d -p 3000:3000 -v /home/dog/yinke/grafana/conf/def
 3. **每一个指令都会创建提交一个新的镜像层并提交**
 4. #表示注释
 
+### Docker镜像构建
+
+使用Dockerfile构建成镜像
+
+- `-f`：指定要使用的Dockerfile路径，使用当前目录的Dockerfile时可以省略 
+- `-t/--tag`: 镜像名及标签，可以在一次构建中为一个镜像设置多个标签（也可以省略标签）
+
+```bash
+docker build -f 文件路径 -t 用户名/image:Tag
+
+# .表示当前目录,使用当前目录下的Dockerfile
+docker build -t ink/backend:v1 .
+
+#使用URL github.com/creack/docker-firefox的Dockerfile创建镜像
+docker build github.com/creack/docker-firefox
+```
+
 ### 命令
 
 **其他命令**
@@ -733,21 +734,32 @@ docker run --name inkGrafana -d -p 3000:3000 -v /home/dog/yinke/grafana/conf/def
 - ENTRYPOINT  指定容器启动时要运行的命令，可以追加命令 
 
 
-
-
 ```shell
-vim mydockerfile-centos 
+# Python3.8官网镜像
+FROM python:3.8.5
+ 
+# 设置工作目录
+WORKDIR /backend
+ 
+# 复制文件到工作目录
+COPY requirements.txt requirements.txt
 
-FROM centos 
-MAINTAINER ink<541640794@qq.com> 
-ENV MYPATH /usr/local 
-WORKDIR $MYPATH 
-RUN yum -y install vim 
-RUN yum -y install net-tools 
-EXPOSE 80 
-CMD echo $MYPATH 
-CMD echo "-----end----" 
-CMD /bin/bash
+# 安装pip库
+# RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
+
+# 暴露端口
+EXPOSE 5000
+
+COPY . .
+
+ADD  ./config .kube/
+ADD  ./kubectl /usr/bin/
+
+RUN chmod  a+x  /usr/bin/kubectl
+
+# 启动服务，可以查看日志
+CMD [ "python", "-u", "server.py"]
 ```
 
 # Docker Compose
@@ -803,5 +815,24 @@ $ docker build -t ink/mytomcat:0.1 .
 
 # 2.使用docker tag 然后再次push 
 $ docker tag 容器id ink3/mytomcat:1.0 #然后再次push
+```
+
+上传到gitlab容器镜像仓库
+
+```bash
+# 查看镜像
+docker images
+# 显示
+REPOSITORY    TAG       IMAGE ID       CREATED         SIZE
+ink/backend   v1        884e4ee7607e   3 minutes ago   1.26GB
+# 修改镜像名
+docker tag 884e4ee7607e gitlab.buaanlsde.cn:4567/buaapyj/registry/inkbackend
+# 查看
+docker images
+REPOSITORY                                             TAG       IMAGE ID       CREATED         SIZE
+ink/backend                                            v1        884e4ee7607e   5 minutes ago   1.26GB
+gitlab.buaanlsde.cn:4567/buaapyj/registry/inkbackend   latest    884e4ee7607e   5 minutes ago   1.26GB
+# 上传镜像
+docker push gitlab.buaanlsde.cn:4567/buaapyj/registry/inkbackend
 ```
 

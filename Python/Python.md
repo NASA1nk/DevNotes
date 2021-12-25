@@ -1,9 +1,9 @@
 # Python
 
-- 解释型语言
+- **解释型语言**
 - 代码不能加密
-  - 解释型的语言发布程序必须把源码发布出去
-- python目前有两个版本，这两个版本是不兼容的
+  - 解释型语言发布程序必须把源码发布出去
+- python目前有两个版本，**这两个版本是不兼容的**
   - 2.x版本
   - 3.x版本
 
@@ -17,19 +17,19 @@
 - 命令行交互环境
 - 简单的集成开发环境
 
-
-
-安装完成后在命令提示符窗口输入`python`后提示版本信息说明Python安装成功
+**安装完成后在命令提示符窗口输入`python`后提示版本信息说明Python安装成功**
 
 - 编写Python代码得到的是一个包含Python代码的以`.py`为扩展名的文本文件
-- 运行代码需要Python解释器去执行`.py`文件
+- 运行代码需要**Python解释器**去执行`.py`文件
 - 官方版本的python解释器：CPython（C语言开发）
+  - 在命令行下运行`python`就是启动CPython解释器，CPython用`>>>`作为提示符
 
-> 在命令行下运行`python`就是启动CPython解释器，CPython用`>>>`作为提示符
+
+> IPython基于CPython之上的一个交互式解释器
 >
-> IPython基于CPython之上的一个交互式解释器，即IPython只是在交互方式上有所增强，但是执行Python代码的功能和CPython是完全一样的
+> - IPython只是在交互方式上有所增强，但是执行Python代码的功能和CPython是完全一样的
 >
-> IPython用`In []:`作为提示符
+> - IPython用`In []:`作为提示符
 
 ## 运行
 
@@ -41,11 +41,10 @@
 
 ![ipython](Python.assets/ipython.png)
 
-
-
-**bash（批量）方式**
+**bash方式**
 
 ```bash
+# 批量处理
 python temp.py
 ```
 
@@ -196,8 +195,7 @@ Python环境管理工具，可以切换全局解释器版本
 - python是动态语言，**变量不用声明**
 - python没有终止符，`;`可以让多个语句写在一行
 - python没有代码块，用相同的**缩进**表示同一代码块
-  - 4个空格
-  - Tap
+  - **4个空格**
 - `help()`：展示帮助信息
 
 ![help](Python.assets/help.png)

@@ -444,8 +444,7 @@ docker run -d -p 123:80 --name inkContainer image
 进入一个正在运行的容器中执行命令
 
 - 需要容器处于运行中且`PID 1`进程也处于运行中才能执行`exec`操作
-- 命令将在容器的默认目录中运行
-- 如果Dockerfile中使用WORKDIR指令指定了自定义目录，则会进入该目录
+- 命令将在容器的默认目录中运行，**如果Dockerfile中使用`WORKDIR`指令指定了自定义目录，则会进入该目录**
 - 如果命令中使用`-w`指定了工作目录，则会进入该目录
 
 `-it`是以交互的方式进入容器
@@ -454,6 +453,13 @@ docker run -d -p 123:80 --name inkContainer image
 - `-t`：分配一个伪终端TTY
 
 `/bin/sh`或者`/bin/bash`：即打开容器内的终端经常，bash进程和主容器进程拥有相同的命名空间
+
+> docker基础容器中没有vim，要自行安装
+>
+> ```bash
+> apt-get update
+> apt-get install vim
+> ```
 
 **退出容器**
 
@@ -471,7 +477,7 @@ docker exec -it 容器id /bin/sh
 docker exec -it 容器id pwd
 ```
 
-使用`exit`退出docker容器时提示**You have stopped jobs**
+使用`exit`退出docker容器时提示`You have stopped jobs`
 
 ```bash
 # 查看哪些进程没结束
@@ -709,7 +715,7 @@ docker build github.com/creack/docker-firefox
 
 - FROM 			 从哪个基础镜像开始构建
 - MAINTAINER  创建者（姓名+邮箱）
-- WORKDIR 	  镜像的工作目录（绝对地址），进入后再运行命令 
+- WORKDIR 	  镜像的工作目录（绝对地址），进入后再运行编写的命令 
 - VOLUME 		挂载的目录 
 - EXPOSE 		  镜像要暴露端口，然后才可以进行端口映射
 - ONBUILD 	   当前镜像被其他镜像拿来做基础镜像构建时触发的命令
@@ -738,7 +744,8 @@ docker build github.com/creack/docker-firefox
 # Python3.8官网镜像
 FROM python:3.8.5
  
-# 设置工作目录
+# 设置工作目录，进入后默认的目录
+# 在此目录下执行相对地址的命令
 WORKDIR /backend
  
 # 复制文件到工作目录
@@ -751,6 +758,7 @@ RUN pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
 # 暴露端口
 EXPOSE 5000
 
+# 复制当前目录所有内容到/backend下
 COPY . .
 
 ADD  ./config .kube/

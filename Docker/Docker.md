@@ -713,31 +713,31 @@ docker build github.com/creack/docker-firefox
 
 **其他命令**
 
-- FROM 			 从哪个基础镜像开始构建
-- MAINTAINER  创建者（姓名+邮箱）
-- WORKDIR 	  镜像的工作目录（绝对地址），进入后再运行编写的命令 
-- VOLUME 		挂载的目录 
-- EXPOSE 		  镜像要暴露端口，然后才可以进行端口映射
-- ONBUILD 	   当前镜像被其他镜像拿来做基础镜像构建时触发的命令
-- STOPSIGNAL  用于停止容器发出的信号 
+- `FROM`：从哪个基础镜像开始构建
+- `MAINTAINER`：创建者（姓名+邮箱）
+- `WORKDIR`：镜像的工作目录（绝对地址），执行的命令会进入工作目录后再运行 
+- `VOLUME`：挂载的目录 
+- `EXPOSE`：镜像要暴露端口，然后才可以进行端口映射
+- `ONBUILD`：当前镜像被其他镜像拿来做基础镜像构建时触发的命令
+- `STOPSIGNAL`：用于停止容器发出的信号 
 
 **添加文件**
 
-- ADD				 添加文件内容,支持URL，支持从压缩文件中添加
-- COPY			   添加文件内容（优先使用，更透明）
+- `ADD`：添加文件内容，支持URL，支持从压缩文件中添加
+- `COPY`：添加文件内容（优先使用，更透明）
 
 **添加信息**
 
-- ENV 			    构建时设置环境变量
-- LABEL             构建时添加元数据标记
-- ARG                 设置构建时的参数
+- `ENV`：构建时设置环境变量
+- `LABEL`：构建时添加元数据标记
+- `ARG`：设置构建时的参数
 
 **执行命令**
 
-- SHELL              指定运行命令的shell
-- RUN 			    构建时运行的命令（命令可以用exec格式）
-- CMD 			    指定容器启动时要运行的命令，只有最后一个会效
-- ENTRYPOINT  指定容器启动时要运行的命令，可以追加命令 
+- `SHELL`：指定运行命令的shell
+- `RUN`：构建时运行的命令（命令可以用exec格式）
+- `CMD` ：指定容器启动时要运行的命令，**只有最后一个会效**
+- `ENTRYPOINT`：指定容器启动时要运行的命令，可以追加命令 
 
 
 ```shell
@@ -757,6 +757,9 @@ RUN pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
 
 # 暴露端口
 EXPOSE 5000
+
+# 设置环境变量
+# ENV PATH=$PATH:/opt/node-v10.16.0-linux-x64/bin
 
 # 复制当前目录所有内容到/backend下
 COPY . .

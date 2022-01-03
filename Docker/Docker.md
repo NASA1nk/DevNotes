@@ -331,9 +331,12 @@ docker pull 镜像名[:tag]
 
 用于将镜像推送到远程仓库之前给镜像打标签
 
-- 不是重命名标签，而是给同一个镜像创建一个额外的标签（同一个镜像id）
+- 不是重命名标签，而是**给同一个镜像创建一个额外的标签**
+  - 会重新生成一个不同镜像标签的镜像
 
-- 镜像名称格式：registry host ip:port/group name/project name:tag
+- 镜像名称格式：`registry host ip:port/group name/project name:tag`
+  - **推送到远程仓库会根据标签名选择仓库**
+
 
 ```bash
 # docker tag 旧image:tag 新image:tag
@@ -342,7 +345,7 @@ docker tag grafana/grafana:latest gitlab.buaanlsde.cn:4567/buaapyj/registry/msop
 
 ### docker push
 
-将镜像推送到远程仓库中
+根据镜像标签中的仓库名将镜像推送到远程仓库中
 
 ```bash
 # docker push image:tag
@@ -687,27 +690,10 @@ docker run --name inkGrafana -d -p 3000:3000 -v /home/dog/yinke/grafana/conf/def
 
 ### 说明
 
-1. 每个保留关键字(指令)都是必须是**大写字母**
+1. 每个保留关键字（指令）都是必须是**大写字母**
 2. 执行从上到下顺序
 3. **每一个指令都会创建提交一个新的镜像层并提交**
-4. #表示注释
-
-### Docker镜像构建
-
-使用Dockerfile构建成镜像
-
-- `-f`：指定要使用的Dockerfile路径，使用当前目录的Dockerfile时可以省略 
-- `-t/--tag`: 镜像名及标签，可以在一次构建中为一个镜像设置多个标签（也可以省略标签）
-
-```bash
-docker build -f 文件路径 -t 用户名/image:Tag
-
-# .表示当前目录,使用当前目录下的Dockerfile
-docker build -t ink/backend:v1 .
-
-#使用URL github.com/creack/docker-firefox的Dockerfile创建镜像
-docker build github.com/creack/docker-firefox
-```
+4. `#`表示注释
 
 ### 命令
 
@@ -715,9 +701,13 @@ docker build github.com/creack/docker-firefox
 
 - `FROM`：从哪个基础镜像开始构建
 - `MAINTAINER`：创建者（姓名+邮箱）
-- `WORKDIR`：镜像的工作目录（绝对地址），执行的命令会进入工作目录后再运行 
+- `WORKDIR`：镜像的工作目录（绝对地址），
+  - Dockerfile中的`RUN`、`CMD`和`COPY`指令会在工作目录下执行
+
 - `VOLUME`：挂载的目录 
 - `EXPOSE`：镜像要暴露端口，然后才可以进行端口映射
+  - 仅用于容器间通信
+
 - `ONBUILD`：当前镜像被其他镜像拿来做基础镜像构建时触发的命令
 - `STOPSIGNAL`：用于停止容器发出的信号 
 
@@ -725,22 +715,26 @@ docker build github.com/creack/docker-firefox
 
 - `ADD`：添加文件内容，支持URL，支持从压缩文件中添加
 - `COPY`：添加文件内容（优先使用，更透明）
+  - `COPY src dest`
+
 
 **添加信息**
 
 - `ENV`：构建时设置环境变量
-- `LABEL`：构建时添加元数据标记
+- `LABEL`：构建时添加元数据标记，一个`LABEL`指令配置一个键值对
 - `ARG`：设置构建时的参数
 
 **执行命令**
 
 - `SHELL`：指定运行命令的shell
 - `RUN`：构建时运行的命令（命令可以用exec格式）
-- `CMD` ：指定容器启动时要运行的命令，**只有最后一个会效**
+- `CMD` ：指定容器**启动时**要运行的命令
+  - Dockerfile中只允许有一个CMD指令，**如果有多个，只有最后一个会生效**
+
 - `ENTRYPOINT`：指定容器启动时要运行的命令，可以追加命令 
 
 
-```shell
+```bash
 # Python3.8官网镜像
 FROM python:3.8.5
  
@@ -772,6 +766,27 @@ RUN chmod  a+x  /usr/bin/kubectl
 # 启动服务，可以查看日志
 CMD [ "python", "-u", "server.py"]
 ```
+
+## Docker镜像构建
+
+使用Dockerfile构建成镜像
+
+- `-f`：指定要使用的Dockerfile路径，使用当前目录的Dockerfile时可以省略
+  - `.`表示当前目录，使用**当前目录下的Dockerfile**
+
+- `-t/--tag`: 镜像名及标签，可以在一次构建中为一个镜像设置多个标签（也可以省略标签）
+
+```bash
+docker build -f 文件路径 -t 用户名/image:Tag
+
+# .表示当前目录,使用当前目录下的Dockerfile
+docker build -t ink/backend:v1 .
+
+#使用URL github.com/creack/docker-firefox的Dockerfile创建镜像
+docker build github.com/creack/docker-firefox
+```
+
+
 
 # Docker Compose
 

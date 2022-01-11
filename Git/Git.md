@@ -428,7 +428,17 @@ git ls-files --stage
 git log 
 ```
 
+### 查看区别
 
+`git diff commit_id_1 commit_id_2`
+
+```bash
+# 比较两个版本之间的差异
+git diff commit_id_1 commit_id_2 > d:/diff.txt
+# 结果文件diff.txt中
+# "-"号开头的表示 commit_id_2 相对 commit_id_1 减少了的内容。
+# "+"号开头的表示 commit_id_2 相对 commit_id_1 增加了的内容。
+```
 
 # 远程仓库
 

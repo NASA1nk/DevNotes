@@ -616,23 +616,7 @@ docker cp 宿主机文件路径 容器id:拷贝到容器里面的绝对路径
 docker cp /home/dog/yinke/prometheus/config/alertrules.yml e87a0a440925:/etc/prometheus/
 ```
 
-### docker时间
 
-docker使用的UTC，UTC和宿主机时间（北京时间）相隔8个小时（UTC+8）
-
-```bash
-# 查看容器时间
-docker exec -it containerID date
-```
-
-让容器时间和宿主机时间统一
-
-```bash
-# 在启动容器时将宿主机的时间文件挂载到容器内
-docker run -d --name=adbackend -p 5000:5000 -v /etc/localtime:/etc/localtime:ro 4e0de57a4437
-```
-
-![Docker命令](Docker.assets/Docker命令.png)
 
 # Docker数据卷
 
@@ -683,7 +667,26 @@ docker run -v 主机目录:容器内目录 images
 docker run --name inkGrafana -d -p 3000:3000 -v /home/dog/yinke/grafana/conf/defaults.ini:/usr/share/grafana/conf/defaults.ini -v /home/dog/yinke/grafana/public/index.html:/usr/share/grafana/public/views/index.html grafana/grafana
 ```
 
+## docker时间
 
+docker使用的UTC，UTC和宿主机时间（北京时间）相隔8个小时（UTC+8）
+
+```bash
+# 查看容器时间
+docker exec -it containerID date
+```
+
+让容器时间和宿主机时间统一
+
+```bash
+# 在启动容器时将宿主机的时间文件挂载到容器内
+docker run -d --name=adbackend -p 5000:5000 -v /etc/localtime:/etc/localtime:ro 4e0de57a4437
+
+# 不能启动可以通过将文件复制进容器来统一时间
+docker cp /etc/localtime 4e0de57a4437:/etc/localtime
+```
+
+![Docker命令](Docker.assets/Docker命令.png)
 
 # Dockerfile
 

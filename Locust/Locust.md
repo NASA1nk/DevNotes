@@ -107,7 +107,7 @@ locust -f sample.py --step-load
 
 输入`locust`，运行成功显示如下
 
-![image-20210819202216182](./image-20210819202216182.png)
+
 
 打开UI界面：[http://localhost:8089/](http://localhost:8089/)
 
@@ -118,6 +118,5 @@ locust -f sample.py --step-load
 - Step duration：步长持续运行时间
 - Start swarming：执行locustfile脚本
 
-![image-20210819202340588](./image-20210819202340588.png)
 
 

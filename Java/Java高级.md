@@ -291,7 +291,8 @@ System.out.println(s3 == s7);
 - `StringBuffer replace(int start,int end,String str)`：把`[start,end)`位置的内容替换为`str`
 - `StringBuffer insert(int offset,obj)`：字符插入
 - `StringBuffer reverse()`：反转字符串
-- `char charAt(index)`：查询`index`位置的字符
+- `char charAt(int index)`：查询`index`位置的字符
+- `int indexOf(String s)`：查询给定字符串首次出现在此字符串中的索引
 - `StringBuffer substring(int beginIndex)`：从字符串的`beginIndex`开始，返回一个新字符串
 
 > 调用`append()`和`insert()`时，如果原来的数组长度不够，**可以扩容**

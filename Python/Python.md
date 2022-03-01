@@ -2148,11 +2148,10 @@ s.score = 9999
 
 ### 打印
 
-`__str__`：调用`print()`返回的方法
+- `__str__`：调用`print()`返回的方法
+- `__repr__`：直接打印变量返回的方法
 
-`__repr__`：直接打印变量返回的方法
-
-通常`__str__()`和`__repr__()`代码都是一样的
+> 通常`__str__()`和`__repr__()`代码都是一样的
 
 ```python
 class Student(object):
@@ -2166,9 +2165,8 @@ class Student(object):
 
 ### 循环
 
-`__iter__`：如果一个类想被用于`for...in`循环就必须实现一个`__iter__()`方法，该方法**返回一个迭代对象**
-
-`__next__`：`for`循环不断调用该迭代对象的`__next__()`方法拿到循环的下一个值，直到遇到`StopIteration`错误时退出循环
+- `__iter__`：如果一个类想被用于`for in`遍历就必须实现`__iter__()`方法，该方法**返回一个可迭代对象**
+- `__next__`：`for`循环不断调用该迭代对象的`__next__()`方法拿到循环的下一个值，直到遇到`StopIteration`错误时退出循环
 
 ```python
 # 斐波那契类
@@ -2197,7 +2195,9 @@ for n in Fib():
 
 ### 索引
 
-`__getitem__`：实现`__getitem__()`方法就可以按下标访问数列的任意一项。`__getitem__()`传入的参数可能是一个`int`，也可能是一个切片对象`slice`
+`__getitem__`
+- 实现`__getitem__()`方法就可以**按下标访问数列的任意一项**
+- `__getitem__()`传入的参数可以是一个`int`，也可以是一个切片对象`slice`
 
 > 没有对step参数作处理，也没有对负数作处理
 
@@ -2233,11 +2233,10 @@ f[0:3]
 
 `Enum`
 
-定义常量时通常用大写变量通过整数来定义
+- 定义常量时通常用大写变量通过整数来定义
+- 为枚举变量定义一个`class`类型，**每个常量都是`class`的一个唯一实例**
 
-为枚举变量定义一个class类型，每个常量都是class的一个唯一实例
-
-> class不可变，class中成员可以直接比较
+> `class`不可变，`class`中成员可以直接比较
 
 ```python
 from enum import Enum
@@ -2245,23 +2244,20 @@ from enum import Enum
 # 可以直接使用Month.Jan来引用一个常量,或者枚举它的所有成员
 Month = Enum('Month', ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'))
 
-# value属性则是自动赋给成员的int常量,默认从1开始计数。
-for name, member in Month.__members__.items():
-    print(name, '=>', member, ',', member.value)
 ```
 
 **自定义枚举类**
 
-从`Enum`派生
-
-`@unique`装饰器可以帮助检查保证没有重复值
+- 继承`Enum`类
+- `@unique`装饰器可以帮助检查保证没有重复值
 
 ```python
 from enum import Enum, unique
 
 @unique
 class Weekday(Enum):
-    Sun = 0 # Sun的value被设定为0
+    # Sun的value被设定为0
+    Sun = 0 
     Mon = 1
     Tue = 2
     Wed = 3
@@ -2270,10 +2266,10 @@ class Weekday(Enum):
     Sat = 6
 ```
 
-访问
+**访问枚举变量**
 
 - 根据**成员名称**引用枚举常量
-- 根据**value的值**获得枚举常量
+- 根据`value`获得枚举常量
 
 ```python
 day1 = Weekday.Mon
@@ -2291,7 +2287,7 @@ print(Weekday['Tue'])
 print(Weekday.Tue.value)
 
 # Weekday.Mon
->>> print(Weekday(1))
+print(Weekday(1))
 
 # True
 print(day1 == Weekday.Mon)
@@ -2307,26 +2303,29 @@ print(day1 == Weekday(1))
 # Thu => Weekday.Thu
 # Fri => Weekday.Fri
 # Sat => Weekday.Sat
+# value属性则是自动赋给成员的int常量,默认从1开始计数
 for name, member in Weekday.__members__.items():
     print(name, '=>', member)
 ```
 
 ## 元类
 
-动态语言：函数和类的定义不是在编译时定义，而是运行时动态创建
+**动态语言**：函数和类的定义不是在编译时定义，而是运行时动态创建
 
 # 错误和调试
 
 ## 错误处理
 
-`try...except...finally...`：处理错误
+**捕获错误**
 
-某些代码可能会出错时可以用`try`来运行这段代码。如果执行出错则后续代码不会继续执行，而是直接跳转至错误处理代码，即`except`语句块，执行完`except`后，如果有`finally`语句块，则执行`finally`语句块
+`try except  finally`
 
-- 可以没有`finally`语句，但如果有`finally`，就一定会被执行
+某些代码可能会出错时就可以用`try`来运行这段代码。如果执行出错则后续代码不会继续执行，而是直接跳转至错误处理代码，即`except`代码块，执行完`except`后，如果有`finally`代码块，则执行`finally`代码块
+
 - 可以有多个`except`来捕获不同类型的错误
 - 可以在`except`语句块后面加一个`else`，当没有错误发生时会自动执行`else`语句
 - python的错误也是class，所有的错误类型都继承自`BaseException`
+- 可以没有`finally`语句，但如果有`finally`，就一定会被执行
 - 不需要在每个可能出错的地方去捕获错误，只要在合适的层次去捕获错误就可以
 
 ```python
@@ -2345,11 +2344,13 @@ finally:
 print('END')
 ```
 
-`raise`：抛出错误实例
+**抛出错误实例**
 
-错误是class，捕获一个错误就是捕获到该class的一个实例。要抛出错误，可以定义一个错误的class，然后用`raise`语句抛出一个错误的实例
+`raise`
 
-> `raise`语句如果不带参数就会把当前错误原样抛出
+- 错误是也是一个`class`，捕获一个错误就是捕获到该`class`的一个实例
+- 要抛出错误，可以定义一个错误的`class`，然后用`raise`语句抛出一个错误的实例
+- `raise`语句如果不带参数就会把当前错误原样抛出
 
 ```python
 class FooError(ValueError):
@@ -2364,9 +2365,12 @@ def foo(s):
 foo('0')
 ```
 
-**组合处理**：处理错误并抛出
+**组合处理**
 
-捕获错误目的只是记录以便于后续追踪。当前函数不知道应该怎么处理该错误时就继续往上抛，让顶层调用者去处理错误
+处理错误并抛出
+
+- 捕获错误目的只是记录以便于后续追踪
+- 当前函数不知道应该怎么处理该错误时就继续往上抛，让顶层调用者去处理错误
 
 ```python
 def foo(s):
@@ -2387,9 +2391,10 @@ bar()
 
 ## 调试
 
-`assert`：用`print()`来辅助查看的地方都可以用断言`assert`来替代
+`assert`
 
-- 断言失败`assert`语句本身就会抛出`AssertionError`
+- 用`print()`来辅助查看的地方都可以用断言`assert`来替代
+- 如果断言失败，`assert`语句就会抛出`AssertionError`
 - 启动python解释器时可以用`-O`参数来关闭`assert`，关闭后所有的`assert`语句都当成`pass`
 
 ```python
@@ -2408,9 +2413,10 @@ python -O err.py
 
 
 
-`logging`：用`print()`来辅助查看的地方都可以用`logging`来替代
+`logging`
 
-`logging`不会抛出错误，但可以输出到文件
+- 用`print()`来辅助查看的地方都可以用`logging`来替代
+- `logging`不会抛出错误，但可以输出到文件
 
 ```python
 import logging
@@ -2424,7 +2430,9 @@ print(10 / n)
 
 
 
-`pdb`：启动python的调试器pdb，让程序以单步方式运行
+`pdb`
+
+ - 启动python的调试器pdb，让程序以单步方式运行
 
 ```
 python -m pdb err.py
@@ -2434,9 +2442,8 @@ python -m pdb err.py
 
 ## 单元测试
 
-单元测试是用来对一个模块、一个函数或者一个类来进行正确性检验的测试工作
-
-把多个测试用例放到一个测试模块里就是一个完整的单元测试
+- 单元测试是用来对**一个模块、一个函数或者一个类**来进行正确性检验的测试工作
+- 把多个测试用例放到一个测试模块里就是一个完整的单元测试
 
 ## 文档测试
 
@@ -2446,7 +2453,7 @@ python -m pdb err.py
 
 `Input/Output`
 
-**数据交换**的地方通常是磁盘、网络等，需要IO接口
+**数据交换**的地方通常是磁盘、网络等，需要**IO接口**
 
 CPU和内存的速度远远高于外设的速度，所以在IO编程中存在**速度不匹配**的问题
 
@@ -2455,30 +2462,25 @@ CPU和内存的速度远远高于外设的速度，所以在IO编程中存在**�
 
 ## 文件读写
 
-在磁盘上读写文件的功能都是由**操作系统**提供的，现代操作系统不允许普通的程序直接操作磁盘
+**系统调用**：在磁盘上读写文件的功能都是由**操作系统**提供的，现代操作系统不允许普通的程序直接操作磁盘，所以读写文件就是
 
-所以读写文件就是
-
-1. **请求操作系统打开一个文件对象**（通常称为**文件描述符**）`open()`
-2. 通过操作系统提供的接口从这个文件对象中读取数据或者把数据**写入这个文件对象**
+1. `open()`：**通过系统调用打开一个文件对象**（即**文件描述符**）
+2. `read()/write()`：通过系统调用从文件对象中读取数据或者把数据**写入文件对象**
 
 
+### 读文件
 
-**读文件**
-
-1. 调用`open()`方法以读文件的模式打开一个文件对象并传入文件名和标示符`r`（read）
+1. 调用`open()`以读文件的模式打开一个文件对象并传入文件名和标示符`'r'`，即`read()`
    1. 读取二进制文件（例如图片、视频）用`'rb'`模式打开
-   2. 读取非UTF-8编码的文本文件需要给`open()`函数传入`encoding`参数
-2. 调用`read()`方法读取文件的全部内容到内存，用一个`str`对象表示
-   1. 调用`readline()`每次读取文件的一行内容
-   2. 调用`readlines()`一次读取文件的所有内容并按行返回`list`
-3. 调用`close()`方法关闭文件
+   2. 读取非UTF-8编码的文本文件需要给`open()`额外传入`encoding`参数
+2. 调用`read()`读取文件的全部内容到内存，用一个`str`对象表示
+   1. `read()`一次性读取文件的全部内容，如果文件太大会爆内存
+   2. 调用`readline()`每次读取文件的一行内容
+   3. 调用`readlines()`一次读取文件的所有内容并按行返回一个`list`
+3. 调用`close()`关闭文件
+   1. 文件使用完毕后必须关闭，因为文件对象会占用操作系统的资源，并且操作系统同一时间能打开的文件数量也是有限的
 
-> 如果文件不存在，`open()`函数会抛出`IOError`错误，给出错误码和详细的信息告诉文件不存在
->
-> `read()`会一次性读取文件的全部内容，如果文件太大会爆内存
->
-> 文件使用完毕后必须关闭，因为文件对象会占用操作系统的资源，并且操作系统同一时间能打开的文件数量也是有限的
+> 如果文件不存在，`open()`会抛出`IOError`错误，给出错误码和详细的信息告诉文件不存在
 >
 > 默认读取UTF-8编码的文本文件
 
@@ -2494,16 +2496,49 @@ f = open('/path/test.jpg', 'rb')
 # 打开GBK编码的文件
 f = open('/path/test.txt', 'r', encoding='gbk')
 
-# for循环
+# for in list
 for line in f.readlines():
     print(line.strip()) 
 ```
 
 
+**file-like Object**
 
-`with()`
+- 像`open()`返回的对象，它有`read()`方法，在python中统称为`file-like Object`
+- 除了文件外还可以是内存的字节流，网络流，自定义流等
+- `file-like Object`不要求从特定类继承，只要有`read()`方法就可以
 
-文件读写时都有可能产生`IOError`，一旦出错后面的`f.close()`就不会再调用。所以为了保证无论是否出错都能正确地关闭文件，可以使用`try...finally`来实现
+
+### 写文件
+
+1. 调用`open()`方法以写文件的模式打开一个文件对象并传入文件名和标示符`w`，即`write()`
+   1. 以`'w'`模式写入文件时，如果文件已存在则会直接覆盖，相当于删掉后新写入一个文件
+   2. 如果希望追加内容到文件末尾可以传入`'a'`
+>
+2. 调用`write()`方法写内容到文件中
+   1. 可以反复调用`write()`来写入文件
+   2. `write()`里面必须是`str`
+      1. 将`list`、`tuple`、`dict`转为字符串使用`str`
+      2. 将`str`逆转化使用`eval()`函数
+3. 调用`close()`方法关闭文件
+
+> OS往往不会立刻把数据写入磁盘，而是放到内存缓存起来，空闲的时候再慢慢写入（刷盘）
+> 只有调用`close()`方法时OS才保证把没有写入的数据全部写入磁盘，如果没有调用`close()`，那么数据可能只写了一部分到磁盘，剩下的丢失
+
+
+```python
+f = open('/path/test.txt', 'w')
+
+# 写入Hello, world
+f.write('Hello, world!')
+
+f.close()
+```
+
+### with
+
+- 文件读写时都有可能产生`IOError`，一旦出错后面的`f.close()`就不会再调用
+- 所以为了**保证无论是否出错都能正确地关闭文件**，可以使用`try finally`来实现
 
 ```python
 try:
@@ -2519,40 +2554,7 @@ python引入了`with`语句来自动调用`close()`方法
 ```python
 with open('/path/file', 'r') as f:
     print(f.read())
-```
 
-**file-like Object**
-
-像`open()`函数返回的对象，它有`read()`方法，在python中统称为`file-like Object`。除了文件外还可以是内存的字节流，网络流，自定义流等
-
-file-like Object不要求从特定类继承，只要有`read()`方法就可以
-
-
-
-**写文件**
-
-1. 调用`open()`方法以写文件的模式打开一个文件对象并传入文件名和标示符`w`
-2. 调用`write()`方法写内容到文件中（可以反复调用`write()`来写入文件）
-3. 调用`close()`方法关闭文件
-
-> 以`'w'`模式写入文件时，如果文件已存在则会直接覆盖（相当于删掉后新写入一个文件）。如果希望追加到文件末尾可以传入`'a'`（append）以追加模式写入
->
-> 操作系统往往不会立刻把数据写入磁盘，而是放到内存缓存起来，空闲的时候再慢慢写入。只有调用`close()`方法时操作系统才保证把没有写入的数据全部写入磁盘。忘记调用`close()`的后果是数据可能只写了一部分到磁盘，剩下的丢失
->
-> `write()`里面必须是str类型，将列表、元组、字典转为字符串使用`str`，将字符串逆转化使用`eval()`函数
-
-```python
-f = open('/path/test.txt', 'w')
-
-# 写入Hello, world
-f.write('Hello, world!')
-
-f.close()
-```
-
-`with`
-
-```python
 with open('/path/test.txt', 'w') as f:
     f.write('Hello, world!')
 ```
@@ -2631,7 +2633,8 @@ f.read()
 
 python内置的`os`模块可以直接调用操作系统提供的接口函数
 
-- `os`模块的某些函数是跟操作系统相关的（在Windows上不提供`uname()`函数）
+- `os`模块的某些函数是跟操作系统相关的
+  - 在Windows上不提供`uname()`函数
 - 操作系统中定义的环境变量保存在`os.environ`变量
 
 > - `posix`：`Linux`、`Unix`或`Mac OS X`系统
@@ -2655,9 +2658,9 @@ os.environ.get('PATH')
 
 
 
-**操作文件和目录**
+### 操作文件和目录
 
-操作文件和目录的函数有两个模块
+操作文件和目录有两个模块
 
 - `os`模块
   - `os.mkdir()`：创建文件夹
@@ -2672,10 +2675,11 @@ os.environ.get('PATH')
   - `os.path.split()`：拆分路径
   - `os.path.splitext()`：获取文件扩展名
 
-> 合并路径时不要直接拼字符串而要通过`os.path.join()`函数，这样可以正确处理不同操作系统的路径分隔符
->
-> 拆分路径时不要直接去拆字符串而要通过`os.path.split()`函数，这样可以把一个路径拆分为两部分，后一部分总是**最后级别的目录或文件名**
->
+**注意**
+
+- 合并路径时不要直接拼字符串而要通过`os.path.join()`函数，这样可以正确处理不同操作系统的路径分隔符
+
+- 拆分路径时不要直接去拆字符串而要通过`os.path.split()`函数，这样可以把一个路径拆分为两部分，后一部分总是**最后级别的目录或文件名**
 > 这些合并、拆分路径的函数并不要求目录和文件要真实存在，它们只对字符串进行操作
 
 ```python
@@ -2699,6 +2703,7 @@ os.path.splitext('/path/to/file.txt')
 
 # 对文件重命名
 os.rename('test.txt','test.py')
+
 # 删除文件
 >>> os.remove('test.py')
 ```
@@ -2707,45 +2712,45 @@ os.rename('test.txt','test.py')
 
 **获取文件目录路径**
 
-`__file__`：表示当前文件的路径
+- `__file__`：表示当前文件的路径
 
-`os.path.dirname(__file__)`就是得到当前文件的绝对路径
+- `os.path.dirname(__file__)`就是得到当前文件的绝对路径
 
 > 必须是实际存在的`.py`文件，如果在命令行执行会报异常
 
 
 
-## 序列化
+## 序列化和反序列化
 
 `pickle`
 
-- **序列化**（pickling）：将对象从内存中变成可存储或传输的字节序列形式
-- **反序列化**（unpickling）：把变量从序列化的字节序列形式重新恢复成对象
+- `pickle`只在python之间使用
+- `pickle`可以序列化所有的数据类型，包括类和函数
 
-> 序列化之后就可以把内容写入磁盘，或者通过网络传输到别的机器上
->
-> `pickle`只在python之间使用
->
-> `pickle`可以序列化所有的数据类型，包括类，函数
+### 序列化
 
-**序列化**
+**将对象从内存中变成可存储或传输的字节序列形式**， 序列化之后就可以把内容写入磁盘，或者通过网络传输到别的机器上
 
 - `pickle.dumps()`：把对象序列化成一个`bytes`
 - `pickle.dump()`：直接把对象序列化后写入一个`file-like Object`
+  - 可以认为序列化后写入到文件中
 
-**反序列化**
+### 反序列化
 
-- `pickle.loads()`：反序列化出对象
+把变量从序列化的字节序列形式重新恢复成对象
+
+- `pickle.loads()`：反序列化出一个对象
 - `pickle.load()`：从一个`file-like Object`中反序列化出对象
 
-`.pkl`文件
+### pkl文件
 
-python保存文件的一种文件格式，直接打开会显示一堆序列化的数据，需要使用`rb`类型来打开（读取2进制文件）
+`.pkl`：python保存文件的一种文件格式，直接打开会显示序列化的二进制数据，需要使用`rb`类型来打开（读取2进制文件）
 
 ```python
 import pickle
 
 d = dict(name='Bob', age=20, score=88)
+
 # 把一个对象序列化并写入文件:b'\x80\x03}q\x00(X\x03\x00\x00\x00ageq\x01K\x14X\x05\x00\x00\x00scoreq\x02KXX\x04\x00\x00\x00nameq\x03X\x03\x00\x00\x00Bobq\x04u.'
 pickle.dumps(d)
 
@@ -2765,12 +2770,12 @@ d
 
 JSON（JavaScript Object Notation）：一种轻量级的**数据交换格式**
 
-在不同的编程语言之间传递对象必须把对象**序列化**为**标准格式**（XML，JSON)
+在不同的编程语言之间传递对象必须把对象**序列化**为**标准格式**（XML或JSON...)
 
 - JSON表示出来就是一个字符串，可以被所有语言读取，也可以方便地存储到磁盘或者通过网络传输
 - JSON比XML更快，而且可以直接在Web页面中读取
-- JSON表示的对象就是标准的JavaScript语言的对象
-- JSON标准规定JSON编码是UTF-8
+- JSON表示的对象就是标准的JavaScript对象
+- JSON标准规定编码是UTF-8
 
 JSON和Python内置的数据类型对应如下
 
@@ -2785,21 +2790,20 @@ JSON和Python内置的数据类型对应如下
 
 `json`
 
-python内置的`json`模块提供了Python对象到JSON格式的转换
-
-> python的`dict`对象可以直接序列化为JSON的`{}`
+- python内置的`json`模块提供了Python对象到JSON格式的转换
+  - python的`dict`对象可以直接序列化为JSON的`{}`
 
 **序列化**
 
-- `json.dumps()`：将数据类型转换成字符串`str`，内容是标准JSON格式
-- `json.dump()`：将数据类型转换成字符串`str`，并存储在文件中
+- `json.dumps()`：将数据类型序列化为json字符串，内容是标准JSON格式
+- `json.dump()`：将数据类型转换成json字符串，并存储在文件中
 
-> `indent=2`：将数据格式化
+> `indent=2`：序列化时将数据格式化
 
 **反序列化**
 
-- `json.loads()`：把JSON字符串反序列化成数据类型
-- `json.load()`：从文件中读取JSON字符串并反序列化成数据类型
+- `json.loads()`：把Json字符串反序列化成数据类型
+- `json.load()`：从文件中读取Json字符串，并反序列化成数据类型
 
 ```python
 import json
@@ -2808,7 +2812,7 @@ d = dict(name='Bob', age=20, score=88)
 
 # '{"name": "Bob", "age": 20, "score": 88}'
 json.dumps(d)
-json.dumps(d,incent=2)
+# json.dumps(d,incent=2)
 
 json_str = '{"age": 20, "score": 88, "name": "Bob"}'
 
@@ -2818,13 +2822,16 @@ json.loads(json_str)
 
 **进阶**
 
-`json`只能序列化最基本的数据类型（列表、字典、列表、字符串、数字）。正常情况类的**实例对象**不是一个可序列化为JSON的对象
+`json`只能序列化最基本的数据类型（列表、字典、列表、字符串、数字）
 
-使用`class`表示对象，然后再序列化
+- 正常情况类的**实例对象**不是一个可序列化为Json字符串的对象
+
+所以使用`class`表示对象，然后再序列化
 
 `json.dumps()`方法的可选参数`default`可以把**任意一个对象变成一个可序列为JSON的对象**
 
-`class`的实例都有一个`__dict__`属性，它就是一个`dict`，用来存储实例变量。先将实例对象转换为`dict`再序列化
+- `class`的实例都有一个`__dict__`属性，它就是一个`dict`，用来存储实例变量
+- 先将实例对象转换为`dict`再序列化
 
 ```python
 print(json.dumps(s, default=lambda obj: obj.__dict__))
@@ -2882,7 +2889,7 @@ json_data.to_csv('planets_json_to_csv.csv',index=False)
 - `Process`：操作系统的一个任务就是一个进程
 - `Thread`：进程内的一个子任务就是一个线程
 
-多任务实现：
+多任务实现
 
 - 多进程模式
 - 多线程模式
@@ -2892,38 +2899,37 @@ json_data.to_csv('planets_json_to_csv.csv',index=False)
 
 ## 多进程
 
-**Unix/Linux**提供了`fork()`系统调用
+`fork()`
 
-`fork()`调用一次，返回两次，因为操作系统自动把当前进程（父进程）复制了一份（子进程），然后分别在父进程和子进程内返回。子进程永远返回`0`，而父进程返回**子进程的ID**
+- Unix/Linux提供了`fork()`系统调用，用于从已存在的进程中创建一个新进程
+- `fork()`调用一次会返回两次
+- 因为操作系统自动把当前进程（父进程）复制了一份（子进程），然后分别在父进程和子进程内返回
+- 子进程永远返回`0`，而**父进程返回子进程的PID**
+- 一个父进程可以`fork()`出很多子进程，所以父进程要记下每个子进程的PID
+- 子进程调用`getppid()`可以拿到父进程的PID
 
+> 有了`fork`调用，一个进程在接到新任务时就可以复制出一个子进程来处理新任务
+> 常见的Apache服务器就是由父进程监听端口，每当有新的http请求时就`fork()`出子进程来处理新的http请求
 > 普通的函数调用调用一次返回一次
->
-> 一个父进程可以fork出很多子进程，所以父进程要记下每个子进程的ID，子进程调用`getppid()`可以拿到父进程ID
->
-> 有了`fork`调用，一个进程在接到新任务时就可以复制出一个子进程来处理新任务。常见的Apache服务器就是由父进程监听端口，每当有新的http请求时就fork出子进程来处理新的http请求
-
 
 
 `fork`
 
-python的`os`模块封装了`fork`系统调用
+- python的`os`模块封装了`fork`系统调用
 
 >  **Only works on Unix/Linux/Mac**
 
 
+### 进程对象
 
-`multiprocessing`
+`multiprocessing.Process`
 
-`Process`
+- `multiprocessing`是python中**跨平台版本**的**多进程模块**，提供了一个`Process`类来代表一个进程对象
+  - Windows没有`fork`调用，`multiprocessing`其实是**模拟**`fork()`的效果，父进程所有python对象都必须通过`pickle`序列化再传到子进程中
+- 创建子进程（`Process`对象）时，只需要传入一个执行函数`target`和函数的参数`args`
 
-`multiprocessing`是**跨平台版本**的**多进程模块**，提供了一个`Process`类来代表一个进程对象
-
-> Windows没有`fork`调用，`multiprocessing`其实是**模拟**`fork`的效果，父进程所有python对象都必须通过`pickle`序列化再传到子进程去
-
-创建子进程（`Process`实例）时，只需要传入一个执行函数`target`和函数的参数`args`
-
-- `start()`：启动进程
-- `join()`：等待子进程结束后再继续往下运行，通常用于进程间的同步
+  - `start()`：启动进程
+  - `join()`：等待子进程结束后再继续往下运行，通常用于进程间的同步
 
 ```python
 from multiprocessing import Process
@@ -2940,24 +2946,24 @@ def run_proc(name):
 # Child process end
 if __name__=='__main__':
     print('Parent process %s.' % os.getpid())
-    # Process类
+    # 在main进程中创建一个子进程
     p = Process(target=run_proc, args=('test',))
     print('Child process will start')
-    # 启动一个子进程并等待其结束
+    # 启动子进程并等待其结束
     p.start()
+    # 先执行子进程
     p.join()
     print('Child process end')
 ```
 
-
+### 进程池
 
 `Pool`
 
-需要启动大量的子进程的时候可以用**进程池**`Pool`的方式批量创建子进程
-
-> `Pool`的默认大小是CPU的核数
-
-对`Pool`对象调用`join()`方法会等待所有子进程执行完毕，调用`join()`之前必须先调用`close()`，调用`close()`之后就不能继续添加新的`Process`了
+- 需要启动大量的子进程的时候可以用**进程池**的方式批量创建子进程
+  - 进程池的默认大小是CPU的核数
+- 对`Pool`对象调用`join()`方法会等待所有子进程执行完毕
+  - 调用`join()`之前必须先调用`close()`，调用`close()`之后就不能继续添加新的进程了
 
 ```python
 from multiprocessing import Pool
@@ -2986,11 +2992,11 @@ if __name__=='__main__':
 
 `subprocess`
 
-`subprocess`模块可以启动一个子进程，然后控制其输入和输出
+- `subprocess`模块可以启动一个子进程，然后控制其输入和输出
 
-`subprocess.call()`：调用
+- `subprocess.call()`：调用
 
-`communicate()`：输入
+- `communicate()`：输入
 
 ```python
 import subprocess
@@ -3054,14 +3060,15 @@ if __name__=='__main__':
 
 ## 多线程
 
-线程是操作系统直接支持的执行单元。多任务可以由多进程完成，也可以由一个进程内的多线程完成
+线程是操作系统直接支持的执行单元，多任务可以由多进程完成，也可以由一个进程内的多线程完成
 
 - python的线程是真正的`Posix Thread`，而不是模拟出来的线程
-- python标准库提供了两个模块：绝大多数情况下只需要使用`threading`高级模块
+- python标准库提供了两个模块，大多数情况下只需要使用`threading`高级模块
 - - `_thread`：低级模块
   - `threading`：高级模块，对`_thread`进行了封装
-- 任何进程默认会启动一个主线程（`MainThread`），主线程可以启动新子线程（子线程的名字在创建时指定）
-- `threading`模块中的`current_thread()`函数会返回当前的线程实例
+- 任何进程都会默认启动一个主线程`MainThread`    
+  - 主线程可以启动新子线程，子线程的名字在创建时指定
+  - `threading`模块中的`current_thread()`函数会返回当前的线程实例
 
 > 启动一个线程就是把一个函数`target`传入并创建`Thread`实例，然后调用`start()`开始执行
 

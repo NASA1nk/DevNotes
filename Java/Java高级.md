@@ -1578,7 +1578,7 @@ public class IteratorTest {
 
 `Iterator iterator = coll.iterator();`
 
-- `iterator`**仅用于遍历集合**，`iterator`本身并不提供承存储对象的能力（并不是容器）。创建`Iterator`对象**必须有一个被迭代的集合**
+- `iterator`**仅用于遍历集合**，`iterator`本身并不提供承存储对象的能力（并不是容器），创建`Iterator`对象**必须有一个被迭代的集合**
 - 集合对象每次调用`iterator()`方法都得到**一个全新的迭代器对象**，**默认游标都在集合的第一个元素之前**（`next()`先下移，再返回元素）
 
 ```java
@@ -5947,7 +5947,7 @@ class LockTest implements Runnable{
 
 > 这三个方法只能在**同步方法**或者**同步方法块**中使用，否则会抛出`IllegalMonitorStateException`异常
 >
-> 因为这三个方法必须有**锁对象**调用，而任意对象都可以作为`synchronized`的同步锁， 因此这三个方法只能在`Object`类中声明
+> 因为这三个方法必须由**锁对象**调用，而任意对象都可以作为`synchronized`的同步锁， 因此这三个方法只能在`Object`类中声明
 
 
 

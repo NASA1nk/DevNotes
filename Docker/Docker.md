@@ -275,26 +275,33 @@ sudo service docker restart
 帮助文档：https://docs.docker.com/engine/reference/commandline/build/
 
 ```sh
-docker version 		#显示docker的版本信息。 
-docker info 		#显示docker的系统信息，包括镜像和容器的数量 
-docker 命令 --help   #帮助命令 
+docker version 		# 显示docker的版本信息。 
+docker info 		# 显示docker的系统信息，包括镜像和容器的数量 
+docker 命令 --help   # 帮助命令 
 ```
 
 ## 镜像命令
 
 ```sh
-docker images 		#查看所有本地主机上的镜像
-docker search 		#搜索镜像 
-docker pull			#下载镜像 
-docker push			#提交镜像 
-docker tag			#给镜像打标签
-docker rmi 			#删除镜像 
-docker image prune	#删除不用的镜像(-a可以删除所有未被引用的镜像)
-docker save			#保存镜像成压缩文件格式
-docker load			#从压缩文件提取镜像
+docker images 		# 查看所有本地主机上的镜像
+docker search 		# 搜索镜像 
+docker pull			# 下载镜像 
+docker push			# 提交镜像 
+docker tag			# 给镜像命名/打标签
+docker rmi 			# 删除镜像 
+docker image prune	# 删除不用的镜像(-a可以删除所有未被引用的镜像)
+docker save			# 保存镜像成压缩文件格式
+docker load			# 从压缩文件提取镜像
 ```
 
 ### docker images
+
+**Options**
+
+- `-a / --all`：列出所有镜像 
+- `-q / --quiet`：只显示镜像的id
+
+**显示信息**
 
 - `REPOSITORY`：镜像的仓库源 
 - `TAG`：镜像的标签 
@@ -303,21 +310,16 @@ docker load			#从压缩文件提取镜像
 - `SIZE`：镜像的大小
 
 ```shell
-docker images
-# 可选项 
-Options:
--a, --all Show all images #列出所有镜像 
--q, --quiet Only show numeric IDs #只显示镜像的id
-
-docker images -aq #显示所有镜像的id
+ # 显示所有镜像的id
+docker images -aq
 ```
 
 ### docker pull
 
 `docker pull` 的内容默认存在`/var/lib/docker`目录下
 
-- `/var/lib/docker/image/overlay2/repositories.json`文件和docker images的内容一致
-- `/var/lib/docker/containers`目录中保存是已拉取的容器ID
+- `/var/lib/docker/image/overlay2/repositories.json`文件和`docker images`的内容一致
+- `/var/lib/docker/containers`目录中保存是已拉取的容器id
 
 ```shell
 #分层下载镜像，如果不写tag，默认latest 
@@ -367,16 +369,16 @@ docker rmi -f $(docker images -aq)
 ## 容器命令
 
 ```shell
-docker ps           #列出所有运行的容器
-docker run     		#创建容器并启动 
-docker start  		#启动容器 
-docker restart  	#重启容器 
-docker rm 			#删除指定容器 
-docker stop 		#停止当前正在运行的容器(-d运行)
-docker kill 		#杀死正在运行的容器
-docker rename 		#重新命名容器
-docker cp 			#容器和宿主机中的文件互传
-dockeer top			#查看容器中进程
+docker ps           # 列出所有运行的容器
+docker run     		# 创建容器并启动 
+docker start  		# 启动容器 
+docker restart  	# 重启容器 
+docker rm 			# 删除指定容器 
+docker stop 		# 停止当前正在运行的容器(-d运行)
+docker kill 		# 杀死正在运行的容器
+docker rename 		# 重新命名容器
+docker cp 			# 容器和宿主机中的文件互传
+dockeer top			# 查看容器中进程
 
 #列出所有容器命令
 docker container 
@@ -586,12 +588,13 @@ docker commit -m = "描述信息" -a = "作者" 容器id 目标镜像名:[TAG]
 docker container prune
 ```
 
-### docker rm
+### docker rm / kill
 
 容器即使已经退出也仍然存在
 
+- 删除指定的容器，不能删除正在运行的容器
+
 ```shell
-# 删除指定的容器,不能删除正在运行的容器
 docker rm 容器id 
 
 # 删除所有容器 
@@ -604,14 +607,14 @@ docker ps -aq | xargs docker rm
 ### docker cp
 
 - 从容器中拷贝文件到宿主机
-- 从宿主机拷贝文件到容器里面
+- 从宿主机拷贝文件到容器中
 
 ```bash
 # 从容器中拷贝文件到宿主机
-docker cp 容器id:文件在容器里面的路径 拷贝到宿主机的绝对路径
+docker cp containerid:文件在容器里面的路径 拷贝到宿主机的绝对路径
 
 # 从宿主机拷贝文件到容器里面
-docker cp 宿主机文件路径 容器id:拷贝到容器里面的绝对路径
+docker cp 宿主机文件路径 containerid:拷贝到容器里面的绝对路径
 
 docker cp /home/dog/yinke/prometheus/config/alertrules.yml e87a0a440925:/etc/prometheus/
 ```
@@ -622,7 +625,8 @@ docker cp /home/dog/yinke/prometheus/config/alertrules.yml e87a0a440925:/etc/pro
 
 **数据持久化管理**
 
-linux是万物皆文件，所以**内存也是一种文件系统**，可以通过tmpfs将一块内存挂载进来
+- linux是万物皆文件，所以**内存也是一种文件系统**，可以通过tmpfs将一块内存挂载进来
+
 
 ![docker数据卷](Docker.assets/docker数据卷.png)
 
@@ -661,7 +665,7 @@ docker volume rm
 - 如果`-v`只指定了一个目录，则会在`/var/lib/docker/volumes/`下随机生成一个目录
 - 如果挂载了目录，即使容器销毁了，宿主机的挂载目录也不会消失（持久化存储）
 
-```shell
+```bash
 docker run -v 主机目录:容器内目录 images
 
 docker run --name inkGrafana -d -p 3000:3000 -v /home/dog/yinke/grafana/conf/defaults.ini:/usr/share/grafana/conf/defaults.ini -v /home/dog/yinke/grafana/public/index.html:/usr/share/grafana/public/views/index.html grafana/grafana
@@ -690,20 +694,22 @@ docker cp /etc/localtime 4e0de57a4437:/etc/localtime
 
 # Dockerfile
 
-用来构建docker镜像的文件(命令脚本)
+用来构建docker镜像的文件（命令脚本）
 
-**构建和运行时的区别：想好封装应用时变和不变的内容**
+**构建和运行时的区别**：想好封装应用时变和不变的内容
 
-> 镜像是只读的，一旦写进去就不会变更，如果想要应用在启动后改变，就应该放在容器内（命令动态的在容器内产生数据，而不是在docker build构建时运行这些命令产生数据写入镜像中）
+> 镜像是只读的，一旦写进去就不会变更，如果想要应用在启动后改变，就应该放在容器内
+>
+> 命令动态的在容器内产生数据，而不是在`docker build`构建时运行这些命令产生数据写入镜像中
 
 ## 构建步骤
 
-1. 编写dockerfile文件
-2. 构建成镜像docker build 	
-3. 启动容器docker run
-4. 发布镜像docker push（DockerHub 、阿里云仓库)
+1. 编写**Dockerfile**文件
+2. 构建成镜像：`docker build` 	
+3. 启动容器：`docker run`
+4. 发布镜像：`docker push`
 
-## Dockerfile编写
+## 编写Dockerfile
 
 ### 说明
 
@@ -717,22 +723,23 @@ docker cp /etc/localtime 4e0de57a4437:/etc/localtime
 **其他命令**
 
 - `FROM`：从哪个基础镜像开始构建
-- `MAINTAINER`：创建者（姓名+邮箱）
-- `WORKDIR`：镜像的工作目录（绝对地址），
+  - 只有最后一个`FROM`会生效
+
+- `MAINTAINER`：创建者
+- `WORKDIR`：镜像的工作目录（绝对地址），进入容器后的默认目录
   - Dockerfile中的`RUN`、`CMD`和`COPY`指令会在工作目录下执行
-
 - `VOLUME`：挂载的目录 
-- `EXPOSE`：镜像要暴露端口，然后才可以进行端口映射
+- `EXPOSE`：镜像要暴露端口，然后才可以通过宿主机进行端口映射
   - 仅用于容器间通信
-
 - `ONBUILD`：当前镜像被其他镜像拿来做基础镜像构建时触发的命令
 - `STOPSIGNAL`：用于停止容器发出的信号 
 
 **添加文件**
 
-- `ADD`：添加文件内容，支持URL，支持从压缩文件中添加
-- `COPY`：添加文件内容（优先使用，更透明）
+- `COPY`：将宿主机器上的的文件复制到镜像内（优先使用，更透明）
   - `COPY src dest`
+- `ADD`：不仅能够将构建命令所在的宿主机本地的文件或目录，而且能够将远程URL所对应的文件或目录，作为资源复制到镜像文件系统
+  - 但`ADD`不支持认证
 
 
 **添加信息**
@@ -744,10 +751,13 @@ docker cp /etc/localtime 4e0de57a4437:/etc/localtime
 **执行命令**
 
 - `SHELL`：指定运行命令的shell
-- `RUN`：构建时运行的命令（命令可以用exec格式）
+- `RUN`：构建时运行的命令
+  - shell格式：`RUN command`
+  - exec格式：`RUN ["可执行文件", "参数1", "参数2"]`
+  - 多行命令不要写多个`RUN`命令，因为Dockerfile中每一个指令都会建立一层，多少个`RUN`就会构建多少层镜像，会造成镜像的臃肿，不仅仅增加了构件部署的时间，还容易出错
+
 - `CMD` ：指定容器**启动时**要运行的命令
   - Dockerfile中只允许有一个CMD指令，**如果有多个，只有最后一个会生效**
-
 - `ENTRYPOINT`：指定容器启动时要运行的命令，可以追加命令 
 
 
@@ -755,15 +765,13 @@ docker cp /etc/localtime 4e0de57a4437:/etc/localtime
 # Python3.8官网镜像
 FROM python:3.8.5
  
-# 设置工作目录，进入后默认的目录
-# 在此目录下执行相对地址的命令
+# 设置工作目录，在此目录下执行相对地址的命令
 WORKDIR /backend
  
 # 复制文件到工作目录
 COPY requirements.txt requirements.txt
 
 # 安装pip库
-# RUN pip install -r requirements.txt
 RUN pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
 
 # 暴露端口
@@ -784,14 +792,15 @@ RUN chmod  a+x  /usr/bin/kubectl
 CMD [ "python", "-u", "server.py"]
 ```
 
-## Docker镜像构建
+## 构建Docker镜像
 
-使用Dockerfile构建成镜像
+使用Dockerfile构建docker镜像
 
 - `-f`：指定要使用的Dockerfile路径，使用当前目录的Dockerfile时可以省略
   - `.`表示当前目录，使用**当前目录下的Dockerfile**
+- `-t / --tag`：设定镜像名及标签，可以在一次构建中为一个镜像设置多个标签（也可以省略标签）
+  - 要推送到具体的仓库，就必须设定对应仓库的镜像名
 
-- `-t/--tag`: 镜像名及标签，可以在一次构建中为一个镜像设置多个标签（也可以省略标签）
 
 ```bash
 docker build -f 文件路径 -t 用户名/image:Tag
@@ -807,15 +816,18 @@ docker build github.com/creack/docker-firefox
 
 # Docker Compose
 
-单容器和多容器
+**单容器和多容器**
 
-单容器各种更新改动太麻烦，多容器存在互访问题和顺序依赖问题。
+- 单容器各种更新改动太麻烦，**多容器存在互访问题和顺序依赖问题**
+
 
 ![多容器](Docker.assets/多容器.png)
 
 ## docker-compose.yaml
 
-docker-compose会自动读取（未 -f 指定文件时）目录下的docker-compose.yaml文件
+docker-compose会自动读取目录下的`docker-compose.yaml`文件
+
+- 也可以使用`-f`参数指定文件
 
 **基本结构**
 
@@ -825,56 +837,61 @@ docker-compose会自动读取（未 -f 指定文件时）目录下的docker-comp
 
 
 
-**service**
+## service
 
-- 指定image或者进入指定目录build dockerfile构建
+- 指定镜像或者`docker build`指定目录下的**dockerfile**来构建
 - 指定端口映射
 - 挂载卷（可以是相对路径）
-- 服务依赖depends_on（解决顺序问题）
+- 服务依赖`depends_on`（解决顺序问题）
 - 环境变量
 
 ![service](Docker.assets/service.png)
 
 # DockerHub
 
-https://hub.docker.com/ 
+官方镜像仓库：https://hub.docker.com/
 
-```shell
-docker login [OPTIONS] [SERVER]
-Options: 
--u, --username       #string Username
--p, --password 		 #string Password 
-	--password-stdin #Take the password from stdin 
+`docker login [OPTIONS] [SERVER]`
 
+**OPTIONS**
+
+- `-u / --username`
+- `-p / --password`
+
+```bash
 docker login -u ink3
+docker login gitlab.buaanlsde.cn:4567
 ```
 
-docker push 如果没有前缀的话默认是push到官方的library 
+`docker push`时如果没有指定仓库前缀就**默认push到官方的默认仓库**
 
-```shell
-# 解决方法(2种)
-# 1.build的时候添加你的dockerhub用户名就可以放到自己的仓库了 
-$ docker build -t ink/mytomcat:0.1 .
+- 如果要推送到自己的仓库就要在构建镜像时添加自己的dockerhub用户名
+- 如果是已经构建的镜像，可以使用`docker tag`重命名后再推送
+  - 会生成一个新的镜像
 
-# 2.使用docker tag 然后再次push 
-$ docker tag 容器id ink3/mytomcat:1.0 #然后再次push
+> gitlab仓库同理
+
+```bash
+docker build -t ink/mytomcat:0.1 .
+
+docker build -t gitlab.buaanlsde.cn:4567/buaapyj/registry .
+
+docker tag 容器id ink3/mytomcat:1.0
 ```
 
-上传到gitlab容器镜像仓库
+**整个过程**
 
 ```bash
 # 查看镜像
 docker images
-# 显示
-REPOSITORY    TAG       IMAGE ID       CREATED         SIZE
-ink/backend   v1        884e4ee7607e   3 minutes ago   1.26GB
+
+# 结果
+# REPOSITORY    TAG       IMAGE ID       CREATED         SIZE
+# ink/backend   v1        884e4ee7607e   3 minutes ago   1.26GB
+
 # 修改镜像名
 docker tag 884e4ee7607e gitlab.buaanlsde.cn:4567/buaapyj/registry/inkbackend
-# 查看
-docker images
-REPOSITORY                                             TAG       IMAGE ID       CREATED         SIZE
-ink/backend                                            v1        884e4ee7607e   5 minutes ago   1.26GB
-gitlab.buaanlsde.cn:4567/buaapyj/registry/inkbackend   latest    884e4ee7607e   5 minutes ago   1.26GB
+
 # 上传镜像
 docker push gitlab.buaanlsde.cn:4567/buaapyj/registry/inkbackend
 ```

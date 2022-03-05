@@ -1,53 +1,61 @@
 # Prometheus
 
-`Prometheus` 是由 `SoundCloud`开发的开源监控报警系统和时序列数据库，`Prometheus`由两个部分组成
+`Prometheus`是由`SoundCloud`开发的**开源监控报警系统**和**时序列数据库**
+
+`Prometheus`由两个部分组成
 
 - 监控报警系统
 - 自带的时序数据库（TSDB）
 
-关于**时序数据库(TSDB)**
+## 时序数据库
 
-可以简单的理解为一个优化后用来处理时间序列数据的数据库，并且数据中的数组是由**时间**进行索引的。相比于传统的结构化数据库主要有几个好处
+TSDB
 
-- **[时间序列数据](https://www.zhihu.com/search?q=时间序列数据&search_source=Entity&hybrid_search_source=Entity&hybrid_search_extra={"sourceType"%3A"article"%2C"sourceId"%3A162849952})专注于海量数据的快速摄取**。时序数据库视数据的每一次变化为一条新的数据，从而可以去衡量变化：分析过去的变化，监测现在的变化，以及预测未来将如何变化，传统结构化数据在数据量小的时候能做到，在数据量大的时候就需要花费大量的成本。
+可以简单的理解为一个优化后用来处理时间序列数据的数据库，**并且数据中的数组是由时间进行索引的**
 
-- **高精度数据保存时间较短，中等或更低精度的摘要数据保留时间较长**。对于实时监控来说，不一定需要每一个精准的数据，而是固定时间段时间数据的摘要。这对于结构化数据库来说就意味着要进行筛选，在保证大量的写入同时还要进行帅选，这是一个超出结构化数据库设计来处理的工作量。
+相比于传统的结构化数据库主要有几个好处
 
-- **数据库本身必须连续计算来自高精度数据的摘要以进行长期存储**。这些计算既包括一些简单的聚合，同时也有一些复杂计算。传统数据库无法承受那么大量的计算。因为必须去实时统计这些聚合和复杂运算。
+- **时间序列数据专注于海量数据的快速存取**。时序数据库视数据的每一次变化为一条新的数据，从而可以去衡量变化。分析过去的变化，监测现在的变化，以及预测未来将如何变化
+  - 传统的结构化数据在数据量小的时候能做到，在数据量大的时候就需要花费大量的成本
+
+- **高精度数据保存时间较短，中等或更低精度的摘要数据保留时间较长**。对于实时监控来说，不一定需要每一个精准的数据，而是固定时间段时间数据的摘要
+  - 这对于结构化数据库来说就意味着要进行筛选，在保证大量的写入同时还要进行筛选，这是一个超出结构化数据库设计来处理的工作量
+
+- **数据库本身必须连续计算来自高精度数据的摘要以进行长期存储**。这些计算既包括一些简单的聚合，同时也有一些复杂计算
+  - 传统数据库无法承受那么大量的计算。因为必须去实时统计这些聚合和复杂运算
+
 
 ## Prometheus架构
 
-Prometheus生态圈由多个组件构成，其中许多组件是可选的
+Prometheus生态由多个组件构成，其中许多组件是可选的
 
 - **Prometheus Server**
   
   - 用于收集、存储和查询时间序列数据
-  - 通过**静态配置文件**（`prometheus.yml`）管理监控目标，也可以配合使用**动态服务发现**的方式动态管理监控目标，并从这些监控目标中获取数据，然后将采集到的数据**按照时间序列的方式存储**在本地磁盘当中或者外部的时序数据库中，可通过**PromQL语言**对数据的查询以及分析
-  
-- **Client Library**
-  
-  为被监控的应用**生成相应的指标**（Metric）数据并暴露给Prometheus Server，当Prometheus Server来拉取时直接返回**实时状态**的指标数据
+  - 通过**静态配置文件**`prometheus.yml`管理监控目标，也可以配合使用**动态服务发现**的方式动态管理监控目标，并从这些监控目标中获取数据
+  - 将采集到的数据**按照时间序列的方式存储**在本地磁盘当中或者外部的时序数据库中，可通过**PromQL语言**对数据的查询以及分析
+- **Client Library**（客户端库）
+  - 为被监控的应用**生成相应的Metric指标数据**并暴露给Prometheus Server，当Prometheus Server来拉取时直接返回**实时状态**的指标数据
   
 - **Push Gateway**
-  
-  - 相当于一个代理服务，**独立部署**。它没有数据拉取功能，**只能被动的等待数据推送**
-  - 主要用于短期存在的Jobs，这类Jobs由于存在时间较短，可能在Prometheus Server来拉取数据之前就消失了。所以这些Jobs可以直**接向Push Gateway推送它们的指标数据**，等到这些jobs把数据推送到Push Gateway后，P**rometheus Server再从Push Gateway拉取**
-  - 当由于子网络或者防火墙的原因，Prometheus Server不能直接拉取各个目标（target）的指标数据，此时可以让各个目标（target）往Push Gateway上推送数据，然后Prometheus Server去PushGateway上定时拉取
+
+  - 相当于一个代理服务，**独立部署**，它没有数据拉取功能，**只能被动的等待数据推送**
+  - 主要用于短期存在的Jobs，这类Jobs由于存在时间较短，可能在Prometheus Server来拉取数据之前就消失了，所以**这些Jobs可以直接向Push Gateway推送它们的指标数据**，等到这些jobs把数据推送到Push Gateway后，Prometheus Server再从Push Gateway拉取
+    - 即使jobs推送了所有的数据到Push Gateway，Prometheus Server也不是每次都拉取这个期间推上来的所有数据，而是**只拉取jobs最后一次推送的数据**
+    - 如果jobs一直没有推送新的指标到Push Gateway，那么**Prometheus Server将始终拉取最后推送上的数据**，直到指标消失（默认5分钟）
+
+  - 当由于子网络或者防火墙的原因，Prometheus Server不能直接拉取各个目标（**target**）的指标数据，此时可以让各个目标往Push Gateway上推送数据，然后Prometheus Server去PushGateway上定时拉取
   - 在监控各个业务数据时，需要**将各个不同的业务数据进行统一汇总**，此时也可以采用Push Gateway来统一收集数据，然后Prometheus Server在来统一拉取
-  
-  > 即使jobs推送了所有的数据到Push Gateway，Prometheus Server也不是每次都拉取这个期间推上来的所有数据，而是**只拉取jobs最后一次推送的数据**。如果jobs一直没有推送新的指标（Metric）到Push Gateway，那么Prometheus Server将始终拉取最后推送上的数据，直到指标消失（默认5分钟）
-  
-- **Exporters**
-  
-  输出被监控组件信息的HTTP接口被叫做`exporter`
-  
-  - 用于暴露已有的第三方服务的指标（Metric）数据**通过HTTP服务的形式**暴露给Prometheus Server，比如HAProxy、StatsD、Graphite等
-    Prometheus Server周期性的从Exporter暴露的HTTP服务地址（通常是/metrics）拉取监控样本数据
-  
+
+- **Exporter**
+  - **输出被监控组件信息的HTTP接口被叫做Exporter**
+  - Exporter用于暴露已有的第三方服务的指标数据，**通过HTTP服务的形式**暴露给Prometheus Server，比如HAProxy、StatsD、Graphite等
+  - Prometheus Server周期性的从Exporter暴露的HTTP服务地址（通常是`/metrics`）拉取监控指标的样本数据
+
 - **Alertmanager**
-  
-  - 从Prometheus Server接收到告警后，Alertmanager会进行去除重复数据，分组，并路由到接收方，发出报警。
-  - AlertManager支持自定义告警规则。告警方式也非常灵活，支持通过邮件、slack或钉钉等多种途径发出告警。
+
+  - 从Prometheus Server接收到告警后，Alertmanager会进行去除重复数据，分组，并路由到接收方，发出报警
+  - AlertManager支持自定义告警规则，告警方式也非常灵活，支持邮件、slack或钉钉等多种途径
 
 ![Prometheus架构图](Prometheus.assets/Prometheus架构图.jpg)
 
@@ -58,54 +66,55 @@ Prometheus生态圈由多个组件构成，其中许多组件是可选的
 3. Alertmanager根据配置文件，对接收到的告警进行处理，发出报警
 4. 在Grafana或其他API客户端中，可视化收集的数据
 
-> Prometheus其实并不需要每一个精确的数据，长期保存的是中等或者低精度的数据。它每次只抓取一个数据，在固定的频率下。也能形成某种数据的趋势。
-
-
+> Prometheus其实并不需要每一个精确的数据，长期保存的是中等或者低精度的数据
+>
+> 它每次只抓取一个数据，在固定的频率下也能形成某种数据的趋势
 
 ## Prometheus数据模型
 
-Prometheus会将所有采集到的监控数据以**时间序列**的方式保存在内存数据库中并定时保存到硬盘上
+Prometheus会将所有采集到的监控数据**以时间序列的方式保存在内存数据库中并定时保存到硬盘上**
 
-**数据组成**
+### 数据组成
 
 - **指标**（Metric）：由**指标名称**和描述当前**数据特征的标签**组成
 - **时间戳**（Timestamp）：一个精确到毫秒的时间戳
 - **数据值**（Value）：一个float64的浮点型数据表示当前数据的值
-
-Prometheus是一个**时序数据库**，**相同指标相同标签的数据构成一条时间序列**
-
-如果以传统数据库的概念来理解时序数据库
-
-- 指标名是表名
-- 标签是字段
-- Timestamp是主键
-- float64类型的字段表示值（
-
-> Prometheus 里面所有值都是按 float64 存储
-
-**指标（Metric）**
-
-- **指标格式**
-
-  `指标名称{标签名称="标签值"}`
-
-  - 标签（Label）：反映了当前数据的特征维度，Prometheus通过这些维度可以对数据进行过滤，聚合等操作
+  - Prometheus里面所有值都是按 float64 存储
 
 
+时序数据库中相同指标相同标签的数据构成一条时间序列
 
+> 如果以传统数据库的概念来理解时序数据库
+>
+> - 指标名是表名
+> - 标签是字段
+> - Timestamp是主键
+> - float64类型的字段表示值
+>
+
+### 指标
+
+`Metric`
+
+**指标格式**：`指标名称{标签名称="标签值"}`
+
+- 标签（Label）：反映了当前数据的特征维度，Prometheus通过这些维度可以对数据进行过滤，聚合等操作
 
 `promhttp_metric_handler_requests_total{code="200",instance="192.168.0.107:9090",job="prometheus"} 106`
 
-- 指标名称：`promhttp_metric_handler_requests_total`
-- 标签：
-  - code
-  - instance
-  - job
-- 值：106
+- **指标名称**：`promhttp_metric_handler_requests_total`
 
-- **指标类型**
+- **标签**
+  
+  - `code`
+  - `instance`
+  - `job`
+  
+- **值**：106
 
-  Prometheus定义了4种不同的指标类型（Metric Type）
+**指标类型**
+
+Prometheus定义了4种不同的指标类型（Metric Type）
 
   - **Counter**（计数器）
   - **Gauge**（仪表盘）
@@ -188,79 +197,82 @@ prometheus_target_interval_length_seconds_count{interval="15s"} 21
 
 ## Prometheus数据获取
 
-Prometheus主要是通过**拉取**（pull）的方式获取数据
+Prometheus**主要是通过拉取（pull）的方式获取数据**
 
-Prometheus每隔一段时间会从配置的**目标（target）**（获取数据的url）以Http协议拉取**指标（metrics）**，这些目标（target）可以是应用，也可以是代理，缓存中间件，数据库等等一些中间件
+- Prometheus每隔一段时间会从配置的目标（target）以HTTP协议拉取**指标（metrics）**数据，这些目标（target）可以是应用，也可以是代理，缓存中间件，数据库等等一些中间件
+  - 需要服务端提供http的接口来获取实时的数据
 
-> 需要服务端提供http的接口来获取实时的数据
+- Prometheus会将拉取出来的数据存到**自己的TSDB时序数据库**
 
-Prometheus会将拉取出来的数据存到**自己的TSDB时序数据库**
 
-Prometheus的WebUI控制台以及Grafana可以对数据进行时间范围内的不断查询，绘制成实时图表工展现
+- Prometheus的WebUI控制台以及Grafana可以对数据进行时间范围内的不断查询，绘制成实时图表工展现
 
-Prometheus支持例如zookeeper，consul之类的服务发现中间件，用以对目标（target）的自动发现。而不用一个个去配置
+
+- Prometheus支持例如zookeeper，consul之类的服务发现中间件，用以对目标（target）的自动发现，而不用一个个去配置
+
 
 ## Prometheus配置文件
 
 Prometheus默认的配置文件`prometheus.yml`分为四部分
 
-- global：Prometheus 的全局配置
-  -  scrape_interval 表示多久抓取一次数据
-  - evaluation_interval 表示多久检测一次告警规则
-- alerting：关于Alertmanager的配置
-- rule_files：告警规则
-- scrape_config：定义了Prometheus要抓取的目标
-  - 默认已经配置了一个名称为prometheus的job，这是Prometheus在启动的时候也会通过HTTP接口暴露自身的指标数据（相当于Prometheus自己监控自己）可以访问http://10.2.14.105:9090/metrics查看Prometheus暴露的指标
+- `global`：Prometheus 的全局配置
+  -  `scrape_interval`：表示多久抓取一次数据
+  - `evaluation_interval`：表示多久检测一次告警规则
+- `alerting`：关于Alertmanager的配置
+- `rule_files`：告警规则
+- `scrape_config`：定义了Prometheus要抓取的目标
+  - 默认已经配置了一个名称为prometheus的job，这是Prometheus在启动的时候也会通过HTTP接口暴露自身的指标数据，相当于Prometheus自己监控自己
 
 
 
-## 部署Prometheus Server
+## Docker部署Prometheus Server
 
-- 下载prometheus的配置文件并将其存放在`/home/dog/yinke/prometheus/config`路径下
-  - 下载地址：https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus.yml
-- 挂载配置文件
-  - 容器内地址：`/etc/prometheus`
+> 下载地址：https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus.yml
+
+- 下载prometheus配置文件，将其存放在`~/prometheus/config`路径下
+- Docker启动时挂载配置文件
 - 访问Web管理页面http://10.2.14.105:9090，可以看到Prometheus服务正确启动
+  - 默认9090端口
+
 
 
 ```bash
 # 拉取镜像
 docker pull prom/prometheus
 
-# 启动容器
-# 将配置文件挂载到容器内的/etc/prometheus/prometheus.yml
+# 启动容器，将配置文件挂载到容器内的/etc/prometheus/prometheus.yml
 docker run --name inkPrometheus -d -p 9090:9090 -v /home/dog/yinke/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
 ```
 
 
 
-# Exporters
-
-Prometheus服务负责收集、存储、查看监控数据，真正**直接进行监控通过Exporters完成**
-
-Exporters相当于是Prometheus服务的客户端，**负责向其提供监控数据**，针对不同的被监控目标需要使用不同的Exporter
-
-Exporters的实例称为目标（Target），Prometheus通过轮询的方式定时从这些目标（Target）中获取监控数据样本，并且存储在数据库中
+# Exporter
 
 [Exporters | Prometheus](https://prometheus.io/docs/instrumenting/exporters/)
+
+Prometheus服务负责收集、存储、查看监控数据，真正**直接进行监控通过Exporter完成**
+
+- **Exporter相当于是Prometheus服务的客户端**，负责向其提供监控数据，针对不同的被监控目标需要使用不同的Exporter
+
+- Exporter的实例称为目标（Target），Prometheus通过轮询的方式定时从这些目标（Target）中获取监控数据样本，并且存储在数据库中
+
+
+## 直接部署
+
+通过 http://49.232.207.245:9100/metrics 可以看到采集的监控数据
 
 > i386是32位的版本，amd64是64位的版本
 >
 > - i386=Intel 80386，i386通常被用来作为对Intel（英特尔）32位微处理器的统称
->
 > - AMD64又称x86-64或x64”，是一种64位元的电脑处理器架构。它是建基于现有32位元的x86架构，由AMD公司所开发
 
-**直接部署**
+**配置报错**
 
-> **配置报错**
->
-> level=info ts=2020-07-18T04:38:46.494Z caller=tls_config.go:170 msg="TLS is disabled and it cannot be enabled on the fly." http2=false
->
-> **原因**
->
-> node_exporter版本升到1.0.0之后，因为安全性考虑支持了TLS，所以要添加证书
+`level=info ts=2020-07-18T04:38:46.494Z caller=tls_config.go:170 msg="TLS is disabled and it cannot be enabled on the fly." http2=false`
 
-通过 http://49.232.207.245:9100/metrics 可以看到采集的监控数据
+**原因**
+
+`node_exporter版本升到1.0.0之后，因为安全性考虑支持了TLS，所以要添加证书`
 
 ```bash
 # 下载 node exporter(64bit)
@@ -270,7 +282,7 @@ wget https://github.com/prometheus/node_exporter/releases/download/v0.16.0/node_
 # 解压
 tar xvfz node_exporter-1.1.2.linux-amd64.tar.gz
 
-# 移动到exporter 目录下
+# 移动到exporter目录下
 mkdir exporter
 mv node_exporter-1.1.2.linux-amd64/* exporter
 
@@ -297,19 +309,17 @@ tls_server_config:
 ./node_exporter --web.config=config.yaml
 ```
 
-
-
-**docker部署**
+## Docker部署Exporter
 
 [Monitoring Linux host metrics with the Node Exporter](https://prometheus.io/docs/guides/node-exporter/)
 
 [Prometheus Exporter for machine metrics ](https://github.com/prometheus/node_exporter#using-docker)
 
-官方不建议将node_exporter部署为Docker容器，因为它需要访问主机系统。
+如果要部署Docker以进行主机监控，**必须使用一些额外的参数来允许node_exporter访问主机名称空间**
 
-如果要部署Docker以进行主机监控，必须使用一些额外的参数来允许node_exporter访问主机名称空间。
+- 官方不建议将node_exporter部署为Docker容器，因为它需要访问主机系统
 
-`path.rootfs`参数，此参数必须与`host root`的`bind-mount`中的路径匹配。node_exporter将`path.rootfs`用作**访问主机文件系统的前缀**
+- 使用`path.rootfs`参数，此参数必须与`host root`的`bind-mount`中的路径匹配，node_exporter将`path.rootfs`用作**访问主机文件系统的前缀**
 
 > 要监视的所有非root挂载点都需要绑定挂载到容器中
 
@@ -326,13 +336,15 @@ curl http://localhost:9100/metrics
 curl http://localhost:9100/metrics | grep "node_"
 ```
 
-**配置**
+## 配置Exporter
 
 在Prometheus服务的配置文件`prometheus.yml`中添加相应的配置来收集Node Exporter的监控数据
 
 1. 在`scrape_configs`下添加一个新的job
-2. **重启prometheus服务**然后进入Web管理页面 http://10.2.14.105:9090
-3. 输入`up`，点击Execute按钮，可看到刚刚添加的job（1表示正常，0表示异常）
+2. 重启prometheus服务然后进入Web管理页面 http://10.2.14.105:9090
+3. 输入`up`，点击Execute按钮，可看到刚刚添加的job
+   1. 1表示正常，0表示异常
+
 
 ```yaml
 ...
@@ -358,8 +370,6 @@ scrape_configs:
     # 多个node_exporter，在targets数组后面加即可
     - targets: ['10.2.14.105:9100']
 ```
-
-
 
 
 
@@ -544,11 +554,7 @@ URL请求参数
 
 [prometheus-api-client-python](https://github.com/AICoE/prometheus-api-client-python)
 
-http://10.2.14.95:32099/api/v1/query_range?query=sum(rate(container_cpu_usage_seconds_total%20[5m]))%20by(container_name)&start=2021-07-01T13:11:53Z&end=2021-07-01T14:21:53Z&step=12s
-
 `sum(rate(container_cpu_usage_seconds_total [5m])) by(container_name)`
-
-
 
 
 
@@ -762,9 +768,9 @@ load() {
 
 
 
+# 监控实践
 
-
-# MySQL监控
+## MySQL监控
 
 [mysqld_exporter](https://github.com/prometheus/mysqld_exporter)是Prometheus官方提供的一个exporter
 
@@ -819,7 +825,7 @@ scrape_configs:
 
 
 
-# CAdvisor监控
+## CAdvisor监控
 
 cAdvisor是Google一款开源的用于分析、展示容器运行状态的可视化工具，用于监控Dcoker整体的运行情况
 
@@ -1287,25 +1293,73 @@ GF_<SectionName>_<KeyName>
 
 # 服务发现
 
-Prometheus 是通过 Pull 的方式主动获取监控数据，所以需要**手工指定监控节点的列表**，当监控的节点增多之后，每次增加节点都需要更改配置文件，非常麻烦，这个时候就需要通过**服务发现**（service discovery，SD）机制去解决
+- Prometheus 是通过 Pull 的方式主动获取监控数据，所以需要**手工指定监控节点的列表**
+- 当监控的节点增多之后，每次增加节点都需要更改配置文件，非常麻烦，这个时候就需要通过**服务发现**（service discovery，SD）机制去解决
+- Prometheus 支持多种服务发现机制，可以自动获取要收集的targets
 
-Prometheus 支持多种服务发现机制，可以自动获取要收集的 targets
 
-[prometheus/discovery at main · prometheus/prometheus (github.com)](https://github.com/prometheus/prometheus/tree/main/discovery)
-
-[Advanced Service Discovery in Prometheus 0.14.0 | Prometheus](https://prometheus.io/blog/2015/06/01/advanced-service-discovery/)
-
-Prometheus 的配置还是 Alertmanager 的配置，都没有提供 API 供我们动态的修改。
-
-一个很常见的场景是，需要基于 Prometheus 做一套可自定义规则的告警系统，用户可根据自己的需要在页面上创建修改或删除告警规则，或者是修改告警通知方式和联系人，
-
-不过遗憾的是，[Simon Pasquier](https://github.com/simonpasquier) 在下面说到，目前并没有这样的 API，而且以后也没有这样的计划来开发这样的 API
+> [prometheus/discovery at main · prometheus/prometheus (github.com)](https://github.com/prometheus/prometheus/tree/main/discovery)
+>
+> [Advanced Service Discovery in Prometheus 0.14.0 | Prometheus](https://prometheus.io/blog/2015/06/01/advanced-service-discovery/)
 
 # 自监控
 
-其它系统都用 Prometheus 监控起来了，报警规则也设置好了，那 Prometheus 本身由谁来监控？
+其它系统都用Prometheus监控了，报警规则也设置好了，但是 Prometheus本身也需要被监控
 
-- **上生产环境之前，一定要确保至少有两个独立的 Prometheus 实例互相做交叉监控。**交叉监控的配置也很简单，每台 Prometheus 都拉取其余所有 Prometheus 的指标即可。
+- 上生产环境之前，一定要确保至少有两个独立的 Prometheus 实例互相做交叉监控
+  - 交叉监控的配置也很简单，每台 Prometheus都拉取其余所有 Prometheus 的指标即可
 
-- 警报系统(Alertmanager)，我们再考虑一下警报系统挂掉的情况：这时候 Prometheus 可以监控到警报系统挂了，但是因为警报挂掉了，所以警报自然就发不出来，这也是应用 Prometheus 之前必须搞定的问题。这个问题可以通过给警报系统做 HA 来应对。除此之外还有一个经典的兜底措施叫做 ["Dead man's switch"](https://link.zhihu.com/?target=https%3A//en.wikipedia.org/wiki/Dead_man%27s_switch): 定义一条永远会触发的告警，不断通知，假如哪天这条通知停了，那么说明报警链路出问题了。
+
+Alertmanager也需要考虑挂掉的情况
+
+- Prometheus可以监控到警报系统挂了，但是因为警报挂掉了，所以警报自然就发不出来
+- 这个问题可以通过给警报系统做HA来应对
+- 除此之外还有一个经典的兜底措施叫做[Dead man's switch](https://link.zhihu.com/?target=https%3A//en.wikipedia.org/wiki/Dead_man%27s_switch):
+  - 定义一条永远会触发的告警，不断通知，假如哪天这条通知停了，那么说明警报系统出问题了
+
+# 时序数据库
+
+Prometheus的TSDB的存储结构是参考了Facebook的Gorilla之后，自行实现的
+
+- Prometheus将最近的数据保存在内存中，这样查询最近的数据会变得非常快
+- 然后通过一个compactor定时将数据打包到磁盘，数据在内存中最少保留2个小时
+  - storage.tsdb.min-block-duration
+  - 2小时这个值应该是Gorilla那篇论文中观察得出的结论，压缩率在2小时时候达到最高，如果保留的时间更短，就无法最大化的压缩
+
+**数据结构**
+
+```go
+type memSeries stuct {
+    ......
+    ref uint64          // 其id
+    lst labels.Labels   // 对应的标签集合
+    chunks []*memChunk  // 数据集合
+    headChunk *memChunk // 正在被写入的chunk
+    ......
+}
+```
+
+**内存序列**
+
+memSeries
+
+- 针对一个终端的监控项，包含抓取的所有标签，以及新添加的标签（例如ip），在内存都有一个memSeries结构
+
+**寻址**
+
+Prometheus采用了hash来通过一堆标签快速找到对应的memSeries
+
+- hash值是依据`labelSets`的值而算出来
+
+- 在Prometheus中会频繁的对`map[hash/refId]memSeries`进行操作，例如检查这个`labelSet`对应的`memSeries`是否存在，不存在则创建等
+- 由于golang的`map`非线程安全，所以其采用了分段锁去拆分锁
+
+```go
+type stripeSeries struct {
+    series [stripeSize]map[uint64]*memSeries // 记录refId到memSeries的映射
+    hashes [stripeSize]seriesHashmap // 记录hash值到memSeries,hash冲突采用拉链法
+    locks  [stripeSize]stripeLock // 分段锁
+}
+type seriesHashmap map[uint64][]*memSeries
+```
 

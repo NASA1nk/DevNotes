@@ -564,6 +564,24 @@ URL请求参数
 
 Grafana是一个开源的跨平台的度量分析、可视化工具
 
+## 部署Grafana
+
+启动grafana容器
+
+- `–privileged=true`：使容器内的root拥有真正的root权限，否则容器中的root只是外部的一个普通用户权限
+
+```bash
+# 拉取镜像
+docker pull grafana/grafana
+
+# 启动容器
+docker run --name inkGrafana -d -p 3000:3000 --privileged=true grafana/grafana
+```
+
+访问http://10.2.14.105:3000进入Grafana的Web页面
+
+- 默认账号密码均为admin，修改密码不变，还是admin
+
 ## Grafana配置
 
 [Configure Grafana Docker image | Grafana Labs](https://grafana.com/docs/grafana/v7.5/administration/configure-docker/)
@@ -573,26 +591,32 @@ Grafana是一个开源的跨平台的度量分析、可视化工具
 - **个性化配置文件**
   - `/etc/grafana/grafana.ini`
 
-
-
 **配置文件调用顺序**
 
-1. grafana启动时，首先会调用`/usr/share/grafana/conf/defaults.ini`（默认启动信息）
-2. 然后会调用使用`--config`指向的配置文件（默认为`etc/grafana/grafana.ini`），所以通过该文件可以覆盖`defaults.ini`的配置
-   1. 使用`--config`指定配置文件
-   2. 通过环境变量`GF_PATHS_CONFIG`指定配置文件
+1. grafana启动时，首先会调用默认配置文件`/usr/share/grafana/conf/defaults.ini`
+2. 然后会调用使用`--config`指向的配置文件，默认为`etc/grafana/grafana.ini`，通过该文件可以覆盖`defaults.ini`的配置
+   1. 也可以通过环境变量`GF_PATHS_CONFIG`指定配置文件
 
+**Grafana Docker中的环境变量及默认路径**
 
+| Setting               | Default value             |
+| --------------------- | ------------------------- |
+| GF_PATHS_CONFIG       | /etc/grafana/grafana.ini  |
+| GF_PATHS_HOME         | /usr/share/grafana        |
+| GF_PATHS_DATA         | /var/lib/grafana          |
+| GF_PATHS_LOGS         | /var/log/grafana          |
+| GF_PATHS_PLUGINS      | /var/lib/grafana/plugins  |
+| GF_PATHS_PROVISIONING | /etc/grafana/provisioning |
 
 **修改配置文件**
 
 分号`;`是`.ini`配置文件的标准注释方式，需要去掉
 
-> `:set nu` 显示行数
->
-> 命令模式下（`ESC`）：`/`+搜索的内容
->
-> 查看：`grep allow_embedding defaults.ini`
+- `:set nu` 显示行数
+- 命令模式下（`ESC`）：`/`+搜索的内容可以快速定位
+- 查看：`grep allow_embedding defaults.ini`
+
+进入容器
 
 ```bash
 # 以root身份进入容器
@@ -603,7 +627,11 @@ cd /usr/share/grafana/conf
 
 # 修改配置文件
 vi defaults.ini
+```
 
+`defaults.ini`
+
+```bash
 # 允许嵌入
 # set to true if you want to allow browsers to render Grafana in a <frame>, <iframe>, <embed> or <object>. default is false.
 allow_embedding = true
@@ -624,17 +652,15 @@ auto_assign_org_role = Viewer
 hide_version = true
 ```
 
-
-
 **修改loading图标**
 
 修改`/usr/share/grafana/public/views/index.html`文件
 
-> 命令模式下（`ESC`）
->
-> - dd：删除一行
-> - yy：复制一行
-> - p：粘贴
+命令模式下（`ESC`）
+
+- `dd`：删除一行
+- `yy`：复制一行
+- `p`：粘贴
 
 ```index
 .preloader__logo {
@@ -656,48 +682,20 @@ hide_version = true
 <div class="preloader__text">Loading Grafana</div>
 ```
 
+修改完后重启容器
 
+## 制作镜像
 
-## 部署Grafana
-
-**Grafana Docker中的环境变量及默认路径**
-
-| Setting               | Default value             |
-| --------------------- | ------------------------- |
-| GF_PATHS_CONFIG       | /etc/grafana/grafana.ini  |
-| GF_PATHS_HOME         | /usr/share/grafana        |
-| GF_PATHS_DATA         | /var/lib/grafana          |
-| GF_PATHS_LOGS         | /var/log/grafana          |
-| GF_PATHS_PLUGINS      | /var/lib/grafana/plugins  |
-| GF_PATHS_PROVISIONING | /etc/grafana/provisioning |
-
-先启动一个grafana容器
-
-> `–privileged=true`：蛇者container内的root拥有真正的root权限,否则container内的root只是外部的一个普通用户权限
+从修改后的容器中创建新的镜像，保存修改的配置
 
 ```bash
-# 拉取镜像
-docker pull grafana/grafana
-# 启动容器
-docker run --name Grafana -d -p 3000:3000 --privileged=true grafana/grafana
+docker commit -m "grafana镜像" -a "ink" e0ab70b120e8 gitlab.buaanlsde.cn:4567/buaapyj/registry/ink/grafana
+
+# 上传镜像
+docker push gitlab.buaanlsde.cn:4567/buaapyj/registry/ink/grafana
 ```
 
-再将需要修改的配置文件挂载出来
 
-```bash
-docker cp 877d50ad097d:/usr/share/grafana/conf/defaults.ini /home/dog/yinke/grafana/conf
-docker cp 877d50ad097d:/usr/share/grafana/public/views/index.html /home/dog/yinke/grafana/public
-```
-
-修改配置文件后，再部署
-
-访问http://10.2.14.105:3000进入Grafana的Web页面
-
-> 默认账号密码均为admin，进入后修改密码为buaanlsde
-
-```bash
-docker run --name inkGrafana -d -p 3000:3000 --privileged=true -v /home/dog/yinke/grafana/conf/defaults.ini:/usr/share/grafana/conf/defaults.ini -v /home/dog/yinke/grafana/public/index.html:/usr/share/grafana/public/views/index.html grafana/grafana
-```
 
 ## 添加数据源
 

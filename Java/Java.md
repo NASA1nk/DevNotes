@@ -2242,7 +2242,7 @@ public class A extends B {
 - 有**继承**关系
 - 子类**重写**了父类的方法
 - **父类引用指向子类对象**
-  - `Father f = new Son();`
+  - `Father f = new Sun();`
 
 > 多态可以实现动态编译，增加程序的可扩展性
 >

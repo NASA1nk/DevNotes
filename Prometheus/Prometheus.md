@@ -699,15 +699,14 @@ docker push gitlab.buaanlsde.cn:4567/buaapyj/registry/ink/grafana
 
 ## 添加数据源
 
-1. 设置`Configuration`
+1. 点击设置`Configuration`
 2. 选择`Data Sources`
-3. 点击`Add data source`
-4. 选择`Time series databases`时序数据库中的`Prometheus`
-5. 填写数据源名称和URL地址http://10.2.14.95:32099并保存
+3. 选择`Prometheus`
+4. 填写数据源名称和URL
+   1. http://prometheus.ingress.isa.buaanlsde.cn/
+
 
 ![Grafana连接Prometheus](Prometheus.assets/Grafana连接Prometheus.png)
-
-
 
 ## 配置仪表盘
 
@@ -729,13 +728,9 @@ docker push gitlab.buaanlsde.cn:4567/buaapyj/registry/ink/grafana
 回到Grafana的Web管理页面
 
 - 点加号选择import导入模板，输入模板ID
-- 点击loda，在VictoriaMetrics中选择Prometheus，点击import
+- 点击load，选择Prometheus数据源，点击import
 
-![导入模板](Prometheus.assets/导入模板.png)
-
-
-
-
+![导入模板](Prometheus.assets/导入模板.png) 
 
 ## 嵌入Grafana
 

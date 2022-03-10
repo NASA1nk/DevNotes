@@ -578,7 +578,7 @@ docker inspect -f ='{{.NetworkSettings.IPAddress}}' 容器id
 - `docker build`就会分层写好修改并生成Dockerfile
 
 ```bash
-docker commit -m = "描述信息" -a = "作者" 容器id 目标镜像名:[TAG]
+docker commit -m "描述信息" -a "作者" 容器id 镜像名:[TAG]
 ```
 
 ### docker prune

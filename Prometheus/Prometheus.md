@@ -695,8 +695,6 @@ docker commit -m "grafana镜像" -a "ink" e0ab70b120e8 gitlab.buaanlsde.cn:4567/
 docker push gitlab.buaanlsde.cn:4567/buaapyj/registry/ink/grafana
 ```
 
-
-
 ## 添加数据源
 
 1. 点击设置`Configuration`

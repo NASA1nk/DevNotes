@@ -58,8 +58,7 @@ Anaconda是python的一个发行版，包括了python和很多科学计算的第
 
 ## Windows安装
 
-- 在清华开源站下载
-  - [Index of /anaconda/archive/ | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/)
+- 在清华开源站下载：[Index of /anaconda/archive/ | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/)
 - Anaconda默认不建议添加到环境变量中，可能导致出错
   - 选择默认使用python的版本
 
@@ -182,14 +181,6 @@ conda env update -f=/path/environment.yaml
 
 
 
-
-
-# Pyenv
-
-Python环境管理工具，可以切换全局解释器版本
-
-
-
 # 基础语法
 
 - python是动态语言，**变量不用声明**
@@ -197,7 +188,7 @@ Python环境管理工具，可以切换全局解释器版本
 - python没有代码块，用相同的**缩进**表示同一代码块，一般是**4个空格**
 - `help()`：展示帮助信息
 
-![help](Python.assets/help.png)
+ ![help](Python.assets/help.png)
 
 ## 编码
 
@@ -341,9 +332,14 @@ age = int(a)
 - 依次打印输出每个字符串
 - 遇到`,`会**输出一个空格**
 
+> python3中会自动换行
+
 ```python
 # 输出Hello world
 print("Hello","world")
+
+# 取消换行
+print("Hello","world", end="")
 ```
 
 ### 格式化输出
@@ -414,9 +410,7 @@ python允许在数字中间以`_`分隔
 
 ## None
 
-`None`不是没定义，是`null`值类型
-
-不是一个关键字，是NoneType的唯一类型
+`None`不是没定义，是`null`值类型，不是一个关键字，是`NoneType`的唯一类型
 
 ```python
 ink = None
@@ -435,6 +429,25 @@ print(ink)
 # b = 'Abc'，a = 'abc'不变，replace会创建了一个新的字符串"Abc"并用变量b指向它
 a = 'abc'
 b = a.replace('a', 'A')	
+
+# 以三个双引号或单引号开头的字符串可以折行
+c = """
+hello, 
+world!
+"""
+
+# 使用\来表示转义，使用\\来表示\
+
+# 转义'，输出"'hello world'"
+s = '\'hello, world!\''
+
+# 在字符串的最前面加上r来阻止字符串中的\表示转义
+
+# 输出\'hello, world!\'
+s1 = r'\'hello, world!\''
+
+# 输出\n\\hello, world!\\\n
+s2 = r'\n\\hello, world!\\\n'
 ```
 
 ### 切割
@@ -464,6 +477,22 @@ delimiter = '-'
 s = delimiter.join(t)	#用-拼接列表t中的元素
 ```
 
+### 重复
+
+使用`*`运算符来重复一个字符串的内容
+
+### 包含
+
+使用`in`和`not in`来判断一个字符串是否包含另外一个字符串
+
+```python
+# False
+print('good' in 'odd')
+
+# True
+print('good' in 'gooddee')
+```
+
 ### 长度
 
 `len()`
@@ -474,7 +503,21 @@ s = delimiter.join(t)	#用-拼接列表t中的元素
 
 > python内置函数
 
+### 判断
 
+```python
+# 检查字符串是否由数字构成
+print(s.isdigit())  
+
+# 检查字符串是否以字母构成
+print(s.isalpha())
+
+# 检查字符串是否以数字和字母构成
+print(s.isalnum())
+
+# 获得字符串修剪左右两侧空格之后的拷贝
+print(s.strip())
+```
 
 ## 列表
 
@@ -501,7 +544,7 @@ s = delimiter.join(t)	#用-拼接列表t中的元素
 ### 创建
 
 - 直接创建空`list`
-- 使用`[0]`和指定长度创建元素都为0的`list`
+- 使用`[0]`和`*`运算符创建元素都为0的`list`
 - 使用`range()`函数生成整数序列（默认从0开始），再通过`list()`函数生成对应的`list`
    - `range(1, 101, 2)`：可以用来产生1到100的奇数
    - `range(100, 0, -2)`：可以用来产生100到1的偶数（倒序）
@@ -585,7 +628,9 @@ t.append(["2","3","4"])
 
 ### 插入
 
-`insert()`：插入元素到`list`的指定索引位置
+`insert()`
+
+- 插入元素到`list`的指定索引位置
 
 ```python
 # t = ['hello', 'god', 'world', 'ink']
@@ -676,7 +721,18 @@ t = (1,)
 L = [('Bob', 75), ('Adam', 92), ('Bart', 66), ('Lisa', 88)]	
 ```
 
+### 优点
 
+- **元组中的元素是无法修改的**，在多线程环境中更喜欢使用的是那些不变对象
+  - 因为对象状态不能修改，一个不变的对象要比可变的对象更加容易维护
+  - 没有任何一个线程能够修改不变对象的内部状态，一个不变对象自动就是线程安全的，这样就可以省掉处理同步化的开销
+- **元组在创建时间和占用的空间上面都优于列表**
+  - 可以使用`sys`模块的`getsizeof`函数来检查存储同样的元素的元组和列表各自占用了多少内存空间
+  - 也可以在ipython中使用魔法指令`%timeit`来分析创建同样内容的元组和列表所花费的时间
+
+> 如果不需要对元素进行添加、删除、修改的时候，可以考虑使用元组
+>
+> 如果一个方法要返回多个值，使用元组也是不错的选择
 
 ## 字典
 
@@ -697,6 +753,26 @@ L = [('Bob', 75), ('Adam', 92), ('Bart', 66), ('Lisa', 88)]
 dictt['on'] = 'no'
 ```
 
+### 创建
+
+```python
+# 创建字典的字面量语法
+# {'ink': 95, 'yinke': 78, 'inke': 82}
+dictt = {'ink': 95, 'yinke': 78, 'inke': 82}
+
+# 创建字典的构造器语法
+# {'one': 1, 'two': 2, 'three': 3, 'four': 4}
+dictt = dict(one=1, two=2, three=3, four=4)
+
+# 通过zip函数将两个序列压成字典
+{'a': '1', 'b': '2', 'c': '3'}
+dictt = dict(zip(['a', 'b', 'c'], '123'))
+
+# 创建字典的推导式语法
+# {1: 1, 2: 4, 3: 9, 4: 16, 5: 25, 6: 36, 7: 49, 8: 64, 9: 81}
+dictt = {num: num ** 2 for num in range(1, 10)}
+```
+
 ### 查找
 
 `dict`中的`item`的存储顺序是未知的，所以`dict`中的元素不使用整数索引而是用键`key`来查找对应的值`value`
@@ -707,6 +783,24 @@ dictt['on'] = 'no'
   - `dict`中不存在`key`，返回传入的默认值，对`dict`不影响
 
 > `list`中`in`操作符会随着列表的增长搜索时间成正比增长
+
+```python
+# 对字典中所有键值对进行遍历
+# for key in dictt 和 for key in dictt.keys()等价
+for key in dictt:
+    print(f'{key}: {dictt[key]}')
+    
+for value in dictt.values():
+    print(value)
+
+for key,value in dictt.items():
+    print(value)
+    
+# get方法可以设置默认值，在获取不到对应key的value值时返回默认值
+dictt.get('ink', 0)
+```
+
+
 
 ### 存储
 
@@ -719,6 +813,7 @@ dictt['on'] = 'no'
 ### 删除
 
 - `pop(key)`：删除`dict`中的`key`和对应的`value`
+- `clear()`：清空字典
 
 ## 集合
 
@@ -1857,7 +1952,7 @@ if __name__=="__main__":
     ```python
     import sys
     sys.path.append('..')
-
+    
     import file
     ```
 
@@ -1871,7 +1966,7 @@ if __name__=="__main__":
     ```python
     import sys
     sys.path.append('..')
-
+    
     from dir import file
     ```
 

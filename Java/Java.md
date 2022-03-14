@@ -660,13 +660,11 @@ final double PI = 3.14;
 
 为了更好的组织类，用于**区别类名**的命名空间，确保**类名的唯一性**
 
-> 包具有一个层次结构，标准的Java类库分布在多个包中
+> 包具有层次结构，标准的Java类库分布在多个包中
 
+1. 一般使用公司**域名倒置**作为包名，建立`com.ink.blog`
 
-
-1. 一般使用公司**域名倒置**作为包名，如blog.ink.com就建立`com.ink.blog`
-
-   > 将Compact勾选掉才会自动分级
+   > 将`Compact`勾选掉才会自动分级
 
     ![package](Java.assets/package.png)
 
@@ -676,32 +674,26 @@ final double PI = 3.14;
 
 3. 在`com`下建立新的包，在`com.ink`后面输入包名
 
-    ![建包](Java.assets/建包.png)
+     ![建包](Java.assets/建包.png)
 
-4. `import`导包（使用**其他包**的类）
+4. `import`导包（使用**其他包**的类）：通配符`*`，导入一个包下的所有类
 
-   通配符`*`，导入一个包下的所有类
+   1. `import`语句应该位于源文件的顶部，但必须在`Package`语句下面
+   2. 导入其他包下的同名类会冲突，所以最好在使用类前加上完整的包名
    
    ```java
    import java.util.*;
    ```
    
-   > `import`语句应该位于源文件的顶部，但必须在`Package`语句下面
-   
-   导入其他包下的同名类会冲突，所以最好在使用类前加上完整的包名
-   
     ![import](Java.assets/import.png)
-5. 静态导入包：
-
-   可以直接使用`random()`方法（不用加类名）
+   
+5. **静态导入包**：可以直接使用`random()`方法（不用加类名）
 
    ```java
    import static java.lang.Math.random;
    ```
 
-6. 将类放入包中：
-
-   用`package`语句将包名放在源文件最上面
+6. **将类放入包中**：用`package`语句将包名放在源文件最上面
 
    > 编译器在编译源文件时不坚持目录结构，即使源文件没有在包中也不会出现编译错误，但无法运行（jvm在目录中找不到类）
 
@@ -727,7 +719,7 @@ final double PI = 3.14;
 
 ## 编写文档注释
 
-`/**`+回车
+`/** + enter` 
 
 ```java
 package com.ink.base;
@@ -768,7 +760,7 @@ public class Doc {
 
 2. 在对应目录下生成文档，进入index.html
 
-    ![index](Java.assets/index.png)
+     ![index](Java.assets/index.png)
 
 3. 查看API文档
 
@@ -812,48 +804,45 @@ public class Doc {
 
 ## Scanner
 
-通过`Scanner`类获取用户的输入
+`import java.util.Scanner`
 
-- 判断是否有输入数据
-  - `hasNext()`
-  - `hasNextLine()`
-
-- 获取输入数据
-
-  - `next()`：
-
-    要读取到有效字符才可以结束输入，对输入有效字符之前的空格会**自动去掉**，输入有效字符后将其后面的空白作为结束符（得不到带有空格的字符串）
-
-  - `nextLine()`
-
-    以Enter作为结束符，返回回车前的所有内容（可以获得空白）
-
-- 关闭
-
-  `scanner.close();`
-
-> `Java.util.Scanner`是JavaSE5的新特性（`Java.util`包）
+> Java5的新特性
 >
 > 所有不在`Java.lang`包中的关键字都需要`import`导包
+
+通过`Scanner`类获取用户的输入
+
+- **判断是否有输入数据**
+  - `hasNext()`：判断接下来是否有**非空字符**，如果有返回`true`，否则返回`false`
+  - `hasNextLine()`：根据行匹配模式去判断接下来是否有一行（包括空行），如果有则返回`true`，否则返回`false`
+- **获取输入数据**
+  - `next()`：输入有效字符之前的空格会**自动去掉**
+    - 默认的分隔符是空格
+    - 输入有效字符后，**读取到空格或者回车就会结束本次读取的`String`值**
+    - 不会读取回车
+
+  - `nextLine()`：
+    - 直至**读取到回车就会结束本次读取的`String`值**
+    - 可以读取回车
+- **关闭**：输入IO流的的类，使用完都要关闭，否则会一直占用资源
+  - `scanner.close();`
+
+
+> idea快速返回生成类对象定义3种方法
 >
-> 输入IO流的的类，使用完都要关闭否则会一直占用资源
+> - `ctrl + alt + v`
+> - `alt + enter + enter`
+> - `.var`
 
 ```java
-// idea快速返回生成类对象定义3种方法
-// 1. 	ctrl + alt + v
-// 2. 	alt + 2次回车
-// 3.	.var
-
-// 导包
 import java.util.Scanner;
 
 public class Demo01 {
   public static void main(String[] args) {
     // 构造Scanner对象，关联标准输入流System.in
-    Scanner scanner = new Scanner(System.in);
-    System.out.println("使用next获取输入");
+    Scanner in = new Scanner(System.in);
     // 判断用户是否输入
-    if (scanner.hasNext()) {
+    while (in.hasNext()) {
       String str = scanner.next();
       System.out.println("获取的输入为：" + str);
     }
@@ -863,9 +852,7 @@ public class Demo01 {
 }
 ```
 
-
-
-**获取具体类型**的方法：
+**获取具体类型**的方法
 
 - `nextInt()`
 - `nextDouble()`
@@ -890,19 +877,102 @@ public class Demo02 {
 }
 ```
 
-
-
 **Scanner源码**
 
-按住**crtl**点击`Scanner`类，点击**Structure**可以看到`Scanner`类种的方法
+- 按住**crtl**点击`Scanner`类，点击**Structure**可以看到`Scanner`类种的方法
+
 
 ![Scanner源码](Java.assets/Scanner源码.png)
+
+## ACM模式输入
+
+- `nextInt()`或者`next()`读取完回车后其后紧跟`nextLine()`，就会导致`nextLine()`读取到空值，因为`nextLine()`自动读取到回车结束了
+  - `next()`和`nextLine()`之间添加一个`nextLine()`语句来获取空格
+- 有时候将字符串转为整数时，代码没问题却提示数组越界，往往是因为字符串代表的整数超过了`int`的最值，需要改用`long`
+
+> 采用`hasNextXxx()` 的话，后面也要用`nextXxx()`
+
+```java
+public static void main(String[] args) {
+    Scanner in = new Scanner(System.in);
+    int n = in.nextInt();
+    while(n-- > 0){
+        int a = in.nextInt();
+        int b = in.nextInt();
+        System.out.println(a+b);
+    }
+}
+
+public class LcTest {
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        while(in.hasNext()){
+            int a = in.nextInt();
+            int b = in.nextInt();
+            System.out.println(a+b);
+        }
+    }
+}
+
+public static void main(String[] args) {
+    Scanner in = new Scanner(System.in);
+    while(in.hasNextLine()){
+        // 每行个数不定
+        String[] temp = in.nextLine().split(" ");
+        int sum = 0;
+        for(String s : temp)
+            sum += Integer.valueOf(s);
+        System.out.println(sum);
+    }
+}
+
+
+public static void main(String[] args) {
+    Scanner in = new Scanner(System.in);
+    while(in.hasNext()){
+        int n = in.nextInt();
+        if(n == 0){
+            break;
+        }
+        int[] nums = new int[n];
+        for(int i=0; i<n; i++){
+            nums[i] = in.nextInt();
+        }
+        for(int num : nums){
+            System.out.print(num+" ");
+        }
+    }
+}
+
+public static void main(String[] args) {
+    Scanner in = new Scanner(System.in);
+    while(in.hasNext()){
+        int m = in.nextInt();
+        int n = in.nextInt();
+        char[][] matrix = new char[m][n];
+        int x = in.nextInt();
+        int y = in.nextInt();
+        in.nextLine();
+        for(int i=0; i<m; i++){
+            String t = in.nextLine();
+            matrix[i] = t.toCharArray();
+        }
+        for(int i=0; i<m; i++){
+            for(int j=0; j<n; j++){
+                System.out.print(matrix[i][j]+" ");
+            }
+            System.out.println();
+        }
+    }
+}
+
+```
 
 
 
 ## Console
 
-`Scanner`输入可见，不适合从控制台读取密码。JavaSE6引入`Console`类
+`Scanner`输入可见，不适合从控制台读取密码，Java6引入`Console`类
 
 - 返回的密码存放在一维字符数组中，而非字符串
 - 每次只能读一行输入，不能只读一个单词等
@@ -917,20 +987,16 @@ char[] password = con.readPassword();
 
 ## 文件
 
-- 读取文件
-
-  用`File`对象构造`Scanner`对象对文件进行读取
+- **读取文件**：用`File`对象构造`Scanner`对象对文件进行读取
 
   - 文件名中有`\`，需要转义
-  - 指定相对文件名时，文件位于Java虚拟机启动路径的相对位置
-
+  - 指定相对文件名JVM启动路径的相对位置
+  
   ```java
   Scanner in = new Scanner(Paths.get("c:\\myfile.txt"),"UTF-8");
   ```
-
-- 写入文件
-
-  构造`PrintWriter`对象，如果该文件不存在，则创建它
+  
+- **写入文件**：构造`PrintWriter`对象，如果该文件不存在，则创建它
 
   ```java
   PrintWriter out = new PrintWriter(Paths.get("c:\\myfile.txt"),"UTF-8");

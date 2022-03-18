@@ -60,7 +60,9 @@ volatile的Lock汇编指令相当于一个内存屏障，指令重排不能越�
 
 # Synchronized
 
-重量级锁
+**重量级锁**
+
+> JVM关键字，依赖于操作系统的系统调用实现
 
 synchronized可以保证操作的原子性
 

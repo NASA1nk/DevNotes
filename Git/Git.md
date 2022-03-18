@@ -261,7 +261,8 @@ git branch -m oldName newName
 # -M：强制重命名，即使newName分支存在
 git branch -M oldName newName
 
-#= 或者切换到要重命名的分支下执行
+# 
+或者切换到要重命名的分支下执行
 git branch -M newName
 ```
 

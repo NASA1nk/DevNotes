@@ -1,40 +1,15 @@
-# kubernetes
+# Kubernetes
 
-kubernetes是一个**软件系统**，依赖于Linux容器的特性来**运行异构的应用**，它将底层基础设施抽象，简化应用的开发，部署和运维
+> 领航员，舵手
 
-## 基础概念
+**背景**：微服务的组件越来越多，配置和管理来保持系统的正常运行变得困难，把组件部署在合适的地方变得难以决策
 
-- Pod
-  - 资源清单
-  - Pod的生命周期
-- 控制器类型
-  - Pod 控制器的特点以及使用定义方式
-- K8S网络通讯模式
+所以需要自动化措施来自动调度，配置，监控和故障处理
 
-- 服务发现
-  - SVC原理及其构建方式
+- kubernetes是一个**软件系统**，依赖于Linux容器的特性来**运行异构的应用**
+- kubernetes将底层基础设施抽象，简化应用的开发，部署和运维
 
-- 服务分类
-
-  - 有状态服务：DBMS，数据持久化存储  
-
-  - 无状态服务：LVS，APACHE
-
-
-- 存储
-  - 多种存储类型的特点
-  - 不同环境中选择合适的存储方案
-- 调度器
-  - 调度器原理
-  - 根据要求把Pod定义到特定的节点运行
-- 安全
-  - 集群的认证，鉴权，访问控制
-- HELM
-  - 类似Linux的yum，HELM 原理
-  - HELM自定义模板
-  - HELM部署一些常用插件
-- 高可用集群
-  - 副本数据最好是3个以上的（3，5，7，9）
+> 帮助企业标准化了云端部署和内部部署的应用交付方式
 
 ## 特点
 
@@ -46,6 +21,41 @@ kubernetes是一个**软件系统**，依赖于Linux容器的特性来**运行�
 - 插件机制保证扩展性
 - 跨机器和跨地区的集群调度
 
+> **基础概念**
+>
+> - Pod
+>   - 资源清单
+>   - Pod的生命周期
+> - 控制器类型
+>   - Pod 控制器的特点以及使用定义方式
+> - K8S网络通讯模式
+>
+> - 服务发现
+>   - SVC原理及其构建方式
+>
+> - 服务分类
+>
+>   - 有状态服务：DBMS，数据持久化存储  
+>
+>   - 无状态服务：LVS，APACHE
+>
+>
+> - 存储
+>   - 多种存储类型的特点
+>   - 不同环境中选择合适的存储方案
+> - 调度器
+>   - 调度器原理
+>   - 根据要求把Pod定义到特定的节点运行
+> - 安全
+>   - 集群的认证，鉴权，访问控制
+> - HELM
+>   - 类似Linux的yum，HELM 原理
+>   - HELM自定义模板
+>   - HELM部署一些常用插件
+> - 高可用集群
+>   - 副本数据最好是3个以上的（3，5，7，9）
+>
+
 # Kubernetes集群架构
 
 ![kubernetes架构](Kubernetes.assets/kubernetes架构.png)
@@ -54,76 +64,32 @@ kubernetes是一个**软件系统**，依赖于Linux容器的特性来**运行�
 
 ## Master
 
-集群控制节点，执行所有的命令，通常占据一个独立服务器
+**主节点**：集群控制节点，执行所有的命令，通常占据一个独立服务器
 
-- Api Server（kube-apiserver）：所有服务访问唯一入口，提供HttpRest接口的服务进程
-- CrontrollerManager（kube-controller-manager）：所有资源对象的自动化控制中心，维持副本期望数目
-- Scheduler（kube-scheduler）：负责接受任务并实现资源调度，选择合适的节点进行分配任务
-- Etcd：键值对数据库，采用http协议，储存K8S集群所有重要信息
+- **Api Server**（kube-apiserver）：所有服务（node）访问的唯一入口，提供HttpRest接口的服务进程
+- **CrontrollerManager**（kube-controller-manager）：所有资源对象的自动化控制中心，维持副本期望数目
+- **Scheduler**（kube-scheduler）：负责接受任务并实现资源调度，选择合适的节点进行分配任务
+- **Etcd**：键值对数据库，采用http协议，储存K8S集群所有重要信息
   - 一个可信赖的分布式键值存储服务，能够为整个分布式集群存储一些关键数据，协助分布式集群的正常运转
     - 可信赖指天生支持集群化，不需要其他组件
-    - 正常运转：保存分布式存储持久化的配置信息）
+    - 正常运转：保存分布式存储持久化的配置信息
 
 ## Node
 
-除了Master控制节点，Kubernetes集群中的其他工作负载节点。**Pod真正运行的主机**，可以是物理机也可以是虚拟机
+**工作节点**：除了Master节点外K8S集群中的**其他负载节点**，**Pod真正运行的主机**，可以是物理机也可以是虚拟机
 
-为了管理Pod，每个Node节点上至少需要运行container runtime（Docker）、kubelet和kube-proxy服务
+- 为了管理Pod，每个Node节点上至少需要三个组件
+  - container runtime
+  - kubelet
+  - kube-proxy
 
-- Kubelet：直接跟容器引擎交互实现容器的生命周期管理
+- Kubelet：负责和Api Server通信，直接跟容器引擎交互**实现容器的生命周期管理**
 - Kube-proxy：负责写入规则至IpTables、Ipvs，从而实现服务映射访问，实现Kubernetes，Service的通信与负载均衡机制的重要组件
 - Docker Engine（docker）：Docker引擎，负责容器创建和管理工作
 
 > Node本质上不是Kubernetes来创建的， Kubernetes只是管理Node上的资源
 
-## Pod
-
-Pod是一组紧密关联的**容器集合**，是Kubernetes**调度的基本单位**
-
-- 支持多个容器在一个Pod中**共享网络和文件系统**
-- 可以通过**进程间通信**和**文件共享**这种简单高效的方式完成服务
-
-> Pod的设计理念是每个Pod都有一个唯一的IP
-
-### Pod特征
-
-- 包含多个共享IPC、Network和UTC namespace的容器，可直接通过localhost通信
-- **所有Pod内容器都可以访问共享的Volume，可以访问共享数据**
-- Pod删除的时候先给其内的进程发送SIGTERM，等待一段时间（grace period）后才强制停止依然还在运行的进程
-- **特权容器**（通过SecurityContext配置）具有改变系统配置的权限(
-  - 在网络插件中大量应用
-- 支持**三种重启策略**（restartPolicy）
-  - Always
-  - OnFailure
-  - Never
-- 支持**三种镜像拉取策略**（imagePullPolicy）
-  - Always
-  - Never
-  - IfNotPresent
-- Kubernetes通过**CGroup限制容器的CPU以及内存等资源**，可以设置request以及limit值
-- 提供两种**健康检查探针**
-  - livenessProbe：用于**探测容器是否存活**，如果探测失败，则根据重启策略进行重启操作
-  - redinessProbe：用于**检查容器状态是否正常**，如果检查容器状态不正常，则请求不会到达该Pod
-- **Init container在所有容器运行之前执行，常用来初始化配置**
-- **容器生命周期钩子函数**，用于监听容器生命周期的特定事件，并在事件发生时执行已注册的回调函数，**支持两种钩子函数**
-  - postStart：在容器启动后执行
-  - preStop：在容器停止前执行
-
-### Pod分类
-
-**生命周期**
-
-- **自主式Pod**：Pod退出了，此类型的Pod不会被创建
-  - 无法确保稳定
-
-- **控制器管理的Pod**：在控制器的生命周期里，始终要维持Pod的副本数目
-
-**编程**
-
-- **声明式编程（Deployment）**：侧重于定义想要什么，然后告诉计算机让它帮你实现
-  - apply > create  
-- **命令式编程（ReplicaSet）**：侧重于如何实现程序，把实现过程按逻辑一步步写出
-  -  create > apply      
+- -  
 
 
 
@@ -137,8 +103,10 @@ Pod是一组紧密关联的**容器集合**，是Kubernetes**调度的基本单�
 ```bash
 # 查询所有namespace
 kubectl get namespace
+
 # 创建namespace
 kubectl create namespacensname
+
 # 删除namespace
 kubectl delete namespacensname
 ```
@@ -149,6 +117,8 @@ kubectl delete namespacensname
 - **default和kube-system 命名空间不可删除**
 - PersistentVolumes是不属于任何namespace的，但PersistentVolumeClaim是属于某个特定namespace的
 - Events是否属于namespace取决于产生events的对象
+
+
 
 ## Service
 
@@ -681,53 +651,107 @@ volumes:
 
 
 
-# 资源清单
+# Pod
 
-```bash
-# 报错时候查看
-kubectl describe pod podname
+**为什么需要pod**
 
-# 查看日志信息，pod里面单个容器
-kubectl logs podname
+- 因为不能将多个进程聚集在单独的容器内，所以需要更高级的结构来将容器绑定在一起，将其作为一个单元管理
 
-# 查看日志信息，pod里面多个容器，指定容器名
-kubectl logs podname -c containername
+## Pod特征
 
-# 查看pod详细信息
-kubectl get pod -o wide
+- Pod是一组紧密关联的**容器集合**，是Kubernetes**调度和扩缩容的基本单位**
 
-# 查看pod详细信息，追踪状态
-kubectl get pod -w
-```
+
+- Pod内的多个容器在一个Pod中**共享Linux namespace，IPC、Network和文件系统**
+  - 默认情况下每个容器的文件系统和其他容器隔离，但可以通过Volume共享文件目录
+  - 多个容器共享ip和端口，所以不能绑定到同一个端口上
+  - 多个容器可直接通过localhost互相通信
+  - 可以通过**进程间通信**和**文件共享**这种简单高效的方式**完成服务**
+
+
+- 删除Pod的时候会先给其内的进程发送`SIGTERM`信号，等待一段时间（grace period）后才强制停止依然还在运行的进程
+- **特权容器**（通过SecurityContext配置）具有改变系统配置的权限
+  - 在网络插件中大量应用
+
+> Pod的设计理念是每个Pod都有一个唯一的IP
+>
+> Pod绝对不会跨node工作，Pod内的所有容器都在同一节点
+>
+> 倾向于单容器pod
+
+## Pod策略
+
+- 支持**三种重启策略**（restartPolicy）
+  - Always
+  - OnFailure
+  - Never
+- 支持**三种镜像拉取策略**（imagePullPolicy）
+  - Always
+  - Never
+  - IfNotPresent
+
+## Pod生命周期
+
+- **Init container在所有容器运行之前执行，常用来初始化配置**
+- **容器生命周期钩子函数**，用于监听容器生命周期的特定事件，并在事件发生时执行已注册的回调函数，**支持两种钩子函数**
+  - postStart：在容器启动后执行
+  - preStop：在容器停止前执行
+- 提供两种**健康检查探针**
+  - livenessProbe：用于**探测容器是否存活**，如果探测失败，则根据重启策略进行重启操作
+  - redinessProbe：用于**检查容器状态是否正常**，如果检查容器状态不正常，则请求不会到达该Pod
+
+## Pod分类
+
+**生命周期**
+
+- **自主式Pod**：Pod退出了，此类型的Pod不会被创建
+  - 无法确保稳定
+
+- **控制器管理的Pod**：在控制器的生命周期里，**始终要维持Pod的副本数目**
+
+**编程**
+
+- **声明式编程（Deployment）**：侧重于定义想要什么，然后告诉计算机让它帮你实现
+  - `apply > create`  
+- **命令式编程（ReplicaSet）**：侧重于如何实现程序，把实现过程按逻辑一步步写出
+  -  `create > apply`      
+
+## Pod网络
+
+平坦pod间网络
+
+集群中的所有pod都在同一个共享网络地址空间中，所有pod都可以通过其他pod的ip地址来相互访问，它们之间没有NAT网关
 
 ## 创建pod
 
-使用`pod.yaml`文件创建pod
+使用`yaml`文件创建pod
 
 - 格式要对齐，同一级别的对象要放在同一列，不用tab
 
-```bash
-# 拉取服务镜像
-docker pull busybox
-
-# 编写init容器的yaml文件
-vim ini-pod.yaml
-```
-
-`ini-pod.yaml`文件
+`vim ini-pod.yaml`
 
 ```yaml
+# kubernetes api版本
 apiVersion: v1
+# kubernetes资源对象
 kind: Pod
+# pod元数据，名称，标签，注解
 metadata:
+  # pod名称
   name: myapp-pod
   labels:
     app: myapp
+# pod内容，容器列表，volume
 spec:
   containers:
+  # 容器名称
   - name: myapp-container
-    image: busybox   
-     command: [ 'sh', '-c', 'echo The app is running! && sleep 3600' ]
+    image: busybox
+    ports:
+    # 应用监听端口
+    - containerPort: 8080
+      protocol: TCP
+    command: [ 'sh', '-c', 'echo The app is running! && sleep 3600' ]
   initContainers:
   -  name: init-myservice
      image: busybox
@@ -737,20 +761,29 @@ spec:
      command: [ 'sh', '-c', 'until nslookup mydb; do echo waiting for mydb; sleep 2; done;' ]
 ```
 
-操作pod
+## 操作pod
 
 ```bash
 # 创建pod
 kubectl create -f ini-pod.yaml
 
-# 查看pod信息
+# 查看pod详细信息
 kubectl describe pod myapp-pod
 
-# 查看单容器的pod的服务日志
-kubectl logs myapp-pod
+# 报错时候查看
+kubectl describe pod podname
 
-# 查看多容器的pod的服务日志
-kubectl logs myapp-pod -c init-myservice
+# 查看日志信息，pod里面单个容器
+kubectl logs podname
+
+# 查看日志信息，pod里面多个容器，-c指定容器名
+kubectl logs podname -c containername
+
+# 查看pod详细信息（IP和node）
+kubectl get pod -o wide
+
+# 查看pod详细信息，追踪状态
+kubectl get pod -w
 
 # 删除pod
 kubectl delete pod myapp-pod
@@ -759,7 +792,34 @@ kubectl delete pod myapp-pod
 kubectl delete pod --all
 ```
 
-## 创建pod服务
+## 端口转发
+
+通过将本地网络端口转发到pod中的端口来测试pod
+
+```bash
+kubectl port-forward podname hostport:podport
+```
+
+## Pod标签
+
+通过使用标签来组织一系列的pod
+
+> 也可以组织其他kubernetes对象
+
+**标签**：可以附加到资源的任意键值对，可以通过**标签选择器**选择具有该标签的资源
+
+# 服务
+
+**服务表示一组或多组提供相同服务的pod的静态地址**
+
+- Controller会保证pod的数量来稳定的提供服务
+- 由于pod的动态性，新的pod就会有新的ip:port，因此服务就用来对外暴露一个稳定的ip:port以供访问
+  - 服务是静态的ip
+  - 客户端通过ip连接到服务，由服务去选择pod接收这个连接（转发）
+
+> pod并不重要，pod是用来提供服务的
+
+### 创建pod服务
 
 创建pod里面对应的服务的配置文件
 
@@ -1017,23 +1077,21 @@ Ingress可以给service提供**集群外部访问的URL**、负载均衡、HTTP�
 
 Horizontal Pod Autoscaling：水平伸缩
 
+**kubernetes的基本原则**：不要告诉kubernetes应该执行什么操作，而是声明性的改变系统的期望状态，让它检查当前状态和期望的状态是否一致
+
 **HPA可以根据CPU、内存使用率或应用自定义metrics自动扩展Pod数量** 
 
 - 支持replication controller、deployment和replica set
-
 - 控制管理器**默认每隔30s查询metrics的资源使用情况**
 
   - 可以通过`--horizontal-pod-autoscaler-sync-period`修改
-
 - 支持三种metrics类型
-
 - - 预定义metrics（比如Pod的CPU）以利用率的方式计算
   - 自定义的Pod metrics，以原始值（raw value）的方式计算
   - 自定义的object metrics
-
 - 支持两种metrics查询方式
 
   - Heapster
   - 自定义的REST API
-
 - 支持多metrics
+

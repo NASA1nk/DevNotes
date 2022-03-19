@@ -89,59 +89,6 @@
 
 > Node本质上不是Kubernetes来创建的， Kubernetes只是管理Node上的资源
 
-- -  
-
-
-
-## Namespace
-
-命名空间是**对一组资源和对象的抽象集合**，比如可以用来**将系统内部的对象划分为不同的项目组或者用户组**
-
-- 常见的pod、service、replicaSet和deployment等都是属于某一个namespace的（默认是default）
-- node, persistentVolumes等则不属于任何namespace
-
-```bash
-# 查询所有namespace
-kubectl get namespace
-
-# 创建namespace
-kubectl create namespacensname
-
-# 删除namespace
-kubectl delete namespacensname
-```
-
-**删除namespace**
-
-- 删除一个namespace会**自动删除所有属于该namespace的资源**
-- **default和kube-system 命名空间不可删除**
-- PersistentVolumes是不属于任何namespace的，但PersistentVolumeClaim是属于某个特定namespace的
-- Events是否属于namespace取决于产生events的对象
-
-
-
-## Service
-
-Service是对**一组提供相同功能的Pods的抽象**，并为他们**提供一个统一的入口**
-
-- 借助Service应用可以方便的**实现服务发现与负载均衡**，并实现应用的**零宕机升级**
-
-- Service**通过标签（label）来选取后端Pod**，一般配合ReplicaSet或者Deployment来保证后端容器的正常运行
-
-- Service有四种类型，**默认是ClusterIP**
-
-  - ClusterIP：默认类型，**自动分配一个仅集群内部可以访问的虚拟IP**
-
-  - NodePort：在ClusterIP基础上为Service**在每台机器上绑定一个端口**
-    - 可以通过`NodeIP:NodePort`访问该服务
-
-  - LoadBalancer：在NodePort的基础上，借助cloud provider创建一个**外部的负载均衡器**，并将**请求转发**到NodeIP:NodePort
-
-  - ExternalName：将服务通过DNS CNAME记录方式**转发到指定的域名**
-
-> 也可以将已有的服务**以Service的形式加入到Kubernetes集群中**来
-
-
 ## 其他组件
 
 - CoreDns：可以为集群中的SVC创建一个域名IP的对应关系解析
@@ -634,8 +581,6 @@ volumes:
 - 下层：计算资源、存储资源并列
 
 
-
-
 **在Kuboard中名称空间的展示形式：以微服务参考分层架构的形式，将所有的微服务分为如下几层：**
 
 - 展现层：终端用户访问的 Web 应用
@@ -682,13 +627,13 @@ volumes:
 ## Pod策略
 
 - 支持**三种重启策略**（restartPolicy）
-  - Always
-  - OnFailure
-  - Never
+  - `Always`
+  - `OnFailure`
+  - `Never`
 - 支持**三种镜像拉取策略**（imagePullPolicy）
-  - Always
-  - Never
-  - IfNotPresent
+  - `Always`
+  - `Never`
+  - `IfNotPresent`
 
 ## Pod生命周期
 
@@ -718,9 +663,10 @@ volumes:
 
 ## Pod网络
 
-平坦pod间网络
+**平坦pod间网络**
 
-集群中的所有pod都在同一个共享网络地址空间中，所有pod都可以通过其他pod的ip地址来相互访问，它们之间没有NAT网关
+- 集群中的所有pod都在同一个共享网络地址空间中，所有pod都可以通过其他pod的ip地址来相互访问，它们之间没有NAT网关
+
 
 ## 创建pod
 
@@ -740,9 +686,14 @@ metadata:
   # pod名称
   name: myapp-pod
   labels:
+    # pod标签
     app: myapp
 # pod内容，容器列表，volume
 spec:
+  # 节点选择器
+  nodeSelceter:
+    # node节点的标签
+    gpu: true
   containers:
   # 容器名称
   - name: myapp-container
@@ -800,68 +751,296 @@ kubectl delete pod --all
 kubectl port-forward podname hostport:podport
 ```
 
-## Pod标签
+## 标签
 
-通过使用标签来组织一系列的pod
+**label**：通过使用标签来组织一系列的pod
 
-> 也可以组织其他kubernetes对象
+> 也可以组织其他kubernetes对象，比如node
 
 **标签**：可以附加到资源的任意键值对，可以通过**标签选择器**选择具有该标签的资源
 
+- 要求标签的key在资源中唯一
+- 节点选择器也可以根据标签来将pod调度到指定的节点
+- 每个node都有一个唯一的标签：`key = kubernetes.io/hostname`
+
+```bash
+# 查看pod的标签信息
+kubectl get pods --show-labels
+
+# 只查看指定标签，使用标签选择器过滤pod
+kubectl get pods -L labelkey
+# 列出没有标签的pod，用''包裹
+kubectl get pods -L '!labelkey'
+
+# 修改pod标签
+kubectl label pod podname key=value
+
+# 修改node标签
+kubectl label node nodename key=value
+```
+
+## 命名空间
+
+**namespace**：对一组资源和对象的抽象集合
+
+- 可以用来**将系统内部的对象划分为不同的项目组或者用户组**
+
+- 常见的pod、service、replicaSet和deployment等都是属于某一个namespace的（默认是`default`）
+- node, persistentVolumes等则不属于任何namespace
+
+```bash
+# 查询所有namespace
+kubectl get namespace
+kubectl get ns
+
+# 指定namespace
+kubectl get po --namespace namespacensname
+kubectl get po -n namespacensname
+
+# 删除namespace
+kubectl delete namespacensname
+```
+
+### 创建namespace
+
+**直接创建**
+
+```bash
+# 创建namespace
+kubectl create namespacensname
+```
+
+**使用yaml文件创建**
+
+`vim cusnamespace.yaml`
+
+```yaml
+apiVersion: v1
+kind: namespace
+metadata:
+  name: cusnamespace
+```
+
+### 删除namespace
+
+- 删除一个namespace会**自动删除所有属于该namespace的资源**
+- `default`和`kube-system`namespace不可删除
+- PersistentVolumes是不属于任何namespace的，但PersistentVolumeClaim是属于某个特定namespace的
+- Events是否属于namespace取决于产生events的对象
+
+## job
+
+执行单个任务的pod
+
+- 当内部进程成功结束时，不再重启容器
+- **一般用于临时任务和定时任务**
+- job不能使用`Always`的重启策略
+- job可以创建多个pod，以串行或并行的方式运行它们
+
+### Cronjob
+
+- 定时任务
+- 定时重复任务
+
+cronjob资源会创建job资源，job资源会创建pod
+
 # 服务
 
-**服务表示一组或多组提供相同服务的pod的静态地址**
+**Service**：是对**一组提供相同功能的Pods的抽象**，为它们**提供一个统一的入口**
 
-- Controller会保证pod的数量来稳定的提供服务
+- 一组或多组提供相同服务的pod对外暴露为服务的静态ip地址
 - 由于pod的动态性，新的pod就会有新的ip:port，因此服务就用来对外暴露一个稳定的ip:port以供访问
   - 服务是静态的ip
   - 客户端通过ip连接到服务，由服务去选择pod接收这个连接（转发）
 
+- 借助Service，应用可以方便的**实现服务发现与负载均衡**，并实现应用的**零宕机升级**
+- Service**通过标签（label）**来选取属于该服务的Pod，一般配合ReplicaSet或者Deployment来保证后端容器的正常运行
+  - Controller会保证pod的数量来稳定的提供服务
+
 > pod并不重要，pod是用来提供服务的
+>
+> 外部客户端->服务1->pod1->服务2->pod2
 
-### 创建pod服务
+## 服务类型
 
-创建pod里面对应的服务的配置文件
+Service有四种类型
+
+- ClusterIP：默认类型，**自动分配一个仅集群内部可以访问的虚拟IP**
+- NodePort：在ClusterIP的基础上为Service**在每台机器上绑定一个端口**，外部应用可以通过`NodeIP:NodePort`访问该服务
+- LoadBalancer：在NodePort的基础上，借助cloud provider创建一个**外部的负载均衡器**，并将**外部的请求转发**到`NodeIP:NodePort`来访问集群内部的服务
+- ExternalName：将服务通过DNS CNAME记录方式**转发到指定的域名**
+
+> 也可以将已有的服务**以Service的形式加入到Kubernetes集群中**来
+
+## 创建服务
 
 `vim myservice.yaml`
 
+- 创建服务，它将80端口接收到的外部请求转发到具有`app=myapp`标签的pod中的9376端口
+
 ```yaml
-kind: Service
 apiVersion: v1
+kind: Service
 metadata:
   name: myservice
 spec:
   ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 9376
+  - protocol: TCP
+    # 服务的可用端口
+    port: 80
+    # 服务将连接转发到容器的端口
+    targetPort: 9376
+  selector:
+    # 具有app=myapp标签的pod都属于该服务
+    app: myapp
 ```
 
-`vim mydb.yaml`
+## 验证服务
 
-```yaml
-kind: Service
-apiVersion: v1
-metadata:
-  name: mydb
-spec:
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 9377
-```
+- 进入kubernetes集群中的任意节点，然后使用`curl`命令访问服务
+- 使用`exec`命令进入一个存在的pod，然后使用`curl`命令访问服务
 
-进入pod中的服务
+> `--`代表kubectl命令结束，后面的命令是在pod中执行的命令
+
+服务代理通常会将请求随机指向选中后端pod中的一个
+
+- 可以使用`sessionAffinity`来设置**会话亲和性**，使得来自**同一个客户端的所有请求都转发到同一个pod中**
 
 ```bash
+# 获取服务ip
+kubctl get svc
+# 访问服务，服务会重定向请求到pod中
+kubectl exec podname -- curl -s serviceip
+
 # 进入单容器pod
-kubectl exec -it readiness-httpget-pod --/bin/sh
+kubectl exec -it readiness-httpget-pod -- /bin/sh
 
 # 进入多容器pod需要指明容器
-kubectl exec -it readiness-httpget-pod -c containername --/bin/sh
+kubectl exec -it readiness-httpget-pod -c containername -- /bin/sh
 ```
 
-## 检测探针
+## 多端口服务
+
+创建有多个端口的服务，**必须给每个端口都指定一个名字**
+
+- 但是服务的标签选择器是应用于整个服务的，不能单独对一个端口做配置
+
+```bash
+apiVersion: v1
+kind: Service
+metadata:
+  name: myservice
+spec:
+  ports:
+  # 指定端口名字
+  - name: http
+  	protocol: TCP
+    port: 80
+    targetPort: 9080
+  # 指定端口名字
+  - name: https
+  	protocol: TCP
+    port: 443
+    targetPort: 9443
+  selector:
+    app: myapp
+```
+
+## pod命名端口
+
+可以在pod中指定对外暴露端口的名字，这样在服务中，就可以用名字指定转发的pod上的端口
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app: myapp
+spec:
+  nodeSelceter:
+    gpu: true
+  containers:
+  - name: myapp-container
+    image: busybox
+    ports:
+    - name: http
+      containerPort: 9080
+    - name: https
+      containerPort: 9443
+```
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: myservice
+spec:
+  ports:
+  - name: http
+  	protocol: TCP
+    port: 80
+    targetPort: http
+  - name: https
+  	protocol: TCP
+    port: 443
+    targetPort: https
+  selector:
+    app: myapp
+```
+
+## 服务发现
+
+### 环境变量
+
+pod开始运行时，kubernetes会初始化一系列的环境变量指向现在存在的服务
+
+- 如果服务早于pod创建，pod上的进程就可以根据环境变量来获取服务的ip和端口
+
+```bash
+# 查看环境变量，会显示服务的ip和端口
+kubectl exec podname env
+```
+
+### DNS服务器
+
+kube-dns pod运行DNS服务，集群的其他pod都被配置使用其作为dns
+
+- 通过修改容器中的`/etc/resolv.conf`文件实现
+- 该DNS服务知道系统中所有运行的服务
+
+## 连接外部服务
+
+
+
+# 控制器
+
+## ReplicationController
+
+ReplicationController资源对象用来创建和管理pod副本数量（replicas），实现pod的水平伸缩
+
+- ReplicationController会持续监控正在运行的pod列表，保证相应类型的pod的数量和期望相符
+
+ReplicationController结构
+
+- 标签选择器
+- 副本个数
+- pod模板（template）
+
+## ReplicaSet
+
+> 替代ReplicationController
+
+ReplicatSet的标签选择器功能更强
+
+## DaemonSet
+
+需要pod在每个节点上运行，并且每个节点都需要正好一个运行的pod
+
+- 当一个新节点被添加到集群中时，DaemonSet会立即部署一个新的pod实例
+- DaemonSet管理的pod会绕过调度器，即使是不可调度的节点，也会有DaemonSet管理的pod
+
+> 如日志收集器
 
 
 
@@ -974,9 +1153,7 @@ PV的回收策略（persistentVolumeReclaimPolicy）有三种
 
 # 无状态应用
 
-Deployment
-
-一般情况不需要手动创建Pod实例，而是**采用更高一层的抽象或定义来管理Pod**
+**Deployment**：一般情况不需要手动创建Pod实例，而是**采用更高一层的抽象或定义来管理Pod**
 
 针对无状态类型的应用，Kubernetes使用Deloyment的Controller对象与之对应，典型的应用场景包括
 

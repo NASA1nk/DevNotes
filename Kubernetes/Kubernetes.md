@@ -1011,6 +1011,161 @@ kube-dns pod运行DNS服务，集群的其他pod都被配置使用其作为dns
 
 ## 连接外部服务
 
+### Endpoint
+
+- 服务并不是和pod直接相连的，在两者之间有一种**Endpoint资源**（并不是服务的属性）
+- 服务的标签选择器会创建Endpoint资源，Endpoint资源就是一个暴露服务对应的一组pod的ip和端口的列表，当收到客户端请求时，服务代理选择列表中的一个ip和端口并重定向
+
+**手动配置Endpoint**
+
+- 当服务不设置标签选择器时，kubernetes不会创建Endpoint资源
+
+**无标签选择器的服务**
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ex-service
+spec:
+  ports:
+  - port: 80
+```
+
+**对应的Endpoint**
+
+```yaml
+apiVersion: v1
+kind: Endpoints
+metadata:
+  # 和对应的无标签选择器的服务名称相同
+  name: ex-service
+subsets:
+  - addresses:
+    - ip: 10.2.2.2
+    - ip: 10.2.1.2
+    ports:
+    - port: 80
+```
+
+## 服务暴露
+
+客户端在外部访问服务
+
+1. 将服务的类型设置成`NodePort`
+2. 将服务的类型设置成`LoadBalancer`
+3. 使用`Ingress`
+
+### NodePort
+
+- NodePort类型的服务会让集群中的**所有节点都保留一个相同的端口**，该端口会将传入的请求转发给服务对应的pod
+- **外部客户端可以通过节点ip和端口来访问服务**
+
+> 不指定nodePort就会随机分配一个
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodeportservice
+spec:
+  # 设置类型
+  type: NodePort
+  ports:
+  - port: 80
+    # 转发给pod的8888端口
+    targetPort: 8888
+    # 通过集群节点的33212端口，就可以访问该服务
+    nodePort: 33212
+  selector:
+    app: myapp
+```
+
+### LoadBalancer
+
+- 负载均衡是NodePort的拓展
+
+- 负载均衡器拥有自己独一无二的可公开访问的ip
+- 创建负载均衡类型的服务后，云基础架构会花费一段时间创建负载均衡器并将其ip写入服务对象，即服务的`EXTERNAL-IP`
+
+> LoadBalancer型的服务是一个具有额外基础设施提供的负载均衡器的NodePort服务
+>
+> 负载均衡器接收到外部请求后，仍然会和NodePort服务一样转发到node上的一个随机端口，然后再转发到pod中
+
+**缺点**
+
+- 可能增加网络跳数
+- 会改变源ip导致无法记录
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: loadbalancerservice
+spec:
+  # 设置类型
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8888
+  selector:
+    app: myapp
+```
+
+### Ingress
+
+Kubernetes中的负载均衡主要有**内外两种机制**
+
+- **Service**：使用Service提供**集群内部的负载均衡**，Kube-proxy负责将service请求负载均衡到后端的Pod中
+- **Ingress Controller**：使用Ingress提供**集群外部的负载均衡**
+  - Ingress可以给service提供集群外部访问的URL、负载均衡、HTTP路由等
+  - 只有ingress controller在集群中运行，ingress资源才能正常工作
+  - 常用的ingress controller：nginx，traefik，Kong，Openresty
+
+
+> **Service和Pod的IP仅可在集群内部访问**，集群外部的请求需要通过**负载均衡**转发到service所在节点暴露的端口上，然后再由kube-proxy通过边缘路由器将其转发到相关的Pod
+
+**优点**
+
+- 每个LoadBalancer型的服务都需要一个负载均衡器和一个公网ip，而ingress只需要一个公网ip就可以为许多服务提供访问，即**通过一个ingress即可暴露多个服务**
+
+#### 创建Ingress
+
+- host即指定了请求的`header`中的`host`字段
+
+```yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: appingress
+spec:
+  # rules和paths都是数组
+  rules:
+  # ingress将app.example.com映射到对应的nodeport服务
+  - host: app.example.com
+  http:
+    # paths数组可以配置多个服务
+    paths:
+    - path: /
+      backend:
+        # 将app.example.com收到的请求转发到nodeportservice服务的80端口
+        serviceName: nodeportservice
+        servicePort: 80
+    - path: /foo
+      backend:
+        serviceName: fooservice
+        servicePort: 80
+```
+
+#### 使用Ingress
+
+- 配置dns服务器将域名和ip对应写入
+
+```bash
+# 查看对应ingress的ip，这个ip即对应host: app.example.com
+kubectl get ingresses
+```
+
 
 
 # 控制器
@@ -1049,15 +1204,14 @@ ReplicatSet的标签选择器功能更强
 ```bash
 # 将node标志为不可调度
 kubectl cordon nodename
+
 # 将node标志为可调度
 kubectl uncordon nodename
 ```
 
 ## 污点
 
-taint
-
-使用kubectl taint命令可以**给某个Node节点设置污点**
+**taint**：可以**给某个node节点设置污点**
 
 - Node被设置上污点之后就和Pod之间存在了一种相斥的关系，可以让Node拒绝Pod的调度执行，甚至将Node已经存在的Pod驱逐出去
 
@@ -1097,29 +1251,29 @@ Tolerations
 
 # 存储卷
 
-Volume
+**Volume**
 
-默认情况下**容器的数据是非持久化**的，容器消亡以后数据也会跟着丢失，所以**Docker提供了Volume机制以便将数据持久化存储**
+> 默认情况下**容器的数据是非持久化**的，容器消亡以后数据也会跟着丢失，所以**Docker提供了Volume机制以便将数据持久化存储**
 
 Kubernetes提供了更强大的Volume机制和插件，解决了**容器数据持久化**以及**容器间共享数据**的问题
 
-Kubernetes存储卷的生命周期与Pod绑定
+- Kubernetes将存储卷作为pod的一部分，存储卷的生命周期与Pod绑定
 
-- 容器挂掉后Kubelet再次**重启容器时，Volume的数据依然还在**
-- **Pod删除时，Volume才会清理**
+
+- 容器挂掉后**重启容器时Volume的数据依然还在**，只有**删除Pod时Volume才会清理**
 - 数据是否丢失取决于具体的Volume类型
   - emptyDir的数据会丢失，而PV的数据则不会丢
 
 目前Kubernetes主要支持以下Volume类型
 
-- emptyDir：Pod存在，emptyDir就会存在，容器挂掉不会引起emptyDir目录下的数据丢失，但是pod被删除或者迁移，emptyDir也会被删除
-- hostPath：hostPath允许挂载Node上的文件系统到Pod里面去
-- NFS：Network File System，网络文件系统，Kubernetes中通过简单地配置就可以挂载NFS到Pod中，而NFS中的数据是可以永久保存的，同时NFS支持同时写操作
-- glusterfs：同NFS一样是一种网络文件系统，Kubernetes可以将glusterfs挂载到Pod中，并进行永久保存
-- cephfs：一种分布式网络文件系统，可以挂载到Pod中，并进行永久保存
-- subpath：Pod的多个容器使用同一个Volume时，会经常用到
-- secret：密钥管理，可以将敏感信息进行加密之后保存并挂载到Pod中
-- persistentVolumeClaim：用于将持久化存储（PersistentVolume）挂载到Pod中
+- **emptyDir**：Pod存在，emptyDir就会存在，容器挂掉不会引起emptyDir目录下的数据丢失，但是pod被删除或者迁移，emptyDir也会被删除
+- **hostPath**：hostPath允许挂载Node上的文件系统到Pod里面去
+- **NFS**：Network File System，网络文件系统，Kubernetes中通过简单地配置就可以挂载NFS到Pod中，而NFS中的数据是可以永久保存的，同时NFS支持同时写操作
+- **glusterfs**：同NFS一样是一种网络文件系统，Kubernetes可以将glusterfs挂载到Pod中，并进行永久保存
+- **cephfs**：一种分布式网络文件系统，可以挂载到Pod中，并进行永久保存
+- **subpath**：Pod的多个容器使用同一个Volume时，会经常用到
+- **secret**：密钥管理，可以将敏感信息进行加密之后保存并挂载到Pod中
+- **persistentVolumeClaim**：用于将持久化存储（PersistentVolume）挂载到Pod中
 
 ## 持久化存储卷
 
@@ -1140,7 +1294,7 @@ PV的访问模式（accessModes）有三种
 
 - ReadWriteMany（RWX）：可以以读写的方式被多个Pod共享
 
-不是每一种存储都支持这三种方式。**在PVC绑定PV时通常根据两个条件来绑定**，一个是存储的大小，另一个就是访问模式
+不是每一种存储都支持这三种方式，**在PVC绑定PV时通常根据两个条件来绑定**，一个是存储的大小，另一个就是访问模式
 
 **回收策略**
 
@@ -1225,30 +1379,6 @@ DaemonSet保证在**特定或所有Node节点上都运行一个Pod实例**，常
 
 - OnDelete：默认策略，更新模板后，只有手动删除了旧的Pod后才会创建新的Pod
 - RollingUpdate：更新DaemonSet模版后，自动删除旧的Pod并创建新的Pod
-
-# Ingress
-
-Kubernetes中的负载均衡主要有两种机制
-
-- **Service**：使用Service提供**集群内部的负载均衡**
-  - Kube-proxy负责将service请求负载均衡到后端的Pod中
-- **Ingress Controller**：使用Ingress提供**集群外部的负载均衡**
-
-**Service和Pod的IP仅可在集群内部访问**，集群外部的请求需要通过负载均衡转发到service所在节点暴露的端口上，然后再由kube-proxy通过边缘路由器将其转发到相关的Pod
-
-Ingress可以给service提供**集群外部访问的URL**、负载均衡、HTTP路由等
-
-- 配置Ingress规则需要部署一个Ingress Controller，它监听Ingress和service的变化，并根据规则配置负载均衡并提供访问入口
-
-- 常用的ingress controller
-
-  - nginx
-
-  - traefik
-
-  - Kong
-
-  - Openresty
 
 # HPA
 

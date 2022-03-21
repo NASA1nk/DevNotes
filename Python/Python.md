@@ -2617,6 +2617,196 @@ python -m pdb err.py
 
 ## 文档测试
 
+# 日志
+
+`logging`
+
+- python自身提供的用于记录日志的标准库模块
+
+logging模块默认定义了以下几个日志等级，它允许开发人员自定义其他日志级别
+
+- 开发应用程序或部署开发环境时，可以使用`DEBUG`或`INFO`级别的日志获取尽可能详细的日志信息来进行开发或部署调试
+- 应用上线或部署生产环境时，应该使用`WARNING`或`ERROR`或`CRITICAL`级别的日志来降低机器的I/O压力和提高获取错误日志信息的效率
+  - 日志级别的指定通常都是在应用程序的配置文件中进行指定的
+- 列表中的日志等级是从上到下依次升高的，即`DEBUG < INFO < WARNING < ERROR < CRITICAL`，而日志的信息量是依次减少的
+- 当为某个应用程序指定一个日志级别后，**应用程序会记录所有日志级别大于或等于指定日志级别的日志信息**，而不是仅仅记录指定级别的日志信息
+- `logging`模块也可以指定日志记录器的日志级别，只有级别大于或等于该指定日志级别的日志记录才会被输出，小于该等级的日志记录将会被丢弃
+
+| 日志等级（level） | 描述                                                         |
+| ----------------- | ------------------------------------------------------------ |
+| DEBUG             | 最详细的日志信息，典型应用场景是问题诊断                     |
+| INFO              | 信息详细程度仅次于DEBUG，通常只记录关键节点信息，用于确认一切都是按照预期的那样进行工作 |
+| WARNING           | 当某些不期望的事情发生时记录的信息（如，磁盘可用空间较低），但是此时应用程序还是正常运行的 |
+| ERROR             | 由于一个更严重的问题导致某些功能不能正常运行时记录的信息     |
+| CRITICAL          | 当发生严重错误，导致应用程序不能继续运行时记录的信息         |
+
+## 日志配置
+
+**默认配置**
+
+- 当没有提供任何配置信息的时候，日志记录函数都会去调用`logging.basicConfig(**kwargs)`方法，且不会向该方法传递任何参数
+
+- 每行日志记录的各个字段含义分别是：**日志级别:日志器名称:日志内容**
+  - 这种格式是因为`logging`模块提供的日志记录函数所使用的**日志器设置的日志格式默认**是`BASIC_FORMAT`，其值为`"%(levelname)s:%(name)s:%(message)s"`
+
+- 在`logging`模块提供的日志记录函数所使用的**日志器设置的处理器所指定的日志输出位置默认**为
+  `sys.stderr`
+
+### 修改默认设置
+
+- 调用上面这些日志记录函数之前，手动调用`basicConfig()`方法，把想设置的内容以参数的形式传递进去就可以了
+
+`logging.basicConfig(**kwargs)`：用于为日志系统做一些基本配置
+
+- `logging.basicConfig()`是一个**一次性的简单配置工具**，也就是说只有在第一次调用该函数时会起作用，后续再次调用该函数时完全不会产生任何操作的，多次调用的设置并不是累加操作
+
+```python
+LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
+DATE_FORMAT = "%m/%d/%Y %H:%M:%S %p"
+
+logging.basicConfig(filename='my.log', level=logging.DEBUG, format=LOG_FORMAT, datefmt=DATE_FORMAT)
+```
+
+该函数可接收的关键字参数如下
+
+| 参数名称 | 描述                                                         |
+| -------- | ------------------------------------------------------------ |
+| filename | 指定日志输出目标文件的文件名，指定该设置项后日志信息就不会被输出到控制台了 |
+| filemode | 指定日志文件的打开模式，默认为`'a'`。需要注意的是，该选项要在filename指定时才有效 |
+| format   | 指定日志格式字符串，即指定日志输出时所包含的字段信息以及它们的顺序，logging模块定义的格式字段下面会列出 |
+| datefmt  | 指定日期/时间格式，需要注意的是，该选项要在`format`中包含时间字段`%(asctime)s`时才有效 |
+| level    | 指定日志器的日志级别                                         |
+| stream   | 指定日志输出目标`stream`，如`sys.stdout`、`sys.stderr`以及网络`stream`，需要说明的是，stream和filename不能同时提供，否则会引发 `ValueError`异常 |
+| style    | Python 3.2中新添加的配置项，指定format格式字符串的风格，可取值为'%'、'{'和'$'，默认为'%' |
+| handlers | Python 3.3中新添加的配置项，该选项如果被指定，它应该是一个创建了多个Handler的可迭代对象，这些handler将会被添加到root logger。需要说明的是：filename、stream和handlers这三个配置项只能有一个存在，不能同时出现2个或3个，否则会引发`ValueError`异常 |
+
+`logging`模块中定义好的可以用于`format`格式字符串中字段如下
+
+| 字段/属性名称   | 使用格式            | 描述                                                         |
+| --------------- | ------------------- | ------------------------------------------------------------ |
+| asctime         | %(asctime)s         | 日志事件发生的时间--人类可读时间，如：2003-07-08 16:49:45,896 |
+| created         | %(created)f         | 日志事件发生的时间--时间戳，就是当时调用time.time()函数返回的值 |
+| relativeCreated | %(relativeCreated)d | 日志事件发生的时间相对于logging模块加载时间的相对毫秒数（目前还不知道干嘛用的） |
+| msecs           | %(msecs)d           | 日志事件发生事件的毫秒部分                                   |
+| levelname       | %(levelname)s       | 该日志记录的文字形式的日志级别（'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'） |
+| levelno         | %(levelno)s         | 该日志记录的数字形式的日志级别（10, 20, 30, 40, 50）         |
+| name            | %(name)s            | 所使用的日志器名称，默认是'root'，因为默认使用的是 rootLogger |
+| message         | %(message)s         | 日志记录的文本内容，通过 `msg % args`计算得到的              |
+| pathname        | %(pathname)s        | 调用日志记录函数的源码文件的全路径                           |
+| filename        | %(filename)s        | pathname的文件名部分，包含文件后缀                           |
+| module          | %(module)s          | filename的名称部分，不包含后缀                               |
+| lineno          | %(lineno)d          | 调用日志记录函数的源代码所在的行号                           |
+| funcName        | %(funcName)s        | 调用日志记录函数的函数名                                     |
+| process         | %(process)d         | 进程ID                                                       |
+| processName     | %(processName)s     | 进程名称，Python 3.1新增                                     |
+| thread          | %(thread)d          | 线程ID                                                       |
+| threadName      | %(thread)s          | 线程名称                                                     |
+
+## 日志组件
+
+logging日志模块的四大组件
+
+> 日志器（logger）是入口，真正干活的是处理器（handler），处理器（handler）可以通过过滤器（filter）和格式器（formatter）对要输出的日志内容做过滤和格式化等处理操作
+
+| 组件名称 | 对应类名  | 功能描述                                                     |
+| -------- | --------- | ------------------------------------------------------------ |
+| 日志器   | Logger    | 提供了应用程序可一直使用的接口                               |
+| 处理器   | Handler   | 将logger创建的日志记录发送到合适的目的输出                   |
+| 过滤器   | Filter    | 提供了更细粒度的控制工具来决定输出哪条日志记录，丢弃哪条日志记录 |
+| 格式器   | Formatter | 决定日志记录的最终输出格式                                   |
+
+### Logger类
+
+**创建Logger对象**
+
+- 通过`Logger`类的实例化方法创建一个`Logger`类的实例
+- 使用`logging.getLogger()`方法（推荐）
+  - `logging.getLogger()`方法有一个可选参数`name`，该参数表示将要返回的**日志器的名称标识**，如果不提供该参数，则其值为`root`
+  - 以相同的`name`参数值多次调用`getLogger()`方法，将会返回指向同一个`logger`对象的引用
+
+`Logger`对象有3个任务
+
+- 向应用程序暴露几个方法，使应用程序可以在运行时记录日志消息
+- 基于日志严重等级（默认的过滤设施）或`filter`对象来决定要对哪些日志进行后续处理
+- 将日志消息传送给所有感兴趣的`handlers`
+
+`Logger`对象最常用的方法分为两类：**配置方法和消息发送方法**
+
+常用的配置方法如下
+
+| 方法                                          | 描述                                       |
+| --------------------------------------------- | ------------------------------------------ |
+| Logger.setLevel()                             | 设置日志器将会处理的日志消息的最低严重级别 |
+| Logger.addHandler() 和 Logger.removeHandler() | 为该logger对象添加和移除一个handler对象    |
+| Logger.addFilter() 和 Logger.removeFilter()   | 为该logger对象添加和移除一个filter对象     |
+
+`logger`对象配置完成后，可以使用下面的方法来**创建日志记录**
+
+- `Logger.exception()`与`Logger.error()`的区别在于：`Logger.exception()`将会输出堆栈追踪信息，另外通常只是在一个exception handler中调用该方法
+
+| 方法                                                         | 描述                                              |
+| ------------------------------------------------------------ | ------------------------------------------------- |
+| Logger.debug(), Logger.info(), Logger.warning(), Logger.error(), Logger.critical() | 创建一个与它们的方法名对应等级的日志记录          |
+| Logger.exception()                                           | 创建一个类似于Logger.error()的日志消息            |
+| Logger.log()                                                 | 需要获取一个明确的日志level参数来创建一个日志记录 |
+
+### Handler类
+
+`Handler`对象的作用是基于日志消息的level将消息分发到handler指定的位置（如文件、网络、邮件等）
+
+`Logger`对象可以通过`addHandler(`)方法为自己添加0个或者更多个`handler`对象
+
+**应用场景**：一个应用程序可能想要实现以下几个日志需求
+
+- 把所有日志都发送到一个日志文件中
+- 把所有严重级别大于等于error的日志发送到stdout
+- 把所有严重级别为critical的日志发送到一个email邮件地址
+
+这种场景就需要3个不同的`handlers`，每个`handler`负责发送一个特定严重级别的日志到一个特定的位置
+
+**配置方法**
+
+| 方法                                          | 描述                                        |
+| --------------------------------------------- | ------------------------------------------- |
+| Handler.setLevel()                            | 设置handler将会处理的日志消息的最低严重级别 |
+| Handler.setFormatter()                        | 为handler设置一个格式器对象                 |
+| Handler.addFilter() 和 Handler.removeFilter() | 为handler添加和删除一个过滤器对象           |
+
+**注意**
+
+- 不应该直接实例化和使用`Handler`实例，因为`Handler`是一个基类，它只定义了`handlers`都应该有的接口，同时**提供了一些子类可以直接使用或覆盖的默认行**为
+- 下面是一些常用的`Handler`
+
+| Handler                                   | 描述                                                         |
+| ----------------------------------------- | ------------------------------------------------------------ |
+| logging.StreamHandler                     | 将日志消息发送到输出到Stream，如std.out, std.err或任何file-like对象 |
+| logging.FileHandler                       | 将日志消息发送到磁盘文件，默认情况下文件大小会无限增长       |
+| logging.handlers.RotatingFileHandler      | 将日志消息发送到磁盘文件，并支持日志文件按大小切割           |
+| logging.hanlders.TimedRotatingFileHandler | 将日志消息发送到磁盘文件，并支持日志文件按时间切割           |
+| logging.handlers.HTTPHandler              | 将日志消息以GET或POST的方式发送给一个HTTP服务器              |
+| logging.handlers.SMTPHandler              | 将日志消息发送给一个指定的email地址                          |
+| logging.NullHandler                       | 该Handler实例会忽略error messages，通常被想使用logging的library开发者使用来避免'No handlers could be found for logger XXX'信息的出现 |
+
+### Formater类
+
+`Formater`对象用于配置日志信息的最终顺序、结构和内容
+
+- 与`logging.Handler`基类不同，可以直接实例化`Formatter`类来获取`Formater`对象
+
+- 如果应用程序需要一些特殊的处理行为，也可以实现一个`Formatter`的子类来完成。
+
+`Formatter`类的构造方法如下
+
+```python
+logging.Formatter.__init__(fmt=None, datefmt=None, style='%')
+```
+
+该构造方法接收3个可选参数
+
+- `fmt`：指定**消息格式化字符串**，如果不指定该参数则默认使用message的原始值
+- `datefmt`：指定**日期格式字**符串，如果不指定该参数则默认使用`"%Y-%m-%d %H:%M:%S"`
+- style：Python 3.2新增的参数，可取值为 '%', '{'和 '$'，如果不指定该参数则默认使用'%'
+
 
 
 # IO编程

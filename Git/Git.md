@@ -221,8 +221,6 @@ git commit -m "注释"
 git push 远程仓库
 ```
 
-
-
 ## 分支
 
 在新的分支上对文件的修改**不会影响**到原来分支上的文件
@@ -291,15 +289,19 @@ git branch -d branchName
 
 # 删除远程分支
 git branch -d -r branchname 
+
+# 删除upstream分支中被删除了的本地分支
+# merge pull request后就可以删除fork里被合并的分支
+git fetch -p
 ```
 
 ### 合并分支
 
 ```bash
-#先回到master主分支
+# 先回到master主分支
 git checkout master
 
-#合并分支
+# 合并分支
 git merge branch_name
 ```
 
@@ -338,7 +340,7 @@ a分出的分支b对**原分支**a的合并会直接覆盖，不会冲突
 
 ## 暂存修改
 
-假如在修改的时候需要去pull远程仓库的内容，此时可能报错。所以需要把修改暂存到一个地方
+假如在修改的时候需要去pull远程仓库的内容，此时可能报错，**所以需要把修改暂存到一个地方**
 
 ```bash
 #1.执行后文件回到修改之前,先pull
@@ -354,41 +356,111 @@ git stash apply
 git stash clear
 ```
 
-
-
-## 撤销
-
-gitjk工具
-
-提示命令，在想撤销的命令后一条输入`gitjk`（紧挨着）
-
-> 会输出用于撤销的命令
+把暂存的内容添加到上一次的提交
 
 ```bash
-git add .
-gitjk
-
-git commit file_name -m "注释"
-gitjk
+git commit --amend
 ```
 
-撤销命令
+把未暂存的内容移动到一个**新分支**
 
 ```bash
-# 撤销git add
+git checkout -b branchName
+```
+
+把未暂存的内容移动到另一个**已存在的分支**
+
+```bash
+# 先暂存
+git stash
+# 再切换
+git checkout branchName
+git stash pop  
+```
+
+## 修改和撤销
+
+### Head
+
+- `HEAD^`：1个commit
+- `HEAD^^`：2个commit
+- `HEAD~4`：4个commit
+
+### 取销add
+
+```bash
 git reset
+```
 
-# 仅取消git add带来的效果，本地的修改还在，但是取消了add的状态
+### 仅取消add带来的效果
+
+```bash
+# 本地的修改还在，但是取消了add的状态
 git reset --mixed 
+```
 
-# 撤销git commit
+### 修改未推送的commit信息
+
+```bash
+# 打开默认编辑器, 可以编辑信息
+git commit --amend --only  
+
+# 直接修改
+git commit --amend --only -m 'commit message' 
+```
+
+### 从commit中移除一个文件
+
+```bash
+git checkout HEAD^ fileName  
+git add -A  
+git commit --amend 
+```
+
+### 删除已推送的最后一次提交
+
+```bash
+git reset HEAD^ --hard
+# 强制推送
+git push -f [remote] [branch] 
+```
+
+### 删除未推送的最后一次提交
+
+```bash
+git reset --soft HEAD@{1}
+
 git reset --soft 'HEAD^'()
+```
 
-# 版本回退
-git checkout SHA-1
+### 在硬重置（`hard reset`）后想找回内容
 
-# 版本回退并将之创建为新的分支
-git checkout -b SHA-1
+- Git对每件事都会有日志，且都会保存几天
+- 在日志中看到一个过去提交列表和一个重置的提交
+- 选择想要回到的提交的SHA，再重置一次
+
+```bash
+git reflog  
+git reset --hard SHA1234
+```
+
+### 错误的提交分支到了main
+
+```bash
+# 1.在main下创建一个新分支，不切换到新分支，仍在main下
+git branch branchName
+# 2.把main分支重置到前一个提交
+git reset --hard HEAD^
+# 3.
+git checkout branchName
+```
+
+### 取消rebase和merge
+
+- Git在进行危险操作的时候会把原始的`HEAD`保存在一个叫`ORIG_HEAD`的变量里
+
+```bash
+git reset --hard ORIG_HEAD  
 ```
 
 
@@ -428,6 +500,18 @@ git ls-files --stage
 ```bash
 git log 
 ```
+
+### 查看提交内容
+
+显示当前`HEAD`上的最近一次的commit
+
+```bash
+git show
+
+git log -n1 -p
+```
+
+
 
 ### 查看区别
 

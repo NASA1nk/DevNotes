@@ -397,6 +397,33 @@ print("%s" % "ink")
 print("Hi %s, you have %d元" % ("ink",1000000))
 ```
 
+## 运算符
+
+### 逻辑运算符
+
+优先级：`() > not > and > or`
+
+- `and`
+- `or`
+- `not`
+
+```python
+# 2
+2 or 3
+
+# 5
+5 or 0.0
+
+# 3
+[] or 3
+
+# {}
+0 or {}
+
+# 0
+{} or 0
+```
+
 
 
 # 数据类型
@@ -1211,7 +1238,67 @@ person('Jack', 24, job='Engineer')
 
 - 任意函数都可以通过类似`func(*args, **kw)`的形式调用，无论它的参数是如何定义的
 
+## 函数注释
 
+> type hints是Python3.5新加的功能
+
+### 静态注释
+
+**一般规则**
+
+- **参数名后加一个冒号**，然后再跟一个expression
+  - 冒号是参数的**类型建议符**，即希望传入的实参的类型
+  - 这个expression可以是任何形式
+- annotation可被保存为函数的attributes
+
+这些注释信息都是函数的元信息，保存在`f.__annotations__`字典中，python对注释信息和``f.__annotations__``的一致性，不做检查，不做强制，不做验证
+
+> 即使传入的实际参数与建议参数不符，也不会报错
+
+```python
+def f(text:str, max_len:'int>0'=80) ->str:
+```
+
+函数声明中
+
+- `text:str`：`text`是参数，冒号后面`str`是参数注释
+- 如果参数有默认值也要写上，**未传入实参时该参数即为默认值**
+  - `max_len:'int>0'=80`
+
+- `->str`：函数返回值的注释
+
+```python
+def f(ham: 42, eggs: int = 'spam') -> "Nothing to see here":
+    print("函数注释", f.__annotations__)
+    print("参数值", ham, eggs)
+    print(type(ham),type(eggs))
+   
+# 函数注释 {'ham': 42, 'eggs': <class 'int'>, 'return': 'Nothing to see here'}
+# 参数值 www spam
+# <class 'str'> <class 'str'>
+f("www")
+
+
+def twoSum(num1: int, num2: int=100) -> int:
+    sum = num1 + num2
+    return sum
+    
+# {'num1': <class 'int'>, 'num2': <class 'int'>, 'return': <class 'int'>}
+# 3
+# 101
+# I love Arsenal（不会报错）
+if __name__ == "__main__":
+    print(twoSum.__annotations__)
+    print(twoSum(1,2))
+    print(twoSum(1))
+    print(twoSum('I love ','Arsenal'))
+```
+
+### 动态注释
+
+在函数中或者装饰器中动态的增加，删除，更改，注释内容
+
+- `f.__annotations__` 是一个字典，可以使用字典的所有操作，所以就可以动态的更改注释了
 
 ## hash和id
 

@@ -2068,13 +2068,14 @@ python通过`_`**前缀**来实现变量和函数的作用域
 
 ### 导入模块
 
-使用import导入模块，导入`sys`模块后就有了变量`sys`指向该模块，利用`sys`这个变量就可以访问`sys`模块的所有功能
+使用`import`导入模块，导入`sys`模块后就有了变量`sys`指向该模块，利用`sys`这个变量就可以访问`sys`模块的所有功能
 
 `__name__`
 
 - 在**命令行运行**`.py`模块文件时，python解释器把特殊变量`__name__`置为`__main__`
 - 在在其他地方导入该模块时，`__name__`则是`py`文件名
-- 因此这种`if`测试可以让一个模块通过**命令行运行**时执行一些额外的代码，最常见的就是运行测试
+
+因此这种`if`测试可以让一个模块通过**命令行运行**时执行一些额外的代码，最常见的就是运行测试
 
 ```python
 if __name__=="__main__":
@@ -2086,6 +2087,30 @@ if __name__=="__main__":
 - 当试图加载一个模块时，python会在**指定的路径**下搜索对应的`.py`文件，如果找不到就会报错
 - 默认情况下python解释器会搜索**当前目录**、**所有已安装的内置模块**和**第三方模块**
 - 搜索路径存放在`sys`模块的`path`变量中，可以在`path`中追加路径来实现自定义搜索
+
+**环境变量**
+
+`PYTHONPATH`：Python的搜索路径，默认`import`的模块都会从`PYTHONPATH`里面寻找
+
+- **在命令行添加搜索路径**
+  - 此方法只在当前命令行窗口生效，如果打开一个新的窗口，打印`PYTHONPATH`是没有刚才加入的路径的
+- **在python文件中添加**
+
+```python
+# 命令行
+export PYTHONPATH=$PYTHONPATH:/home/ink
+  
+# 持久化，在.bashrc中写入
+vim .bashrc
+export PYTHONPATH=$PYTHONPATH:/home/ink
+source .bashrc
+
+# 在python文件中添加
+import sys
+sys.path.append('/home/ink/')
+```
+
+
 
 **同级的自定义模块**
 

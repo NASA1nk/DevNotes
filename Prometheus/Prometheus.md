@@ -259,8 +259,6 @@ Prometheus服务负责收集、存储、查看监控数据，真正**直接进�
 
 ## 直接部署
 
-通过 http://49.232.207.245:9100/metrics 可以看到采集的监控数据
-
 > i386是32位的版本，amd64是64位的版本
 >
 > - i386=Intel 80386，i386通常被用来作为对Intel（英特尔）32位微处理器的统称
@@ -272,7 +270,7 @@ Prometheus服务负责收集、存储、查看监控数据，真正**直接进�
 
 **原因**
 
-`node_exporter版本升到1.0.0之后，因为安全性考虑支持了TLS，所以要添加证书`
+`node_exporter`版本升到1.0.0之后，因为安全性考虑支持了TLS，所以要添加证书
 
 ```bash
 # 下载 node exporter(64bit)
@@ -309,13 +307,74 @@ tls_server_config:
 ./node_exporter --web.config=config.yaml
 ```
 
-## Docker部署Exporter
+### node_exporter数据
+
+- `node_exporter` 监听9100端口
+- 默认的metrics接口通过 `/metrics`暴露，可以通过访问 `http://localhost:9100/metrics`来获取监控指标数据
+
+> `curl http://localhost:9100/metrics`
+
+```bash
+level=info ts=2021-10-14T03:52:31.947Z caller=node_exporter.go:182 msg="Starting node_exporter" version="(version=1.2.2, branch=HEAD, revision=26645363b486e12be40af7ce4fc91e731a33104e)"
+level=info ts=2021-10-14T03:52:31.947Z caller=node_exporter.go:183 msg="Build context" build_context="(go=go1.16.7, user=root@b9cb4aa2eb17, date=20210806-13:44:18)"
+......
+level=info ts=2021-10-14T03:52:31.948Z caller=node_exporter.go:199 msg="Listening on" address=:9100
+level=info ts=2021-10-14T03:52:31.948Z caller=tls_config.go:191 msg="TLS is disabled." http2=false
+```
+
+### node_exporter可配置参数
+
+使用 `./node_exporter -h`查看帮助信息
+
+- 最重要的参数是 `--collector.<name>`，通过该参数可以启用收集的功能模块
+- ·`node_exporter` 会默认采集一些模块，要禁用这些默认启用的收集器可以通过 `--no-collector.<name>` 标志来禁用
+- 如果只启用某些特定的收集器，基于先使用 `--collector.disable-defaults` 标志禁用所有默认的，然后在通过指定具体的收集器 `--collector.<name>` 来进行启用
+
+```bash
+./node_exporter -h
+    --web.listen-address=":9100"  # 监听的端口，默认是9100
+    --web.telemetry-path="/metrics"  # metrics的路径，默认为/metrics
+    --web.disable-exporter-metrics  # 是否禁用go、prome默认的metrics
+    --web.max-requests=40     # 最大并行请求数，默认40，设置为0时不限制
+    --log.level="info"        # 日志等级: [debug, info, warn, error, fatal]
+    --log.format=logfmt     # 置日志打印target和格式: [logfmt, json]
+    --version                 # 版本号
+    --collector.{metric-name} # 各个metric对应的参数
+    ......
+```
+
+### 自定义指标
+
+`node_exporter`除了本身可以收集系统指标之外，还可以通过`textfile`模块来采集**自定义的监控指标**，**比如通过脚本采集的监控数据就可以通过该模块暴露出去**
+
+- 默认情况下`node_exporter`会启用`textfile`组建
+- 需要使用`--collector.textfile.directory`参数**设置一个用于采集的路径**
+  - 所有生成的监控指标将放在该目录下，**并以 `.prom` 文件名后缀结尾**
+
+所有自定义生成的监控指标需要按照如下所示的方式进行存储
+
+- **一个标准的metrics接口内容格式**
+- 如果没有加上 `HELP` 信息的话，系统会帮助生成一个简单的描述信息
+- 但是如果有多个文件中出现了相同的指标名称，那么需要保证这些指标的`HELP`和`TYPE`要一致，否则采集会出错
+
+```bash
+# HELP example_metric Metric read from /some/path/textfile/example.prom
+# TYPE example_metric untyped
+example_metric 1
+```
+
+对于`.prom`文件的采集，**系统会自动的加入采集文件的修改时间**
+
+- 通过该指标可以设置告警用于判断是否文件发生了变化，比如采集指标时间为每10 分钟一次，那么修改时间应该`<15`分钟，否则就应该报警上次的采集未成功
+- 指标名称为`node_textfile_mtime_seconds`，指标收集时间为`unixtime`格式时间
+
+## Docker部署
 
 [Monitoring Linux host metrics with the Node Exporter](https://prometheus.io/docs/guides/node-exporter/)
 
 [Prometheus Exporter for machine metrics ](https://github.com/prometheus/node_exporter#using-docker)
 
-如果要部署Docker以进行主机监控，**必须使用一些额外的参数来允许node_exporter访问主机名称空间**
+如果要部署Docker以进行主机监控，**必须使用一些额外的参数来允许node_exporter访问宿主机命名空间**
 
 - 官方不建议将node_exporter部署为Docker容器，因为它需要访问主机系统
 
@@ -336,7 +395,9 @@ curl http://localhost:9100/metrics
 curl http://localhost:9100/metrics | grep "node_"
 ```
 
-## 配置Exporter
+## 配置Prometheus监控Exporter
+
+metrics接口数据就是一个标准的**Prometheus监控指标格式**，只需要将该端点配置到 Prometheus配置文件中即可抓取该指标数据
 
 在Prometheus服务的配置文件`prometheus.yml`中添加相应的配置来收集Node Exporter的监控数据
 
@@ -359,7 +420,7 @@ scrape_configs:
     - targets: ['localhost:9090']
 
   # 收集主机的监控数据  
-  - job_name: 'exporter'
+  - job_name: 'exporter_one'
   	# 每隔5秒钟从http://IP:Port/actuator/prometheus拉取指标
   	scrape_interval: 5s
   	# scheme: https
@@ -377,14 +438,12 @@ scrape_configs:
 
 进入http://10.2.14.105:9090
 
-- Alerts：展示了定义的所有告警规则
-- Status：可以查看各种Prometheus的状态信息
-- Graph：可以使用PromQL查询数据，还可以通过 Prometheus 提供的 HTTP API 来查询数据
-  - 查询的监控数据有列表和曲线图两种展现形式（对应上图中 Console 和 Graph 这两个标签）
+- **Alerts**：展示了定义的所有告警规则
+- **Status**：可以查看各种Prometheus的状态信息
+- **Graph**：可以使用PromQL查询数据，还可以通过Prometheus提供的HTTP API 来查询数据
+  - 查询的监控数据有列表和曲线图两种展现形式，对应上图中Console和Graph两个标签
 
 ![9090](Prometheus.assets/9090.png)
-
-
 
 **查询**
 
@@ -406,86 +465,183 @@ scrape_configs:
 
 ### sum
 
-`sum()` 
-
-叠加函数，可以将多核CPU进行合并为一个整体
+`sum()` ：叠加函数，可以将多核CPU进行合并为一个整体
 
 ### increase
 
-`increase({}[time])`
-
-针对 Counter这种持续增长的数值，截取其中一段时间的**增量**
+`increase({}[time])`：针对 Counter这种持续增长的数值，截取其中一段时间的**增量**
 
 ### by 
 
-`by()` 
+`by()` ：可以把`sum()`合并到一起的数值，按照**指定的方式进行拆分**
 
-这个函数可以把`sum()`合并到一起的数值，按照**指定的方式进行拆分**
+- `by(instance)` 按照集群节点进行拆分
 
-`by(instance)` 按照集群节点进行拆分
+> 就是按照拆分的东西来聚合
 
-### CPU利用率
+## 计算CPU利用率
 
-直接执行`node_cpu_seconds_total`查询后会出现很多监控指标，其中各种类型的比如系统态、用户态都会由mode标签来区分
+### cpu指标
 
-查出当前**空闲的CPU**百分比来计算利用率
+`node_cpu_seconds_total`
 
-**cpu使用时间**
+- 该指标是用来**统计CPU每种模式下所花费的时间**，是一个Counter类型的指标，也就是会一直增长
+- 这个数值其实是CPU时间片的一个累积值，从操作系统启动CPU开始工作，就开始记录自己总共使用的时间，然后保存下来
+- 累积的CPU使用时间还会分成几个不同的模式，比如用户态使用时间、空闲时间、中断时间、内核态使用时间等等
+- 也就是使用`top`命令查看的CPU的相关信息，指标会分别对这些模式进行记录
 
-> `mode`标签值为`idle`的为空闲
+所以直接执行`node_cpu_seconds_total`查询后会出现很多监控指标，其中各种类型的比如系统态、用户态都会由`mode`标签来区分
 
-- 空闲CPU使用时间：`node_cpu_seconds_total{mode="idle"}`
-- 全部CPU总共使用时间：`node_cpu_seconds_total)`
+> 查看一直增长的CPU时间意义不大，更希望监控的是节点的CPU利用率，也就是使用 `top`命令看到的百分比
 
-**两分钟之内的cpu使用时间增量**
+**CPU利用率是CPU除空闲（idle）状态之外的其他所有CPU状态的时间总和除以总的 CPU时间**得到的结果
 
-- 全部CPU使用时间在2分钟内的增量：`increase(node_cpu_seconds_total[2m])` 
-- 空闲CPU使用时间在2分钟内的增量：`increase(node_cpu_seconds_total{mode="idle"}[2m])`
+- 所以要查出当前**空闲的CPU时间**来反向计算利用率
 
-**将多核CPU进行合并为一个整体**
 
-> sum()函数默认情况下全部内容都会进行合并，不光是CPU的核心数，同时把机器也进行合并
+### cpu使用时间
+
+`mode`标签值为`idle`即为空闲的CPU时间
+
+- 空闲的CPU使用时间：`node_cpu_seconds_total{mode="idle"}`
+- 全部的CPU总共使用时间：`node_cpu_seconds_total`
+
+### cpu使用时间增量变化
+
+因为是Counter指标，使用用`increase`函数来获取增量变化
+
+- 空闲CPU使用时间在过去2分钟内的增量：`increase(node_cpu_seconds_total{mode="idle"}[2m])`
+- 全部CPU使用时间在过去2分钟内的增量：`increase(node_cpu_seconds_total[2m])` 
+
+### 合并多核cpu的使用时间
+
+`sum()`函数默认情况下全部内容都会进行合并，不光是CPU的核心数，还有机器
 
 - 集群所有主机空闲CPU使用时间在2分钟内的增量：`sum(increase(node_cpu_seconds_total{mode="idle"}[2m]))`
-- 集群所有主机CPU使用时间在2分钟内的增量：`sum(increase(node_cpu_seconds_total[2m]))`
+- 集群所有主机全部CPU使用时间在2分钟内的增量：`sum(increase(node_cpu_seconds_total[2m]))`
 
-**按主机节点进行拆分**
+### 按主机节点拆分cpu时间
 
-- 集群所有节点空闲CPU使用时间在2分钟内的增量：`sum(increase(node_cpu_seconds_total{mode="idle"}[2m]))by(instance)`
-- 集群所有节点CPU使用时间在2分钟内的增量：`sum(increase(node_cpu_seconds_total[2m]))by(instance)`
+查询不同节点的CPU利用率就需要根据`instance`标签进行聚合
 
-### 内存利用率
+- 集群各个节点空闲CPU使用时间在2分钟内的增量：`sum(increase(node_cpu_seconds_total{mode="idle"}[2m])) by (instance)`
+- 集群各个节点全部CPU使用时间在2分钟内的增量：`sum(increase(node_cpu_seconds_total[2m])) by (instance)`
+
+### 计算cpu利用率
+
+**按节点划分**
+
+- 空闲：`sum(increase(node_cpu_seconds_total{mode="idle"}[2m])) by (instance) / sum(increase(node_cpu_seconds_total[2m])) by (instance)`
+- 利用率（`%`）：`(1 - (sum(increase(node_cpu_seconds_total{mode="idle"}[2m])) by (instance) / sum(increase(node_cpu_seconds_total[2m])) by (instance))) * 100`
+
+> 可以和`top`命令的结果进行对比
+
+![节点cpu利用率](Prometheus.assets/节点cpu利用率.png)
+
+**合并**
+
+- 空闲：`sum(increase(node_cpu_seconds_total{mode="idle"}[2m])) / sum(increase(node_cpu_seconds_total[2m]))`
+- 利用率（`%`）：`(1 - (sum(increase(node_cpu_seconds_total{mode="idle"}[2m])) / sum(increase(node_cpu_seconds_total[2m])))) * 100`
+
+![cpu利用率](Prometheus.assets/cpu利用率.png)
+
+## 计算内存利用率
 
 > 在用接口请求的时候，报错`parse error: unexpected identifier "node_memory_Cached_bytes`
 >
 > 分别请求的时候可以获取到值
 
+### Free
+
+查看节点的内存使用情况基本上都是使用`free`命令，输出会显示系统内存的使用情况，包括**物理内存**、**交换内存（swap）**和**内核缓冲区内存**等
+
+**行**
+
+- `Mem`：内存的使用情况
+- `Swap`：交换空间的使用情况
+
+**列**
+
+- `total`：显示系统总的可用物理内存和交换空间大小
+- `used`：显示已经被使用的物理内存和交换空间
+- `free`：显示还有多少物理内存和交换空间可用使用
+- `shared`：显示被共享使用的物理内存大小
+- `buff/cache`：显示被buffer和cache使用的物理内存大小
+- `available`：显示还可以被**应用程序**使用的物理内存大小
+
+`free`是**真正尚未被使用的物理内存数量**，`available`是**从应用程序的角度看到的可用内存**
+
+- 因为Linux内核为了提升磁盘操作的性能，**会消耗一部分内存去缓存磁盘数据**，就是 `buffer`和`cache`
+
+- 所以对于内核来说，`buffer`和`cache`都**属于已经被使用的内存**
+
+应用程序需要内存时，如果没有足够的内存可以用，内核就会从`buffer`和`cache`中回收内存来满足应用程序的请求
+
+- 所以从应用程序的角度来说，`available = free + buffer + cache`
+
+> 这只是一个理想的计算方式，实际中的数据有较大的误差
+
+### 内存指标
+
+`node_memory_*`相关
+
 内存的监控项没有像CPU一样区分了很多标签，因此内存监控相较于CPU则需要结合很多个监控项
 
-- 总内存：node_memory_MemTotal_bytes 
-- 空闲内存：node_memory_MemFree_bytes
-- 缓存：node_memory_Cached_bytes
-- 缓冲区内存：node_memory_Buffers_bytes
+- 总内存：`node_memory_MemTotal_bytes` 
+- 空闲内存：`node_memory_MemFree_bytes`
+- 缓存：`node_memory_Cached_bytes`
+- 缓冲区内存：`node_memory_Buffers_bytes`
 
-监控内存利用率：
+### 空闲总内存
 
-1.  空闲内存 + 缓存 + 缓冲区内存 = 空闲总内存
+> `available = free + buffer + cache`
 
-   `(node_memory_MemFree_bytes + node_memory_Cached_bytes+node_memory_Buffers_bytes)`
+**空闲总内存 = 空闲内存 + 缓存 + 缓冲区内存**
 
-2.  空闲总内存 / 总内存 = 空闲率
+`(node_memory_MemFree_bytes + node_memory_Cached_bytes+node_memory_Buffers_bytes)`
 
-   `(node_memory_MemFree_bytes + node_memory_Cached_bytes+node_memory_Buffers_bytes) / node_memory_MemTotal_bytes * 100`
+### 空闲率和使用率
 
-3. 100 - 空闲率 = 使用率
+> 也是按节点instance划分的
 
-   `100 - ((node_memory_MemFree_bytes+node_memory_Cached_bytes+node_memory_Buffers_bytes) / node_memory_MemTotal_bytes * 100)`
+**空闲率 = 空闲总内存 / 总内存**
 
+`((node_memory_MemFree_bytes + node_memory_Cached_bytes+node_memory_Buffers_bytes) / node_memory_MemTotal_bytes) * 100`
 
+**使用率 = 1 - 空闲率**
 
-### Usage
+`100 - (((node_memory_Buffers_bytes + node_memory_Cached_bytes + node_memory_MemFree_bytes) / node_memory_MemTotal_bytes) * 100)`
 
+![内存使用率](Prometheus.assets/内存使用率.png)
 
+## 计算磁盘利用率
+
+### 磁盘指标
+
+`node_filesystem_*` 相关
+
+### 磁盘空间利用率
+
+**磁盘可用空间**：`node_filesystem_avail_bytes` 
+
+- 使用`fstype`标签过滤关心的磁盘信息，比如`ext4`或者`xfs`格式的磁盘
+
+**磁盘空间利用率**
+
+ `(1 - node_filesystem_avail_bytes{fstype=~"ext4|xfs"} / node_filesystem_size_bytes{fstype=~"ext4|xfs"}) * 100` 
+
+### 磁盘IO
+
+**磁盘IO要区分是读的IO还是写的IO**
+
+- 读IO：`node_disk_reads_completed`
+- 写IO：`node_disk_writes_completed_total`
+
+**磁盘读IO**：`sum by (instance) (rate(node_disk_reads_completed_total[5m]))`
+
+**磁盘写IO**：`sum by (instance) (rate(node_disk_writes_completed_total[5m]))`
+
+## Usage
 
 `container_cpu_usage_seconds_total`
 
@@ -503,7 +659,7 @@ scrape_configs:
 
 
 
-### 配置指标
+## 配置指标
 
 (sum(rate(container_cpu_usage_seconds_total[1m])) by (pod_name) / sum(label_replace(kube_pod_container_resource_limits_cpu_cores, "pod_name", "$1", "pod", "(.*)")) by (pod_name))>75
 

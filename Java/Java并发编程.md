@@ -2,6 +2,8 @@
 
 `java.util.concurrent`
 
+> `Java.util.concurrent`是在并发编程中比较常用的工具类，里面包含很多用来在并发场景中使用的组件，比如线程池、阻塞队列、计时器、同步器、并发集合等等
+
 - 并发执行不一定比串行快，**因为线程创建和上下文切换会有开销**，即多线程不一定快
 
 
@@ -489,3 +491,166 @@ AQS**将每一条请求共享资源的线程封装成一个CLH队列的一个结
   - 将`head`节点的`waitStatus`值设为0，然后令`head.next = null`，等待被垃圾回收
 - 被唤醒的线程会使用CAS来修改`state`，尝试获取锁
 
+
+
+# Lock
+
+在`Lock`接口出现之前，Java中的应用程序对于多线程的并发安全处理只能基于`synchronized`关键字来解决，但是`synchronized`在有些场景中会存在一些短板，**也就是它并不适合于所有的并发场景**
+
+- 在Java5以后，`Lock`的出现解决了`synchronized`在某些场景中的短板，它比 `synchronized`更加灵活
+  - `synchronized`是java的一个关键字，**是Java语言内置的特性**
+  - `Lock`是一个类，通过这个类可以实现同步访问
+
+**`Lock`和`synchronized`的区别**
+
+- 采用`synchronized`**不需要用户去手动释放锁**，当`synchronized`方法或者`synchronized`代码块执行完之后，系统会自动让线程释放对锁的占用
+- 采用`Lock`则必须要用户去手动释放锁，如果没有主动释放锁，就有可能导致出现死锁现象
+
+**`synchronized`的局限性与`Lock`的优点**　
+
+- 如果一个代码块被`synchronized`关键字修饰，当一个线程获取了对应的锁，并执行该代码块时，**其他线程便只能一直等待直至占有锁的线程释放锁*
+- 事实上，占有锁的线程释放锁一般会是以下三种情况
+  - 占有锁的线程执行完了该代码块，然后释放对锁的占有
+  - 占有锁线程执行发生异常，此时JVM会让线程自动释放锁
+  - 占有锁线程进入`WAITING`状态从而释放锁，例如在该线程中调用`wait()`方法等
+
+## Lock接口实现
+
+`Lock`作为接口意味着它定义了锁的一个**标准规范**
+
+- 它定义了**释放锁和获得锁的抽象方法**
+
+> 说明锁可以有不同的实现
+
+`Lock`和`ReadWriteLock`是两大锁的**根接口**
+
+**常见的锁实现**
+
+- `ReentrantLock`：可重入锁，**唯一一个实现了`Lock`接口的类**
+  - 线程在获得锁之后，再次获取该锁不需要阻塞，直接关联一次计数器增加重入次数
+- `ReentrantReadWriteLock`：可重入读写锁，实现了`ReadWriteLock`接口
+  - `ReentrantReadWriteLock`维护了两个锁，`ReadLock`和`WriteLock`
+    - `ReadLock`和`WriteLock`都分别实现了`Lock`接口
+  - 读写锁是一种**适合读多写少的场景下解决线程安全问题的工具**，基本原则如下
+    - 读和读不互斥
+    - 读和写互斥
+    - 写和写互斥
+- `StampedLock`： JDK8引入的新的锁机制，可以简单认为是读写锁的一个改进版本
+  - **读写锁虽然通过分离读和写的功能使得读和读之间可以完全并发**，但是读和写是有冲突的，如果大量的读线程存在可能会引起**写线程的饥饿**
+  - `StampedLock`是一种**乐观的读策略**，使得乐观锁完全不会阻塞写线程
+
+## Lock接口方法
+
+`Lock`接口有6个方法
+
+```java
+// 如果锁可用就获得锁，如果锁已被占用就阻塞直到锁释放
+void lock()
+    
+// 和lock()方法相似, 但阻塞的线程可响应中断抛出异常
+void lockInterruptibly() 
+
+// 用于线程间的协作
+// 返回绑定到此Lock实例的新Condition实例  
+Condition newCondition()   
+   
+// 非阻塞获取锁
+// 仅在调用时锁为空闲状态才获取该锁，可以响应中断
+boolean tryLock() 
+    
+// 带有超时时间的获取锁方法
+// 如果锁在给定的等待时间内空闲，并且当前线程未被中断，则获取锁
+boolean tryLock(long timeout, TimeUnit timeUnit)
+    
+// 释放锁
+void unlock() 
+```
+
+### lock()
+
+- 如果采用`lock()`获取锁，必须主动去释放锁
+- 在发生异常时，`lock()`不会自动释放锁，因此，一般来说，使用`lock()`必须在`try catch`块中进行
+- 将释放锁的操作放在`finally`块中进行以保证锁一定被被释放，防止死锁的发生
+
+```java
+Lock lock = ...;
+lock.lock();
+try{
+    // 处理任务
+}catch(Exception ex){
+
+}finally{
+    // 释放锁
+    lock.unlock();   
+}
+```
+
+### tryLock()
+
+> 以及`tryLock(long time, TimeUnit unit)`
+
+`tryLock()`方法如果获取锁成功，返回`true`，如果获取锁失败（即锁已被其他线程获取）则返回`false`，所以这个方法无论如何都**会立即返回，在获取不到锁时不会一直在阻塞等待**
+
+`tryLock(long time, TimeUnit unit)`方法和`tryLock()`方法类似，区别在于`tryLock(long time, TimeUnit unit)`在获取不到锁时**会等待一定的时间**
+
+- 等待时间后如果还拿不到锁，就返回`false`，**同时可以响应中断**
+- 如果一开始就获取到锁或者在等待期间内获取到锁，就返回`true`
+
+```java
+Lock lock = ...;
+if(lock.tryLock()) {
+     try{
+         //处理任务
+     }catch(Exception ex){
+
+     }finally{
+         lock.unlock();   //释放锁
+     } 
+}else {
+    //如果不能获取锁，则直接做其他事情
+}
+```
+
+### lockInterruptibly()　
+
+通过`lockInterruptibly()`方法获取锁时，如果锁已经被占用，线程阻塞等待获取锁，**则这个线程能够响应中断**，即中断线程的等待状态
+
+- 对阻塞线程调用`thread.interrupt()`方法能够中断线程的等待过程
+
+由于`lockInterruptibly()`的声明中抛出了异常，所以`lock.lockInterruptibly()`必须放在`try`块中或者在调用`lockInterruptibly()`的方法外声明抛出 `InterruptedException`
+
+- 推荐在调用`lockInterruptibly()`的方法外声明抛出 `InterruptedException`
+
+> `interrupt()`方法**只能中断阻塞过程中的线程**而不能中断正在运行过程中的线程
+>
+> 因此，当一个线程获取了锁之后是不会被`interrupt()`方法中断的
+
+```java
+public void method() throws InterruptedException {
+    lock.lockInterruptibly();
+    try {  
+     //.....
+    }
+    finally {
+        lock.unlock();
+    }  
+}
+```
+
+## ReadWriteLock接口方法
+
+`ReadWriteLock`接口只有两个方法
+
+- `ReadWriteLock`维护了一对相关的锁，一个用于只读操作，另一个用于写入操作
+- 只要没有writer，**读取锁可以由多个reader线程同时保持**，而写入锁是独占的
+
+一般情况下，**读写锁的性能都会比排它锁好**，因为大多数场景**读是多于写的**，在读多于写的情况下，**读写锁能够提供比排它锁更好的并发性和吞吐量**
+
+> 以前看的锁基本都是排他锁，在同一时刻只允许一个线程进行访问
+
+```java
+// 返回用于读取操作的锁  
+Lock readLock() 
+    
+// 返回用于写入操作的锁  
+Lock writeLock() 

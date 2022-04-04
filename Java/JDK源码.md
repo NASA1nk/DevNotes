@@ -6,7 +6,7 @@
 
 ### JDK7
 
-饿汉式
+**饿汉式**
 
 - **直接创建一个初始容量为10的数组**
 
@@ -28,7 +28,7 @@ list.add(123);
 
 ### JDK8
 
-懒汉式
+**懒汉式**
 
 - **一开始创建一个长度为0的数组，当添加第一个元素时再创建一个始容量为10的数组**
 - 延迟数组的创建时间，节省内存
@@ -51,9 +51,7 @@ list.add(123);
 
 ### 扩容
 
-**目的**
-
-- 提高容量以便至少满足最少`minCapacity`大小的容量
+**目的**：提高容量以便至少满足最少`minCapacity`大小的容量
 
 > `oldCapacity`为旧容量，`newCapacity`为新容量，`minCapaciyt`为这次扩容最小需要的容量，`MAX_ARRAY_SIZE`是`Integer.MAX_VALUE - 8`
 
@@ -127,8 +125,6 @@ list.add(123);
 
  ![LinkedListlinklast](JDK源码.assets/LinkedListlinklast.png)
 
-
-
 **在指定位置插入元素**
 
 1. 判断index是否是链表尾部位置，如果是，直接将元素节点插入链表尾部即可
@@ -142,7 +138,7 @@ list.add(123);
 
 > 就是链表插入操作
 
- ![LinkedList指定插入](JDK源码.assets/LinkedList指定插入.png)
+![LinkedList指定插入](JDK源码.assets/LinkedList指定插入.png)
 
 ![linkBefore](JDK源码.assets/linkBefore.png)
 
@@ -150,15 +146,15 @@ list.add(123);
 
 ## HashMap
 
-HashMap继承了`AbstractMap`，实现了`Map`、`Cloneable`和`Serializable`接口
+`HashMap`继承了`AbstractMap`，实现了`Map`、`Cloneable`和`Serializable`接口
 
 - `public class HashMap<K,V> extends AbstractMap<K,V> implements Map<K,V>, Cloneable, Serializable` 
 
-> HashMap继承`AbstractMap`的作用是：`AbstractMap`提供Map接口的骨干实现，以最大限度地减少实现此接口所需的工作
+> `HashMap`继承`AbstractMap`的作用是：`AbstractMap`提供Map接口的骨干实现，以最大限度地减少实现此接口所需的工作
 >
-> Hashtable继承的是`Dictionary`抽象类，实现了`Map`、`Cloneable`和`Serializable`接口
+> `Hashtable`继承的是`Dictionary`抽象类，实现了`Map`、`Cloneable`和`Serializable`接口
 >
-> Hashtable直接使用`key`的hashcode值，HashMap的key的hashcode值是另外计算的，HashMap独立了hash算法，并且算法是通过key，value多次算出来的，减少了重复性
+> `Hashtable`直接使用`key`的hashcode值，`HashMap`独立了hash算法，并通过key，value多次计算hashcode值，减少了重复性
 
 
 
@@ -517,19 +513,20 @@ JDK1.5中引入了`concurrent`包，`ConcurrentHashMap`是线程安全的
 
 ### Segment
 
-`ConcurrentHashMap`引入了**分段锁**的概念
+`ConcurrentHashMap`引入了**分段锁**（锁分离）的概念
 
-- 把一个大的`HashMap`拆分成n个小的`Segment`，根据`key.hashCode()`来决定把`key`放到哪个`Segment`中
+- 把一个大的`HashMap`拆分成n个小的`Segment`，**根据`key.hashCode()`来决定把`key`放到哪个`Segment`中**
   - 部分锁，只锁对应的`Segment`
 - 默认把`segments`初始化为长度为16的数组
-- JDK1.8之后`ConcurrentHashMap`启用了一种全新的方式实现（CAS算法）
+
+> JDK1.8之后`ConcurrentHashMap`启用了一种全新的方式实现（CAS）
 
 ### JDK7
 
 底层结构：**数组+链表**
 
-- `Segment`是ConcurrentHashMap的一个内部类
-  - 和HashMap中的`Entry`作用一样，是存放数据的桶Bucket
+- `Segment`是`ConcurrentHashMap`的一个内部类
+  - 和`HashMap`中的`Entry`作用一样，是存放数据的桶Bucket
 
 ```java
 final Segment<K,V>[] segments;
@@ -540,30 +537,32 @@ transient Set<Map.Entry<K,V>> entrySet;
 `Segment`
 
 - `value`，链表都是`volatile`关键词修饰的，保证了获取时的可见性
-  - 虽然`value`是用`volatile`关键词修饰的，但是并不能保证并发的原子性，所以`put`操作时仍然需要加锁
-- ConcurrentHashMap支持`Segment`数组数量的线程并发
+  - 虽然`value`是用`volatile`关键词修饰的，**但是并不能保证并发的原子性，所以`put`操作时仍然需要加锁**
+
+- `ConcurrentHashMap`支持`Segment`数组数量的线程并发
   - 每当一个线程占用锁访问一个`Segment`时，不会影响到其他的`Segment`
+- 每一个`Segment`存储一个`HashEntry`数组+链表，和`HashMap`的数据存储结构一样
 
 ```java
 static final class Segment<K,V> extends ReentrantLock implements Serializable {
     
-private static final long serialVersionUID = 2249069246763182397L;
+    private static final long serialVersionUID = 2249069246763182397L;
 
-transient volatile HashEntry<K,V>[] table;
+    transient volatile HashEntry<K,V>[] table;
 
-transient int count;
+    transient int count;
 
-transient int modCount;
+    transient int modCount;
 
-transient int threshold;
+    transient int threshold;
 
-final float loadFactor;
+    final float loadFactor;
 }
 ```
 
 #### 插入
 
-1. 通过key定位到`Segment`
+1. 通过`key`定位到`Segment`
 2. 在对应的`Segment`中进行具体的`put`
    1. 尝试获取锁，如果获取失败说明有其他线程存在竞争，利用 `scanAndLockForPut()` **自旋获取锁**
    2. 如果重试的次数达到了`MAX_SCAN_RETRIES` 则改为**阻塞锁获取**，保证能获取成功
@@ -573,10 +572,11 @@ final float loadFactor;
 
 > JDK7的查询遍历链表效率太低
 
-抛弃了原有的`Segment`分段锁
+底层结构：**数组+链表+红黑树**
 
-- 改用`CAS + synchronized`来保证并发安全性
-- 引入红黑树
+- 抛弃了原有的`Segment`分段锁，改用`CAS + synchronized`来保证并发安全性
+
+- 引入红黑树来提高查找效率
 
 #### 插入
 
@@ -587,26 +587,3 @@ final float loadFactor;
 4. 判断是否需要进行扩容
 5. 如果都不满足，利用`synchronized`锁写入数据
 6. 如果元素数量大于 `TREEIFY_THRESHOLD` 则要转换为红黑树
-
-
-
-#### CAS
-
-`Compare And Swap`
-
-- 属于原子操作的一种，能够保证**一次读写操作是原子的**
-- CAS 通过**将内存中的值与期望值进行比较**，只有在两者相等时才会对内存中的值进行修改
-
-> CAS是支撑JUC的基础，能够在保证性能的同时提供并发场景下的线程安全性
-
-CAS机制虽然无需加锁、安全且高效，但也存在一些缺点
-
-- 循环检查的时间可能较长
-  - 但可以限制循环检查的次数
-- 只能对一个共享变量执行原子操作
-- 存在ABA问题
-
-> ABA问题：指在CAS两次检查操作期间，目标变量的值由A变为B，又变回A，但是CAS看不到这中间的变换，对它来说目标变量的值并没有发生变化，一直是A，所以CAS操作会继续更新目标变量的值
->
-> 大部分时候该问题并不会对结果产生实质性影响
-

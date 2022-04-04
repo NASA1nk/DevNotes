@@ -6163,41 +6163,91 @@ class Tv{
 
 **背景**
 
-经常创建和销毁、使用量特别大的资源，比如并发情况下的线程， 对性能影响很大
+- 经常创建和销毁、使用量特别大的资源，比如并发情况下的线程， 对性能影响很大
 
 **方法**
 
-**提前创建好多个线程放入线程池中**，使用时直接获取，使用完放回线程池中。可以避免频繁创建销毁、实现重复利用
+- **提前创建好多个线程放入线程池中**，使用时直接获取，使用完放回线程池中
 
 **优点**
 
-- 提高响应速度（减少了创建新线程的时间）
-- 降低资源消耗（重复利用线程池中线程，不需要每次都创建）
-- 便于线程管理
-  - `corePoolSize`：核心池的大小
-  - `maximumPoolSize`：最大线程数
-  - `keepAliveTime`：线程没有任务时最多保持多长时间后会终止
+- **提高响应速度**，任务到达时可以不需要等到线程创建就能立即执行，减少了创建新线程的时间
+- **降低资源消耗**，重复利用线程池中线程，不需要每次都创建，避免频繁创建销毁的消耗
+- **便于线程管理**， 线程是稀缺资源，线程池可以对线程资源进行统一分配、调优和监控
 
 > JDK5.0新增的线程创建方式
 
-### ExecutorService
+### 线程池的工作流程
 
-真正的**线程池接口**：`public interface ExecutorService extends Executor`
+线程池在创建线程时会将线程封装成**工作线程**Woker，Woker在执行完任务后，不是立即销毁而是循环获取阻塞队列里的任务来执行
 
-常见子类：`ThreadPoolExecutor`
+当一个新的任务到线程池时，线程池的处理流程如下
 
-- `void execute(Runnable command)`：执行任务/命令，没有返回值，一般用来执行`Runnable`
-- `<T>Future<T> submit(Callable<T> task)`：执行任务，有返回值，一般用来执行`Callable`
-- `void shutdown()`：关闭连接池
+1. 线程池判断**核心线程池里的线程是否都在执行任务**（`corePoolSize`）， 如果不是，**创建一个新的工作线程来执行任务**，如果核心线程池里的线程都在执行任务，则不会创建新的线程，而是进入下个流程
+   1. **即使有空闲的基本线程能执行该任务，也会创建新的线程**
+   2. 如果调用了线程池的`prestartAllCoreThreads()`方法，**线程池会提前创建并启动所有基本线程**
+2. 线程池判断**阻塞队列是否已满**，如果阻塞队列没有满，则将新提交的任务存储在阻塞队列中，如果阻塞队列已满，则进入下个流程
+3. 线程池判断**线程池里的线程是否都处于工作状态**（`maximumPoolSize`），如果不是，**创建一个新的工作线程来执行任务**，否则交给**饱和策略**来处理这个任务
+
+### ThreadPoolExecutor
+
+**线程池接口**：`public interface ExecutorService extends Executor`
+
+`ThreadPoolExecutor`**是线程池的核心实现类**，实现了`Executor`和`ExecutorService`这两个接口（实际上主要的接口定义都是在`ExecutorService`中）
+
+当任务提交到线程池时，具体的处理流程是由`ThreadPoolExecutor`类的`execute()`方法去完成的
+
+- `void execute(Runnable command)`：执行任务/命令，一般用来执行`Runnable`
+- `<T>Future<T> submit(Callable<T> task)`：执行任务，一般用来执行`Callable`
+- `void shutdown()`：关闭线程池
+
+**工作流程**
+
+1. 如果当前运行的线程少于`corePoolSize`，则创建新的工作线程来执行任务（执行这一步骤需要获取全局锁）
+2. 如果当前运行的线程大于或等于`corePoolSize`，而且`BlockingQueue`未满，则将任务加入到`BlockingQueue`中
+3. 如果`BlockingQueue`已满，而且当前运行的线程小于`maximumPoolSize`，则创建新的工作线程来执行任务（执行这一步骤需要获取全局锁）
+4. 如果当前运行的线程大于或等于`maximumPoolSize`，调用**饱和策略**对任务进行处理（调用`RejectExecutionHandler.rejectExecution()`）
+
+```java
+public void execute(Runnable command) {
+    // command为null会抛出NullPointerException
+    if (command == null)
+        throw new NullPointerException();      
+    int c = ctl.get();
+    // 线程池中的线程数小于corePoolSize，创建新的线程
+    if (workerCountOf(c) < corePoolSize) {
+        // 创建工作线程
+        if (addWorker(command, true))
+            return;
+        c = ctl.get();
+    }
+    // 将任务添加到阻塞队列
+    if (isRunning(c) && workQueue.offer(command)) {
+        int recheck = ctl.get();
+        if (! isRunning(recheck) && remove(command)) {
+            reject(command);
+        }
+        else if (workerCountOf(recheck) == 0) {
+            addWorker(null, false);
+        }
+    }
+    else if (!addWorker(command, false)) {
+        // 阻塞队列已满，尝试创建新的线程，如果超过maximumPoolSize，执行handler.rejectExecution()
+        reject(command);
+    }     
+}
+```
 
 ### Executors
 
-工具类、线程池的工厂类，用于**创建并返回不同类型的线程池** 
+线程池的工厂类，用于**创建并返回不同类型的线程池** 
 
 - `Executors.newCachedThreadPool()`：创建一个可根据需要创建新线程的线程池 
 - `Executors.newFixedThreadPool(n)`：创建一个可重用的固定线程数的线程池 
 - `Executors.newSingleThreadExecutor()`：创建一个只有一个线程的线程池 
 - `Executors.newScheduledThreadPool(n)`：创建一个线程池，可以在给定延迟后运行命令或者定期地执行
+
+> JDK为了方便使用线程池，提供了的快速方便的创建出线程池的工具
 
 ```java
 package com.ink.Thread;
@@ -6227,7 +6277,79 @@ class MyThread implements Runnable{
 }
 ```
 
+### 线程池的核心参数
 
+7个参数，**重点在阻塞队列和饱和策略**
+
+- `corePoolSize`：**线程池的基本大小**（核心池）
+  - 默认情况下，线程池中不会有任何线程，线程池会等有任务来的时候再去创建线程，**核心线程创建出来后即使超出了线程保持的存活时间配置也不会销毁**（只要创建就永驻）
+  - 提交一个任务到线程池时，线程池会创建一个新的线程来执行任务，如果线程池中的线程数已经大于或等于`corePoolSize`，则不会创建新的线程
+- `maximumPoolSize`：**线程池允许创建的最大线程数**
+  - 核心线程都在任务中且任务存储队列满了的情况下，还有新任务进来的话就会继续开辟线程，但是开辟线程的数量要小于允许的最大线程数
+  - 如果线程数（**包含核心线程**）达到`maximumPoolSize`后就不会产生新线程了，会执行拒绝策略
+  - 如果使用无界的阻塞队列，该参数没有什么效果
+- `keepAliveTime`：当**活跃线程数大于核心线程数**时，空闲的多余线程的**最大存活时间**
+  - 如果任务多而且任务的执行时间比较短，可以增加`keepAliveTime`，提高线程的利用率
+- `unit`：`keepAliveTime`的**单位**， 可选单位有DAYS、HOURS、MINUTES、毫秒、微秒、纳秒
+- `handler`：**饱和策略**（又称拒绝策略），当队列和线程池都满了（线程池饱和），必须采取一种策略处理提交的新任务
+  - `AbortPolicy`： 无法处理新任务时，直接抛出异常，**默认策略**
+  - `CallerRunsPolicy`：**用调用者所在的线程来执行任务**
+  - `DiscardOldestPolicy`：**丢弃阻塞队列中最靠前的一个任务**，并执行当前任务
+  - `DiscardPolicy`： **直接丢弃任务**
+- workQueue（工作队列）： 用于保存等待执行的任务的阻塞队列
+  - `ArrayBlockingQueue`： **基于数组结构的有界阻塞队列**，按FIFO原则对任务进行排序
+    - 使用该队列，线程池中能创建的最大线程数为`maximumPoolSize`
+  - `LinkedBlockingQueue`： **基于链表结构的无界阻塞队列**，按FIFO原则对任务进行排序
+    - 吞吐量高于`ArrayBlockingQueue`。使用该队列，线程池中能创建的最大线程数为`corePoolSize`
+    - 静态工厂方法`Executor.newFixedThreadPool()`使用了这个队列
+  - `SynchronousQueue`： 一个**不存储元素的阻塞队列**，添加任务的操作必须等到另一个线程的移除操作，否则添加操作一直处于阻塞状态
+    - 静态工厂方法`Executor.newCachedThreadPool()`使用了这个队列
+  - `PriorityBlokingQueue`： 一个**支持优先级的无界阻塞队列**
+    - 使用该队列，线程池中能创建的最大线程数为`corePoolSize`
+- `threadFactory`： 构建线程的工厂类，当线程池需要新的线程时，会用`threadFactory`来生成新的线程
+  - 默认采用的是`DefaultThreadFactory`，主要负责创建线程
+  - `newThread()`方法创建出来的线程**都在同一个线程组且优先级也是一样的**
+
+> 如果使用的阻塞队列为无界队列，则永远不会调用拒绝策略，再多的任务都可以放在队列中
+
+```java
+// ThreadPoolExecutor的构造方法
+public ThreadPoolExecutor(
+   int corePoolSize,
+   int maximumPoolSize,
+   long keepAliveTime,
+   TimeUnit unit,
+   BlockingQueue<Runnable> workQueue,
+   ThreadFactory threadFactory,
+   RejectedExecutionHandler handler)
+```
+
+
+
+### 线程池的关闭
+
+可以通过调用线程池的`shutdown()`或`shutdownNow()`方法来关闭线程池，遍历线程池中工作线程，逐个调用`interrupt()`方法来中断线程
+
+**区别**
+
+- `shutdown()`方法将线程池的状态设置为`SHUTDOWN`状态，**只会中断空闲的工作线程**
+- `shutdownNow()`方法将线程池的状态设置为`STOP`状态，**会中断所有工作线程**，不管工作线程是否空闲
+- 调用两者中任何一种方法，都会使`isShutdown()`方法返回`true`，线程池中所有的任务都关闭后，`isTerminated()`方法返回`true`
+
+### 线程池的运行状态
+
+- `RUNNING`： 该状态的线程池**既能接受新提交的任务，又能处理阻塞队列中任务**
+- `SHUTDOWN`： 该状态的线程池**不能接收新提交的任务，但是能处理阻塞队列中的任务**
+  - 处于`RUNNING`状态时调用`shutdown()`方法会使线程池进入到该状态
+  - 执行`finalize()`方法的过程中也会**隐式调用**`shutdown()`方法
+
+- `STOP`： 该状态的线程池**不接受新提交的任务，也不处理在阻塞队列中的任务，还会中断正在执行的任务**
+  - 线程池处于`RUNNING`或`SHUTDOWN`状态时，调用`shutdownNow()`方法会使线程池进入到该状态
+
+- `TIDYING`： 如果所有的任务都已终止，workerCount=0，线程池就会进入该状态
+  1. 线程池进入该状态后会调用`terminated()`钩子函数就进入`TERMINATED`状态
+
+- `TERMINATED`：在`terminated()`钩子函数执行完后进入该状态，默认`terminated()`钩子方法中什么也没有做
 
 # 网络编程
 

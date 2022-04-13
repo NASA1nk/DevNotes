@@ -2703,6 +2703,11 @@ for name, member in Weekday.__members__.items():
 
 # 错误和调试
 
+python的错误也是一个`class`，所有的错误类型都继承自`BaseException`
+- `Exception`并非是python中所有异常的基类
+- 直接`except`相当于`except BaseException`，这样对于`KeyboardInterrupt`等外部终端进程的请求，也会捕获到，造成进程没有办法正确处理一些信号
+  - 所以任何情况都不要不带异常类型，直接`except`
+
 ## 错误处理
 
 **捕获错误**
@@ -2713,9 +2718,8 @@ for name, member in Weekday.__members__.items():
 
 - 可以有多个`except`来捕获不同类型的错误
 - 可以在`except`语句块后面加一个`else`，当没有错误发生时会自动执行`else`语句
-- python的错误也是class，所有的错误类型都继承自`BaseException`
 - 可以没有`finally`语句，但如果有`finally`，就一定会被执行
-- 不需要在每个可能出错的地方去捕获错误，只要在合适的层次去捕获错误就可以
+> 不需要在每个可能出错的地方去捕获错误，只要在合适的层次去捕获错误就可以
 
 ```python
 try:
@@ -2733,13 +2737,13 @@ finally:
 print('END')
 ```
 
-**抛出错误实例**
+**抛出错误**
 
 `raise`
 
 - 错误是也是一个`class`，捕获一个错误就是捕获到该`class`的一个实例
 - 要抛出错误，可以定义一个错误的`class`，然后用`raise`语句抛出一个错误的实例
-- `raise`语句如果不带参数就会把当前错误原样抛出
+- `raise`语句如果**不带参数就会把当前错误原样抛出**
 
 ```python
 class FooError(ValueError):

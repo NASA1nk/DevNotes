@@ -179,7 +179,25 @@ pip install -r pip.txt
 conda env update -f=/path/environment.yaml
 ```
 
+## pip代理
 
+ ```bash
+ # 本次设置
+ pip install tensorboardX --proxy=10.134.143.124:1080
+ 
+ # 临时设置，重连后失效
+ # 设置之后可能使用ping时还是无法连接外网，但是pip时可以的，因为ping的协议不一样，不能使用这个代理
+ export http_proxy='http://代理服务器IP:端口号
+ export https_proxy='http://代理服务器IP:端口号'
+ 
+ # 永久设置
+ vim /etc/profile
+ 
+ export http_proxy='http://代理服务器IP:端口号'
+ export https_proxy='http://代理服务器IP:端口号'
+ 
+ source /etc/profile
+ ```
 
 # 基础语法
 

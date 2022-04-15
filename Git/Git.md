@@ -3,17 +3,17 @@
 版本管理
 
 - 全量方案
-- 增量方案
+- **增量方案**
 
 ![git](Git.assets/git.png)
 
 ## 版本库
 
-- 所有版本信息存放在`.git`文件夹中（不会传上去）
+所有版本信息存放在`.git`文件夹中（不会传上去）
 
-- 文件命名
-  - 使用文件的`SHA-1`值作为文件名
-  - SHA-1是一个哈希函数，**使用文件的内容计算出一串数字作为文件特征**，这样回滚后相同内同的文件也只会保留一份
+文件命名
+- 使用文件的`SHA-1`值作为文件名
+- **`SHA-1`是一个哈希函数，使用文件的内容计算出一串数字作为文件特征，这样回滚后相同内容的文件也只会保留一份**
 
 ![SHA-1](Git.assets/SHA-1.png)
 
@@ -21,23 +21,30 @@
 
 树形结构
 
-- `blob`：数据文件（二进制）
+- `blob`：二进制数据文件
 - `tree`：目录结构
 
 ![目录结构](Git.assets/%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84.png)
 
 使用`object`管理所有的目录结构
 
-- 使用SHA-1的前两位对文件分级（避免存储过多，索引太慢）
+- `.git/objects`目录包含了创建的各种对象及内容
+
+- **使用SHA-1的前两位对文件分级**（避免存储过多，索引太慢）
 
 ![文件分级](Git.assets/%E6%96%87%E4%BB%B6%E5%88%86%E7%BA%A7.png)
 
-## 暂存区
+## 工作区和暂存区
 
-本地仓库
+**工作区**：本地目录
 
-- `git add`
-- `git commit`
+- 使用`git add`将文件添加到暂存区
+
+**暂存区**：index或stage，一般存放在`.git/index`中，所以暂存区有时也叫作索引
+
+- 使用`git commit`将文件提交到版本库
+
+**版本库**：`.git`目录
 
 ![暂存](Git.assets/%E6%9A%82%E5%AD%98.png)
 
@@ -49,20 +56,19 @@
 
 ## 快照
 
-- 每一次`commit`都会产生一个新的快照
-  - 多次commit形成一条链表
-- 每个快照都对应不同的SHA-1值，HEAD会指向最新的快照
+- 每一次`commit`都会产生一个新的快照，多次commit形成一条链表
+- **每个快照都对应不同的SHA-1值，HEAD会指向最新的快照**
 
 ## 协同分支
 
 冲突和合并
 
-合并方式：
+**合并方式**
 
-- Merge
+- **Merge**
   - `git checkout`
   - `git merge`
-- Rebase（会修改历史，建议本地用）
+- **Rebase**（会修改历史，建议本地用）
   - `git checkout`
   - `git rebase`
 - Cheey-pick（合并某一版本）
@@ -73,13 +79,15 @@
 
 # Git配置
 
-执行`git init`初始化后
+初始化：`git init`
 
-当前本地仓库的配置文件如下
+- 当前本地仓库的配置文件如下
 
-![git.config](Git.assets/.git.config.png)
+ ![git.config](Git.assets/.git.config.png)
 
 ## 配置用户信息
+
+`--glboal`：修改Git的**全局配置文件**`~/.gitconfig`，而不是Git仓库里的配置文件`.git/config`
 
 ```bash
 # 查看当前Git环境所有配置
@@ -89,6 +97,24 @@ git config --list
 
  ![设置个人信息](Git.assets/设置个人信息.png)
 
+## 配置代理
+
+```bash
+# 全局配置代理
+git config –-global http.proxy 10.134.143.124:1080
+git config –-global https.proxy 10.134.143.124:1080
+
+# 查看代理
+git config –-global --get http.proxy
+git config –-global --get https.proxy
+
+# 取消代理
+git config –-global --unset http.proxy
+git config –-global --unset https.proxy
+```
+
+
+
 ## SSH连接GitHub
 
 在`config`文件中保存着连接的url
@@ -96,7 +122,7 @@ git config --list
 - 使用https url，通过git提交的时候要输入用户名和密码
 - 使用ssh url，通过git提交的时候不需要繁琐的验证过程
 
-![gitconfig](Git.assets/gitconfig.png)
+ ![gitconfig](Git.assets/gitconfig.png)
 
 ### 创建密钥
 
@@ -123,18 +149,17 @@ ssh-keygen -t rsa -C "541640794@qq.com"
 
 
 
-# Git默认编码
+## Git默认编码
 
-使用命令行提交代码的时候会出现中文乱码问题
-
-- 因为UTF-8编码在git默认的配置上不能正常显示
+使用命令行提交代码的时候会出现中文乱码问题，**因为UTF-8编码在git默认的配置上不能正常显示**
 
 ![gitbash乱码](Git.assets/gitbash乱码.png)
 
-设置编码
+### 设置编码
 
-- 修改`core.quotepath`参数
-  - `core.quotepath`设为`false`就不会对`0×80`以上的字符进行quote，中文显示正常
+windows：修改`core.quotepath`参数
+
+- `core.quotepath`设为`false`就不会对`0×80`以上的字符进行quote，中文显示正常
 
 ```bash
 # status编码
@@ -151,13 +176,9 @@ git config --global i18n.commit.encoding utf-8
 git config --global i18n.logoutputencoding utf-8
 ```
 
+linux：进入git安装目录，修改配置
 
-
-linux下
-
-- 进入git安装目录，修改配置
-
-`etc\gitconfig`
+`/etc/gitconfig`
 
 ```bash
 # 代码库统一使用utf-8
@@ -179,9 +200,7 @@ pathnameencoding = utf-8
 
 ## 初始化
 
-将文件夹变成仓库
-
-- 创建隐藏文件夹`.git`
+**将文件夹变成仓库**，创建隐藏文件夹`.git`
 
 ```bash
 git init
@@ -189,7 +208,7 @@ git init
 
 ## 添加到暂存区
 
-由本地文件添加到**暂存区**
+将本地文件添加到**暂存区**
 
 ```bash
 # 查看已修改的文件
@@ -207,11 +226,12 @@ git add .
 
 `git add`后再提交到版本的本地库，可以在`head`文件中看到
 
-- 每个commit都是一个版本
+- 每个commit都是一个版本（快照）
 
 - 使用`git log`查看提交历史，可以查看`commit id`
 
 ```bash
+# -m添加本次提交的注释
 git commit -m "注释"
 ```
 
@@ -223,7 +243,7 @@ git push 远程仓库
 
 ## 分支
 
-在新的分支上对文件的修改**不会影响**到原来分支上的文件
+**在新的分支上对文件的修改不会影响到原来分支上的文件**
 
 ### 查看分支
 
@@ -243,11 +263,11 @@ git remote show origin
 ### 创建新分支
 
 ```bash
-# 创建后不会自动切换到新的分支
-git branch branch_name
+# 仅创建新分支
+git branch branchName
 
 # 创建新分支并切换到该分支下
-git checkout -b branch_name
+git checkout -b branchName
 ```
 
 ### 重命名分支
@@ -259,15 +279,15 @@ git branch -m oldName newName
 # -M：强制重命名，即使newName分支存在
 git branch -M oldName newName
 
-# 
-或者切换到要重命名的分支下执行
+# 或者切换到要重命名的分支下执行
 git branch -M newName
 ```
 
 ### 切换分支
 
 ```bash
-git checkout branch_name
+# 切换到对应分支
+git checkout branchName
 
 # 切换到上一个分支
 git checkout -
@@ -275,9 +295,10 @@ git checkout -
 
 ### 修改默认分支
 
-- 修改默认分支为`main`分支
+> 以前默认是master分支
 
 ```bash
+# 修改默认分支为main分支
 git config --global init.defaultBranch main
 ```
 
@@ -288,10 +309,9 @@ git config --global init.defaultBranch main
 git branch -d branchName
 
 # 删除远程分支
-git branch -d -r branchname 
+git branch -d -r branchName 
 
 # 删除upstream分支中被删除了的本地分支
-# merge pull request后就可以删除fork里被合并的分支
 git fetch -p
 ```
 
@@ -302,79 +322,109 @@ git fetch -p
 git checkout master
 
 # 合并分支
-git merge branch_name
+git merge branchName
 ```
 
 ### 分支冲突
 
 假设a分出b和c
 
-a分出的分支b对**原分支**a的合并会直接覆盖，不会冲突
+- a分出的分支b对**原分支**a的合并会直接覆盖，不会冲突
 
-独立无关的分支b和c相互合并则会冲突
+- 独立无关的分支b和c相互合并则会冲突
 
-- 放弃合并
+**放弃合并**
 
-  ```bash
-  git merge -abort
-  ```
+```bash
+git merge -abort
+```
 
-- 手动修改冲突
+**手动修改冲突**
 
-  ```bash
-  #1.打开冲突文件,git会自动显示冲突的内容（2者均显示）
-  #	branch1
-  #   <<<< 
-  #   file1
-  #	====
-  #   file2
-  #   >>>>
-  #   branch2
-  
-  #2.修改内容，并删除内容外的所有指示符号（<,=,>,branch_name）
-  
-  #3.重新提交修改后内容
-  ```
+```bash
+# 1.打开冲突文件，git会自动显示冲突的内容（2者均显示）
+#	branch1
+#   <<<< 
+#   file1
+#	====
+#   file2
+#   >>>>
+#   branch2
 
-   ![合并冲突](Git.assets/合并冲突.png)
+# 2.修改内容，并删除内容外的所有指示符号（<,=,>,branch_name）
+
+# 3.重新提交修改后内容
+```
+
+ ![合并冲突](Git.assets/合并冲突.png)
 
 ## 暂存修改
 
-假如在修改的时候需要去pull远程仓库的内容，此时可能报错，**所以需要把修改暂存到一个地方**
+**应用场景**
+
+- 在开发时，突然需要去`pull`远程仓库的修改，此时可能报错，**所以需要把修改暂存到一个地方**
+- 在开发时，忘记切换分支，在`master`上进行了开发，需要重新切回到`dev`分支上进行开发，可以暂存开发的代码，切回到`dev`分支后，恢复内容
+
+> `stash`中的内容不仅仅可以恢复到原先开发的分支，也可以恢复到其他任意指定的分支上
 
 ```bash
-#1.执行后文件回到修改之前,先pull
+# 1.执行后文件回到修改之前的状态，然后再pull，不会有冲突
 git stash
 
-#2.pull后查看之前的修改
+# 1.可以添加注释
+git stash save "stash1"
+
+# 2.pull后查看之前暂存的修改
 git stash list
 
-#3.添加之前的修改
+# 3.恢复暂存的修改，会删除暂存的修改
+git stash pop
+
+# 3.恢复之前的修改，不会删除暂存的修改，可以应用多次到多个分支
 git stash apply
 
-#4.清除暂存的修改
+# 4.移除某个指定的stash
+git stash drop stash@{n}
+
+# 4.移除所有暂存的修改
 git stash clear
+
+# 5.查看最新保存的stash和当前目录的差异
+git stash show
+
+# 5.查看最新保存的stash和当前目录的详细差异
+git stash show -p
+
+# 5.查看指定保存的stash和当前目录的差异
+git stash show stash@{n}
 ```
 
-把暂存的内容添加到上一次的提交
+把**暂存的内容**添加到上一次的commit
 
 ```bash
 git commit --amend
 ```
 
-把未暂存的内容移动到一个**新分支**
+将**未暂存的内容**移动到一个**新分支**
+
+- 实际就是从当前分支创建一个新分支，修改的内容也同步过去了
+
+> 此时只要恢复当前分支，即可取消修改
 
 ```bash
 git checkout -b branchName
 ```
 
-把未暂存的内容移动到另一个**已存在的分支**
+将未暂存的内容移动到一个**已存在的分支**
 
 ```bash
 # 先暂存
 git stash
+
 # 再切换
 git checkout branchName
+
+# 再恢复
 git stash pop  
 ```
 
@@ -382,24 +432,35 @@ git stash pop
 
 ### Head
 
-- `HEAD^`：1个commit
-- `HEAD^^`：2个commit
-- `HEAD~4`：4个commit
+`HEAD`会指向最新的快照
 
-### 取销add
+- `HEAD^`：前1个commit
+- `HEAD^^`：前2个commit
+- `HEAD~4`：前4个commit
+
+### Reset
+
+`git reset`：用于回退版本，可以指定退回某一次提交的版本
+
+- `--mixed`：默认参数，**重置暂存区的文件，使其和上一次的commit保持一致**，但工作区文件内容保持不变
 
 ```bash
-git reset
+git reset [--soft | --mixed | --hard] [HEAD]
 ```
 
-### 仅取消add带来的效果
+### 取消暂存区的修改
 
 ```bash
-# 本地的修改还在，但是取消了add的状态
+# 取销add的内容
+git reset
+
+# 本地的修改还在，取消了add的状态
 git reset --mixed 
 ```
 
-### 修改未推送的commit信息
+### 修改commit
+
+修改**未推送**的`commit`信息
 
 ```bash
 # 打开默认编辑器, 可以编辑信息
@@ -409,7 +470,18 @@ git commit --amend --only
 git commit --amend --only -m 'commit message' 
 ```
 
-### 从commit中移除一个文件
+在错误的分支上commit，修改到正确的分支
+
+```bash
+# 1.在main下创建一个新分支，不切换到新分支，仍在main下，此时新分支上仍然有提交
+git branch branchName
+# 2.把main分支重置到前一个提交，即恢复main分支内容
+git reset --hard HEAD^
+# 3.切换到新分支，重新提交
+git checkout branchName
+```
+
+从`commit`中移除一个文件
 
 ```bash
 git checkout HEAD^ fileName  
@@ -417,42 +489,34 @@ git add -A
 git commit --amend 
 ```
 
-### 删除已推送的最后一次提交
+### 删除提交
+
+删除**已推送**的最后一次提交
 
 ```bash
 git reset HEAD^ --hard
+
 # 强制推送
-git push -f [remote] [branch] 
+git push -f remoteBranch 
 ```
 
-### 删除未推送的最后一次提交
+删除**未推送**的最后一次提交
 
 ```bash
 git reset --soft HEAD@{1}
-
 git reset --soft 'HEAD^'()
 ```
 
-### 在硬重置（`hard reset`）后想找回内容
+### `reset --hard`后恢复内容
 
-- Git对每件事都会有日志，且都会保存几天
+Git对每件事都会有日志，且都会保存几天
+
 - 在日志中看到一个过去提交列表和一个重置的提交
 - 选择想要回到的提交的SHA，再重置一次
 
 ```bash
 git reflog  
 git reset --hard SHA1234
-```
-
-### 错误的提交分支到了main
-
-```bash
-# 1.在main下创建一个新分支，不切换到新分支，仍在main下
-git branch branchName
-# 2.把main分支重置到前一个提交
-git reset --hard HEAD^
-# 3.
-git checkout branchName
 ```
 
 ### 取消rebase和merge

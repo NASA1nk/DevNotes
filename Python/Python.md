@@ -2264,9 +2264,6 @@ sys.path.append('/home/ink/')
     from dir import file
     ```
 
-
-
-
 # 面向对象
 
 面向对象编程OOP：`Object Oriented Programming`
@@ -3297,7 +3294,7 @@ os.rename('test.txt','test.py')
 
 - `__file__`：表示当前文件的路径
 
-- `os.path.dirname(__file__)`就是得到当前文件的绝对路径
+- `os.path.dirname(__file__)`：获取当前文件的绝对路径
 
 > 必须是实际存在的`.py`文件，如果在命令行执行会报异常
 

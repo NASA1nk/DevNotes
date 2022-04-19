@@ -1998,11 +1998,12 @@ f1 == f2
 
 `Closure`
 
-- 闭包`Closure`是词法闭包`Lexical Closure`的简称，**是引用了自由变量的函数**
+**函数嵌套**：在一个函数中定义了另一个函数，外部函数称为enclosing function，内部函数称为enclosed function或者nested function
 
-- 这个**被引用的自由变量将和这个函数一同存在**，即使已经离开了创造它的环境
-  - 返回的内部函数在其定义内部引用了外部函数的局部变量，闭包使得局部变量在函数外被访问成为可能
+闭包是词法闭包`Lexical Closure`的简称，**是指引用了自由变量的函数**，这个**被引用的自由变量将和这个函数一同存在**，即使已经离开了创造它的环境 
 
+- 外部函数**返回的内部函数在其定义内部引用了外部函数的局部变量**，闭包使得局部变量在函数外被访问成为可能
+  - **即enclosed function中直接使用了enclosing funcion中的参数**
 - 因为返回的函数不会立刻执行，所以**返回函数不要引用任何循环变量或者后续会发生变化的变量**，否则最后执行时使用的变量已经被改变
 
 ```python
@@ -2090,7 +2091,64 @@ f(5)
 - 在代码运行期间**动态增加功能的方式称之为装饰器**
 - `Decorator`本质上是一个返回函数的高阶函数
 
-**装饰器demo**
+### 工作机制
+
+其实最开始的时候就是抽取出公共的逻辑，封装成一个函数，然后**在内部调用这个函数**
+
+- 更pythonic的写法就可以用到装饰器
+
+装饰器则是把需要内部调用装饰器对应方法的方法作为接受的参数，将其包在里面（在内部调用这个方法），并获取到传给这个方法的参数，对其做额外的逻辑处理
+
+> 闭包：内部函数warpper就掉用了外部函数wrap_decorator的参赛func（虽然是个函数，但也是参数）
+
+```python
+# 装饰器，方法通过@wrap_decorator使用
+def wrap_decorator(func):
+  # 嵌套调用，(*args, **kwargs)可以接受任意参数
+  def warpper(*args, **kwargs):
+    
+    # 公共逻辑处理，如打印日志...
+    
+    # 执行装饰器修饰的目标函数
+    func(*args, **kwargs)
+  # 返回内部函数
+  return warpper
+    
+@wrap_decorator
+my_func(1,2,3,4)
+
+# 等价于
+warp_decorator(my_func(1,2,3,4))
+```
+
+### 函数名重写
+
+在内部调用func时，会重写其函数名`func.__name__`，通过调用functools.wraps解决
+
+```python
+from functools import warpss
+
+# 装饰器，方法通过@wrap_decorator使用
+def wrap_decorator(func):
+  # 嵌套调用，(*args, **kwargs)可以接受任意参数
+  @wraps(func)
+  def warpper(*args, **kwargs):
+    
+    # 公共逻辑处理，如打印日志...
+    
+    # 执行装饰器修饰的目标函数
+    func(*args, **kwargs)
+  # 返回内部函数
+  return warpper
+    
+@wrap_decorator
+my_func(1,2,3,4)
+
+# 等价于
+warp_decorator(my_func(1,2,3,4))
+```
+
+**demo**
 
 - 函数对象有一个`__name__`属性，用来获取函数的名字
 
@@ -2110,11 +2168,11 @@ print(now.__name__)
 print(f.__name__)
 ```
 
+`log`装饰器内部会返回`wrapper()`
 
-- `log()`函数会返回`wrapper()`函数
+
 - 原来的`now()`函数仍然存在，但被装饰器修饰的同名的`now`变量指向了新的函数，所以调用`now()`将执行新函数，即会先在`log()`函数中返回的`wrapper()`函数
 
-`wrapper()`函数的参数定义是`(*args, **kw)`，因此`wrapper()`函数可以接受任意参数的调用
   - 在`wrapper()`函数内，首先打印日志，再紧接着调用原始函数
 
 ```python
@@ -2893,8 +2951,7 @@ logging模块默认定义了以下几个日志等级，它允许开发人员自�
 ### 修改默认设置
 
 - 调用上面这些日志记录函数之前，手动调用`basicConfig()`方法，把想设置的内容以参数的形式传递进去就可以了
-
-`logging.basicConfig(**kwargs)`：用于为日志系统做一些基本配置
+  - `logging.basicConfig(**kwargs)`
 
 - `logging.basicConfig()`是一个**一次性的简单配置工具**，也就是说只有在第一次调用该函数时会起作用，后续再次调用该函数时完全不会产生任何操作的，多次调用的设置并不是累加操作
 
@@ -3044,6 +3101,17 @@ logging.Formatter.__init__(fmt=None, datefmt=None, style='%')
 - `fmt`：指定**消息格式化字符串**，如果不指定该参数则默认使用message的原始值
 - `datefmt`：指定**日期格式字**符串，如果不指定该参数则默认使用`"%Y-%m-%d %H:%M:%S"`
 - style：Python 3.2新增的参数，可取值为 '%', '{'和 '$'，如果不指定该参数则默认使用'%'
+
+## error和exception
+
+**区别**
+
+- `logging.error`：只记录一个日志消息，日志等级是error
+
+- `logging.exception`：在记录消息的同时，**默认会记录错误发生的traceback信息**
+  - 但是`error`也可以输出traceback信息, 只需要设置一个参数`exc_info = True`
+
+
 
 
 
@@ -3690,3 +3758,4 @@ t.join()
 print('thread %s ended.' % threading.current_thread().name)
 ```
 
+# 

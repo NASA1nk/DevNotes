@@ -81,3 +81,72 @@ Continuous Deployment
 > 初次发布给少量用户，发现问题希望用户及时反馈，修复/上线，稳定阶段扩大用户，所有用户可见，灰度发布结束
 >
 > 设定分流规则，调整分流规则
+
+# CI实践
+
+git push后会自动触发CI任务
+
+## 基本概念
+
+### pipeline
+
+Pipeline 即整个 CI 自动化流程的统称，一次 Pipeline 的运行称为 Pipeline run
+
+- 在gitlab仓库里创建一个YAML文件（gitlab-ci.yml），即可配置一个 Pipeline
+- 一个 YAML 文件对应一个 Pipeline 配置，**多个 YAML 文件对应多个不同的 Pipeline 配置**
+- YAML文件中其中包含**事件触发**和**具体任务**的配置，即 Trigger 和 Jobs，一个 Pipeline 包含若干个 Job
+
+### Job
+
+可以把 Job 视为资源单位，多个job互相是独立、分散的，都有独立的上下文（context）
+
+- 一个 Pipeline 包含若干个 Job，**每一个 Job 各自会被分发到不同的机器上执行，默认并行**
+- 一个 Job 包含若干个 Step
+- Job 执行过程中产生的所有文件都会在 job 结束后丢失
+
+```yaml
+jobs:
+  job_1:
+    name: First Job
+    image: debian
+    steps:
+      - commands: [ date ]
+  job_2:
+    name: Second Job
+    image: python:3
+    steps:
+      - commands:
+          - pwd
+          - python3 -c "import datetime; print(datetime.datetime.now())"
+```
+
+
+
+### Step
+
+- 一个 Step 包含若干命令（commands）或一个 Action
+
+- **一个 Job 中的 Step 都在同一个机器中，按配置顺序依次执行，共享同一份机器资源，共享同一个工作目录**
+  - 环境不一样时（比如使用不同的镜像）并非所有目录均共享
+
+### Action
+
+Action 封装了一些可复用的命令操作，可以在 Step 中直接使用，以减少重复劳动
+
+
+
+### Event / Trigger
+
+Event / Trigger 用于配置**如何触发 Pipeline**
+
+- 在仓库项目里配置好 Pipeline 后，**当事件和 Pipeline 配置中的 Trigger 相匹配时，会触发任务执行**
+- 目前已支持
+  - MR触发：change
+    - 使用branches参数限定MR的目标分支
+    - 使用paths参数限定MR变更文件
+  - Push触发：push
+    - 使用types参数限定push的动作类型，branch或tag
+    - 使用branches参数限定push 分支
+  - 手动触发
+  - 定时触发
+

@@ -354,14 +354,21 @@ logging.Formatter.__init__(fmt=None, datefmt=None, style='%')
 
 - 如果通过，说明修改不会对原来的代码造成影响，如果不通过，说明修改与原来的代码不一致，要么修改代码，要么修改测试
 
-### 测试
+### Unittest
 
-`unittest`模块
+`import unittest`
 
-- 编写单元测试时，需要编写一个测试类，从`unittest.TestCase`继承
+#### 规则
 
-- 以`test`开头的方法就是测试方法，不以`test`开头的方法不被认为是测试方法，**测试的时候不会被执行**
+- **测试文件**必须导入`unittest`
+- **测试类**必须继承`unittest.TestCase`
+
+- **测试方法**以`test`开头，不以`test`开头的方法测试的时候不会被执行
+- **默认执行全部用例**，也可以通过加载`testsuit`执行部分用例
+- `setUp()`和`tearDown()`只能针对所有用例
 - `unittest.TestCase`提供了很多内置的条件判断
+
+> Python标准库中自带的单元测试框架
 
 ```python
 import unittest
@@ -398,7 +405,7 @@ class TestDict(unittest.TestCase):
         pass
 ```
 
-### 运行
+#### 运行
 
 ```python
 # 直接运行
@@ -414,30 +421,97 @@ python -m unittest mydict_test
 python -m unittest -v mydict_test
 ```
 
+### Pytest
+
+`import pytest`
+
+- 支持用简单的`assert`语句实现丰富的断言，无需复杂的`self.assert*`函数
+- 自动识别测试模块和测试函数
+- 模块化以管理各类测试资源
+- 丰富的插件生态，已有300多个各式各样的插件
+
+> Python的一个第三方单元测试库
+>
+> **兼容unittest**，可以执行unittest风格的测试用例，无须修改unittest用例的任何代码
+
+#### 规则
+
+- **测试文件**名必须以`test_`开头或者`test`结尾
+- 测试类必须以`Test`开头，并且不能带有`__init__`方法
+- **测试方法**必须以`test_`开头
+- 可以通过`@pytest.mark`来标记类和方法，`pytest.main`加入参数`-m`可以只运行标记的类和方法
+- 任意自定义的函数，只要加上`@pytest.fixture()`，就可以被所有用例使用
+- `assert`支持各种条件表达式
+
+```python
+# test_moduleName.py  测试模块名
+ 
+class TestClassName:
+    """测试类"""
+ 
+    def test_func_name(self):
+        """测试方法"""
+ 
+        # 预期结果
+        a = ...
+ 
+        # 用例执行结果
+        x = ''
+ 
+        # 断言
+        assert x == a  # 是否相等
+        assert x != a  # 是否不相等
+        assert x is a  # 是否是同一内存地址
+        assert x in a  # a 是否包含 x
+        assert x not in a  # a 是否不包含 x
+        assert x > a  # 是否大于 a
+        assert x < a  # 是否小于 a
+        assert isinstance(x, dict)  # x 是否是 dict 类型
+        ...
+```
+
+#### 命令参数
+
+- `-v`：显示每个测试函数的执行结果
+- `-q`：只显示整体测试结果
+- `-s`：显示测试函数中print()函数输出
+- `-x，--exitfirst`：exit instantly on first error or failed test
+- `-h`：帮助
+
+#### 固件
+
+`fixture`
+
+**scope**：参数有四种，默认为`function`
+
+- function：每个test都运行，默认是function的scope
+- class：每个class的所有test只运行一次
+- module：每个module的所有test只运行一次
+- session：每个session只运行一次
+
+#### mock
+
+测试时，在不修改源码的前提下，替换某些对象，模拟测试环境
+
 
 
 ### 装饰器单元测试
 
 ```python
-import unittest
 import wrap_response
+import json
 
-class WrapResponseTestCase(unittest.TestCase):
 
-    def setUp(self) -> None:
-        @wrap_response
-        def mock_func(x):
-            return x
-        self.func = mock_func
+@wrap_response
+def mock_func(x):
+    return x
 
+
+class TestWrapResponse:
     def test_str_response(self):
-        str = 'Empty uids or key_id or both'
-        resp = self.func(str)
-        self.assertIsInstance(resp, dict)
-        # self.assertEqual通过==判断
-        self.assertEqual(resp['code'], -1)
-        self.assertEqual(resp['message', str])
-        self.assertEquals(resp['data'], None)
+        str = 'Empty '
+        resp = json.loads(mock_func(str).data)
+        assert isinstance(resp, dict)
 ```
 
 ### 跳过装饰器测试

@@ -250,9 +250,12 @@ docker run --name inkPrometheus -d -p 9090:9090 -v /home/dog/yinke/prometheus/co
 
 [Exporters | Prometheus](https://prometheus.io/docs/instrumenting/exporters/)
 
-Prometheus服务负责收集、存储、查看监控数据，真正**直接进行监控通过Exporter完成**
+Prometheus服务负责收集、存储监控数据，**真正直接进行监控通过Exporter完成**
 
-- **Exporter相当于是Prometheus服务的客户端**，负责向其提供监控数据，针对不同的被监控目标需要使用不同的Exporter
+- Node Exporter会以DaemonSet的方式运行在宿主机上
+  - 其实所谓的Exporter就是代替被监控对象来对Prometheus暴露出可以被抓取的Metrics信息的一个辅助进程
+
+- **Exporter相当于是Prometheus服务的客户端**，负责向Prometheus Server提供监控数据，针对不同的被监控目标需要使用不同的Exporter
 
 - Exporter的实例称为目标（Target），Prometheus通过轮询的方式定时从这些目标（Target）中获取监控数据样本，并且存储在数据库中
 

@@ -2395,10 +2395,21 @@ class Student(object):
 
 ### @property
 
-python内置的装饰器，用来把一个方法变成属性（属性的方法名不要和实例变量重名）
+python内置的装饰器，用来把一个函数变成属性（属性的方法名不要和实例变量重名）
 
-- 把方法变成属性只需要在方法上加`@property`
-- **用方法设置属性可以保证对参数进行必要的检查**
+- 把方法变成属性只需要在函数上加`@property`，属性的值就是该函数`return`的值
+- **用函数设置属性可以保证对参数进行必要的检查**
+- `@property`本身会创建了另一个装饰器`@func.setter`和`@func.deleter`，负责把`setter`函数和`del`函数变成属性赋值
+  - `func`即`@property`修饰的函数名
+
+
+> `property`底层是基于描述符协议的，property的源码只是一份类似文档一样的伪源码，并没有其具体的实现逻辑
+
+**property实例**
+
+- 被`@property`修饰的`func`不再是一个函数，而是`Property`类的一个实例，所以第二个`func`可以使用 `func.setter`来装饰，本质是调用`Property.setter` 来产生一个新的`Property`实例赋值给第二个`func`
+- 第一个`func`和第二个`func`是两个不同的`Property`实例，但它们都属于同一个描述符类`Property`
+- 当对`func`赋值时，就会进入 `Property.__set__`，当对`func`进行取值里，就会进入 `Property.__get__`
 
 ```python
 class Student(object):
@@ -2406,8 +2417,7 @@ class Student(object):
     @property
     def score(self):
         return self._score
-	
-    # @property本身又创建了另一个装饰器@score.setter,负责把一个setter方法变成属性赋值
+    
     @score.setter
     def score(self, value):
         if not isinstance(value, int):
@@ -2421,7 +2431,8 @@ s = Student()
 # 实际转化为s.set_score(60)
 s.score = 60 
 
-# 实际转化为s.get_score(),输出60
+# 实际转化为s.get_score()
+# 输出60
 s.score 
 
 # Traceback (most recent call last):

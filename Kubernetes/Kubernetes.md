@@ -1176,28 +1176,29 @@ cronjob资源会创建job资源，job资源会创建pod
 
 # 服务
 
-**Service**：是对**一组提供相同功能的Pods的抽象**，为它们**提供一个统一的入口**
+**Service**：是**对一组提供相同功能的Pods的抽象，为它们提供一个统一的入口**
 
-- 一组或多组提供相同服务的pod对外暴露为服务的静态ip地址
-- 由于pod的动态性，新的pod就会有新的ip:port，因此服务就用来对外暴露一个稳定的ip:port以供访问
-  - 服务是静态的ip
-  - 客户端通过ip连接到服务，由服务去选择pod接收这个连接（转发）
-
+- 由于pod的动态性，**新的pod就会有新的`ip:port`**，因此服务就用来对外暴露一个稳定的`ip:port`以供访问
+  - 服务是静态的ip，客户端通过ip连接到服务，由服务去选择pod接收这个连接（转发）
+  - 一组或多组提供相同服务的pod对外暴露为服务的静态ip地址
+  - pod并不重要，pod是用来提供服务的
 - 借助Service，应用可以方便的**实现服务发现与负载均衡**，并实现应用的**零宕机升级**
+  - 因为没有Service，如果pod挂了或升级重启了，之前的pod ip就会改变，之前的pod ip就无法实现通信了
 - Service**通过标签（label）**来选取属于该服务的Pod，一般配合ReplicaSet或者Deployment来保证后端容器的正常运行
+  - Service不是直接指向Deployment或ReplicaSet，而是**直接使用labels标签指向Pod**，这种方式提供了极大的灵活性，因为**通过什么方式创建的Pod其实并不重要**
   - Controller会保证pod的数量来稳定的提供服务
 
-> pod并不重要，pod是用来提供服务的
->
 > 外部客户端->服务1->pod1->服务2->pod2
 
 ## 服务类型
 
 Service有四种类型
 
-- ClusterIP：默认类型，**自动分配一个仅集群内部可以访问的虚拟IP**
-- NodePort：在ClusterIP的基础上为Service**在每台机器上绑定一个端口**，外部应用可以通过`NodeIP:NodePort`访问该服务
-- LoadBalancer：在NodePort的基础上，借助cloud provider创建一个**外部的负载均衡器**，并将**外部的请求转发**到`NodeIP:NodePort`来访问集群内部的服务
+- ClusterIP：默认类型，**为Service分配一个仅集群内部可以访问的虚拟IP**
+- NodePort：**在ClusterIP的基础上为Service在每台机器（Node）上绑定一个端口**，外部应用可以通过`NodeIP:NodePort`访问该Service
+  - 集群内部的Pod也可以通过Node的内网IP（Cluster IP）连接到NodePort端口
+
+- LoadBalancer：**在NodePort的基础上，借助cloud provider创建一个外部的负载均衡器**，并将外部的请求**转发**到`NodeIP:NodePort`来访问集群内部的Service
 - ExternalName：将服务通过DNS CNAME记录方式**转发到指定的域名**
 
 > 也可以将已有的服务**以Service的形式加入到Kubernetes集群中**来
@@ -1206,7 +1207,7 @@ Service有四种类型
 
 `vim myservice.yaml`
 
-- 创建服务，它将80端口接收到的外部请求转发到具有`app=myapp`标签的pod中的9376端口
+> 创建服务，它将80端口接收到的外部请求转发到具有`app=myapp`标签的pod中的9376端口
 
 ```yaml
 apiVersion: v1
@@ -1216,9 +1217,9 @@ metadata:
 spec:
   ports:
   - protocol: TCP
-    # 服务的可用端口
+    # 请求服务的80端口
     port: 80
-    # 服务将连接转发到容器的端口
+    # 服务将请求转发到容器的9376端口
     targetPort: 9376
   selector:
     # 具有app=myapp标签的pod都属于该服务
@@ -1276,7 +1277,7 @@ spec:
     app: myapp
 ```
 
-## pod命名端口
+## 命名端口
 
 可以在pod中指定对外暴露端口的名字，这样在服务中，就可以用名字指定转发的pod上的端口
 
@@ -1323,7 +1324,7 @@ spec:
 
 ### 环境变量
 
-pod开始运行时，kubernetes会初始化一系列的环境变量指向现在存在的服务
+- pod开始运行时，kubernetes会**初始化一系列的环境变量指向现在存在的服务**
 
 - 如果服务早于pod创建，pod上的进程就可以根据环境变量来获取服务的ip和端口
 
@@ -1414,18 +1415,18 @@ spec:
 ### LoadBalancer
 
 - 负载均衡是NodePort的拓展
-
 - 负载均衡器拥有自己独一无二的可公开访问的ip
 - 创建负载均衡类型的服务后，云基础架构会花费一段时间创建负载均衡器并将其ip写入服务对象，即服务的`EXTERNAL-IP`
+- 一个LoadBalancer服务创建了一个NodePort服务，NodePort服务创建了一个ClusterIP服务
+  - 即LoadBalancer型的服务是一个具有额外基础设施提供的负载均衡器的NodePort服务
+  - 负载均衡器接收到外部请求后，仍然会**和NodePort服务一样转发到Node上的一个随机端口**，然后再转发到pod中
 
-> LoadBalancer型的服务是一个具有额外基础设施提供的负载均衡器的NodePort服务
->
-> 负载均衡器接收到外部请求后，仍然会和NodePort服务一样转发到node上的一个随机端口，然后再转发到pod中
 
 **缺点**
 
 - 可能增加网络跳数
 - 会改变源ip导致无法记录
+- IP地址是比较稀有的，价格不便宜，服务多了，成本太高
 
 ```yaml
 apiVersion: v1
@@ -1448,9 +1449,9 @@ Kubernetes中的负载均衡主要有**内外两种机制**
 
 - **Service**：使用Service提供**集群内部的负载均衡**，Kube-proxy负责将service请求负载均衡到后端的Pod中
 - **Ingress Controller**：使用Ingress提供**集群外部的负载均衡**
+  - Ingress也只是Kubernetes中的一个**普通资源对象**，需要一个对应的ingress controller来解析Ingress的规则，暴露服务到外部，只有ingress controller在集群中运行，ingress资源才能正常工作
   - Ingress可以给service提供集群外部访问的URL、负载均衡、HTTP路由等
-  - 只有ingress controller在集群中运行，ingress资源才能正常工作
-  - 常用的ingress controller：nginx，traefik，Kong，Openresty
+  - 常用的ingress controller：**nginx**，traefik，Kong，Openresty
 
 
 > **Service和Pod的IP仅可在集群内部访问**，集群外部的请求需要通过**负载均衡**转发到service所在节点暴露的端口上，然后再由kube-proxy通过边缘路由器将其转发到相关的Pod

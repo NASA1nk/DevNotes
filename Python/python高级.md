@@ -79,13 +79,18 @@ f3()
 - 在代码运行期间**动态增加功能的方式称之为装饰器**
 - `Decorator`本质上是一个返回函数的高阶函数
 
+**作用**
+
+- 使得代码结构更加清晰
+- 将实现特定的功能代码封装成装饰器，提高代码复用率，增强代码可读性
+
+> 其实最开始的时候就是抽取出公共的逻辑，封装成一个函数，然后**在内部调用这个函数**
+>
+> - 更pythonic的写法就可以用到装饰器
+
 ### 工作机制
 
-其实最开始的时候就是抽取出公共的逻辑，封装成一个函数，然后**在内部调用这个函数**
-
-- 更pythonic的写法就可以用到装饰器
-
-装饰器则是把需要内部调用装饰器对应方法的方法作为接受的参数，将其包在里面（在内部调用这个方法），并获取到传给这个方法的参数，对其做额外的逻辑处理
+装饰器是把需要**内部调用装饰器对应方法的方法作为接受的参数**，将其包在里面（在内部调用这个方法），并**获取到传给这个方法的参数**，对其做额外的逻辑处理
 
 > 闭包：内部函数warpper就掉用了外部函数wrap_decorator的参赛func（虽然是个函数，但也是参数）
 
@@ -93,9 +98,9 @@ f3()
 # 装饰器，方法通过@wrap_decorator使用
 def wrap_decorator(func):
   # 嵌套调用，(*args, **kwargs)可以接受任意参数
-  def warpper(*args, **kwargs):
+  def wrapper(*args, **kwargs):
     
-    # 公共逻辑处理，如打印日志...
+    # 公共逻辑处理，如打印日志，计算函数执行时间...
     
     # 执行装饰器修饰的目标函数
     func(*args, **kwargs)
@@ -111,16 +116,18 @@ warp_decorator(my_func(1,2,3,4))
 
 ### 函数名重写
 
-在内部调用func时，会重写其函数名`func.__name__`，通过调用functools.wraps解决
+在内部调用func时，会重写其函数名`func.__name__`，通过`functools.wraps`解决
+
+- `@wraps`的作用就是将**被装饰的函数（`func`）**的一些属性值赋值给**装饰器函数（`wrapper`）** 
 
 ```python
-from functools import warpss
+from functools import wraps
 
 # 装饰器，方法通过@wrap_decorator使用
 def wrap_decorator(func):
   # 嵌套调用，(*args, **kwargs)可以接受任意参数
   @wraps(func)
-  def warpper(*args, **kwargs):
+  def wrapper(*args, **kwargs):
     
     # 公共逻辑处理，如打印日志...
     
@@ -136,7 +143,30 @@ my_func(1,2,3,4)
 warp_decorator(my_func(1,2,3,4))
 ```
 
+`wraps`其实是一个偏函数对象
 
+- 所以直接在装饰器函数中使用`update_wrapper()`也可以达到同样的效果
+
+```python
+def wraps(wrapped,
+          assigned = WRAPPER_ASSIGNMENTS,
+          updated = WRAPPER_UPDATES):
+    # 调用函数update_wrapper，固定参数
+    return partial(update_wrapper, wrapped=wrapped,
+                   assigned=assigned, updated=updated)
+```
+
+### 传递参数的装饰器
+
+### 类装饰器
+
+### 偏函数 
+
+绝大多数装饰器都是**基于函数和闭包实现的**，但这并实现装饰器的唯一方式
+
+Python对某个对象是否能通过装饰器 `@decorator`形式使用只有一个要求，即**decorator 必须是一个可被调用（callable）的对象**
+
+- 除函数之外，类也可以是callable对象，只要实现了`__call__`函数，偏函数也是callable对象
 
 # 日志
 
@@ -553,4 +583,4 @@ class TestExample(TestCase):
 
 
 
-### flask单元测试
+flask单元测试 

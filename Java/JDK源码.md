@@ -60,8 +60,7 @@ list.add(123);
 1. 将新容量更新为旧容量的1.5倍（预计要扩容到的容量）
    1. 并不是扩容到`minCapacity + 1`，这是为了避免频繁扩容，所以预先申请1.5倍的容量，采用了空间换时间的思想
 2. 检查新容量是否大于最小需要容量，如果小于最小需要容量，那么就把最小需要容量当作数组的新容量
-3. 检查新容量是否大于`MAX_ARRAY_SIZE`
-   1. 如果大于`MAX_ARRAY_SIZE`，就扩容到int的最大值`Integer.MAX_VALUE`
+3. 检查新容量是否大于`MAX_ARRAY_SIZE`，如果大于`MAX_ARRAY_SIZE`，就扩容到int的最大值`Integer.MAX_VALUE`
 
 > 因为数组理论上的最大长度就是`Integer.MAX_VALUE`，`MAX_ARRAY_SIZE`是个别JVM设计上的问题，但并不是说一定因为个别JVM就一定不让扩容到最大长度
 
@@ -138,9 +137,9 @@ list.add(123);
 
 > 就是链表插入操作
 
-![LinkedList指定插入](JDK源码.assets/LinkedList指定插入.png)
+ ![LinkedList指定插入](JDK源码.assets/LinkedList指定插入.png)
 
-![linkBefore](JDK源码.assets/linkBefore.png)
+ ![linkBefore](JDK源码.assets/linkBefore.png)
 
 
 
@@ -156,11 +155,9 @@ list.add(123);
 >
 > `Hashtable`直接使用`key`的hashcode值，`HashMap`独立了hash算法，并通过key，value多次计算hashcode值，减少了重复性
 
-
-
 ### JDK7
 
-底层结构：**数组+链表**
+底层结构：**数组+链表**（链表数组）
 
 1. 底层数组是`Entry[]`
    1. `Entry`是HashMap中的一个**内部类**
@@ -168,7 +165,21 @@ list.add(123);
    
 2. 使用链表解决哈希冲突
 
-> 当hash冲突严重时，在桶上形成的链表会变的越来越长，这样在查询时的效率就会越来越低（时间复杂度为 `o(n)`）
+> 当hash冲突严重时，在桶上形成的链表会变的越来越长，这样在查询时的效率就会越来越低，时间复杂度为`o(n)`
+
+```java
+// 扰动了4次
+static int hash(int h) {
+    // This function ensures that hashCodes that differ only by
+    // constant multiples at each bit position have a bounded
+    // number of collisions (approximately 8 at default load factor).
+
+    h ^= (h >>> 20) ^ (h >>> 12);
+    return h ^ (h >>> 7) ^ (h >>> 4);
+}
+```
+
+
 
 ### JDK8
 
@@ -196,10 +207,9 @@ list.add(123);
 - 如果此位置没有数据，直接添加`key:value`
 - 如果此位置有数据，逐一比较`key`和已经存在的数据的hashcode值
   - 如果`key`和已经存在数据的hashcode值都不同，则**以链表的方式**添加`key:value`
-  - 如果`key`和已经存在的某个数据的hashcode值相同，则再调用`equals()`方法比较
+  - 如果`key`和已经存在的某个数据的hashcode值相同，则再调用`equals()`方法比较，判断对象是否相同
     - 如果返回`false`，则**以链表的方式**添加`key:value`
-    - 如果返回`true`，则执行覆盖操作
-      - 将要添加的`value`**替换已经存在的相同数据**的`value`值
+    - 如果返回`true`，则执行**覆盖**操作，将要添加的`value`**替换已经存在的相同数据**的`value`值
 
 **索引计算**
 
@@ -209,6 +219,10 @@ list.add(123);
 
 - 位运算`&`是要比模运算`%`效率高出很多
 - 所以要求HashMap的容量必须为$2^n$
+
+> - `key.hashCode()`：对象的hashcode值
+> - `^`：按位异或
+> - `>>>`：无符号右移，忽略符号位，空位用0补齐
 
  ![put方法中的hash](JDK源码.assets/put方法中的hash.png)
 
@@ -503,7 +517,9 @@ final void putMapEntries(Map<? extends K, ? extends V> m, boolean evict) {
 }
 ```
 
+## HashTable
 
+![HashTable](JDK源码.assets/HashTable.png)
 
 ## ConcurrentHashMap
 

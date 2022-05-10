@@ -2189,9 +2189,8 @@ sys.path.append('/home/ink/')
    1. 也可以不继承
 
 3. 类的所有方法都需要有参数`self`，表示创建对象的**实例本身**
-4. `__init__()`方法
-   1. python的构造函数
-   1. 在`__init__()`方法中可以把各种属性绑定到实例上，即`self`
+4. `__init__`方法
+   1. 在`__init__`方法中可以把各种属性绑定到实例上，即`self`
    2. 创建实例的时候必须传入与`__init__`方法匹配的参数，但不需要传`self`，python解释器自己会把实例变量传进去
 5. python是动态语言，允许对实例变量绑定任何数据，也就是说同一个类的不同实例变量可以拥有的不同的变量名称
 6. `isinstance()`可以判断实例是否是某个类的实例
@@ -2378,12 +2377,47 @@ type(123)==type(456)
 **实例方法和类方法**
 
 - 实例可以**任意绑定方法**，给一个实例绑定的方法对另一个实例是不起作用的
-
 - `class`绑定方法后所有实例均可调用
 
-### `__slots__`
+### 构造
 
-- 在定义`class`的时候使用特殊变量`__slots__`来限制该class**实例能添加的属性**
+#### `__new__`
+
+- `__init__`**是实例创建之后调用的第一个方法**，而`__new__`更像构造函数，它在`__init__`之前被调用
+
+- `__new__`是一个静态方法，第一参数是`cls`，`__new__`方法必须返回创建出来的实例
+
+```python
+# 使用__new__实现单例模式
+class Singleton(object):
+    def __new__(cls):
+        # 关键在于这，每一次实例化的时候，都只会返回这同一个instance对象
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(Singleton, cls).__new__(cls)
+        return cls.instance
+ 
+obj1 = Singleton()
+obj2 = Singleton()
+ 
+obj1.attr1 = 'value1'
+print obj1.attr1, obj2.attr1
+print obj1 is obj2
+```
+
+### 析构
+
+#### `__del__`
+
+- 删除一个对象时，python解释器会默认调用`__del__`
+
+- 用`del`删除一个对象的时候，不一定会调用`__del__`，**只有在对象的引用计数为0时，`__del__`才会被执行**
+  - 如果引用计数不为0，那么`del`操作只会让引用计数减1
+
+### 属性绑定
+
+#### `__slots__`
+
+- 在定义`class`的时候使用特殊变量`__slots__`来限制该`class`**实例能添加的属性**
 
 - **`__slots__`变量定义的属性仅对当前类实例起作用，对继承的子类不起作用**
 - 如果要限制子类实例绑定属性，就要在子类中也定义`__slots__`
@@ -2444,7 +2478,9 @@ s.score
 s.score = 9999
 ```
 
-### `__dict__`
+### 属性列表
+
+#### `__dict__`
 
 **类的**`__dict__`属性
 
@@ -2490,12 +2526,42 @@ print A.__dict__
 print obj.__dict__
 ```
 
+### 输出
+
+- 当x为字符串类型（`str`）时，`repr(x)`的结果就是**正式**的字符串表示，而`str(x)`的结果则是**非正式**的
+  - `str()`能够让用户最快速了解到对象的内容，**可读性较高**
+- `__str__`是可读的，`__repr__`的目标是明确的
+  - `repr()`更能显示出对象的类型、值等信息，对象描述更清晰
+- python容器的`__str__`方法的使用包含对象的`__repr__`
+
+```python
+x = '4'
+
+# "'4'"
+repr(z)
+
+# '4'
+str(z)
 
 
-### 打印
+import datetime
+d = datetime.datetime.now()
+# '2020-04-04 20:47:46.525245'
+str(d)
 
-- `__str__`：调用`print()`返回的方法
-- `__repr__`：直接打印变量返回的方法
+# 'datetime.datetime(2020, 4, 4, 20, 47, 46, 525245)'
+repr(d)
+```
+
+#### `__str__`
+
+- `str()`以及内置函数`format()`和`print()`会调用`__str__`来生成一个对象的**非正式或格式良好的字符串表示**，返回值必须是**字符串对象**
+
+#### `__repr__`
+
+- 直接打印变量返回的方法，返回值是必须是**字符串对象**
+
+- python内置函数`repr()`能够把对象用字符串的形式（**字符串表示形式**）表达出来，`repr()`就是通过`__repr__`来实现的
 
 > 通常`__str__()`和`__repr__()`代码都是一样的
 
@@ -2513,12 +2579,12 @@ class Student(object):
 
 `for…in…`语句其实做了两件事
 
-- 第一件事是**获得一个可迭代器**，即调用了__iter__()函数
-  - 第二件事是**循环**，即调用`__next__()`函数
+- 第一件事是**获得一个可迭代器**，即调用了`__iter__`函数
+  - 第二件事是**循环**，即调用`__next__`函数
 
 所以一个类如果实现了`__iter__`和`__next__`函数，就是一个可迭代的类，也可以说是一个可迭代的对象（Python中一切皆对象）
 
-`__iter__`和`__next__`
+#### `__iter__`和`__next__`
 
 - `__iter__`：**返回一个可迭代对象**（一个迭代器）
 - `__next__`：不断调用该**迭代对象的`__next__()`方法拿到循环的下一个值**，直到遇到`StopIteration`错误时退出循环
@@ -2552,14 +2618,18 @@ for n in Fib():
 
 ### 索引
 
-`__getitem__`
-- 实现`__getitem__()`方法就可以**按下标访问数列的任意一项**
-- `__getitem__()`传入的参数可以是一个`int`，也可以是一个切片对象`slice`
+#### `__getitem__`
 
-> 没有对`step`参数作处理，也没有对负数作处理
+- 实现`__getitem__`方法就可以**按下标访问数列的任意一项**
+- `__getitem__`传入的参数可以是一个`int`对象，也可以是一个`slice`切片对象
+
+#### `__setitem__`
+
+#### `__delitem__`
 
 ```python
 class Fib(object):
+  	# 没有对step参数作处理，也没有对负数作处理
     def __getitem__(self, n):
         # n是索引
         if isinstance(n, int): 
@@ -2585,6 +2655,140 @@ f[3]
 # 1 1 2
 f[0:3]
 ```
+
+### 属性查找
+
+- 支持`对象.属性`的访问方式
+
+#### `getattr()`
+
+- python的内置函数之一，用于获取对象的属性
+- `getattr(object, name, default)`
+
+```python
+class Foo:
+    def __init__(self, x):
+        self.x = x
+
+f = Foo(10)
+# 10
+getattr(f, 'x')
+# 10
+f.x
+# bar
+getattr(f, 'y', 'bar')
+```
+
+#### `__getattr__`
+
+- 在实例以及对应的类中如果通过`__dict__`**查找属性失败时**就会调用类的`__getattr__`，如果没有定义`__getattr__`，就会抛出`AttributeError`异常
+  - 即如果找不到对象的属性时会调用`__getattr__`，是作用于属性查找的最后一步，兜底逻辑
+  - 如果正常能找到对象属性的话，不会调用`__getattr__`
+
+#### `__getattribute__`
+
+- 只适用于新式类，即继承自`object`或者`type`的类
+- 当访问新式类某个对象的属性时，就会调用`__getattribute__`
+- 如果新式类还同时定义了`__getattr__`，则不会调用`__getattr__()`方法，除非在`__getattribute__()`方法中显示调用`__getattr__()`或者抛出了`AttributeError`
+- 为了避免出现无限递归的情况，**应该总是使用基类的方法来获取属性**
+
+#### `__setattr__`
+
+#### `__delattr__`
+
+### 描述符descriptor
+
+**描述符是带有绑定行为的对象属性**
+
+- 它的**属性访问被描述符协议中的特定方法覆盖**了，即`__get__`，`__set__`和`__delete__`，如果一个对象定义了这些特定方法中的任何一个，它就是一个描述符descriptor
+  - 其中`__set__`和`__delete__`方法是可选的
+- **描述符descriptor必须依附对象，作为对象的一个属性，它而不能单独存在**
+- 描述符descriptor必须存在于类的`__dict__`中，只有在类的`__dict__`中找到属性，python才会去看看它有没有`__get__`等方法
+  - 在实例的`__dict__`中的属性，python不会管它有没有`__get__`等方法，直接返回属性本身
+- 为了方便指代这样的属性，给它起了个名字叫descriptor属性
+
+> python中对象的方法也是也可以认为是属性
+
+#### 对象属性查找过程
+
+1. python判断属性是否是个自动产生的属性，如果是自动产生的属性，就按特别的方法找到这个属性
+2. 如果是自定义属性，python会在对象的`__dict__`中寻找
+3. 如果没有找到，python就会找到对象所属的类，在类的`__dict__`中寻找
+4. 如果在类的`__dict__`中还没有找到，python会在类的父类（如果有父类）的`__dict__`中继续寻找
+
+#### `__get__`
+
+- 查找属性时（`对象.属性`），如果python发现这个属性有`__get__`方法，就会调用属性的`__get__`方法，返回`__get__`方法的返回值
+- 
+
+#### `__set__`
+
+#### `__delete__`
+
+### 模块导入
+
+#### `__all__`
+
+- 用于模块导入时作出的限制
+- 当定义`from module import *`时，如果被导入模块若定义了`__all__`属性，**则只有`all`内指定的属性、方法、类可被导入**，如果没有定义`__all__`属性，则**会导入模块内的所有公有属性，方法和类**
+
+### 调用
+
+#### `__call__`
+
+- **功能类似于在类中重载`()`运算符**，使得**类实例对象变成了可调用对象**，可以像调用普通函数那样以`对象名()`的形式使用
+  - python中可以将`()`直接应用到自身并执行都称为**可调用对象**，包括自定义的函数，内置函数以及类实例对象
+    - 对于可调用对象，`对象名()`可以理解为是`对象名.__call__()`的简写
+
+- `callable()`函数可用于判断一个对象是否可调用
+- `__call__`可以解决`hasattr()`**无法判断该指定名称是类属性还是类方法的问题**
+  - 类实例对象包含的方法属于可调用对象，但类属性不是，因此判断是否有`__call__`即可
+
+```python
+class CallTest:
+  	def __init__(self, name):
+      	self.name = name
+    # 定义__call__方法
+    def __call__(self, name, extra):
+        print("调用__call__()方法", name, extra)
+    def test(self):
+      print('ink')
+        
+t = CallTest()
+# 调用
+t("ink","test")
+# 等价
+t.__call__("ink","test")
+
+# 判断
+# False
+hasattr(t.name,"__call__")
+# True
+hasattr(t.test,"__call__")
+```
+
+### with语法
+
+用于支持`with`语句的上下文管理器
+
+#### `__enter__`
+
+#### `__exit__`
+
+```python
+class File(object):
+    def __init__(self, file_name, method):
+        self.file_obj = open(file_name, method)
+    def __enter__(self):
+        return self.file_obj
+    def __exit__(self, type, value, traceback):
+        self.file_obj.close()
+
+with File('test.txt', 'w') as :
+    f.write('ink!')
+```
+
+
 
 ## 枚举类
 

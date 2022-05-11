@@ -2767,7 +2767,7 @@ hasattr(t.name,"__call__")
 hasattr(t.test,"__call__")
 ```
 
-### with语法
+### with
 
 用于支持`with`语句的上下文管理器
 
@@ -3276,46 +3276,71 @@ os.rename('test.txt','test.py')
 
 `pickle`
 
-- `pickle`只在python之间使用
-- `pickle`可以序列化所有的数据类型，包括类和函数
+- `pickle`只在python之间使用，可以序列化所有的数据类型，包括类和函数
+- 如果`pickle`保存自定义的`class`，在反序列化的时候，这个`class`的定义必须存在
 
 ### 序列化
 
-**将对象从内存中变成可存储或传输的字节序列形式**， 序列化之后就可以把内容写入磁盘，或者通过网络传输到别的机器上
+**将对象从内存中变成可存储或传输的字节序列形式**， 序列化之后就可以把内容**写入磁盘**，或者通过**网络传输**到别的机器上
 
 - `pickle.dumps()`：把对象序列化成一个`bytes`
-- `pickle.dump()`：直接把对象序列化后写入一个`file-like Object`
-  - 可以认为序列化后写入到文件中
+- `pickle.dump()`：直接把对象序列化后写入一个`file-like Object`（可以认为序列化后写入到文件中）
+
+> 硬盘或网络传输时只能接受`bytes`
 
 ### 反序列化
 
-把变量从序列化的字节序列形式重新恢复成对象
+把对象从序列化的字节序列形式重新恢复成对象
 
-- `pickle.loads()`：反序列化出一个对象
+- `pickle.loads()`：将`bytes`反序列成一个对象
 - `pickle.load()`：从一个`file-like Object`中反序列化出对象
 
 ### pkl文件
 
-`.pkl`：python保存文件的一种文件格式，直接打开会显示序列化的二进制数据，需要使用`rb`类型来打开（读取2进制文件）
+`.pkl`
+
+- python保存文件的一种文件格式，直接打开会显示序列化的二进制数据，需要使用`rb`类型来打开（读取2进制文件）
+  - `.pkl`文件不具有任何可读性的编码
+- 可以同时将许多不同类型数据保存在同一份`.pkl`文件中, 再按照相同的顺序读出
 
 ```python
 import pickle
 
 d = dict(name='Bob', age=20, score=88)
 
-# 把一个对象序列化并写入文件:b'\x80\x03}q\x00(X\x03\x00\x00\x00ageq\x01K\x14X\x05\x00\x00\x00scoreq\x02KXX\x04\x00\x00\x00nameq\x03X\x03\x00\x00\x00Bobq\x04u.'
+# 把一个对象序列化
+# b'\x80\x03}q\x00(X\x03\x00\x00\x00ageq\x01K\x14X\x05\x00\x00\x00scoreq\x02KXX\x04\x00\x00\x00nameq\x03X\x03\x00\x00\x00Bobq\x04u.'
 pickle.dumps(d)
 
-f = open('dump.txt', 'wb')
-pickle.dump(d, f)
-f.close()
+# 使用with代替open/close
+# 序列化后写入文件中
+with open("dump.pkl", "wb") as f:
+    pickle.dump(d, f)  
 
-f = open('dump.txt', 'rb')
-d = pickle.load(f)
-f.close()
-
-# {'age': 20, 'score': 88, 'name': 'Bob'}
+# 从文件中读出并反序列化成一个对象
+with open("dump.pkl", "rb") as f:
+    d = pickle.load(f)
+# 
+{'age': 20, 'score': 88, 'name': 'Bob'}
 d
+
+# 多个变量保存到同一个pkl文件中
+a1 = "apple"
+b1 = {1: 'One', 2: 'Two'}
+c1 = ['test', 'name', 1, 2, 3]
+f1 = open("temp.pkl", "wb")
+# 可以保存到同一个文件中
+pickle.dump(a1, f1)
+pickle.dump(b1, f1)
+pickle.dump(c1, f1)
+f1.close()
+
+# 再按照相同的顺序读出
+f2 = open("temp.pkl", "rb")
+a2 = pickle.load(f2)
+b2 = pickle.load(f2)
+c2 = pickle.load(f2)
+f2.close()
 ```
 
 ## JSON

@@ -771,8 +771,6 @@ list1[-1:] = '234'
 list1[5:5] = '234'	
 ```
 
-
-
 ## 元组
 
 `tuple`
@@ -876,8 +874,6 @@ for key,value in dictt.items():
 dictt.get('ink', 0)
 ```
 
-
-
 ### 存储
 
 `key-value`在存的时候必须根据`key`算出`value`的存放位置，这样取的时候才能根据`key`直接拿到`value`
@@ -897,15 +893,17 @@ dictt.get('ink', 0)
 
 - **无序，无重复元素**
 - `set`是一组`key`的集合，因为`key`不能重复，所以`set`中没有重复的元素，传入重复的元素在`set`中会被自动过滤
-- `set`的原理和`dict`一样，**不能放入可变对象**（因为无法判断两个可变对象是否相等，也就无法保证`set`内部**不会有重复元素**）
+- `set`的原理和`dict`一样，**不能放入可变对象**，因为无法判断两个可变对象是否相等，也就无法保证`set`内部**不会有重复元素**
 
 ### 创建
 
 - 使用`{}`
-  - 可以在`{}`初始化的时候传入一个元组
+  - 可以在`{}`初始化的时候传入一个**元组**
 - 使用set()函数
   - 向`set()`函数中传入一个`list`作为输入创建`set`
-  - 向`set()`函数中传入一个字典会自动就把`dict`中的所有`key`组合成一个`set`
+  - 向`set()`函数中传入一个字典会**自动就把`dict`中的所有`key`组合成一个`set`**
+
+> 主要不要和`dict`搞混了
 
 ```python
 s = {1,2,3,4}
@@ -939,20 +937,18 @@ s.add(4)
 s.remove(4)
 ```
 
-
-
 # 控制结构
 
 ## 条件判断
 
-- 只要是非零数值，非空`str`，非空`list`等就判断为`True`
+- 只要是**非零数值，非空`str`，非空`list`等**就判断为`True`
 - 对于`None`值的比较，使用`is`
 
 ```python
 # 输出ink
-if 2>4:
+if 2 > 4:
     print("Yes")
-elif 2==4:
+elif 2 == 4:
     print("No")
 else:
     print("ink")
@@ -1446,15 +1442,11 @@ if __name__ == "__main__":
 
 > 可变类型`list`就是一个unhashable type
 
-
-
 `hash`
 
 - `hash`的实现和地址有关系
 
 - 相同内容的哈希值一定是相同的
-
-
 
 **哈希碰撞**
 
@@ -1464,27 +1456,25 @@ if __name__ == "__main__":
 
 > 黑客攻击的一种方法就是设法制造"哈希碰撞"，然后入侵系统窃取信息
 
-
-
 # 高级特性
 
 ## 切片
 
 `slice`
 
-切片操作符`[n:m]`：返回从第n个元素到第m个元素的`list`或`turple`，**包括第一个但不包括最后一个**：`[)`
+切片操作符`[n:m]`：返回从第`n`个元素到第`m`个元素的`list`或`turple`，**包括第一个但不包括最后一个**：`[)`
 
-> 字符串`str`也可以看成是一种`list`，**每个元素就是一个字符**。因此字符串也可以用切片操作
+> 字符串`str`也可以看成是一种`list`，**每个元素就是一个字符**，因此字符串也可以用切片操作
 
-- 省略第一个索引n，切片将从列表头开始（第一个索引0也可以省略）
+- 省略第一个索引`n`，切片将从列表头开始（第一个索引`0`也可以省略）
 
-- 倒数第一个元素的索引是`-1`，省略第二个索引m，切片将到列表尾结束
+- 倒数第一个元素的索引是`-1`，省略第二个索引`m`，切片将到列表尾结束
 
-- 两个索引n和m都省略就是操作整个`list`或`turple`
+- 两个索引`n`和`m`都省略就是操作整个`list`或`turple`
 
 - `[n:m:l]`：可以间隔切片，`l`是步长，**当`l`为负数时，表示倒序**（此时n要大于m）
 
-  > [::-1]切片：从列表最后一位开始，步长为-1，即从[-1]开始，索引值每次累加-1，累加值为`-len()`时结束
+  > `[::-1]`切片：从列表最后一位开始，步长为-1，即从[-1]开始，索引值每次累加-1，累加值为`-len()`时结束
 
 ```python
 L = [0,1,2,3,4,5,6,7,8,9,10]
@@ -1522,8 +1512,6 @@ L[6:2:-1]
 # []
 L[2:6:-1]
 ```
-
-
 
 ## 迭代
 
@@ -1586,7 +1574,7 @@ for ch in 'ABC':
     print(ch)
 ```
 
-**下标迭代**
+### 下标迭代
 
 `enumerate()`
 
@@ -1600,7 +1588,42 @@ for i, value in enumerate(['A', 'B', 'C']):
     print(i, value)
 ```
 
+### 迭代器
 
+`iterator`
+
+- 可以被`next()`函数调用并不断返回下一个值的**对象**称为迭代器：`Iterator`
+
+- 使用`isinstance()`判断一个对象是否是迭代器（即`Iterator`对象）
+
+  - 生成器`generator`都是`Iterator`对象
+
+  - `list`、`dict`、`str`是可迭代对象`Iterable`，但不是迭代器`Iterator`
+
+
+- 使用`iter()`函数可以将`list`、`dict`、`str`等可迭代对象`Iterable`转换成迭代器`Iterator`
+
+```python
+from collections.abc import Iterator
+
+# True
+isinstance((x for x in range(10)), Iterator)
+
+# False
+isinstance([], Iterator)
+
+# False
+isinstance({}, Iterator)
+
+# False
+isinstance('abc', Iterator)
+
+# True
+isinstance(iter([]), Iterator)
+
+# True
+isinstance(iter('abc'), Iterator)
+```
 
 ## 列表生成式
 
@@ -1644,8 +1667,6 @@ L = ['Hello', 'World', 'IBM', 'Apple']
 # 多个变量生成list,['y=B', 'x=A', 'z=C']
 [k + '=' + v for k, v in d.items()]				
 ```
-
-
 
 ## 生成器
 
@@ -1767,47 +1788,6 @@ while True:
 g = fib(3)
 ```
 
-
-
-## 迭代器
-
-`iterator`
-
-- 可以被`next()`函数调用并不断返回下一个值的**对象**称为迭代器：`Iterator`
-
-- 使用`isinstance()`判断一个对象是否是迭代器（即`Iterator`对象）
-
-  - 生成器`generator`都是`Iterator`对象
-
-  - `list`、`dict`、`str`是可迭代对象`Iterable`，但不是迭代器`Iterator`
-
-
-- 使用`iter()`函数可以将`list`、`dict`、`str`等可迭代对象`Iterable`转换成迭代器`Iterator`
-
-```python
-from collections.abc import Iterator
-
-# True
-isinstance((x for x in range(10)), Iterator)
-
-# False
-isinstance([], Iterator)
-
-# False
-isinstance({}, Iterator)
-
-# False
-isinstance('abc', Iterator)
-
-# True
-isinstance(iter([]), Iterator)
-
-# True
-isinstance(iter('abc'), Iterator)
-```
-
-
-
 # 函数式编程
 
 **函数式编程就是一种抽象程度很高的编程范式**
@@ -1843,8 +1823,8 @@ list(r)
 - `reduce()`接收两个参数，一个是函数，一个是可迭代对象`Iterable`
 
 - `reduce()`将传入的函数**作用在一整个序列上来计算累积结果**
-
-> 函数将一个数据集合（列表，元组等）中的所有数据进行下列操作：用传给`reduce`中的函数（有两个参数）先对集合中的第 1、2 个元素进行操作，得到的结果再与第三个数据用函数运算，最后得到一个结果
+  - 函数将一个数据集合（列表，元组等）中的所有数据进行下列操作
+  - 用传给`reduce`中的函数（有两个参数）先对集合中的第 1、2 个元素进行操作，得到的结果再与第三个数据用函数运算，最后得到一个结果
 
 ```python
 # reduce(f, [x1,x2,x3,x4]) = f(f(f(x1,x2),x3),x4)
@@ -1872,12 +1852,8 @@ reduce(fn, map(char2num, '13579'))
 
 `filter()`
 
-- `filter()`是一个**筛选**函数
-
-- `filter()`接收两个参数，一个是函数，一个是可迭代对象`Iterable`
-
+- `filter()`是一个**筛选**函数，接收两个参数，一个是函数，一个是可迭代对象`Iterable`
 - `filter()`把传入的函数**依次作用于序列的每个元素**，然后**根据返回值是`True`还是`False`决定保留还是丢弃该元素**
-
 - `filter()`函数返回的是一个迭代器`Iterator`，也就是一个惰性序列，只有在迭代至某个元素时才计算该元素，所以要强迫`filter()`完成计算结果需要用`list()`函数获得所有结果并返回`list`
 
 ```python
@@ -1888,8 +1864,6 @@ def is_odd(n):
 # [1, 5, 9, 15]
 list(filter(is_odd, [1, 2, 4, 5, 6, 9, 10, 15]))	
 ```
-
-
 
 **素数**
 
@@ -1931,8 +1905,6 @@ for n in primes():
         break
 ```
 
-
-
 ### Sorted
 
 `sorted()`
@@ -1954,8 +1926,6 @@ sorted(['bob', 'about', 'Zoo', 'Credit'])
 # ['Zoo', 'Credit', 'bob', 'about']
 sorted(['bob', 'about', 'Zoo', 'Credit'], key=str.lower, reverse=True)
 ```
-
-
 
 ## 返回函数
 
@@ -1992,8 +1962,6 @@ f2 = lazy_sum(1, 3, 5, 7, 9)
 f1 == f2		
 ```
 
-
-
 ## 匿名函数
 
 有时传入函数不需要显式地定义函数，直接传入匿名函数会更方便
@@ -2018,8 +1986,6 @@ f = lambda x: x * x
 # 25
 f(5)
 ```
-
-
 
 # 模块
 
@@ -2058,8 +2024,6 @@ python通过`_`**前缀**来实现变量和函数的作用域
 > 从编程习惯上不应该引用private函数或变量
 >
 > 外部不需要引用的函数全部定义成`private`，需要引用的函数定义为`public`
-
-
 
 ## 第三方模块
 
@@ -2119,8 +2083,6 @@ import sys
 sys.path.append('/home/ink/')
 ```
 
-
-
 **同级的自定义模块**
 
 - 直接导入即可
@@ -2179,8 +2141,6 @@ sys.path.append('/home/ink/')
 - 多态
 
 > python中所有数据类型都可以视为对象
-
-
 
 ## 类和实例
 
@@ -2251,8 +2211,6 @@ class Student(object):
         print('%s: %s' % (self.__name, self.__score))
 ```
 
-
-
 ## 继承和多态
 
 ### 单继承
@@ -2291,8 +2249,6 @@ isinstance(b, Dog)
 isinstance(a, Dog)
 ```
 
-
-
 ### 多重继承
 
 **通过组合而非多层次继承**
@@ -2313,8 +2269,6 @@ class Flyable(object):
 class bird(Animal, Flyable, Runnable):
     pass
 ```
-
-
 
 ## 对象信息
 
@@ -2788,8 +2742,6 @@ with File('test.txt', 'w') as :
     f.write('ink!')
 ```
 
-
-
 ## 枚举类
 
 `Enum`
@@ -2882,7 +2834,7 @@ python的错误也是一个`class`，所有的错误类型都继承自`BaseExcep
 
 ## 错误处理
 
-**捕获错误**
+### 捕获错误
 
 `try except finally`
 
@@ -2909,7 +2861,7 @@ finally:
 print('END')
 ```
 
-**抛出错误**
+### 抛出错误
 
 `raise`
 
@@ -2930,11 +2882,11 @@ def foo(s):
 foo('0')
 ```
 
-**组合处理**
+### 组合处理
 
-处理错误并抛出
+**处理错误并抛出**
 
-- 捕获错误目的只是记录以便于后续追踪
+- 捕获错误目的一般是记录错误信息（如日志id）以便于后续追踪
 - 当前函数不知道应该怎么处理该错误时就继续往上抛，让顶层调用者去处理错误
 
 ```python
@@ -2956,7 +2908,7 @@ bar()
 
 ## 调试
 
-`assert`
+### `assert`
 
 - 用`print()`来辅助查看的地方都可以用断言`assert`来替代
 - 如果断言失败，`assert`语句就会抛出`AssertionError`
@@ -2976,30 +2928,13 @@ def main():
 python -O err.py
 ```
 
-`logging`
+### `pdb`
 
-- 用`print()`来辅助查看的地方都可以用`logging`来替代
-- `logging`不会抛出错误，但可以输出到文件
-
-```python
-import logging
-logging.basicConfig(level=logging.INFO)
-
-s = '0'
-n = int(s)
-logging.info('n = %d' % n)
-print(10 / n)
-```
-
-`pdb`
-
- - 启动python的调试器pdb，让程序以单步方式运行
+ - 启动python的调试器pdb，**让程序以单步方式运行**
 
 ```
 python -m pdb err.py
 ```
-
-
 
 # IO编程
 
@@ -3025,18 +2960,17 @@ python -m pdb err.py
 ### 读文件
 
 1. 调用`open()`以读文件的模式打开一个文件对象并传入文件名和标示符`'r'`，即`read()`
-   1. 读取二进制文件（例如图片、视频）用`'rb'`模式打开
-   2. 读取非UTF-8编码的文本文件需要给`open()`额外传入`encoding`参数
+   1. 读取**二进制文件**（例如图片、视频）用`'rb'`模式打开
+   2. 默认读取UTF-8编码的文本文件，读取**非UTF-8编码的文本文件**需要给`open()`额外传入`encoding`参数
 2. 调用`read()`读取文件的全部内容到内存，用一个`str`对象表示
-   1. `read()`一次性读取文件的全部内容，如果文件太大会爆内存
+   1. `read()`**一次性读取文件的全部内容，如果文件太大会爆内存**
    2. 调用`readline()`每次读取文件的一行内容
    3. 调用`readlines()`一次读取文件的所有内容并按行返回一个`list`
 3. 调用`close()`关闭文件
-   1. 文件使用完毕后必须关闭，因为文件对象会占用操作系统的资源，并且操作系统同一时间能打开的文件数量也是有限的
+   1. 文件使用完毕后必须关闭，因为文件对象会占用操作系统的资源，并且操作系统同一时间能打开的文件数量也是有限的（文件描述符会占内存）
 
 > 如果文件不存在，`open()`会抛出`IOError`错误，给出错误码和详细的信息告诉文件不存在
 >
-> 默认读取UTF-8编码的文本文件
 
 ```python
 f = open('/path/test.txt', 'r')
@@ -3071,9 +3005,9 @@ for line in f.readlines():
 
 2. 调用`write()`方法写内容到文件中
    1. 可以反复调用`write()`来写入文件
-   2. `write()`里面必须是`str`
+   2. **`write()`里面必须是`str`**
       1. 将`list`、`tuple`、`dict`转为字符串使用`str`
-      2. 将`str`逆转化使用`eval()`函数
+      2. **将`str`逆转化使用`eval()`函数**
 3. 调用`close()`方法关闭文件
 
 > OS往往不会立刻把数据写入磁盘，而是放到内存缓存起来，空闲的时候再慢慢写入（刷盘）

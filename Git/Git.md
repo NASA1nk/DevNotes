@@ -224,15 +224,91 @@ git add .
 
 ### 提交到本地仓库
 
-`git add`后再提交到版本的本地库，可以在`head`文件中看到
+`git add`后再使用`git commit`提交到版本的本地库，可以在`head`文件中看到
 
-- 每个commit都是一个版本（快照）
+- 每个`commit`都是一个版本（快照）
 
-- 使用`git log`查看提交历史，可以查看`commit id`
+- 使用`git log`查看提交历史，包含`commit id`以及注释信息
 
 ```bash
 # -m添加本次提交的注释
 git commit -m "注释"
+```
+
+### 合并多次提交
+
+#### 合并
+
+避免太多的`commit`造成版本控制的混乱，通常将一个任务临时的多个`commit`合并成一个
+
+- 使用`git log`查看提交历史，获得要合并的多个commit的后面的第一个`commit id`（这个对应的commit不参与合并）
+- 使用`git rebase`合并`commit`，`-i`参数指定`commit id`
+
+```bash
+# 合并从HEAD版本开始往过去数3个版本
+git rebase -i HEAD~3
+
+# 指定要合并的commit之前的commit id（合并的几个commit之后的第一个）
+git rebase -i 3a4226b
+```
+
+#### 指定合并主提交
+
+- 在执行`git rebase`操作后，会显示合并的这一个`commit`的`commit id`以及注释信息
+- 在每个`commit`前面都有一个`pick`，表示挑选，将后面的`commit`改为`s`（因为最上面的是最新的提交，一般挑选这个`commit`作为合并后主提交），表示将后面的`commit`合并到第一个`commit`上
+- 需要给这个合并后的`commit`添加注释信息，将之前的`commit`注释删掉再添加即可
+- 然后`wq`保存退出，Git就会压缩提交历史
+- 如果有冲突，需要修改冲突
+
+```bash
+# Commands:
+# p, pick <commit> = use commit
+# r, reword <commit> = use commit, but edit the commit message
+# e, edit <commit> = use commit, but stop for amending
+# s, squash <commit> = use commit, but meld into previous commit
+# f, fixup <commit> = like "squash", but discard this commit's log message
+# x, exec <command> = run command (the rest of the line) using shell
+# d, drop <commit> = remove commit
+# l, label <label> = label current HEAD with a name
+# t, reset <label> = reset HEAD to a label
+# m, merge [-C <commit> | -c <commit>] <label> [# <oneline>]
+# .       create a merge commit using the original merge commit's
+# .       message (or the oneline, if no original merge commit was
+# .       specified). Use -c <commit> to reword the commit message.
+```
+
+```bash
+# 展示
+pick 3ca6ec3   '注释**********'
+
+pick 1b40566   '注释*********'
+
+pick 53f244a   '注释**********'
+
+# 修改
+pick 3ca6ec3   '注释**********'
+
+s 1b40566   '注释*********'
+
+s 53f244a   '注释**********'
+
+# 添加注释
+# This is a combination of 4 commits.  
+#The first commit’s message is:  
+注释......
+# The 2nd commit’s message is:  
+注释......
+# The 3rd commit’s message is:  
+注释......
+# Please enter the commit message for your changes. Lines starting # with ‘#’ will be ignored, and an empty message aborts the commit.
+```
+
+#### 放弃合并
+
+- 也可以使用`git reflog`查看HEAD版本来回退到指定版本
+
+```bash
+git rebase --abort  
 ```
 
 ### 提交到远程仓库

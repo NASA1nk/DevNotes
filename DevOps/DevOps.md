@@ -698,3 +698,68 @@ deploy_test:
     - kubectl ....
 ```
 
+
+
+
+
+```yaml
+variables:
+  # current project setting
+  PROJECT: "graph-model"
+  VERSION: "0.3"
+  REGISTRY: "gitlab.buaanlsde.cn:4567/buaapyj/registry"
+
+  # docker in docker setting
+  DOCKER_HOST: tcp://localhost:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_TLS_VERIFY: 1
+  DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  DIND_IMAGE: "gitlab.buaanlsde.cn:4567/buaapyj/registry/docker:19.03.15-dind"
+
+  # rancher setting
+  CATTLE_ACCESS_TOKEN: "token-cn6xd:8f7zbw5pgqrrj8v4xbq6slb8mkldcrc6xlg9rprgkzkqtr7d5fp4k8"
+
+before_script:
+  - export IMAGE="${REGISTRY}/${PROJECT}:${VERSION}"
+
+
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  image: gitlab.buaanlsde.cn:4567/buaapyj/registry/build-kit:1.2
+  services:
+    - ${DIND_IMAGE}
+  before_script:
+    - export IMAGE="${REGISTRY}/${PROJECT}:${VERSION}"
+    # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/27384#note_497228752
+    - |
+      for i in $(seq 1 30)
+      do
+          docker info && break
+          echo "Waiting for docker to start"
+          sleep 1s
+      done
+  script:
+    - echo ${IMAGE}
+    # Add Proxy here!
+    - docker build --build-arg http_proxy=http://10.2.3.124:1080 --build-arg https_proxy=http://10.2.3.124:1080 -t ${IMAGE} ./code -f ./code/dockerfile
+    - docker push ${IMAGE}
+    - docker image prune -f
+
+deploy:
+  stage: deploy
+  image: gitlab.buaanlsde.cn:4567/buaapyj/registry/build-kit:1.2
+  variables:
+    CLUSTER_ID: c-sqnlg
+  dependencies:
+    - build
+  #when: manual
+  script:
+    - curl -u "${CATTLE_ACCESS_TOKEN}" -X POST -H 'Accept:application/json' -H 'Content-Type:application/json' "https://platform.isa.buaanlsde.cn/v3/clusters/${CLUSTER_ID}?action=generateKubeconfig" -k | python -c "import sys, json; print json.load(sys.stdin)['config']" > config
+    - export KUBECONFIG=config
+    - sed -i "s|IMAGE|${IMAGE}|g" ./manifest/deployment.yaml
+    - kubectl apply -f ./manifest/deployment.yaml
+```

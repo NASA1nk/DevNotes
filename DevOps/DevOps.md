@@ -86,10 +86,8 @@ Continuous Deployment
 * 使用缩进表示层级关系，使用**空格做为缩进**
   * 缩进的空格数目不重要，只要相同层级的元素左侧**对齐即可**
   * **低版本缩进时不允许使用Tab键，只允许使用空格**
-* **使用`#`标识注释**
-  * 从`#`字符一直到行尾，都会被解释器忽略
+* **使用`#`标识注释**，从`#`字符一直到行尾，都会被解释器忽略
 * `---`为可选的分隔符，当需要在一个文件中定义多个同级的结构的时候使用
-  * 如同时在一个yaml文件中定义Secret和ServiceAccount两个同级资源类型
 
 ## 数据结构
 
@@ -173,9 +171,9 @@ quoted: "some\ntext\n"
 1: |
    line 1
 
-
 2: |+
    line 1
+
 
 
 3: |-
@@ -365,9 +363,7 @@ jobs:
 
 ### map合并
 
-在复用定义的时候，可以使用`<<`将已定义的map展开和当前map合并
-
-- 根据锁进展开对应的map
+在复用定义的时候，可以使用`<<`将已定义的map展开和当前map合并，根据缩进，展开对应的map
 
 > 就是在复用map的时候可以在后面追加新的内容
 
@@ -433,21 +429,23 @@ jobs:
 
 Pipeline 即整个 CI 自动化流程的统称，一次 Pipeline 的运行称为 Pipeline run
 
-- 在gitlab仓库里创建一个YAML文件（`.gitlab-ci.yml`），即可配置一个 Pipeline，它即根据`.gitlab-ci.yml`文件执行的流程
-- 一个 YAML 文件对应一个 Pipeline 配置，**多个 YAML 文件对应多个不同的 Pipeline 配置**
-- YAML文件中其中包含**事件触发**和**具体任务**的配置，即 Trigger 和 Jobs，一个 Pipeline 会包含若干个 Job，即若干个任务节点（每一个任务节点都是一个独立的 Job）
-  - 一个Pipleline有若干个stage，每个stage上有至少一个Job
+- 在gitlab仓库里创建一个YAML文件（`.gitlab-ci.yml`），即可配置一个 Pipeline，它就是根据`.gitlab-ci.yml`文件执行的一个流程
+- 一个 YAML 文件对应一个Pipeline的配置，**多个YAML文件可以对应多个不同的Pipeline配置**
+- YAML文件中其中包含**事件触发**和**具体任务**的配置，即Trigger和Jobs，一个Pipeline会包含若干个 Job，即若干个任务节点（每一个任务节点都是一个独立的 Job）
+  - 一个Pipleline有若干个`stage`，每个`stage`上有至少一个Job
 
 
 ### Job
 
-Job 可以视为资源单位，多个job互相是独立、分散的，都有独立的上下文（context）
+Job可以视为**资源单位**，多个job互相是独立、分散的，都有独立的上下文（context）
 
 - 一个 Pipeline 包含若干个 Job，**每一个 Job 各自会被分发到不同的机器上执行，默认并行**
 - **每个Job都会配置一个stage属性**，来表示这个Job所处的阶段
 - 一个 Job 包含若干个 Step
-- **Job 执行过程中产生的所有文件都会在 job 结束后丢失**
-  - 即运行下一个Job的时候，会默认把前一个Job**新增的资源删除**
+
+**注意**
+
+- **Job 执行过程中产生的所有文件都会在 job 结束后丢失**，即运行下一个Job的时候，会默认把前一个Job**新增的资源删除**
 
 
 ```yaml
@@ -468,14 +466,14 @@ jobs:
 
 ### Step
 
-- 一个 Step 包含若干命令（commands）或一个 Action
+- 一个Step包含若干命令（commands）或一个Action
 
-- **一个 Job 中的 Step 都在同一个机器中，按配置顺序依次执行，共享同一份机器资源，共享同一个工作目录**
+- **一个 Job 中的Step都在同一个机器中，按配置顺序依次执行，共享同一份机器资源，共享同一个工作目录**
   - 环境不一样时（比如使用不同的镜像）并非所有目录均共享
 
 ### Action
 
-- Action 封装了一些可复用的命令操作，可以在 Step 中直接使用，以减少重复劳动
+- Action封装了一些可复用的命令操作，可以在Step中直接使用，以减少重复劳动
 
 ### Event / Trigger
 
@@ -559,10 +557,10 @@ gitlab提供了很多配置关键字，这些配置关键之不能被定义为`j
 ### stages
 
 - 定义在yaml文件的最外层，是一个数组，**用于定义一个pipeline不同的流程节点**，会展示在Gitlab的交互界面中
-- stages中的元素顺序决定了对应job的执行顺序
+- `stages`中的元素顺序决定了对应job的执行顺序
 
 ```yaml
-stages:
+stages: # 定义所有的stage
   - test
   - build
   - deploy
@@ -575,10 +573,11 @@ stages:
 ### script
 
 - 是当前pipeline节点运行的**shell脚本**（以**项目根目录**为上下文执行）
-  - 也可以直接执行系统命令（`./configure`，`make`，`make install`）或者是直接执行脚本（test.sh）
+  - 可以直接执行系统命令（`./configure`，`make`，`make install`）或者是直接执行脚本
 - script是控制CI流程的核心，所有的工作，从安装，编译到部署都是通过script中定义的shell脚本来完成的
-
 - 如果脚本执行成功，pipeline就会进入下一个Job，如果执行失败，pipeline就会终止
+
+> 可以在当前job的script中手动触发另一个pipeline
 
 ### tags
 
@@ -619,18 +618,20 @@ variables:
 
 [基于 GitLab CI/CD 实践 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/435567049)
 
-使用CI创建一个新的 pod，并部署到 Kubernetes 集群里面，出错可进行任意版本回退
+使用CI创建一个新的pod，并部署到Kubernetes集群里面，出错可进行任意版本回退
 
 > **可靠性**：应用会持续运行，不会被 pod 或 节点的故障所中断，如果出现故障，K8s也会创建必要数量的应用replicas，并分配到健康的节点上，直到系统恢复，用户无感知
 
-使用 dind 需注意，必须使用特权模式，即： privileged： true
+`dind`：docker in docker
+
+- 使用dind需注意，必须使用特权模式，即`privileged: true`
 
 ```yaml
 stages:
   - install # 安装依赖，做缓存
-  - build # build 镜像
-  - test # 运行测试用例
-  - deploy # 部署
+  - build 	# build 镜像
+  - test 		# 运行测试用例
+  - deploy 	# 部署
 
 services:
   - name: docker:18.09.7-dind
@@ -646,15 +647,15 @@ variables:
 ######################## 安装依赖并缓存 ###########################
 # 仅当 package.json 变化时安装依赖
 install_packages:
-  stage: install
+  stage: install   # 指定job属于哪个stage
   image: node:latest
-  tags:
+  tags:						 # 指定runner
     - ci-example
   only:
     - test
     - tags
   services: []
-  script:
+  script:          # job执行的脚本or命令
     - cd ./services
     - npm install
  cache:

@@ -1,14 +1,14 @@
 # Locust
 
-[Locust - A modern load testing framework](https://locust.io/)
-
 > 蝗虫
+
+[Locust - A modern load testing framework](https://locust.io/)
 
 ## 定义
 
-- 开源性能测试工具,基于Python开发
+- 开源性能测试工具，基于Python开发
 - 使用Python代码来定义用户行为，可以模拟百万计的并发用户访问系统
-- 完全基于事件和异步方法（协程）,一个locust节点也可以在一个进程中支持数千并发用户
+- 完全基于事件和异步方法（协程），一个locust节点也可以在一个进程中支持数千并发用户
 - 不使用回调，通过[gevent](http://www.gevent.org/)使用轻量级过程（即在自己的进程内运行）
 
 ## 特点
@@ -29,24 +29,19 @@
 pip install locust
 ```
 
-## locustfile
+# locustfile
 
-- 定义一个任务类，类继承TaskSequence类或TaskSet类，从locust包中引入TaskeSequence或TaskSet，当类里面的任务请求有先后顺序时，继承TaskSequence类， 没有先后顺序继承TaskSet类
-- Locust将为每个正在模拟的用户生成一个Locust类实例
+- **定义一个任务类**，类继承`TaskSequence`类或`TaskSet`类（从`locust`包中引入`TaskeSequence`或`TaskSet`类）
+- 当类里面的任务请求有先后顺序时，继承`TaskSequence`类， 没有先后顺序继承`TaskSet`类
+- `Locust`将为每个正在模拟的用户生成一个`Locust`类实例
 
+## TaskSet类
 
-### TaskSet类
-
-- TaskSet是任务的集合，这些任务是普通的python可调用对象
-
-- 声明任务的典型方式是使用[task](https://docs.locust.io/en/stable/api.html#locust.core.task)装饰器：`@task`
+- `TaskSet`是任务的集合，这些任务是普通的python可调用对象
+- 声明任务的典型方式是使用[task](https://docs.locust.io/en/stable/api.html#locust.core.task)装饰器`@task`（从`locust`包中引入`task`）
   - `task`修饰的方法就是一个任务，一个任务就可以是很多个接口的请求
-  - 从locust包中引入task
 
-
-
-
-**启动负载测试**
+### 启动负载测试
 
 1. Locust类的每个实例将开始执行其TaskSet
 2. 每个TaskSet将选择一个任务并调用它
@@ -55,7 +50,7 @@ pip install locust
 
 
 
-### task_set
+## task_set
 
 task_set属性应该指向一个TaskSet类，这个类定义了用户的行为(即最开始写的类)
 
@@ -89,34 +84,54 @@ task_set属性应该指向一个TaskSet类，这个类定义了用户的行为(�
 
 
 
-## 运行
+# 运行
 
 运行性能测试脚本
 
 - 可以用`-f`参数和`--host`参数指定脚本文件和测试网站
 - 可以用`--web-host`和`-P`参数指定ip和端口
   - ip不能带`http://`
-- --step-load参数可以增加步长压力，实现负载测试
+- `--step-load`参数可以增加步长压力，实现负载测试
 ```python
 locust -f sample.py --host=https://www.baidu.com
 
 locust -f sample.py  --web-host ip -P port
 
 locust -f sample.py --step-load
+
+
+# locust -H "http://sock-shop.ingress.isa.buaanlsde.cn" -f locustfile.py --worker
+
+# locust -H "http://sock-shop.ingress.isa.buaanlsde.cn" -f locustfile.py -u 100 -r 20 --headless --run-time=60m --csv=example
+
+# locust -H "http://sock-shop.ingress.isa.buaanlsde.cn" -f locustfile.py -u 2 -r 2
 ```
 
-输入`locust`，运行成功显示如下
+输入`locust`，打开UI界面：[http://localhost:8089/](http://localhost:8089/)，运行成功显示如下
 
+> 默认打开0.0.0.0，需要修改为localhost
 
-
-打开UI界面：[http://localhost:8089/](http://localhost:8089/)
+![locust启动](Locust.assets/locust启动.png)
 
 - Number of users：设置模拟的用户总数（50）
-- Spawn rate (users started/second)：每秒启动的虚拟用户数（50）
-- Host：服务地址（[http://train-ticket.ingress.isa.buaanlsde.cn/](http://train-ticket.ingress.isa.buaanlsde.cn/)）
+- Spawn rate（users started/second）：每秒启动的虚拟用户数（1）
+- Host：服务地址（http://sock-shop.ingress.isa.buaanlsde.cn）
 - Number of users to increase by step：逐步增加的用户数
 - Step duration：步长持续运行时间
 - Start swarming：执行locustfile脚本
 
+50个用户，每秒启动一个用户，结果如下
 
+- RPS：Total Requests per Second
 
+![locust请求测试](Locust.assets/locust请求测试.png)
+
+查看请求数量变化率
+
+![sockshop请求调用数量变化率图](Locust.assets/sockshop请求调用数量变化率图.png)
+
+前后对比
+
+- 前面零星的请求是手动在网站测试的
+
+![locust开启压测对比](Locust.assets/locust开启压测对比.png)

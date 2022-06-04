@@ -122,9 +122,11 @@ locust -f sample.py --step-load
 
 50个用户，每秒启动一个用户，结果如下
 
-- RPS：Total Requests per Second
-
 ![locust请求测试](Locust.assets/locust请求测试.png)
+
+RPS：Total Requests per Second
+
+![locust测试](Locust.assets/locust测试.png)
 
 查看请求数量变化率
 

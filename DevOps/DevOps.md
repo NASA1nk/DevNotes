@@ -17,8 +17,8 @@ CI/CD 其实就是一个**流程**（通常形象地表述为管道pipeline）�
 Continuous Integration
 
 - CI始终指**持续集成**，它属于开发人员的自动化流程
-
 - 成功的CI意味着应用代码的新更改会定期构建、测试并合并到共享存储库中，可以解决在一次开发中有太多应用分支，从而导致相互冲突的问题
+- 对于每次向仓库的推送，可以创建一组脚本来自动构建和测试提交的代码，从而减少了向应用程序引入错误的机会
 
 ## CD
 
@@ -61,6 +61,17 @@ Continuous Deployment
 3. 对于一个成熟的CI/CD管道来说，最后的阶段是持续部署，作为持续交付的延伸，**持续部署可以自动将应用发布到生产环境**
    1. 由于在生产之前的管道阶段没有手动门控，因此持续部署在很大程度上都得依赖精心设计的测试自动化
    2. 实际上，持续部署意味着开发人员对应用的更改在编写后的几分钟内就能生效（假设它通过了自动化测试），这更加便于持续接收和整合用户反馈
+
+### 阶段
+
+- verify
+  - 通过持续集成自动构建和测试你的应用程序
+- package
+  - 用Container Registry存储Docker镜像
+- release
+  - 使用Auto Deploy将应用程序部署到Kubernetes集群中的生产环境
+
+
 
 
 # 灰度发布
@@ -439,6 +450,8 @@ Pipeline 即整个 CI 自动化流程的统称，一次 Pipeline 的运行称为
 
 Job可以视为**资源单位**，多个job互相是独立、分散的，都有独立的上下文（context）
 
+- 每个job必须有一个唯一的名字
+
 - 一个 Pipeline 包含若干个 Job，**每一个 Job 各自会被分发到不同的机器上执行，默认并行**
 - **每个Job都会配置一个stage属性**，来表示这个Job所处的阶段
 - 一个 Job 包含若干个 Step
@@ -541,6 +554,8 @@ gitlab提供了很多配置关键字，这些配置关键之不能被定义为`j
 - `tags`
 - `cache`
 - `variables`
+- `image`
+- `service`
 
 > `stage`，`script`，`tags`这三个关键字，都是**作为Job的子属性**来使用的
 
@@ -558,6 +573,8 @@ gitlab提供了很多配置关键字，这些配置关键之不能被定义为`j
 
 - 定义在yaml文件的最外层，是一个数组，**用于定义一个pipeline不同的流程节点**，会展示在Gitlab的交互界面中
 - `stages`中的元素顺序决定了对应job的执行顺序
+- 如果`.gitlab-ci.yml`中没有定义`stages`，那么`stages`会默认定义为 `build`，`test` 和 `deploy`
+- 如果一个job没有指定`stage`，那么这个任务会分配到`test`
 
 ```yaml
 stages: # 定义所有的stage
@@ -599,9 +616,22 @@ cache可以用来做pipeline中的资源共享
 
 - 把`bulid`阶段生成的包的路径添加到`cache`里面，虽然gitlab还是会删除`bulid`包，但是因为在删除前已经重新上传到`cache`，所以就可以在下个Job运行时在cache把生成的包`pull`下来，实现在下一个Job里面使用前一个Job的资源
 
+```yaml
+# 缓存binaries和.config中的所有文件
+rspec:
+  script: test
+  cache:
+    paths:
+    - binaries/
+    - .config
+```
+
 ### variables
 
 - 定义变量，并可以通过`${variables}`来使用
+- 这些变量可以被后续的命令和脚本使用，**服务容器也可以使用YAML中定义的变量**
+- 当设置了job级别的关键字`variables`，它会覆盖全局YAML和预定义中的job变量
+- 想要关闭全局变量可以在job中设置一个空数组`variables: []`
 
 ```yaml
 variables:

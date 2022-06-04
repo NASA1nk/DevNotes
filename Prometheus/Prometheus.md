@@ -682,18 +682,18 @@ Prometheus API 使用了 JSON 格式的响应内容。 输入时间戳可以由 
 
 - `GET /api/v1/query`
 - `GET /api/v1/query_range`
-- GET /api/v1/series
-- GET /api/v1/label/<label_name>/values
-- GET /api/v1/targets
-- GET /api/v1/rules
-- GET /api/v1/alerts
-- GET /api/v1/targets/metadata
-- GET /api/v1/alertmanagers
-- GET /api/v1/status/config
-- GET /api/v1/status/flags
-- POST /api/v1/admin/tsdb/snapshot
-- POST /api/v1/admin/tsdb/delete_series
-- POST /api/v1/admin/tsdb/clean_tombstones
+- `GET /api/v1/series`
+- `GET /api/v1/label/<label_name>/values`
+- `GET /api/v1/targets`
+- `GET /api/v1/rules`
+- `GET /api/v1/alerts`
+- `GET /api/v1/targets/metadata`
+- `GET /api/v1/alertmanagers`
+- `GET /api/v1/status/config`
+- `GET /api/v1/status/flags`
+- `POST /api/v1/admin/tsdb/snapshot`
+- `POST /api/v1/admin/tsdb/delete_series`
+- `POST /api/v1/admin/tsdb/clean_tombstones`
 
 ### query_range
 

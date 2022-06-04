@@ -137,3 +137,7 @@ RPS：Total Requests per Second
 - 前面零星的请求是手动在网站测试的
 
 ![locust开启压测对比](Locust.assets/locust开启压测对比.png)
+
+停止后再开启
+
+![locust实时压测](Locust.assets/locust实时压测.png)

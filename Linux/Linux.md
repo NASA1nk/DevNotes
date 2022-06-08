@@ -875,20 +875,62 @@ passwd ink
 
 `process status`：显示当前系统上运行的所有进程的信息
 
+- `a`：显示所有用户的进程
+- `u`：显示用户
+- `x`：显示无控制终端的进程
+- `e`：显示所有用户的进程（效果和`a`相同）
+- `f`：用ASCII字符显示树状结构，表达程序间的相互关系
+
 > 执行`ps`命令的时刻的进程信息的`快照`（静态）
 
 ```bash
 # 列出当前所有的正在内存当中的程序
-ps aux
+ps -aux
 
-# 查找进程
+# 列出所有进程
+ps -ef
+
+# 查找进程（可以grep运行进程的命令或部分）
 ps -ef | grep 进程关键字
 
 # 显示root进程用户信息
 ps -u root
 ```
 
+### 命令字段
 
+`ps -aux`：`USER PID %CPU %MEM VSZ RSS STAT TIME CMD`
+
+`ps -ef`：`UID PID PPID C STIME TTY TIME CMD`
+
+- `USER`：进程所有者
+- `PID`：进程ID
+- `PPID`：父进程ID
+- `C`：CPU使用资源百分比
+
+- `%CPU`：执行命令时（快照）进程的CPU占用率
+- `%MEM`：执行命令时（快照）进程的内存占用率
+- `VSZ`：虚拟内存使用量（kb） ，**如果一个程序完全驻留在内存的话需要占用多少内存空间**
+- `RSS`：占用的固定内存量（kb），**当前实际占用了多少内存**
+- `STAT`：进程状态
+  - `R`：runnable，运行
+  - `S`：sleeping，中断（睡眠）
+  - `D`：uninterruptible sleep，不可中断（`kill`也中断不了）
+  - `Z`：zombie process，僵尸
+  - `T`：traced or stopped，停止
+- `START/STIME`：进程启动时间
+- `TIME`：实际使用CPU的时间
+- `TTY`：终端
+- `CMD`：进程执行的指令
+
+```bash
+# USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
+(base) yinke@gpuserver:~/TimeSeries$ ps -aux | grep models
+yinke    12036  2.0  2.2 31986836 3027524 pts/14 Sl 16:49   0:38 python ./Experiment/TransformerSingleStep/models.py
+yinke    12570 2592  2.3 32691036 3087820 pts/14 Rl 16:49 810:14 python ./Experiment/TransformerSingleStep/models.py
+yinke    14884  103  2.3 32745568 3039636 pts/7 Rl+ 16:52  29:41 python ./Experiment/TransformerSingleStep/models.py
+yinke    40658  0.0  0.0  16180  1052 pts/8    S+   17:20   0:00 grep --color=auto model
+```
 
 ## 实时监控top
 

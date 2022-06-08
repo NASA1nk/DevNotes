@@ -250,7 +250,7 @@ run-time = 2m           # locust运行时间
 ```bash
 locust --config=locust.conf
 
-locust -H "http://sock-shop.ingress.isa.buaanlsde.cn" -f locustfile.py -u 50 -r 10 --headless --run-time=2m -P 8000
+locust -H "http://sock-shop.ingress.isa.buaanlsde.cn" -f locustfile.py -u 100 -r 2 -P 8000
 ```
 
 

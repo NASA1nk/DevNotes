@@ -101,16 +101,16 @@ git config --list
 
 ```bash
 # 全局配置代理
-git config –-global http.proxy 10.134.143.124:1080
-git config –-global https.proxy 10.134.143.124:1080
+git config --global http.proxy 10.134.143.124:1080
+git config --global https.proxy 10.134.143.124:1080
 
 # 查看代理
-git config –-global --get http.proxy
-git config –-global --get https.proxy
+git config --global --get http.proxy
+git config --global --get https.proxy
 
 # 取消代理
-git config –-global --unset http.proxy
-git config –-global --unset https.proxy
+git config --global --unset http.proxy
+git config --global --unset https.proxy
 ```
 
 

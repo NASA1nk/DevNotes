@@ -560,7 +560,7 @@ MySQL的InnoDB引擎采用两阶段锁协议
 - 当前值是 4，但是在查询这条记录的时候，**不同时刻启动的事务会有不同的 read-view**
 - **在可重复读隔离级别中，表中的数据其实已经改变，需要查找某条记录时，是通过取当前数据，再取视图对应的回滚段（即Undo Log日志记录）回滚到该视图的值**
 
-![回滚链](数据库系统原理.assets/回滚链.png)
+![回滚链](MySQL.assets/回滚链.png)
 
 ### 长事务的日志保留
 
@@ -660,7 +660,7 @@ MySQL的InnoDB引擎采用两阶段锁协议
 >
 > 所以**高水位至少 >= 当前事务TRX_ID + 1**
 
-![readview](数据库系统原理.assets/readview.png)
+![readview](MySQL.assets/readview.png)
 
 ### 查询
 
@@ -1337,7 +1337,7 @@ InnoDB引擎使用**WAL（Write-Ahead Logging）技术**，**先写日志，再�
 - 系统会检查磁盘中数据页中对应的记录号
 - 如果数据页的记录号小于日志中的记录号 ，则会从checkpoint处开始将`Redo Log File`中的记录更新到对应的数据页中，然后擦掉对应记录
 
-![redolog](数据库系统原理.assets/redolog.png)
+![redolog](MySQL.assets/redolog.png)
 
 # 归档日志Bin Log
 
@@ -1475,7 +1475,7 @@ MySQL后台服务会监听线程，直接**通过分析器（Parser）来分析S
 
 **最后由引擎获取查询结果**
 
-![mysql逻辑框架图](数据库系统原理.assets/mysql逻辑框架图.png)
+![mysql逻辑框架图](MySQL.assets/mysql逻辑框架图.png)
 
 ## 连接器
 
@@ -1669,7 +1669,7 @@ BCNF
 
 > 存在非主属性对于码的部分函数依赖，所以这张表最高只符合1NF的要求，不符合2NF的要求
 
-![设计异常的表](数据库系统原理.assets/设计异常的表.png)
+![设计异常的表](MySQL.assets/设计异常的表.png)
 
 **数据冗余**
 

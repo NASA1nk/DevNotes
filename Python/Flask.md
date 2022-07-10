@@ -444,3 +444,363 @@ app.register_blueprint(auth_bp, url_prefix='/auth')
 
 ## 类组织配置
 
+# 项目部署
+
+一个完整的Web服务是：`Server <=> WSGI <=> App` 
+
+一个Flask后端应用，并不等同于一个完整的Web服务，它只是App，Server通常会由另一个组件来实现
+
+## WSGI
+
+Web服务器网关接口（Web Server Gateway Interface，WSGI）是为Python定义的Web服务器和Web应用程序或框架之间的一种简单而通用的**接口**
+
+Server由单独的组件来充当，所以Server在与APP交互过程中就需要遵循一种规范，**这个规范就是WSGI**
+
+> 充当WebServer角色的可以有很多组件，也有很多框架可以充当WebApp的角色，但只要它们双方都遵守WSGI规范，那么就可以用任意一个WebServer组件去和任意一种WebApp对接
+
+通过`app.run()`启动Flask应用时，其实是Flask内置了一个仅用于开发调试的低性能、简易的Server
+
+```bash
+WARNING: This is a development server. Do not use it in a production deployment.
+Use a production WSGI server instead.
+```
+
+### 功能
+
+WSGI分为两个部分："服务器"或"网关"，"应用程序"或"框架"
+
+在处理一个WSGI请求时
+
+- **服务器会为应用程序提供环境信息（environ）及一个回调函数（Callback Function）**
+- 应用程序完成处理请求后，通过回调函数将结果回传给服务器
+
+```python
+# 执行app.run()时的调用堆栈
+app.run()
+    run_simple(host, port, self, **options)
+        __call__(self, environ, start_response)
+            wsgi_app(self, environ, start_response)
+
+# 由WSGI服务器来调用
+def wsgi_app(self, environ: dict, start_response: t.Callable) -> t.Any
+    with self.request_context(environ):
+        rv = self.preprocess_request()
+        if rv is None:
+            # 错误处理逻辑
+            rv = self.dispatch_request()
+        response = self.make_response(rv)
+        response = self.process_response(response)
+        return response(environ, start_response)
+ 
+
+def dispatch_request(self):
+    try:
+        endpoint, values = self.match_request()
+        return self.view_functions[endpoint](**values)
+    except HTTPException, e:
+        handler = self.error_handlers.get(e.code)
+        if handler is None:
+            return e
+        return handler(e)
+    except Exception, e:
+        handler = self.error_handlers.get(500)
+        if self.debug or handler is None:
+            raise
+        return handler(e)
+```
+
+所谓的**WSGI中间件（WSGI MiddleWare）**同时实现了两部分，可以在WSGI服务器和WSGI应用之间起调解作用
+
+- 从Web服务器的角度来说，中间件扮演应用程序，
+- 从应用程序的角度来说，中间件扮演服务器
+
+功能
+
+- 重写环境变量后，根据目标URL，将请求消息路由到不同的应用对象
+- 允许在一个进程中同时运行多个应用程序或应用框架
+- 负载均衡和远程处理，通过在网络上转发请求和响应消息
+- 进行内容后处理
+
+## Gunicorn
+
+Gunicorn服务器与各种Web框架兼容，实现简单，轻量级的资源消耗，可以直接用命令启动，不需要编写配置文件
+
+### 安装
+
+```bash
+pip install gunicorn
+```
+
+### 配置
+
+安装完gunicorn后无法直接通过命令行执行其二进制文件
+
+```
+gunicorn -h
+```
+
+因为安装完成后gunicorn可执行文件会存在于python的`bin`目录下
+
+- 如果是使用的系统Python环境，则通常会存在于`/usr/local/python3/bin/gunicorn`下
+- 如果是使用的Python的虚拟环境，则通常会存在于虚拟环境目录`./venv/bin/gunicorn`下
+
+需要通过软链接将其链接到`/usr/bin`目录下
+
+```bash
+ln -s /usr/local/python/bin/gunicorn /usr/bin/gunicorn
+```
+
+设置完成后，执行如下命令确认
+
+```bash
+gunicorn -v
+```
+
+### 启动
+
+- `-w / --worker`
+- `-b / --bind`
+
+```bash
+# gunicorn -w 进程数量 -b 监听地址:监听端口 运行文件名称:Flask程序实例名
+gunicorn -w 3 -b 0.0.0.0:5000 app:app
+```
+
+## Werkzeug
+
+Werkzeug是一个WSGI工具包，可以作为web框架的底层库
+
+- 用于接收http请求并对请求进行**预处理**，然后触发Flask框架
+
+```python
+# 回调函数start_response
+def application(environ, start_response):
+    start_response('200 OK', [('Content-Type', 'text/plain')])
+    return ['Hello World!']
+```
+
+
+
+# 源码
+
+## Context
+
+Flask中存在两个context，`App Context`和`Request Context`
+
+- `App Context`代表应用上下文，包含各种配置信息
+- **从一个Flask App读入配置并启动开始**，就进入了`App Context`，在其中可以访问配置文件、打开资源文件、通过路由规则反向构造URL
+- `Request Context`代表一个请求上下文，可以获取到当前请求中的各种信息
+  - **当WSGI Middleware调用Flask App的时候开始**，就进入了`Request Context`，可以获取到其中的HTTP HEADER等操作，同时也可以进行SESSION等操作
+
+### Werkzeug
+
+在同一个进程中隔离不同线程的数据，会优先选择`threading.local`来实现数据彼此隔离的需求
+
+但是现在并发模型可能并不是只有传统意义上的**进程-线程**模型，也有可能是**协程（coroutine）**模型，常见的就是**Greenlet/Eventlet**
+
+在这种情况下，`threading.local`就没法很好的满足需求，所以**Werkzeug**实现了自己的Local，即`werkzeug.local.Local`
+
+- 在Greenlet可用的情况下优先使用Greenlet ID而不是线程ID以**支持Gevent或Eventlet的调度**
+
+Flask基于Werkzeug实现，`App Context`以及`Request Context`是基于`LocalStack`实现
+
+### ThreadLocal
+
+> 从面向对象设计的角度看，对象是保存"状态"的地方
+
+Thread Local是一种特殊的对象，它的"状态"对线程隔离，也就是说每个线程对一个 Thread Local对象的修改都不会影响其他线程
+
+能够让同一个对象在多个线程下做到状态隔离
+
+```python
+storage = threading.local()
+```
+
+### 流程
+
+1. HTTP请求
+2. WSGI
+3. FLASK APP
+4. 构建Reuqest
+5. 判断当前线程是否有App Context
+   1. 没有就需要构建App Context
+   2. 有就构建Request Context
+6. 处理，构建Response
+7. 销毁Request
+8. 返回Response
+
+### 实现
+
+两种上下文对象的类定义在`flask.ctx`中，它们的用法是推入`flask.globals`中创建的`_app_ctx_stack`和`_request_ctx_stack`这两个**单例**`Local Stack`中
+
+因为Local Stack的状态是线程隔离的，而**Web应用中每个线程（或 Greenlet）同时只处理一个请求**，所以`App Context`对象和`Request Context`对象也是请求间隔离的
+
+当`app = Flask(__name__)`构造出一个Flask App时，App Context并不会被自动推入Stack中。所以此时Local Stack的栈顶是空的，`current_app`也是unbound状态
+
+```python
+from flask import Flask
+from flask.globals import _app_ctx_stack, _request_ctx_stack
+
+app = Flask(__name__)
+_app_ctx_stack.top
+_request_ctx_stack.top
+
+# <LocalProxy unbound>
+_app_ctx_stack()
+
+
+from flask import current_app
+
+# <LocalProxy unbound>
+current_app
+```
+
+这是可能被坑的地方，如果编写一个离线脚本，直接在一个Flask-SQLAlchemy写成的Model上调用`User.query.get(user_id)`，就会遇到`RuntimeError`
+
+- **因为此时`App Context`还没被推入栈中，而Flask-SQLAlchemy需要数据库连接信息时就会去取 `current_app.config`，`current_app`指向的却是 `_app_ctx_stack` 为空的栈顶**
+
+**解决办法**
+
+- 运行脚本之前，先将`app`的`App Context`推入栈中
+- 栈顶不为空后`current_app`这个Local Proxy对象就能将取`config`属性的动作转发到当前`app`上了
+
+在应用运行时不需要手动`app_context().push()`是因为Flask App在作为WSGI Application 运行时会在每个请求进入的时候将请求上下文推入 `_request_ctx_stack`中
+
+- **而请求上下文一定是在App上下文之中，所以推入部分的逻辑有这样一条：如果发现`_app_ctx_stack`为空，则隐式地推入一个App上下文**
+
+- 所以，请求中是不需要手动推上下文入栈的，但是离线脚本需要手动推入App Context
+
+> 如果没有什么特殊困难，建议用Flask-Script来写离线任务
+
+```python
+ctx = app.app_context()
+ctx.push()
+
+# <flask.ctx.AppContext object at 0x102eac7d0>
+_app_ctx_stack.top
+
+# True
+_app_ctx_stack.top is ctx
+
+# <Flask '__main__'>
+current_app
+
+
+ctx.pop()
+_app_ctx_stack.top
+# <LocalProxy unbound>
+current_app
+```
+
+
+
+## Request
+
+`flask.py`
+
+`LocalProxy`是代理模式的一种实现
+
+- 在实例化的时候，传入一个`callable`的参数，然后这个参数被调用后将会返回一个 `Local`对象
+- 后续的所有对`LocalProxy`对象操作，比如属性调用，数值计算等，都会转发到这个参数返回的`Local`对象上
+
+```python
+# context locals
+# from werkzeug.local import LocalStack, LocalProxy
+
+_request_ctx_stack = LocalStack()
+
+# LocalProxy仅仅是一个代理
+current_app = LocalProxy(lambda: _request_ctx_stack.top.app)
+request = LocalProxy(lambda: _request_ctx_stack.top.request)
+session = LocalProxy(lambda: _request_ctx_stack.top.session)
+g = LocalProxy(lambda: _request_ctx_stack.top.g)
+```
+
+对于flask中的`request`
+
+- 为什么可以在多线程环境中随意使用
+
+```python
+from flask import request
+
+@app.route('/')
+def hello():
+    # 获取GET请求的参数
+    name = request.args.get('name', None)
+```
+
+对于`_request_ctx_stack = LocalStack()`这个堆栈
+
+- `LocalStack`并没有实现堆栈的`list`，只有一个成员变量`self._local`，即基于 `Local`实现的一个栈结构
+- 所有的修改都只在本线程可见
+
+```python
+# from werkzeug.local import LocalStack
+
+class LocalStack(object):
+	
+    def __init__(self):
+        self._local = Local()
+   
+    def push(self, obj):
+        rv = getattr(self._local, 'stack', None)
+        if rv is None:
+            # __setattr__(self, name, value)
+            self._local.stack = rv = []
+        rv.append(obj)
+        return rv
+
+    def pop(self):
+        stack = getattr(self._local, 'stack', None)
+        if stack is None:
+            return None
+        elif len(stack) == 1:
+            release_local(self._local)
+            return stack[-1]
+        else:
+            return stack.pop()
+
+# 调用堆栈
+_request_ctx_stack.push(item)
+    # 注意，这里赋值的时候，会调用__setattr__(self, name, value)
+    self._local.stack = rv = []
+```
+
+Werkzeug的`Local`类有两个成员变量
+
+- `__storage__`：`dict`
+- `__ident_func__`：func，获取当前线程（或协程）的id
+
+可以看出，LocalStack是一个全局的`dict`，所有线程共享
+
+- 当访问`dict`中的某个元素的时候，会通过`__getattr__`进行访问，`__getattr__`先通过线程id， 找到当前这个线程的数据，然后进行访问
+
+```python
+class Local(object):
+
+    def __init__(self):
+        object.__setattr__(self, '__storage__', {})
+        object.__setattr__(self, '__ident_func__', get_ident)
+
+    def __getattr__(self, name):
+        try:
+            return self.__storage__[self.__ident_func__()][name]
+        except KeyError:
+            raise AttributeError(name)
+
+    def __setattr__(self, name, value):
+        # 拿到key，然后进行赋值
+        ident = self.__ident_func__()
+        storage = self.__storage__
+        try:
+            storage[ident][name] = value
+        except KeyError:
+            storage[ident] = {name: value}
+            
+            
+{'thread_id':{'stack':[]}}
+
+{'thread_id1':{'stack':[_RequestContext()]},
+    'thread_id2':{'stack':[_RequestContext()]}}
+```
+

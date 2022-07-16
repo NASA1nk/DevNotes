@@ -1407,7 +1407,7 @@ select * from t where k in (k1, k2)
 - `0`：延迟写
   - 每次提交事务时不会将`Redo Log Buffer`的数据写入`OS Buffer`
   - 每隔一秒将`Redo Log Buffer`的数据写入`OS Buffer`，再调用`fsync()`将其刷到`Redo Log File`中
-- `1`：实时写，实时刷
+- `1`：**实时写，实时刷**（安全性最高）
   - 每次提交事务时将`Redo Log Buffer`的数据写入`OS Buffer`，再调用`fsync()`将其刷到`Redo Log File`中
 - `2`：实时写，延迟刷
   - 每次提交事务时会将`Redo Log Buffer`的数据写入`OS Buffer`，每隔一秒会调用`fsync()`将其刷到`Redo Log File`中
@@ -1519,17 +1519,32 @@ Bin Log有2种刷盘策略，用`sync_binlog`参数控制，取值范围是`0-n`
 
 ## 日志格式
 
-`Bin Log`有三种格式，分别为`STATMENT`，`ROW`和`MIXED`
+`Bin Log`有三种格式，分别为`statement`，`row`和`MIXED`
 
 - 日志格式通过`binlog-format`参数指定
+- `statement`格式的`Bin Log`，最后会有`COMMIT`，`row`格式的`Bin Log`，最后会有一个`XID event`
+- 在MySQL 5.6.2版本以后还引入了`binlog-checksum`参数，用来验证`Bin Log`内容的正确性
 
-> 在MySQL 5.7.7之前，默认的格式是 `STATEMENT` ， MySQL 5.7.7之后，默认值是`ROW`
+> 在MySQL 5.7.7之前，默认的格式是`statement` ， MySQL 5.7.7之后，默认值是`row`
+
+### `Bin Log`和`Redo Log`的关联
+
+`Bin Log`和`Redo Log`有一个共同的数据字段：`XID`
+
+崩溃恢复的时候会按顺序扫描`Redo Log`
+
+- 如果碰到既有`prepare`又有`commit`的`Redo Log`，就直接提交
+- 如果碰到只有`parepare`而没有`commit`的`Redo Log`，就拿着`XID`去`Bin Log`中找对应的事务
 
 # 两阶段提交
 
 即**将`Redo Log`的写入拆成了两个步骤：`prepare`和`commit`**
 
 **目的**：为了让`Bin Log`和`Redo Log`两份日志的逻辑一致
+
+> 两阶段提交是经典的分布式系统问题，并不是MySQL独有的
+>
+> - Mysql的两阶段提交也可以看成两个分布式服务处理两个不同事情，`Redo Log`在Innodb引擎内操作的，`Bin Log`是在server层操作的，把引擎层和server层看成两个分布式服务，那它们要分别进行两个相关联的操作，就意味着要实现分布式事务，而两阶段提交，就是其中的一种解决方案
 
 ## 一条`UPDATE`语句更新数据流程
 

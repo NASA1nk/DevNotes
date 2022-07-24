@@ -804,3 +804,77 @@ class Local(object):
     'thread_id2':{'stack':[_RequestContext()]}}
 ```
 
+# 循环依赖
+
+`db_models.py`
+
+- 依靠`app`实例初始化`db`实例
+
+```python
+from flask_sqlalchemy import SQLAlchemy
+
+from app import app
+
+# 数据库配置
+app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
+
+db = SQLAlchemy(app)
+```
+
+`sqlitedict.py`
+
+- 依赖`db_models`，所以初始化时需要`db`
+
+```python
+from flask import Blueprint, abort, jsonify, request
+from sqlitedict import SqliteDict
+from db.db_models import DataSet, ModelSet
+
+db_sqlitedict = Blueprint("db_sqlitedict", __name__)
+
+logger = logging.getLogger(__name__)
+
+storage = SqliteDict("./db/database.sqlite", autocommit=True)
+```
+
+`app.py`
+
+- 初始化`app`时需要注册`sqlitedict`
+
+```python
+from flask import Flask
+from flask_mail import Mail
+from alarm.email_alarm import email_alarm
+from db.sqlitedict import db_sqlitedict
+
+app = Flask(__name__)
+```
+
+即`app->sqlitedict->db->app`，造成循环依赖
+
+## 解决
+
+可以把公共资源提取到第三方文件中，这样两个文件就互不干扰
+
+`ext.py`
+
+```python
+from flask-sqlalchemy import SQLAlchemy
+
+# 不需要传入app
+db = SQLAlchemy()
+```
+
+app.py
+
+```python
+from flask import Flask
+from flask_mail import Mail
+from alarm.email_alarm import email_alarm
+from db.sqlitedict import db_sqlitedict
+
+app = Flask(__name__)
+
+db.init_app(app)
+```
+
